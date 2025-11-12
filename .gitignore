@@ -1,0 +1,27 @@
+# Xcode build artifacts
+build/
+DerivedData/
+
+# Xcode user data
+*.xcuserstate
+xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# macOS system files
+.DS_Store
+
+# Other editor or temp files
+*.swp
+*.lock
+*.tmp
+*.bak
+*.idea/
+.vscode/
+
+# Optional: If you later add dependencies
+# Pods/
+# Carthage/
+# fastlane/
