@@ -16,16 +16,6 @@
             </objects>
             <point key="canvasLocation" x="820" y="-158"/>
         </scene>
-        <!--CallStoryBoard-->
-        <scene sceneID="RaA-dB-hhk">
-            <objects>
-                <viewControllerPlaceholder storyboardName="CallStoryBoard" id="s43-tJ-VLd" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="bMw-He-Qd1"/>
-                </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="sH4-El-rMm" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="820" y="3"/>
-        </scene>
         <!--RolePlayStoryBoard-->
         <scene sceneID="3pn-QL-obY">
             <objects>
@@ -57,7 +47,6 @@
                     </tabBar>
                     <connections>
                         <segue destination="Sc6-Rb-xsC" kind="relationship" relationship="viewControllers" id="C0S-JO-N29"/>
-                        <segue destination="s43-tJ-VLd" kind="relationship" relationship="viewControllers" id="prn-2U-qkk"/>
                         <segue destination="C4q-Jr-j4w" kind="relationship" relationship="viewControllers" id="TDp-cn-XGk"/>
                         <segue destination="ni1-KM-TT0" kind="relationship" relationship="viewControllers" id="fAY-5M-Y7Z"/>
                     </connections>
