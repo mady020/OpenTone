@@ -7,82 +7,229 @@
 
 import UIKit
 
-private let reuseIdentifier = "Cell"
+enum DashboardSection: Int, CaseIterable {
+    case conversation
+    case twoMinuteSession
+    case realLifeScenario
+}
 
 class HomeCollectionViewController: UICollectionViewController {
 
+    
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+
+        let header = collectionView.dequeueReusableSupplementaryView(
+            ofKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: "DashboardHeader",
+            for: indexPath
+        ) as! DashboardHeaderView
+
+        switch DashboardSection(rawValue: indexPath.section)! {
+        case .conversation:
+            header.titleLabel.text = "Conversation"
+        case .twoMinuteSession:
+            header.titleLabel.text = "2 Minute Session"
+        case .realLifeScenario:
+            header.titleLabel.text = "Real Life Scenario"
+        }
+        return header
+    }
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+        // Register cell(s)
+//        collectionView.register(HomeCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
 
-        // Register cell classes
-        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        // Register header class for section headers
+        collectionView.register(
+            DashboardHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: "DashboardHeader"
+        )
 
-        // Do any additional setup after loading the view.
+        // Apply layout that includes header (make sure your layout adds boundarySupplementaryItems)
+        collectionView.collectionViewLayout = createLayout()
     }
 
-    /*
-    // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-    // MARK: UICollectionViewDataSource
-
+    // MARK: - Collection View Sections Count
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+        return DashboardSection.allCases.count
     }
 
-
+    // MARK: - Items Per Section
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-        return 0
+        let sectionType = DashboardSection(rawValue: section)!
+
+        switch sectionType {
+        case .conversation:
+            return 1
+        case .twoMinuteSession:
+            return 1
+        case .realLifeScenario:
+            return 8   // horizontal cards
+        }
     }
 
+    // MARK: - Cell For Item
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-    
-        // Configure the cell
-    
+
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! HomeCollectionViewCell
+        
+        // ---- Configure sections ----
+        switch DashboardSection(rawValue: indexPath.section)! {
+            
+        case .conversation:
+            cell.backgroundColor = .systemPurple.withAlphaComponent(0.3)
+            cell.textLabel.text = "Start 1-on-1 Call"
+
+        case .twoMinuteSession:
+            cell.backgroundColor = .systemBlue.withAlphaComponent(0.3)
+            cell.textLabel.text = "Start a JAM"
+
+        case .realLifeScenario:
+            cell.backgroundColor = .systemOrange.withAlphaComponent(0.3)
+            cell.textLabel.text = "Scenario \(indexPath.row + 1)"
+        }
+
         return cell
     }
+}
 
-    // MARK: UICollectionViewDelegate
+//
+// MARK: - COMPOSITIONAL LAYOUT
+//
+extension HomeCollectionViewController {
 
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
+    func createLayout() -> UICollectionViewLayout {
 
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
+        return UICollectionViewCompositionalLayout { sectionIndex, _ -> NSCollectionLayoutSection? in
 
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
+            guard let sectionType = DashboardSection(rawValue: sectionIndex) else { return nil }
 
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
+            switch sectionType {
+
+            case .conversation, .twoMinuteSession:
+                return self.fullWidthSection()
+
+            case .realLifeScenario:
+                return self.horizontalScrollingSection()
+            }
+        }
     }
 
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
+    // Full width block (Conversation + 2 Min Session)
+    func fullWidthSection() -> NSCollectionLayoutSection {
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(220)
+            )
+        )
+        
+        let group = NSCollectionLayoutGroup.vertical(
+            layoutSize: item.layoutSize,
+            subitems: [item]
+        )
+
+        let section = NSCollectionLayoutSection(group: group)
+        
+        
+        // ADD HEADER
+            let headerSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(40)
+            )
+
+            let header = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerSize,
+                elementKind: UICollectionView.elementKindSectionHeader,
+                alignment: .top
+            )
+
+
+        section.boundarySupplementaryItems = [header]
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
+
+        return section
+    }
+
+    // Horizontal cards (Real Life Scenario)
+    func horizontalScrollingSection() -> NSCollectionLayoutSection {
+
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.2),
+                heightDimension: .absolute(120)
+            )
+        )
+        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16)
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .estimated(160),
+                heightDimension: .absolute(120)
+            ),
+            subitems: [item]
+        )
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .continuous
+        // ADD HEADER
+            let headerSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(40)
+            )
+
+            let header = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: headerSize,
+                elementKind: UICollectionView.elementKindSectionHeader,
+                alignment: .top
+            )
+
+            section.boundarySupplementaryItems = [header]
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
+
+        return section
+    }
     
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+
+        // Which section was tapped
+        let section = DashboardSection(rawValue: indexPath.section)!
+
+        switch section {
+
+        case .conversation:
+            // 1-to-1 call section tapped
+            print("1 to 1 call tapped")
+//            tabBarController?.selectedIndex = 1   // ← change to index of your Call tab
+          
+            // Load the storyboard
+            let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
+
+            // Instantiate the Navigation Controller (initial VC)
+            guard let navController = storyboard.instantiateInitialViewController() else {
+                print("⚠️ Could not load initial view controller from CallStoryBoard")
+                return
+            }
+            navController.modalPresentationStyle = .popover
+            self.present(navController, animated: true)
+
+        case .twoMinuteSession:
+            print("2 minute session tapped")
+            tabBarController?.selectedIndex = 2
+
+        case .realLifeScenario:
+            print("scenario card tapped: \(indexPath.row)")
+            tabBarController?.selectedIndex = 1
+        }
     }
-    */
 
 }
