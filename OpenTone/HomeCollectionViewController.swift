@@ -206,21 +206,46 @@ extension HomeCollectionViewController {
 
         switch section {
 
-        case .conversation:
+//        case .conversation:
             // 1-to-1 call section tapped
+//            print("1 to 1 call tapped")
+////            tabBarController?.selectedIndex = 1   // ← change to index of your Call tab
+//          
+//            // Load the storyboard
+//            let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
+//
+//            // Instantiate the Navigation Controller (initial VC)
+//            guard let navController = storyboard.instantiateInitialViewController() else {
+//                print(" Could not load initial view controller from CallStoryBoard")
+//                return
+//            }
+//            navController.modalPresentationStyle = .popover
+//            self.present(navController, animated: true)
+//            
+            
+            
+        case .conversation:
             print("1 to 1 call tapped")
-//            tabBarController?.selectedIndex = 1   // ← change to index of your Call tab
-          
-            // Load the storyboard
+
             let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
 
-            // Instantiate the Navigation Controller (initial VC)
-            guard let navController = storyboard.instantiateInitialViewController() else {
-                print("⚠️ Could not load initial view controller from CallStoryBoard")
+            // Initial VC is a UINavigationController → we must unwrap it
+            guard let navFromStoryboard = storyboard.instantiateInitialViewController() as? UINavigationController else {
+                print("Initial VC is not a navigation controller")
                 return
             }
-            navController.modalPresentationStyle = .popover
-            self.present(navController, animated: true)
+
+            // Get its root view controller
+            guard let rootVC = navFromStoryboard.viewControllers.first else {
+                print("No root VC found in storyboard navigation controller")
+                return
+            }
+
+            // Push the root view controller
+            self.navigationController?.pushViewController(rootVC, animated: true)
+
+            
+            
 
         case .twoMinuteSession:
             print("2 minute session tapped")
