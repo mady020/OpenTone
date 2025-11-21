@@ -63,6 +63,14 @@ extension CallMatchViewController {
         // Buttons
         startCallButton.layer.cornerRadius = 25
         searchAgainButton.layer.cornerRadius = 25
+        addShadow(to: cardView)
+    }
+    
+    func addShadow(to view: UIView) {
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.15
+        view.layer.shadowOffset = CGSize(width: 0, height: 4)
+        view.layer.shadowRadius = 10
     }
 }
 
