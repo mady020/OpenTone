@@ -30,7 +30,7 @@ class CallMatchViewController: UIViewController {
     var userName: String = "Harshdeep Singh"
     var userCountry: String = ""
     var userCountryFlag: UIImage?
-    var userBio: String = "i m not good person"
+    var userBio: String = "A curious soul who enjoys meaningful conversations and exploring new ideas. Passionate about technology, creativity, and self-growth."
     var sharedInterests: [String] = ["movies" , "sports" , "coding" , "movies" , "sports" , "coding"]   // Dynamic list of interests
     
     override func viewDidLoad() {
@@ -81,6 +81,7 @@ extension CallMatchViewController {
         nameLabel.text = userName
         bioLabel.text = userBio
         sharedInterestsCollectionView.reloadData()
+        profileImageView.image = UIImage(named: "pp")
     }
 }
 

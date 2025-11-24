@@ -11,10 +11,12 @@ class CallEndedViewController: UIViewController {
     @IBOutlet weak var newCallButton: UIButton!
     @IBOutlet weak var reportButton: UIButton!
     @IBOutlet weak var feedbackButton: UIButton!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        
+    
     }
 }
 
@@ -47,6 +49,8 @@ extension CallEndedViewController {
         styleButton(newCallButton)
         styleButton(reportButton)
         styleMainButton(feedbackButton)
+        
+        
     }
 
     func styleButton(_ button: UIButton) {
@@ -96,5 +100,7 @@ extension UIView {
         // You can handle data here if needed
         print("Returned to Dashboard")
     }
+    
+    
 
 }

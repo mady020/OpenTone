@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3FAE42032EC43B6000FADCC1 /* Exceptions for "OpenTone" folder in "OpenTone" target */ = {
+		98F7BF7B2ED296D600705E4C /* Exceptions for "OpenTone" folder in "OpenTone" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,7 +24,7 @@
 		3FAE41F32EC43B5E00FADCC1 /* OpenTone */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3FAE42032EC43B6000FADCC1 /* Exceptions for "OpenTone" folder in "OpenTone" target */,
+				98F7BF7B2ED296D600705E4C /* Exceptions for "OpenTone" folder in "OpenTone" target */,
 			);
 			path = OpenTone;
 			sourceTree = "<group>";
@@ -145,6 +145,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XMS7FL5N6N;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OpenTone/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -180,6 +181,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XMS7FL5N6N;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OpenTone/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -260,6 +262,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				"INFOPLIST_FILE[sdk=iphoneos*]" = "$(SRCROOT)/OpenTone/Info.plist\n";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -317,6 +320,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				"INFOPLIST_FILE[sdk=iphoneos*]" = "$(SRCROOT)/OpenTone/Info.plist\n";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;

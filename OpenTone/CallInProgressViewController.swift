@@ -33,11 +33,11 @@ class CallInProgressViewController: UIViewController {
     
     // MARK: - Dynamic Data (pass from previous screen)
     var userName: String = "Harshdeep Singh"
-//    var userProfileImage: UIImage? = UIImage(named: "Elon")
+    var userProfileImage: UIImage? = UIImage(named: "pp")
  
 
     var questions: [String] = [  "What technology trends excite you most?",
-                                 "What's the last movie you really enjoyed?",
+                                 "What's the last movie you really enjoyed? ",
                                  "How do you like to spend your weekends?",
                                  "What's something new you learned recently?"
                                  ]   // <-- dynamically passed
@@ -68,6 +68,7 @@ class CallInProgressViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         timer?.invalidate()
+        
     }
     
     func addShadow(to view: UIView) {
@@ -109,7 +110,7 @@ extension CallInProgressViewController {
                 
                 statusLabel.text = "Connected"
                 timerLabel.text = "0:00"
-//                profileImageView.image = userProfileImage
+                profileImageView.image = userProfileImage
             }
         }
         extension CallInProgressViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -120,17 +121,28 @@ extension CallInProgressViewController {
 
                 let layout = UICollectionViewFlowLayout()
                 layout.scrollDirection = .vertical
-                layout.minimumLineSpacing = 8
-                layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
-                
-                // FORCE FULL WIDTH CELLS
-                layout.estimatedItemSize = CGSize(width: questionsCollectionView.frame.width, height: 10)
-                layout.itemSize = UICollectionViewFlowLayout.automaticSize
+
+                layout.minimumLineSpacing = 10
+                layout.minimumInteritemSpacing = 0
+
+                // IMPORTANT: force full width so text aligns properly
+                layout.estimatedItemSize = CGSize(
+                    width: questionsCollectionView.bounds.width,
+                    height: 44
+                )
+
+                layout.sectionInset = UIEdgeInsets(
+                    top: 10,
+                    left: 16,
+                    bottom: 10,
+                    right: 16
+                )
 
                 questionsCollectionView.collectionViewLayout = layout
                 questionsCollectionView.isScrollEnabled = false
                 questionsCollectionView.backgroundColor = .clear
             }
+
 
         
             func numberOfSections(in collectionView: UICollectionView) -> Int { return 1 }

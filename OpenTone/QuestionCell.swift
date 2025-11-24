@@ -21,8 +21,10 @@ class QuestionCell: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.layoutMargins = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
+        contentView.layoutIfNeeded()
+        questionLabel.preferredMaxLayoutWidth = questionLabel.frame.width
     }
+
 
     func configure(_ text: String) {
         questionLabel.text = text

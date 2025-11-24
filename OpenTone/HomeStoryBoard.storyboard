@@ -3,7 +3,6 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
-        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -61,36 +60,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4pf-Yk-Iii" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1283.206106870229" y="153.52112676056339"/>
-        </scene>
-        <!--Login View Controller-->
-        <scene sceneID="SP0-bZ-Xhz">
-            <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="rFN-gc-IiB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <viewController id="LRD-lo-BXq" customClass="LoginViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Ubb-Si-QET">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="Je3-L8-Ohw"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    </view>
-                </viewController>
-            </objects>
-            <point key="canvasLocation" x="1940" y="131"/>
-        </scene>
-        <!--Sign Up View Controller-->
-        <scene sceneID="l6i-0G-1ZL">
-            <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="gP1-pZ-sVA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <viewController storyboardIdentifier="d" id="R1d-ZY-9bm" customClass="SignUpViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="SnQ-Ne-eT5">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="Ie4-t3-WHL"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    </view>
-                </viewController>
-            </objects>
-            <point key="canvasLocation" x="2627" y="131"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="1oQ-IV-9Id">
