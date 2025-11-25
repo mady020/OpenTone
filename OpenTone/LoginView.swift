@@ -5,23 +5,32 @@
 //  Created by Student on 24/11/25.
 //
 
-//import Foundation
-//
-//class LoginViewController: UIViewController {
-//    
-//    @IBOutlet weak var usernameField: UITextField!
-//    @IBOutlet weak var passwordField: UITextField!
-//    
-//    var username: String?
-//    
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if segue.identifier == "goToHome" {
-//            let destinationVC = segue.destination as! HomeViewController
-//            destinationVC.username = usernameField.text
-//        }
-//    }
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        print("Logged in user: \(username ?? "")")
-//    }
-//}
+import UIKit
+
+import Foundation
+
+class LoginViewController: UIViewController {
+    
+    @IBAction func SignInButtonTapped(_ sender: Any) {
+    }
+    
+    @IBAction func ContinueWIthAppleButtonTapped(_ sender: Any) {
+    }
+
+    @IBAction func U_forImageTapped(_ sender: Any) {
+    }
+    
+    @IBOutlet var usernameField: UITextField!
+    
+    @IBOutlet var passwordField: UITextField!
+
+    @IBAction func forgotPasswordClick(_ sender: Any) {
+    }
+    
+    @IBAction func HaveAaccSignInClicked(_ sender: Any) {
+    }
+    
+    
+    
+
+}
