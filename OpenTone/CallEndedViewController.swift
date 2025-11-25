@@ -18,11 +18,10 @@ class CallEndedViewController: UIViewController {
         
     
     }
-    
+
     
 }
 
-// MARK: - UI Setup
 extension CallEndedViewController {
 
     func setupUI() {
