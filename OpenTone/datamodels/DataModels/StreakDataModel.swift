@@ -36,7 +36,7 @@ class StreakDataModel {
             currentStreak.lastActiveDate = Date()
             streak = currentStreak
         } else {
-            streak = Streak(currentCount: 1, longestCount: 1, lastActiveDate: Date())
+            streak = Streak(commitment : 0 , currentCount: 1, longestCount: 1, lastActiveDate: Date())
         }
         saveStreak()
     }
@@ -46,7 +46,7 @@ class StreakDataModel {
             currentStreak.currentCount = 0
             streak = currentStreak
         } else {
-            streak = Streak(currentCount: 0, longestCount: 0, lastActiveDate: nil)
+            streak = Streak(commitment : 0 , currentCount: 0, longestCount: 0, lastActiveDate: nil)
         }
         saveStreak()
     }
@@ -76,8 +76,10 @@ class StreakDataModel {
         let codedStreak = try? propertyListEncoder.encode(streak)
         try? codedStreak?.write(to: archiveURL)
     }
+    
+   
 
     private func loadSampleStreak() -> Streak {
-        return Streak(currentCount: 0, longestCount: 0, lastActiveDate: nil)
+        return Streak(commitment : 0 , currentCount: 0, longestCount: 0, lastActiveDate: nil)
     }
 }

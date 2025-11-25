@@ -175,10 +175,3 @@ import Foundation
 //         RunLoop.main.run()
 //     }
 // }
-
-@main
-struct datamodels {
-    static func main() {
-        print("Hello, World!")
-    }
-}

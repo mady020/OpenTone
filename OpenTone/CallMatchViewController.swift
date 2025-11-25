@@ -1,18 +1,3 @@
-//
-//  CallMatchViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 18/11/25.
-//
-
-import UIKit
-//
-//  MatchViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 18/11/25.
-//
-
 import UIKit
 
 class CallMatchViewController: UIViewController {
@@ -26,65 +11,57 @@ class CallMatchViewController: UIViewController {
     @IBOutlet weak var startCallButton: UIButton!
     @IBOutlet weak var searchAgainButton: UIButton!
 
-    // MARK: - Data (Pass these values dynamically)
-    var userName: String = "Harshdeep Singh"
-    var userCountry: String = ""
-    var userCountryFlag: UIImage?
-    var userBio: String = "A curious soul who enjoys meaningful conversations and exploring new ideas. Passionate about technology, creativity, and self-growth."
-    var sharedInterests: [String] = ["movies" , "sports" , "coding" , "movies" , "sports" , "coding"]   // Dynamic list of interests
-    
+    // ✅ DATA PASSED FROM SETUP SCREEN
+    var matchedUser: User?
+    var sharedInterests: [Interest] = []
+    var generatedQuestions : [String] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
         setupUI()
-        configureData()
         setupCollectionView()
+        configureData()
     }
-    
-    
-    
 }
 
+// MARK: - UI Setup
 extension CallMatchViewController {
 
     func setupUI() {
-
-        // Background is set from storyboard (light purple)
-        
-        // Profile Card styling
         cardView.layer.cornerRadius = 25
         cardView.layer.masksToBounds = true
-        
-        // Profile Image (circular)
+
         profileImageView.layer.cornerRadius = profileImageView.frame.width / 2
         profileImageView.clipsToBounds = true
         profileImageView.contentMode = .scaleAspectFill
 
-        // Buttons
         startCallButton.layer.cornerRadius = 25
         searchAgainButton.layer.cornerRadius = 25
         addShadow(to: cardView)
     }
-    
+
     func addShadow(to view: UIView) {
         view.layer.shadowColor = UIColor.black.cgColor
         view.layer.shadowOpacity = 0.15
         view.layer.shadowOffset = CGSize(width: 0, height: 4)
         view.layer.shadowRadius = 10
     }
-}
 
-
-extension CallMatchViewController {
-    
     func configureData() {
-        nameLabel.text = userName
-        bioLabel.text = userBio
+        nameLabel.text = matchedUser?.name ?? "nil"
+        bioLabel.text = matchedUser?.bio ?? "No bio available"
+
+        if let avatar = matchedUser?.avatar {
+            profileImageView.image = UIImage(named: avatar)
+        } else {
+            profileImageView.image = UIImage(systemName: "person.circle.fill")
+        }
+
         sharedInterestsCollectionView.reloadData()
-        profileImageView.image = UIImage(named: "pp")
     }
 }
 
+// MARK: - CollectionView
 extension CallMatchViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 
     func setupCollectionView() {
@@ -92,97 +69,71 @@ extension CallMatchViewController: UICollectionViewDelegate, UICollectionViewDat
         sharedInterestsCollectionView.dataSource = self
 
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-
-        // ⭐ SELF-SIZING CHIP CELLS
         layout.estimatedItemSize = CGSize(width: 80, height: 32)
-
-        // ⭐ SPACE BETWEEN CELLS
-        layout.minimumInteritemSpacing = 10   // horizontal spacing
-        layout.minimumLineSpacing = 12        // vertical spacing between rows
-
-        // ⭐ PADDING AROUND ALL SIDES
+        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 10
         layout.sectionInset = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
 
         sharedInterestsCollectionView.collectionViewLayout = layout
-        sharedInterestsCollectionView.showsVerticalScrollIndicator = false
         sharedInterestsCollectionView.backgroundColor = .clear
     }
 
+    func numberOfSections(in collectionView: UICollectionView) -> Int { 1 }
 
-    func numberOfSections(in collectionView: UICollectionView) -> Int { return 1 }
-
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return sharedInterests.count
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
+        sharedInterests.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
-                        cellForItemAt indexPath: IndexPath)
-        -> UICollectionViewCell {
-        
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "InterestChipCell",
             for: indexPath
         ) as! InterestChipCell
 
-        cell.configure(sharedInterests[indexPath.item])
+        cell.configure(sharedInterests[indexPath.item].rawValue.capitalized)
         return cell
     }
 }
 
-extension CallMatchViewController {
-    
-    func createChipsLayout() -> UICollectionViewLayout {
-
-        // ITEM
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(80),
-            heightDimension: .absolute(32)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        // GROUP
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(80),
-            heightDimension: .absolute(32)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: [item]
-        )
-
-
-        group.interItemSpacing = .fixed(14)
-
-        // SECTION
-        let section = NSCollectionLayoutSection(group: group)
-
-        section.orthogonalScrollingBehavior = .continuous
-
-        section.contentInsets = NSDirectionalEdgeInsets(
-            top: 6,
-            leading: 10,
-            bottom: 6,
-            trailing: 10
-        )
-
-        section.interGroupSpacing = 14
-
-        return UICollectionViewCompositionalLayout(section: section)
-    }
-
-}
-
-
+// MARK: - Buttons
 extension CallMatchViewController {
 
     @IBAction func startCallTapped(_ sender: UIButton) {
-        print("Start Call pressed")
-        // navigate to call screen
+
+        guard matchedUser != nil else {
+            print("❌ matchedUser not found")
+            return
+        }
+
+        // ✅ Generate questions from shared interests
+        generatedQuestions = CallSessionDataModel.shared
+            .generateSuggestedQuestions(from: sharedInterests)
+
+        print("✅ Questions Generated:")
+        generatedQuestions.forEach { print($0) }
+
+        performSegue(withIdentifier: "goToCallInProgress", sender: self)
     }
 
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if segue.identifier == "goToCallInProgress",
+           let vc = segue.destination as? CallInProgressViewController {
+
+            vc.matchedUser = matchedUser
+            vc.questions = generatedQuestions
+        }
+    }
+
+
+
+
     @IBAction func searchAgainTapped(_ sender: UIButton) {
-        print("Search Again pressed")
-        // call API or refresh logic
+        navigationController?.popViewController(animated: true)
     }
 }

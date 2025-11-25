@@ -14,19 +14,24 @@ class UserDataModel {
 
     // The only user this app manages
     private var currentUser: User?
-
+    var allUsers: [User] = []
     private init() {
         archiveURL =
             documentsDirectory
             .appendingPathComponent("currentUser")
             .appendingPathExtension("plist")
 
-        loadUser()
+         loadUser()
+        allUsers = loadSampleUser()
     }
 
     /// Returns the currently authenticated/active user.
     func getCurrentUser() -> User? {
         return currentUser
+    }
+    
+    func getUser(by id: UUID) -> User? {
+        return allUsers.first(where: { $0.id == id })
     }
 
     /// Saves the given user as the current active user.
@@ -109,7 +114,7 @@ class UserDataModel {
 
         // If still nil, load a sample user for first-time app usage
         if currentUser == nil {
-            currentUser = loadSampleUser()
+            currentUser = loadSampleUser().last
             saveUser()
         }
     }
@@ -123,8 +128,8 @@ class UserDataModel {
     }
 
     /// A default user for first app launch (MVP).
-    private func loadSampleUser() -> User {
-        return User(
+    private func loadSampleUser() -> [User] {
+        return [User(
             name: "John Doe",
             email: "john@example.com",
             age: 25,
@@ -140,6 +145,22 @@ class UserDataModel {
             roleplayIDs: [],
             jamSessionIDs: [],
             friends: []
-        )
+        ) , User(
+            name: "John Doe",
+            email: "john@example.com",
+            age: 25,
+            gender: .male,
+            bio: "Learning English",
+            englishLevel: .beginner,
+            interests: [.technology , .art , .food],
+            currentPlan: .free,
+            avatar: nil,
+            streak: nil,
+            lastSeen: nil,
+            callRecordIDs: [],
+            roleplayIDs: [],
+            jamSessionIDs: [],
+            friends: []
+        )]
     }
 }

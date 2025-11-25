@@ -31,16 +31,24 @@ class CallInProgressViewController: UIViewController {
     
     @IBOutlet weak var profileContainerView: UIView!
     
+    
+    var matchedUser: User?
+    var questions: [String] = []
+    
+    
+    
+    
+    
     // MARK: - Dynamic Data (pass from previous screen)
-    var userName: String = "Harshdeep Singh"
+//    var userName: String = "Harshdeep Singh"
     var userProfileImage: UIImage? = UIImage(named: "pp")
  
 
-    var questions: [String] = [  "What technology trends excite you most?",
-                                 "What's the last movie you really enjoyed? ",
-                                 "How do you like to spend your weekends?",
-                                 "What's something new you learned recently?"
-                                 ]   // <-- dynamically passed
+//    var questions: [String] = [  "What technology trends excite you most?",
+//                                 "What's the last movie you really enjoyed? ",
+//                                 "How do you like to spend your weekends?",
+//                                 "What's something new you learned recently?"
+//                                 ]   // <-- dynamically passed
 
     // Timer
     var timer: Timer?
@@ -59,7 +67,10 @@ class CallInProgressViewController: UIViewController {
         addShadow(to: questionsContainerView)
         addShadow(to: profileContainerView)
 
-        
+        if let matchedUser = matchedUser
+        {
+            nameLabel.text = matchedUser.name
+        }
   
 
      
@@ -106,7 +117,7 @@ extension CallInProgressViewController {
             }
         
             func configureData() {
-                nameLabel.text = userName
+//                nameLabel.text = userName
                 
                 statusLabel.text = "Connected"
                 timerLabel.text = "0:00"

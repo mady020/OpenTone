@@ -55,7 +55,7 @@ class SessionFeedbackDataModel {
         return sessionFeedbacks.first(where: { $0.id == id })
     }
     
-    func getSessionFeedbacks(by sessionId: String) -> [SessionFeedback] {
+    func getSessionFeedbacks(by sessionId: UUID) -> [SessionFeedback] {
         return sessionFeedbacks.filter { $0.sessionId == sessionId }
     }
     

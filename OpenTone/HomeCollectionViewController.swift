@@ -67,7 +67,7 @@ class HomeCollectionViewController: UICollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch DashboardSection(rawValue: section)! {
         case .conversation:
-            return 6
+            return 1
         case .twoMinuteSession:
             return 1
         case .realLifeScenario:
@@ -82,7 +82,8 @@ class HomeCollectionViewController: UICollectionViewController {
             withReuseIdentifier: "Cell",
             for: indexPath
         ) as! HomeCollectionViewCell
-
+        
+        
         switch DashboardSection(rawValue: indexPath.section)! {
 
         case .conversation:
@@ -91,6 +92,7 @@ class HomeCollectionViewController: UICollectionViewController {
             if(indexPath.row == 0){
                 cell.imageView.image = UIImage(named: "Call")
                 cell.backgroundColor = .clear
+                cell.textLabel.text = "Start 1 to 1 Call"
             }else{
                 cell.backgroundColor = .purple
             }
@@ -101,13 +103,15 @@ class HomeCollectionViewController: UICollectionViewController {
             cell.imageView.contentMode = .scaleAspectFill
             cell.imageView.clipsToBounds = true
             cell.backgroundColor = .clear
-            
+            cell.textLabel.text = "JAM Session"
 
         case .realLifeScenario:
             cell.imageView.image = UIImage(named: roleplays[indexPath.row])
             cell.imageView.contentMode = .scaleAspectFill
             cell.imageView.clipsToBounds = true
             cell.backgroundColor = .clear
+            cell.configure(title: "roleplays")
+            cell.textLabel.text = roleplays[indexPath.row]
         }
 
         return cell
@@ -245,5 +249,45 @@ extension HomeCollectionViewController {
 
         return section
     }
+    
+    
+    // MARK: - Card Tap Handling
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+
+        let section = DashboardSection(rawValue: indexPath.section)!
+
+        switch section {
+
+        case .conversation:
+
+            // ✅ Only FIRST card should open 1-to-1 Call
+            if indexPath.row == 0 {
+                print("1-to-1 Call tapped")
+
+                let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
+
+                guard let navController = storyboard.instantiateInitialViewController() as? UINavigationController else {
+                    print("CallStoryBoard initial is not NavigationController")
+                    return
+                }
+
+                guard let rootVC = navController.viewControllers.first else {
+                    print("No root VC in CallStoryBoard")
+                    return
+                }
+
+                self.navigationController?.pushViewController(rootVC, animated: true)
+            }
+
+        case .twoMinuteSession:
+            print("2 Min JAM tapped")
+            tabBarController?.selectedIndex = 2
+
+        case .realLifeScenario:
+            print("Scenario tapped: \(indexPath.row)")
+            tabBarController?.selectedIndex = 1
+        }
+    }
+
 }
 

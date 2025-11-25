@@ -79,8 +79,7 @@
                                     <color key="baseBackgroundColor" systemColor="systemPurpleColor"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="confirmButtonTapped:" destination="0Xz-5b-JZP" eventType="touchUpInside" id="D2s-al-n0r"/>
-                                    <segue destination="gmV-cG-U6s" kind="show" id="HHH-Jb-qwX"/>
+                                    <action selector="confirmButtonTapped:" destination="0Xz-5b-JZP" eventType="touchUpInside" id="nDf-wa-YcY"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -101,7 +100,8 @@
                     <navigationItem key="navigationItem" id="BPe-U3-Yzf"/>
                     <connections>
                         <outlet property="collectionView" destination="rCX-Fl-eZr" id="QlA-xb-PMr"/>
-                        <outlet property="confirmButton" destination="lK6-Mb-8AX" id="bmX-xQ-2OC"/>
+                        <outlet property="confirmButton" destination="lK6-Mb-8AX" id="T8n-Km-Uk0"/>
+                        <segue destination="gmV-cG-U6s" kind="show" identifier="goToMatch" id="W1J-A6-qCC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4ux-bi-V9I" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -167,7 +167,6 @@
                                 </buttonConfiguration>
                                 <connections>
                                     <action selector="startCallTapped:" destination="gmV-cG-U6s" eventType="touchUpInside" id="ANJ-fH-66W"/>
-                                    <segue destination="Vev-62-Ikg" kind="show" id="3oO-bV-tvl"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KsY-Z3-4P6">
@@ -260,6 +259,7 @@
                         <outlet property="searchAgainButton" destination="KsY-Z3-4P6" id="TYw-7v-bxv"/>
                         <outlet property="sharedInterestsCollectionView" destination="L99-CW-bjY" id="Ctb-Ce-JHR"/>
                         <outlet property="startCallButton" destination="ryL-dW-NIm" id="qS3-vW-2t8"/>
+                        <segue destination="Vev-62-Ikg" kind="show" identifier="goToCallInProgress" id="ZzM-7K-f1y"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Dla-mH-aSf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -745,19 +745,19 @@ Cg
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemIndigoColor">
-            <color red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.38039215686274508" green="0.33333333333333331" blue="0.96078431372549022" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemPurpleColor">
-            <color red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.79607843137254897" green="0.18823529411764706" blue="0.8784313725490196" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

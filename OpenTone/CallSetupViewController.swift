@@ -1,10 +1,3 @@
-//
-//  CallSetupViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 16/11/25.
-//
-
 import UIKit
 
 enum CallSetupSection: Int, CaseIterable {
@@ -17,131 +10,112 @@ class CallSetupViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var confirmButton: UIButton!
+    
+    
+    var matchedUser: User?
+    var selectedSessionInterests: [Interest] = []
 
-    // MARK: - Data
-    var interests: [SelectableItem] = [
-        .init(title: "Travel"), .init(title: "Food"), .init(title: "Fitness"),
-        .init(title: "Art"), .init(title: "Music"), .init(title: "Movies"),
-        .init(title: "Tech"), .init(title: "Reading")
-    ]
-    
-    var genders: [SelectableItem] = [
-        .init(title: "Male"), .init(title: "Female"), .init(title: "Other")
-    ]
-    
-    var englishLevels: [SelectableItem] = [
-        .init(title: "Beginner"), .init(title: "Intermediate"), .init(title: "Fluent")
-    ]
-    
+
+
+    // MARK: - Data Sources (from enums)
+
+    private let interestsData: [Interest] = Interest.allCases
+    private let gendersData: [Gender] = [.male, .female, .other]
+    private let englishLevelsData: [EnglishLevel] = [.beginner , .intermediate , .advanced]
+
+    // MARK: - Selected Values
+    private var selectedInterests: Set<Interest> = []
+    private var selectedGender: Gender?
+    private var selectedEnglishLevel: EnglishLevel?
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         confirmButton.layer.cornerRadius = 25
-        
         collectionView.delegate = self
         collectionView.dataSource = self
-        
         collectionView.collectionViewLayout = createLayout()
+        
+  
+
     }
+    
+   
 }
 
-//
-// MARK: - Compositional Layout
-//
+// MARK: - Layout
 extension CallSetupViewController {
-    
+
     func createLayout() -> UICollectionViewLayout {
-        
-        return UICollectionViewCompositionalLayout { sectionIndex, _ in
-            
+
+        UICollectionViewCompositionalLayout { sectionIndex, _ in
+
             guard let section = CallSetupSection(rawValue: sectionIndex) else { return nil }
-            
+
             switch section {
-                
             case .interests:
                 return self.createInterestsSection()
-                
             case .gender, .english:
                 return self.createSingleRowSection()
             }
         }
     }
-    
-    // GRID – 3 per row
+
     func createInterestsSection() -> NSCollectionLayoutSection {
-        
+
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0 / 3.0),
+            widthDimension: .fractionalWidth(1/3),
             heightDimension: .absolute(40)
         )
+
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(120)
-        )
+
         let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .estimated(120)
+            ),
             subitems: [item]
         )
+
         group.interItemSpacing = .fixed(10)
-        
+
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 12
         section.boundarySupplementaryItems = [createHeader()]
-        
         return section
     }
-    
-    // Gender & English — single row horizontal items
+
     func createSingleRowSection() -> NSCollectionLayoutSection {
 
-        // ITEM
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(120),
-            heightDimension: .absolute(40)
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .estimated(120),
+                heightDimension: .absolute(40)
+            )
         )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        // GROUP
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(120),
-            heightDimension: .absolute(40)
-        )
-        
         let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .estimated(120),
+                heightDimension: .absolute(40)
+            ),
             subitems: [item]
         )
-        group.interItemSpacing = .fixed(12)   // spacing BETWEEN items
 
-        // SECTION
+        group.interItemSpacing = .fixed(12)
+
         let section = NSCollectionLayoutSection(group: group)
-
         section.orthogonalScrollingBehavior = .continuous
-
-        // ⭐ Spacing SAME as Interests section
-        section.contentInsets = NSDirectionalEdgeInsets(
-            top: 8,
-            leading: 4,
-            bottom: 8,
-            trailing: 4
-        )
-
-        section.interGroupSpacing = 12
-
-        // Header
         section.boundarySupplementaryItems = [createHeader()]
+        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 4, bottom: 8, trailing: 4)
 
         return section
     }
 
-
-    
-    // Header for each section
     func createHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
-        
-        return NSCollectionLayoutBoundarySupplementaryItem(
+
+        NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
                 heightDimension: .absolute(40)
@@ -152,118 +126,172 @@ extension CallSetupViewController {
     }
 }
 
-//
-// MARK: - UICollectionView DataSource
-//
+// MARK: - DataSource
 extension CallSetupViewController: UICollectionViewDataSource {
-    
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return CallSetupSection.allCases.count
+        CallSetupSection.allCases.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
+
         switch CallSetupSection(rawValue: section)! {
-        case .interests: return interests.count
-        case .gender: return genders.count
-        case .english: return englishLevels.count
+        case .interests: return interestsData.count
+        case .gender: return gendersData.count
+        case .english: return englishLevelsData.count
         }
     }
-    
-    func collectionView(
-        _ collectionView: UICollectionView,
-        cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
-        
+
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "SelectableCell",
             for: indexPath
         ) as! SelectableCell
-        
+
         switch CallSetupSection(rawValue: indexPath.section)! {
+
         case .interests:
-            cell.configure(with: interests[indexPath.item])
-            
+            let interest = interestsData[indexPath.item]
+            cell.configure(
+                title: interest.rawValue.capitalized,
+                isSelected: selectedInterests.contains(interest)
+            )
+
         case .gender:
-            cell.configure(with: genders[indexPath.item])
-            
+            let gender = gendersData[indexPath.item]
+            cell.configure(
+                title: gender.rawValue.capitalized,
+                isSelected: selectedGender == gender
+            )
+
         case .english:
-            cell.configure(with: englishLevels[indexPath.item])
+            let level = englishLevelsData[indexPath.item]
+            cell.configure(
+                title: level.rawValue.capitalized,
+                isSelected: selectedEnglishLevel == level
+            )
         }
-        
+
         return cell
     }
-    
-    // SECTION HEADER
-    func collectionView(
-        _ collectionView: UICollectionView,
-        viewForSupplementaryElementOfKind kind: String,
-        at indexPath: IndexPath
-    ) -> UICollectionReusableView {
-        
+
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView {
+
         let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
             withReuseIdentifier: "SectionHeaderView",
             for: indexPath
         ) as! SectionHeaderView
-        
+
         switch CallSetupSection(rawValue: indexPath.section)! {
         case .interests: header.titleLabel.text = "Interests"
         case .gender: header.titleLabel.text = "Gender"
         case .english: header.titleLabel.text = "English Level"
         }
-        
+
         return header
     }
 }
 
-//
-// MARK: - UICollectionView Delegate
-//
+// MARK: - Delegate
 extension CallSetupViewController: UICollectionViewDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        switch CallSetupSection(rawValue: indexPath.section)! {
-            
-        case .interests:
-            interests[indexPath.item].isSelected.toggle()
-            collectionView.reloadItems(at: [indexPath])
-            
-        case .gender:
-            for i in 0..<genders.count { genders[i].isSelected = false }
-            genders[indexPath.item].isSelected = true
-            collectionView.reloadSections(IndexSet(integer: indexPath.section))
-            
-        case .english:
-            for i in 0..<englishLevels.count { englishLevels[i].isSelected = false }
-            englishLevels[indexPath.item].isSelected = true
-            collectionView.reloadSections(IndexSet(integer: indexPath.section))
-        }
-    }
-}
 
-//
-// MARK: - Confirm Button
-//
-extension CallSetupViewController {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+
+        switch CallSetupSection(rawValue: indexPath.section)! {
+
+        case .interests:
+            let interest = interestsData[indexPath.item]
+            if selectedInterests.contains(interest) {
+                selectedInterests.remove(interest)
+            } else {
+                selectedInterests.insert(interest)
+            }
+
+        case .gender:
+            selectedGender = gendersData[indexPath.item]
+
+        case .english:
+            selectedEnglishLevel = englishLevelsData[indexPath.item]
+        }
+
+        collectionView.reloadSections(IndexSet(integer: indexPath.section))
+    }
+    
     
     @IBAction func confirmButtonTapped(_ sender: UIButton) {
-        
-        let selectedInterests = interests.filter { $0.isSelected }.map { $0.title }
-        let selectedGender = genders.first(where: { $0.isSelected })?.title
-        let selectedEnglish = englishLevels.first(where: { $0.isSelected })?.title
-        
-        print("Interests:", selectedInterests)
-        print("Gender:", selectedGender ?? "None")
-        print("English Level:", selectedEnglish ?? "None")
-        
-        // TODO: Navigate to call screen
-    }
-    
-    @IBAction func unwindToThisViewController(_ segue: UIStoryboardSegue) {
-        // Optional: handle data passed back
-        
+
+        print("✅ Confirm tapped")
+
+        guard let gender = selectedGender,
+              let englishLevel = selectedEnglishLevel else {
+            print("❌ Missing gender or level")
+            return
+        }
+
+        let interests = Array(selectedInterests)
+        selectedSessionInterests = interests
+
+        let session = CallSession(
+            participantOneID: UserDataModel.shared.getCurrentUser()!.id,
+            interests: interests,
+            gender: gender,
+            englishLevel: englishLevel
+        )
+
+        CallSessionDataModel.shared.startSession(session)
+
+        print("""
+        ✅ SESSION CREATED
+        Gender: \(gender.rawValue)
+        English: \(englishLevel.rawValue)
+        Interests: \(interests.map { $0.rawValue })
+        """)
+
+        findPeerAndNavigate()
     }
 
+    
+    func findPeerAndNavigate() {
+
+        guard let session = CallSessionDataModel.shared.getActiveSession() else { return }
+
+        guard let matches = CallSessionDataModel.shared.getMatches(
+            interests: session.interests,
+            gender: session.gender,
+            englishLevel: session.englishLevel
+        ),
+        let matchID = matches.first,
+        let user = UserDataModel.shared.getUser(by: matchID)
+        else {
+            print("❌ No peer found")
+            return
+        }
+
+        matchedUser = user
+        selectedSessionInterests = session.interests
+
+        performSegue(withIdentifier: "goToMatch", sender: self)
+    }
+
+
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if segue.identifier == "goToMatch",
+           let vc = segue.destination as? CallMatchViewController {
+
+            vc.matchedUser = matchedUser
+            vc.sharedInterests = selectedSessionInterests
+        }
+    }
+
+
+
+
+    
 }
