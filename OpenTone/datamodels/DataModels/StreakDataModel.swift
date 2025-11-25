@@ -14,7 +14,7 @@ class StreakDataModel {
 
     private init() {
         archiveURL = documentsDirectory.appendingPathComponent("streak").appendingPathExtension(
-            "plist")
+            "json")
         loadStreak()
     }
 
@@ -66,14 +66,14 @@ class StreakDataModel {
 
     private func loadStreakFromDisk() -> Streak? {
         guard let codedStreak = try? Data(contentsOf: archiveURL) else { return nil }
-        let propertyListDecoder = PropertyListDecoder()
-        return try? propertyListDecoder.decode(Streak.self, from: codedStreak)
+        let decoder = JSONDecoder()
+        return try? decoder.decode(Streak.self, from: codedStreak)
     }
 
     private func saveStreak() {
         guard let streak = streak else { return }
-        let propertyListEncoder = PropertyListEncoder()
-        let codedStreak = try? propertyListEncoder.encode(streak)
+        let encoder = JSONEncoder()
+        let codedStreak = try? encoder.encode(streak)
         try? codedStreak?.write(to: archiveURL)
     }
     

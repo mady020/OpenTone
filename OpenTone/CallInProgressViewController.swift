@@ -1,16 +1,3 @@
-//
-//  CallInProgressViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 19/11/25.
-//
-//
-//  CallInProgressViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 18/11/25.
-//
-
 import UIKit
 
 class CallInProgressViewController: UIViewController {
@@ -20,6 +7,9 @@ class CallInProgressViewController: UIViewController {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
   
+    @IBOutlet var isConnected: UIImageView!
+    
+    
 
     @IBOutlet weak var questionsContainerView: UIView!
     @IBOutlet weak var questionsCollectionView: UICollectionView!
@@ -41,7 +31,7 @@ class CallInProgressViewController: UIViewController {
     
     // MARK: - Dynamic Data (pass from previous screen)
 //    var userName: String = "Harshdeep Singh"
-    var userProfileImage: UIImage? = UIImage(named: "pp")
+    var userProfileImage: UIImage? = nil
  
 
 //    var questions: [String] = [  "What technology trends excite you most?",
@@ -96,7 +86,7 @@ class CallInProgressViewController: UIViewController {
 extension CallInProgressViewController {
     
     func setupUI() {
-        
+        isConnected.tintColor = .systemGreen
         // Rounded profile image
         profileImageView.layer.cornerRadius = profileImageView.frame.width / 2
         profileImageView.clipsToBounds = true
@@ -121,7 +111,11 @@ extension CallInProgressViewController {
                 
                 statusLabel.text = "Connected"
                 timerLabel.text = "0:00"
-                profileImageView.image = userProfileImage
+                if let matchedUser = matchedUser {
+                    if let image = matchedUser.avatar {
+                        profileImageView.image = UIImage(named: image)
+                    }
+                }
             }
         }
         extension CallInProgressViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -130,24 +124,30 @@ extension CallInProgressViewController {
                 questionsCollectionView.delegate = self
                 questionsCollectionView.dataSource = self
 
-                let layout = UICollectionViewFlowLayout()
-                layout.scrollDirection = .vertical
-
-                layout.minimumLineSpacing = 10
-                layout.minimumInteritemSpacing = 0
-
-                // IMPORTANT: force full width so text aligns properly
-                layout.estimatedItemSize = CGSize(
-                    width: questionsCollectionView.bounds.width,
-                    height: 44
-                )
-
-                layout.sectionInset = UIEdgeInsets(
-                    top: 10,
-                    left: 16,
-                    bottom: 10,
-                    right: 16
-                )
+//                let layout = UICollectionViewFlowLayout()
+//                layout.scrollDirection = .vertical
+//
+//                layout.minimumLineSpacing = 10
+//                layout.minimumInteritemSpacing = 0
+//
+//                // IMPORTANT: force full width so text aligns properly
+//                layout.estimatedItemSize = CGSize(
+//                    width: questionsCollectionView.bounds.width,
+//                    height: 44
+//                )
+//
+//                layout.sectionInset = UIEdgeInsets(
+//                    top: 10,
+//                    left: 16,
+//                    bottom: 10,
+//                    right: 16
+//                )
+//                
+                let layout = LeftAlignedCollectionViewFlowLayout()
+                layout.estimatedItemSize = CGSize(width: 1, height: 1)
+                layout.minimumLineSpacing = 5
+                layout.minimumInteritemSpacing = 10
+                layout.sectionInset = UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12)
 
                 questionsCollectionView.collectionViewLayout = layout
                 questionsCollectionView.isScrollEnabled = false

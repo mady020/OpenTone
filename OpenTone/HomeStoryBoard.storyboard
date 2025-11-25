@@ -34,7 +34,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="56" height="128"/>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KRp-qz-NT9">
-                                            <rect key="frame" x="0.0" y="100.33333333333333" width="56" height="27.333333333333329"/>
+                                            <rect key="frame" x="0.0" y="100.66666666666667" width="56" height="27.333333333333329"/>
                                             <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                                             <color key="textColor" systemColor="groupTableViewBackgroundColor"/>
@@ -44,11 +44,11 @@
                                     </subviews>
                                     <constraints>
                                         <constraint firstAttribute="trailing" secondItem="KRp-qz-NT9" secondAttribute="trailing" id="3xT-uT-BDR"/>
+                                        <constraint firstAttribute="bottom" secondItem="KRp-qz-NT9" secondAttribute="bottom" id="Cu1-hL-XvF"/>
                                         <constraint firstItem="KRp-qz-NT9" firstAttribute="leading" secondItem="7sL-93-Wiw" secondAttribute="leading" id="FfE-BH-rgE"/>
                                         <constraint firstItem="n4z-OU-YDs" firstAttribute="leading" secondItem="7sL-93-Wiw" secondAttribute="leading" id="Wsc-Qt-waF"/>
                                         <constraint firstAttribute="bottom" secondItem="n4z-OU-YDs" secondAttribute="bottom" id="Yk7-dI-7GH"/>
                                         <constraint firstItem="n4z-OU-YDs" firstAttribute="top" secondItem="7sL-93-Wiw" secondAttribute="top" id="cUf-lu-ghR"/>
-                                        <constraint firstItem="KRp-qz-NT9" firstAttribute="centerY" secondItem="7sL-93-Wiw" secondAttribute="centerY" constant="50" id="h5P-9Z-nut"/>
                                         <constraint firstAttribute="trailing" secondItem="n4z-OU-YDs" secondAttribute="trailing" id="klh-NR-f7w"/>
                                     </constraints>
                                 </collectionViewCellContentView>
@@ -64,7 +64,7 @@
                             <outlet property="delegate" destination="ism-ez-pqQ" id="qNa-Kk-1ih"/>
                         </connections>
                     </collectionView>
-                    <tabBarItem key="tabBarItem" title="Item" image="house" catalog="system" selectedImage="house.fill" id="UUb-wC-BaS"/>
+                    <tabBarItem key="tabBarItem" title="Home" image="house" catalog="system" selectedImage="house.fill" id="UUb-wC-BaS"/>
                     <navigationItem key="navigationItem" title="OpenTone" id="zZ3-9x-fMj"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                 </collectionViewController>

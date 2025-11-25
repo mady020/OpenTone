@@ -22,8 +22,9 @@ class HomeCollectionViewController: UICollectionViewController {
         "AirportCheckin",
         "OrderingFood",
         "BirthdayCelebration"
-        
     ]
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -92,7 +93,7 @@ class HomeCollectionViewController: UICollectionViewController {
             if(indexPath.row == 0){
                 cell.imageView.image = UIImage(named: "Call")
                 cell.backgroundColor = .clear
-                cell.textLabel.text = "Start 1 to 1 Call"
+                cell.textLabel.text = "Find A Peer"
             }else{
                 cell.backgroundColor = .purple
             }
@@ -103,7 +104,7 @@ class HomeCollectionViewController: UICollectionViewController {
             cell.imageView.contentMode = .scaleAspectFill
             cell.imageView.clipsToBounds = true
             cell.backgroundColor = .clear
-            cell.textLabel.text = "JAM Session"
+            cell.textLabel.text = "Start JAM Session"
 
         case .realLifeScenario:
             cell.imageView.image = UIImage(named: roleplays[indexPath.row])

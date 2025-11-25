@@ -154,6 +154,7 @@ class CallSessionDataModel {
             }
         }
 
-        return questions
+        return Array(questions.prefix(5))
+
     }
 }

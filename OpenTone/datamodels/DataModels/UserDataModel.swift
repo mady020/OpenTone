@@ -19,7 +19,7 @@ class UserDataModel {
         archiveURL =
             documentsDirectory
             .appendingPathComponent("currentUser")
-            .appendingPathExtension("plist")
+            .appendingPathExtension("json")
 
          loadUser()
         allUsers = loadSampleUser()
@@ -108,7 +108,7 @@ class UserDataModel {
     /// Loads the current user from disk (if exists), otherwise loads a sample.
     private func loadUser() {
         if let data = try? Data(contentsOf: archiveURL) {
-            let decoder = PropertyListDecoder()
+            let decoder = JSONDecoder()
             currentUser = try? decoder.decode(User.self, from: data)
         }
 
@@ -121,7 +121,7 @@ class UserDataModel {
 
     /// Saves the current user to disk.
     private func saveUser() {
-        let encoder = PropertyListEncoder()
+        let encoder = JSONEncoder()
         if let data = try? encoder.encode(currentUser) {
             try? data.write(to: archiveURL)
         }
@@ -130,15 +130,21 @@ class UserDataModel {
     /// A default user for first app launch (MVP).
     private func loadSampleUser() -> [User] {
         return [User(
-            name: "John Doe",
-            email: "john@example.com",
-            age: 25,
+            name: "Madhav Sharma",
+            email: "madhav@opentone.com",
+            age: 20,
             gender: .male,
-            bio: "Learning English",
+            bio: "Learning to communicate every day and loving the progress.",
             englishLevel: .beginner,
-            interests: [],
+            interests: [
+                .technology,
+                .movies,
+                .science,
+                .education,
+                .entertainment
+                , .music, .sports],
             currentPlan: .free,
-            avatar: nil,
+            avatar: "pp1",
             streak: nil,
             lastSeen: nil,
             callRecordIDs: [],
@@ -146,15 +152,15 @@ class UserDataModel {
             jamSessionIDs: [],
             friends: []
         ) , User(
-            name: "John Doe",
-            email: "john@example.com",
-            age: 25,
+            name: "Harshdeep Singh",
+            email: "harsh@opentone.com",
+            age: 19,
             gender: .male,
-            bio: "Learning English",
+            bio: "On a journey to improve my Communication Skills",
             englishLevel: .beginner,
             interests: [.technology , .art , .food],
             currentPlan: .free,
-            avatar: nil,
+            avatar: "pp2",
             streak: nil,
             lastSeen: nil,
             callRecordIDs: [],

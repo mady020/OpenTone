@@ -18,7 +18,7 @@ class ReportDataModel {
     private var reports: [Report] = []
     
     private init() {
-        archiveURL = documentsDirectory.appendingPathComponent("reports").appendingPathExtension("plist")
+        archiveURL = documentsDirectory.appendingPathComponent("reports").appendingPathExtension("json")
         loadReports()
     }
     
@@ -74,13 +74,13 @@ class ReportDataModel {
     
     private func loadReportsFromDisk() -> [Report]? {
         guard let codedReports = try? Data(contentsOf: archiveURL) else { return nil }
-        let propertyListDecoder = PropertyListDecoder()
-        return try? propertyListDecoder.decode([Report].self, from: codedReports)
+        let decoder = JSONDecoder()
+        return try? decoder.decode([Report].self, from: codedReports)
     }
     
     private func saveReports() {
-        let propertyListEncoder = PropertyListEncoder()
-        let codedReports = try? propertyListEncoder.encode(reports)
+        let encoder = JSONEncoder()
+        let codedReports = try? encoder.encode(reports)
         try? codedReports?.write(to: archiveURL)
     }
     

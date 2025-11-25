@@ -18,7 +18,7 @@ class CallRecordDataModel {
         archiveURL =
             documentsDirectory
             .appendingPathComponent("callRecords")
-            .appendingPathExtension("plist")
+            .appendingPathExtension("json")
 
         loadCallRecords()
     }
@@ -43,7 +43,7 @@ class CallRecordDataModel {
 
     private func loadCallRecords() {
         if let saved = try? Data(contentsOf: archiveURL) {
-            let decoder = PropertyListDecoder()
+            let decoder = JSONDecoder()
             callRecords = (try? decoder.decode([CallRecord].self, from: saved)) ?? []
         } else {
             callRecords = []
@@ -51,7 +51,7 @@ class CallRecordDataModel {
     }
 
     private func saveCallRecords() {
-        let encoder = PropertyListEncoder()
+        let encoder = JSONEncoder()
         if let data = try? encoder.encode(callRecords) {
             try? data.write(to: archiveURL)
         }

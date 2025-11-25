@@ -48,11 +48,14 @@ extension CallMatchViewController {
     }
 
     func configureData() {
-        nameLabel.text = matchedUser?.name ?? "nil"
-        bioLabel.text = matchedUser?.bio ?? "No bio available"
+        guard let user = matchedUser else { return }
+        let userData = CallSessionDataModel.shared.getParticipantDetails(from: user)
+        nameLabel.text = userData.name
+        bioLabel.text = userData.bio
+        
 
-        if let avatar = matchedUser?.avatar {
-            profileImageView.image = UIImage(named: avatar)
+        if let image = userData.image {
+            profileImageView.image = UIImage(named: image)
         } else {
             profileImageView.image = UIImage(systemName: "person.circle.fill")
         }
@@ -67,12 +70,14 @@ extension CallMatchViewController: UICollectionViewDelegate, UICollectionViewDat
     func setupCollectionView() {
         sharedInterestsCollectionView.delegate = self
         sharedInterestsCollectionView.dataSource = self
-
-        let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: 80, height: 32)
+        let layout = LeftAlignedCollectionViewFlowLayout()
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         layout.minimumLineSpacing = 12
         layout.minimumInteritemSpacing = 10
-        layout.sectionInset = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
+        layout.sectionInset = UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12)
+
+        sharedInterestsCollectionView.collectionViewLayout = layout
+
 
         sharedInterestsCollectionView.collectionViewLayout = layout
         sharedInterestsCollectionView.backgroundColor = .clear
@@ -82,7 +87,7 @@ extension CallMatchViewController: UICollectionViewDelegate, UICollectionViewDat
 
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
-        sharedInterests.count
+        sharedInterests.count < 5 ? sharedInterests.count : 5
     }
 
     func collectionView(_ collectionView: UICollectionView,

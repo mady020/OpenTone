@@ -18,7 +18,7 @@ class SessionFeedbackDataModel {
     private var sessionFeedbacks: [SessionFeedback] = []
     
     private init() {
-        archiveURL = documentsDirectory.appendingPathComponent("sessionFeedbacks").appendingPathExtension("plist")
+        archiveURL = documentsDirectory.appendingPathComponent("sessionFeedbacks").appendingPathExtension("json")
         loadSessionFeedbacks()
     }
     
@@ -70,13 +70,13 @@ class SessionFeedbackDataModel {
     
     private func loadSessionFeedbacksFromDisk() -> [SessionFeedback]? {
         guard let codedSessionFeedbacks = try? Data(contentsOf: archiveURL) else { return nil }
-        let propertyListDecoder = PropertyListDecoder()
-        return try? propertyListDecoder.decode([SessionFeedback].self, from: codedSessionFeedbacks)
+        let decoder = JSONDecoder()
+        return try? decoder.decode([SessionFeedback].self, from: codedSessionFeedbacks)
     }
     
     private func saveSessionFeedbacks() {
-        let propertyListEncoder = PropertyListEncoder()
-        let codedSessionFeedbacks = try? propertyListEncoder.encode(sessionFeedbacks)
+        let encoder = JSONEncoder()
+        let codedSessionFeedbacks = try? encoder.encode(sessionFeedbacks)
         try? codedSessionFeedbacks?.write(to: archiveURL)
     }
     

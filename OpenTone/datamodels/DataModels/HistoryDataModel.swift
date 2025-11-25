@@ -18,7 +18,7 @@ class HistoryDataModel {
         archiveURL =
             documentsDirectory
             .appendingPathComponent("history")
-            .appendingPathExtension("plist")
+            .appendingPathExtension("json")
 
         loadHistory()
     }
@@ -82,12 +82,12 @@ class HistoryDataModel {
 
     private func loadHistoryFromDisk() -> [Activity]? {
         guard let codedActivities = try? Data(contentsOf: archiveURL) else { return nil }
-        let decoder = PropertyListDecoder()
+        let decoder = JSONDecoder()
         return try? decoder.decode([Activity].self, from: codedActivities)
     }
 
     private func saveHistory() {
-        let encoder = PropertyListEncoder()
+        let encoder = JSONEncoder()
         if let data = try? encoder.encode(activities) {
             try? data.write(to: archiveURL)
         }

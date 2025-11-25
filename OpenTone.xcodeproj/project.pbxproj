@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		3FAE41F12EC43B5E00FADCC1 /* OpenTone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = OpenTone.app; path = "/Users/harshdeepsingh/openToneProject/OpenTone/build/Debug-iphoneos/OpenTone.app"; sourceTree = "<absolute>"; };
+		3FBEA97B2ED55D6300788555 /* OpenTone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenTone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -46,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				3FAE41F32EC43B5E00FADCC1 /* OpenTone */,
+				3FBEA97B2ED55D6300788555 /* OpenTone.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -71,7 +72,7 @@
 			packageProductDependencies = (
 			);
 			productName = OpenTone;
-			productReference = 3FAE41F12EC43B5E00FADCC1 /* OpenTone.app */;
+			productReference = 3FBEA97B2ED55D6300788555 /* OpenTone.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

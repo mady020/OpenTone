@@ -36,7 +36,6 @@ class CallSetupViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.collectionViewLayout = createLayout()
         
-  
 
     }
     
@@ -78,7 +77,7 @@ extension CallSetupViewController {
             subitems: [item]
         )
 
-        group.interItemSpacing = .fixed(10)
+        group.interItemSpacing = .fixed(8)
 
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 12
@@ -87,42 +86,44 @@ extension CallSetupViewController {
     }
 
     func createSingleRowSection() -> NSCollectionLayoutSection {
-
-        let item = NSCollectionLayoutItem(
-            layoutSize: NSCollectionLayoutSize(
-                widthDimension: .estimated(120),
-                heightDimension: .absolute(40)
-            )
+        
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1/3),
+            heightDimension: .absolute(40)
         )
 
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(
-                widthDimension: .estimated(120),
+                widthDimension: .fractionalWidth(1),
                 heightDimension: .absolute(40)
             ),
             subitems: [item]
         )
 
-        group.interItemSpacing = .fixed(12)
+        group.interItemSpacing = .fixed(8)
 
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
         section.boundarySupplementaryItems = [createHeader()]
-        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 4, bottom: 8, trailing: 4)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)
 
         return section
     }
 
     func createHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
 
-        NSCollectionLayoutBoundarySupplementaryItem(
+       NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
                 heightDimension: .absolute(40)
             ),
             elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
+            alignment: .top,
+            
         )
+
     }
 }
 
