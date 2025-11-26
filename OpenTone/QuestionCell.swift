@@ -1,9 +1,4 @@
-//
-//  QuestionCell.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 19/11/25.
-//
+
 
 import UIKit
 class QuestionCell: UICollectionViewCell {

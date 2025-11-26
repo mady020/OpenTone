@@ -17,13 +17,12 @@ class CallSetupViewController: UIViewController {
 
 
 
-    // MARK: - Data Sources (from enums)
 
     private let interestsData: [Interest] = Interest.allCases
     private let gendersData: [Gender] = [.male, .female, .other]
     private let englishLevelsData: [EnglishLevel] = [.beginner , .intermediate , .advanced]
 
-    // MARK: - Selected Values
+
     private var selectedInterests: Set<Interest> = []
     private var selectedGender: Gender?
     private var selectedEnglishLevel: EnglishLevel?
@@ -42,7 +41,7 @@ class CallSetupViewController: UIViewController {
    
 }
 
-// MARK: - Layout
+
 extension CallSetupViewController {
 
     func createLayout() -> UICollectionViewLayout {
@@ -127,7 +126,7 @@ extension CallSetupViewController {
     }
 }
 
-// MARK: - DataSource
+
 extension CallSetupViewController: UICollectionViewDataSource {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -198,7 +197,6 @@ extension CallSetupViewController: UICollectionViewDataSource {
     }
 }
 
-// MARK: - Delegate
 extension CallSetupViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

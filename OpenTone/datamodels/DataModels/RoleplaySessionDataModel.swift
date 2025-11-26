@@ -24,7 +24,7 @@ class RoleplaySessionDataModel {
 
         activeSession = newSession
 
-        // Update user's roleplay list
+
         UserDataModel.shared.addRoleplayID(newSession.id)
 
         return newSession
@@ -45,7 +45,7 @@ class RoleplaySessionDataModel {
 
         activeSession = updated
 
-        // Log only when the session transitions to completed
+
         if current.status != .completed && updated.status == .completed {
 
             let duration: Int
@@ -55,7 +55,7 @@ class RoleplaySessionDataModel {
                 duration = 0
             }
 
-            // Log roleplay activity
+    
             HistoryDataModel.shared.logActivity(
                 type: .roleplay,
                 title: scenario.title,
@@ -66,7 +66,7 @@ class RoleplaySessionDataModel {
                 isCompleted: true
             )
 
-            // Clear the active session
+
             activeSession = nil
         }
     }

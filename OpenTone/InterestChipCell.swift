@@ -10,16 +10,11 @@ class InterestChipCell: UICollectionViewCell {
     }
 
     func setupUI() {
-        // Rounded chip style
         contentView.layer.cornerRadius = 14
         contentView.layer.masksToBounds = true
-        contentView.backgroundColor = UIColor.systemGray6
-
-        // Proper text sizing behavior
+        contentView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.1)
         titleLabel.numberOfLines = 1
         titleLabel.lineBreakMode = .byTruncatingTail
-
-        // Ensure auto-sizing works perfectly
         titleLabel.setContentHuggingPriority(.required, for: .horizontal)
         titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
