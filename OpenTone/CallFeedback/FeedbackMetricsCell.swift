@@ -1,16 +1,8 @@
-//
-//  FeedbackMetricsCell.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 25/11/25.
-//
-
 
 import UIKit
 
 class FeedbackMetricsCell: UICollectionViewCell {
 
-    
     // MARK: - Speech
     @IBOutlet weak var speechTitleLabel: UILabel!
     @IBOutlet weak var speechValueLabel: UILabel!
@@ -31,50 +23,30 @@ class FeedbackMetricsCell: UICollectionViewCell {
     @IBOutlet weak var pausesValueLabel: UILabel!
     @IBOutlet weak var pausesProgressView: UIProgressView!
 
+    // MARK: - Container Views
+    @IBOutlet weak var speechView: UIView!
+    @IBOutlet weak var fillerView: UIView!
+    @IBOutlet weak var wpmView: UIView!
+    @IBOutlet weak var pausesView: UIView!
+
+
     override func awakeFromNib() {
         super.awakeFromNib()
         styleUI()
-        print("FeedbackmetricCell called")
     }
 
+    // MARK: - Styling
     private func styleUI() {
-        // All progress bars same style
-        let allBars = [
-            speechProgressView,
-            fillerProgressView,
-            wpmProgressView,
-            pausesProgressView
-        ]
+        let cards = [speechView, fillerView, wpmView, pausesView]
 
-        allBars.forEach {
-            $0?.progressTintColor = .systemPurple
-            $0?.trackTintColor = .systemGray5
-            $0?.layer.cornerRadius = 3
+        cards.forEach {
+            $0?.layer.cornerRadius = 30
             $0?.clipsToBounds = true
-        }
-
-        // All titles same style
-        [
-            speechTitleLabel,
-            fillerTitleLabel,
-            wpmTitleLabel,
-            pausesTitleLabel
-        ].forEach {
-            $0?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        }
-
-        // All value labels same style
-        [
-            speechValueLabel,
-            fillerValueLabel,
-            wpmValueLabel,
-            pausesValueLabel
-        ].forEach {
-            $0?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+            $0?.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.12)
         }
     }
 
-    // MARK: - Configure the Cell
+    // MARK: - Configure Cell with Real Data
     func configure(
         speechValue: String,
         speechProgress: Float,
@@ -106,3 +78,4 @@ class FeedbackMetricsCell: UICollectionViewCell {
         pausesProgressView.progress = pausesProgress
     }
 }
+

@@ -39,6 +39,17 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 withReuseIdentifier: "FeedbackMetricsCell",
                 for: indexPath
             ) as! FeedbackMetricsCell
+            
+            cell.configure(
+                    speechValue: "2 min",
+                    speechProgress: 0.75,
+                    fillerValue: "5 words",
+                    fillerProgress: 0.30,
+                    wpmValue: "122 WPM",
+                    wpmProgress: 0.65,
+                    pausesValue: "3 pauses",
+                    pausesProgress: 0.40
+                )
             return cell
 
         case 2:
