@@ -7,7 +7,6 @@ class CallSessionDataModel {
 
     private init() {}
 
-    // Only one active session at a time
     private(set) var activeSession: CallSession?
 
 
@@ -17,8 +16,6 @@ class CallSessionDataModel {
 
     func endSession() {
         guard let session = activeSession else { return }
-
-        // Mark end time
         var finished = session
         finished.endedAt = Date()
 
@@ -46,24 +43,20 @@ class CallSessionDataModel {
         return activeSession
     }
 
-//    func getMatches(interests: [Interest], gender: Gender, englishLevel: EnglishLevel) -> [UUID]? {
-//        // call backend to get the match based on interest
-//        return nil
-//    }
-//    
+
     
     func getMatches(interests: [Interest], gender: Gender, englishLevel: EnglishLevel) -> [UUID]? {
 
         guard let currentUser = UserDataModel.shared.getCurrentUser() else { return nil }
 
-        // Simulated user pool (later replace with API)
+    
         let allUsers = UserDataModel.shared.allUsers
 
         let filtered = allUsers.filter { user in
 
             guard user.id != currentUser.id else { return false }
 
-            // Shared interests
+    
             let common = Set(user.interests ?? []).intersection(Set(interests))
 
             return !common.isEmpty

@@ -5,26 +5,14 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
     let id: UUID
     let title: String
     let description: String
-
-    /// Local asset name or remote URL depending on usage.
     let imageURL: String
-
     let category: RoleplayCategory
     let difficulty: RoleplayDifficulty
     let estimatedTimeMinutes: Int
-
-    /// Full dialogue script (alternating speaker lines).
     let script: [RoleplayMessage]
-
-    // MARK: - Computed Helpers
-
-    /// Lines shown on detail screen before starting.
     var previewLines: [RoleplayMessage] {
         Array(script.prefix(2))
     }
-
-    // MARK: - Init
-
     init(
         id: UUID = UUID(),
         title: String,

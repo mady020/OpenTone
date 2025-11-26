@@ -1,9 +1,4 @@
-//
-//  SessionProgressManager.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 24/11/25.
-//
+
 
 import Foundation
 

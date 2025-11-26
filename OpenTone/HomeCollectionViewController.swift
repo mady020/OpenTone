@@ -1,9 +1,3 @@
-//
-//  HomeCollectionViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 13/11/25.
-//
 
 import UIKit
 
@@ -119,7 +113,7 @@ class HomeCollectionViewController: UICollectionViewController {
     }
 }
 
-// MARK: - COMPOSITIONAL LAYOUT
+
 extension HomeCollectionViewController {
 
     func createLayout() -> UICollectionViewLayout {
@@ -142,7 +136,7 @@ extension HomeCollectionViewController {
         }
     }
 
-    // ✅ Horizontal Conversation Cards
+
     func horizontalConversationSection() -> NSCollectionLayoutSection {
 
         let item = NSCollectionLayoutItem(
@@ -252,7 +246,7 @@ extension HomeCollectionViewController {
     }
     
     
-    // MARK: - Card Tap Handling
+
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
         let section = DashboardSection(rawValue: indexPath.section)!
@@ -261,7 +255,7 @@ extension HomeCollectionViewController {
 
         case .conversation:
 
-            // ✅ Only FIRST card should open 1-to-1 Call
+
             if indexPath.row == 0 {
                 print("1-to-1 Call tapped")
 

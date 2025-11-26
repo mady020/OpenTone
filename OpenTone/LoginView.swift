@@ -1,9 +1,3 @@
-//
-//  LoginView.swift
-//  OpenTone
-//
-//  Created by Student on 24/11/25.
-//
 
 import UIKit
 
@@ -29,8 +23,5 @@ class LoginViewController: UIViewController {
     
     @IBAction func HaveAaccSignInClicked(_ sender: Any) {
     }
-    
-    
-    
 
 }
