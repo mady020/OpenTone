@@ -1,10 +1,3 @@
-//
-//  SessionFeedbackDataModel.swift
-//  StoryboardsExample
-//
-//  Created by Harshdeep Singh on 05/11/25.
-//
-
 import Foundation
 
 @MainActor
@@ -81,7 +74,6 @@ class SessionFeedbackDataModel {
     }
     
     private func loadSampleSessionFeedbacks() -> [SessionFeedback] {
-        // Return empty array as sample - feedback requires actual session data
         return []
     }
 }

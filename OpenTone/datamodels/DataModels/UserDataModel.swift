@@ -12,7 +12,7 @@ class UserDataModel {
 
     private let archiveURL: URL
 
-    // The only user this app manages
+
     private var currentUser: User?
     var allUsers: [User] = []
     private init() {

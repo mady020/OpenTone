@@ -2,7 +2,6 @@ import UIKit
 
 class CallInProgressViewController: UIViewController {
 
-    // MARK: - IBOutlets
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
@@ -27,25 +26,13 @@ class CallInProgressViewController: UIViewController {
     
     
     
-    
-    
-    // MARK: - Dynamic Data (pass from previous screen)
-//    var userName: String = "Harshdeep Singh"
+
     var userProfileImage: UIImage? = nil
  
-
-//    var questions: [String] = [  "What technology trends excite you most?",
-//                                 "What's the last movie you really enjoyed? ",
-//                                 "How do you like to spend your weekends?",
-//                                 "What's something new you learned recently?"
-//                                 ]   // <-- dynamically passed
-
-    // Timer
     var timer: Timer?
     var secondsElapsed: Int = 0
 
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -87,27 +74,21 @@ extension CallInProgressViewController {
     
     func setupUI() {
         isConnected.tintColor = .systemGreen
-        // Rounded profile image
+
         profileImageView.layer.cornerRadius = profileImageView.frame.width / 2
         profileImageView.clipsToBounds = true
         profileImageView.contentMode = .scaleAspectFill
         
-        
-        
-         //Purple question box
-                questionsContainerView.layer.cornerRadius = 20
-//                questionsContainerView.clipsToBounds = true
-        
-        //Purple question box
-               profileContainerView.layer.cornerRadius = 20
-//               profileContainerView.clipsToBounds = true
-        
-         //End call button
-                endCallButton.layer.cornerRadius = 25
+
+        questionsContainerView.layer.cornerRadius = 20
+
+        profileContainerView.layer.cornerRadius = 20
+
+        endCallButton.layer.cornerRadius = 25
             }
         
             func configureData() {
-//                nameLabel.text = userName
+
                 
                 statusLabel.text = "Connected"
                 timerLabel.text = "0:00"
@@ -124,25 +105,7 @@ extension CallInProgressViewController {
                 questionsCollectionView.delegate = self
                 questionsCollectionView.dataSource = self
 
-//                let layout = UICollectionViewFlowLayout()
-//                layout.scrollDirection = .vertical
-//
-//                layout.minimumLineSpacing = 10
-//                layout.minimumInteritemSpacing = 0
-//
-//                // IMPORTANT: force full width so text aligns properly
-//                layout.estimatedItemSize = CGSize(
-//                    width: questionsCollectionView.bounds.width,
-//                    height: 44
-//                )
-//
-//                layout.sectionInset = UIEdgeInsets(
-//                    top: 10,
-//                    left: 16,
-//                    bottom: 10,
-//                    right: 16
-//                )
-//                
+                
                 let layout = LeftAlignedCollectionViewFlowLayout()
                 layout.estimatedItemSize = CGSize(width: 1, height: 1)
                 layout.minimumLineSpacing = 5
@@ -185,12 +148,12 @@ extension CallInProgressViewController: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController,
                           shouldSelect viewController: UIViewController) -> Bool {
 
-        // If tapping the SAME tab → allow
+      
         if viewController == self.navigationController {
             return true
         }
 
-        // Show confirmation popup
+        
         let alert = UIAlertController(title: "Are you sure?",
                                       message: "You are currently on a call.",
                                       preferredStyle: .alert)
@@ -199,13 +162,13 @@ extension CallInProgressViewController: UITabBarControllerDelegate {
 
         alert.addAction(UIAlertAction(title: "End", style: .destructive, handler: { _ in
             
-            // End call and switch tab
+            
             self.navigationController?.popViewController(animated: true)
             tabBarController.selectedViewController = viewController
         }))
 
         present(alert, animated: true)
         
-        return false  // Stop tab switching until user decides
+        return false
     }
 }

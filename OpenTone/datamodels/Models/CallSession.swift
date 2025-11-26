@@ -20,7 +20,7 @@ struct CallSession: Identifiable, Codable {
     ) {
         self.id = UUID()
         self.participantOneID = participantOneID
-        self.participantTwoID = nil  // match not found yet
+        self.participantTwoID = nil 
         self.interests = interests
         self.gender = gender
         self.englishLevel = englishLevel

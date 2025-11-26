@@ -1,10 +1,3 @@
-//
-//  ReportDataModel.swift
-//  StoryboardsExample
-//
-//  Created by Harshdeep Singh on 05/11/25.
-//
-
 import Foundation
 
 @MainActor
@@ -85,7 +78,6 @@ class ReportDataModel {
     }
     
     private func loadSampleReports() -> [Report] {
-        // Return empty array as sample - reports should be created by users
         return []
     }
 }

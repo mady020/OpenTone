@@ -2,7 +2,7 @@ import UIKit
 
 class CallMatchViewController: UIViewController {
 
-    // MARK: - IBOutlets
+
     @IBOutlet weak var cardView: UIView!
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
@@ -11,7 +11,7 @@ class CallMatchViewController: UIViewController {
     @IBOutlet weak var startCallButton: UIButton!
     @IBOutlet weak var searchAgainButton: UIButton!
 
-    // ✅ DATA PASSED FROM SETUP SCREEN
+
     var matchedUser: User?
     var sharedInterests: [Interest] = []
     var generatedQuestions : [String] = []
@@ -24,7 +24,6 @@ class CallMatchViewController: UIViewController {
     }
 }
 
-// MARK: - UI Setup
 extension CallMatchViewController {
 
     func setupUI() {
@@ -64,7 +63,6 @@ extension CallMatchViewController {
     }
 }
 
-// MARK: - CollectionView
 extension CallMatchViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 
     func setupCollectionView() {
@@ -103,7 +101,7 @@ extension CallMatchViewController: UICollectionViewDelegate, UICollectionViewDat
     }
 }
 
-// MARK: - Buttons
+
 extension CallMatchViewController {
 
     @IBAction func startCallTapped(_ sender: UIButton) {
@@ -113,7 +111,7 @@ extension CallMatchViewController {
             return
         }
 
-        // ✅ Generate questions from shared interests
+
         generatedQuestions = CallSessionDataModel.shared
             .generateSuggestedQuestions(from: sharedInterests)
 

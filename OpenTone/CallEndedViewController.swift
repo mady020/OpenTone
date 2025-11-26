@@ -2,7 +2,6 @@ import UIKit
 
 class CallEndedViewController: UIViewController {
 
-    // MARK: - IBOutlets
     @IBOutlet weak var cardView: UIView!
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
@@ -27,26 +26,26 @@ extension CallEndedViewController {
     func setupUI() {
 
 
-        // CARD DESIGN
+
         cardView.layer.cornerRadius = 24
         cardView.addShadow()
 
-        // ICON
-        iconImageView.image = UIImage(systemName: "hand.wave.fill")
-        iconImageView.tintColor = UIColor(named: "#6A1B9A")
 
-        // TITLE
+        iconImageView.image = UIImage(systemName: "hand.wave.fill")
+        iconImageView.tintColor = .systemPurple
+
+
         titleLabel.text = "Call Ended"
         titleLabel.font = UIFont.systemFont(ofSize: 22, weight: .semibold)
         titleLabel.textAlignment = .center
 
-        // MESSAGE
+
         messageLabel.text = "Great job practicing! Keep up the good work."
         messageLabel.numberOfLines = 0
         messageLabel.textAlignment = .center
         messageLabel.textColor = .darkGray
 
-        // BUTTONS STYLE
+
         styleButton(newCallButton)
         styleButton(reportButton)
         styleMainButton(feedbackButton)
@@ -70,7 +69,7 @@ extension CallEndedViewController {
     }
 }
 
-// MARK: - Actions
+
 extension CallEndedViewController {
 
     @IBAction func newCallTapped(_ sender: UIButton) {
@@ -99,7 +98,7 @@ extension UIView {
     
     
      func unwindToCallEnded(_ segue: UIStoryboardSegue) {
-        // You can handle data here if needed
+
         print("Returned to Dashboard")
     }
     
