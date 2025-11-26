@@ -17,15 +17,7 @@ class HorizontalScrollCell: UITableViewCell {
         collectionView.setCollectionViewLayout(layout, animated: false)
         collectionView.showsHorizontalScrollIndicator = false
 
-        collectionView.dataSource = self
-        collectionView.delegate = self
     }
-    
-    
-}
-
-extension HorizontalScrollCell: UICollectionViewDataSource, UICollectionViewDelegate {
-
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return items.count
     }
@@ -35,4 +27,8 @@ extension HorizontalScrollCell: UICollectionViewDataSource, UICollectionViewDele
         cell.backgroundColor = .systemBlue
         return cell
     }
+    
+    
+    
 }
+
