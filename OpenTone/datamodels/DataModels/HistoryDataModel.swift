@@ -23,7 +23,7 @@ class HistoryDataModel {
         loadHistory()
     }
 
-    /// Returns all activities for a specific calendar day.
+
     func getActivities(for date: Date) -> [Activity] {
 
         let calendar = Calendar.current
@@ -33,7 +33,7 @@ class HistoryDataModel {
         }
     }
 
-    /// Adds a new activity to history.
+
     func addActivity(_ activity: Activity) {
         activities.append(activity)
         saveHistory()
@@ -62,12 +62,11 @@ class HistoryDataModel {
         addActivity(activity)
     }
 
-    /// Filters history based on activity type (call, jam, roleplay, etc.)
     func searchHistory(by type: ActivityType) -> [Activity] {
         return activities.filter { $0.type == type }
     }
 
-    /// Returns all activities sorted by date (newest first).
+
     func getAllActivities() -> [Activity] {
         return activities.sorted { $0.date > $1.date }
     }

@@ -10,7 +10,7 @@ class RoleplaySessionDataModel {
     private(set) var activeSession: RoleplaySession?
 
 
-    /// Starts a new roleplay session and assigns it as the active one.
+
     func startSession(scenarioId: UUID) -> RoleplaySession? {
 
         guard let user = UserDataModel.shared.getCurrentUser() else {
@@ -30,13 +30,10 @@ class RoleplaySessionDataModel {
         return newSession
     }
 
-    /// Returns the currently active session (if any)
     func getActiveSession() -> RoleplaySession? {
         return activeSession
     }
 
-    /// Updates the active roleplay session (messages, status, etc.)
-    /// If session moves to `.completed`, history is logged automatically.
     func updateSession(_ updated: RoleplaySession, scenario: RoleplayScenario) {
         guard let current = activeSession,
               current.id == updated.id else {
@@ -71,7 +68,7 @@ class RoleplaySessionDataModel {
         }
     }
 
-    /// Cancels the current session without logging.
+
     func cancelSession() {
         activeSession = nil
     }

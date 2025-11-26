@@ -11,18 +11,16 @@ class RoleplayScenarioDataModel {
 
     // private let scenariosURL = URL(string: "https://your-api.com/scenarios")!
 
-    /// Fetches roleplay scenarios from your backend API.
-    /// Stores them in memory and optionally caches them.
     func fetchScenarios() {
         self.scenarios = []
     }
 
-    /// Returns all scenarios.
+
     func getAll() -> [RoleplayScenario] {
         return scenarios
     }
 
-    /// Filter scenarios based on difficuly and category
+
     func filter(
         category: RoleplayCategory? = nil,
         difficulty: RoleplayDifficulty? = nil

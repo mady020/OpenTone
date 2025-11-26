@@ -1,6 +1,6 @@
 import Foundation
 
-struct User: Identifiable, Codable, Equatable {
+struct User: Identifiable, Codable {
 
     let id: UUID
     var name: String
@@ -55,10 +55,6 @@ struct User: Identifiable, Codable, Equatable {
         self.jamSessionIDs = jamSessionIDs
         self.friendsIDs = friends
         self.goal = goal
-    }
-
-    static func == (lhs: User, rhs: User) -> Bool {
-        lhs.id == rhs.id
     }
 
      var isOnline: Bool {

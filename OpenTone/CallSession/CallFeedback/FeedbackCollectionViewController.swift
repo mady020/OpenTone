@@ -16,8 +16,8 @@ class FeedbackCollectionViewController: UICollectionViewController {
         switch section {
         case 0: return 1
         case 1: return 1
-        case 2: return 3
-        case 3: return 1 
+        case 2: return 1
+        case 3: return 1
         default: return 0
         }
     }
@@ -45,7 +45,7 @@ class FeedbackCollectionViewController: UICollectionViewController {
                     speechProgress: 0.75,
                     fillerValue: "5 words",
                     fillerProgress: 0.30,
-                    wpmValue: "122 WPM",
+                    wpmValue: "23 WPM",
                     wpmProgress: 0.65,
                     pausesValue: "3 pauses",
                     pausesProgress: 0.40
