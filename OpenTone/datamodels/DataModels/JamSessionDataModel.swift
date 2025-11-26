@@ -30,7 +30,7 @@ class JamSessionDataModel {
 
     func updateActiveSession(_ updated: JamSession) {
         guard let current = activeSession,
-            current.id == updated.id
+            current == updated
         else {
             return
         }

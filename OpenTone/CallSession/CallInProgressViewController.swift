@@ -36,7 +36,7 @@ class CallInProgressViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-       setupUI()
+        setupUI()
         configureData()
         setupCollectionView()
         questionsCollectionView.reloadData()
@@ -89,7 +89,6 @@ extension CallInProgressViewController {
         
             func configureData() {
 
-                
                 statusLabel.text = "Connected"
                 timerLabel.text = "0:00"
                 if let matchedUser = matchedUser {
