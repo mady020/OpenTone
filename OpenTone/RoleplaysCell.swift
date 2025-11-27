@@ -16,7 +16,10 @@ class RoleplaysCell: UICollectionViewCell {
         roleplayImageView.clipsToBounds = true
 
     
-        titleLabel.alpha = 0.4
+//        titleLabel.alpha = 0.4
+        
+        titleLabel.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        
 
     }
 

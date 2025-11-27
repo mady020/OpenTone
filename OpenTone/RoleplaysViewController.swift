@@ -11,7 +11,7 @@ class RoleplaysViewController: UIViewController {
         "Airport Check-in",
         "Ordering Food",
         "Job Interview",
-        "Doctor Visit",
+        "Birthday Celebration",
         "Hotel Booking",
         "First Date"
     ]
@@ -55,7 +55,7 @@ class RoleplaysViewController: UIViewController {
         let totalSpacing = padding * 2 + spacing
         let itemWidth = (collectionView.frame.width - totalSpacing) / 2
 
-        layout.itemSize = CGSize(width: itemWidth, height: 170)
+        layout.itemSize = CGSize(width: itemWidth, height: 130)
         layout.minimumLineSpacing = 18
         layout.minimumInteritemSpacing = spacing
         layout.sectionInset = UIEdgeInsets(

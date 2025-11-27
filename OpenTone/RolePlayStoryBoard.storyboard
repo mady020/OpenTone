@@ -35,20 +35,20 @@
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="RoleplayCell" id="gRu-GN-VfU" customClass="RoleplaysCell" customModule="OpenTone" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="33" height="128"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="34.333333333333343" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="ijS-nM-nKa">
-                                            <rect key="frame" x="0.0" y="0.0" width="33" height="128"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="34.333333333333343" height="128"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="unb-hC-apD">
-                                                    <rect key="frame" x="0.0" y="0.0" width="33" height="128"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="34.333333333333336" height="128"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rRb-Bc-w4j">
-                                                    <rect key="frame" x="0.0" y="112.33333333333333" width="33" height="15.666666666666671"/>
+                                                    <rect key="frame" x="0.0" y="112.33333333333333" width="34.333333333333336" height="15.666666666666671"/>
                                                     <color key="backgroundColor" systemColor="labelColor"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                    <color key="textColor" systemColor="secondarySystemBackgroundColor"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -92,7 +92,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1064.885496183206" y="130.98591549295776"/>
+            <point key="canvasLocation" x="947" y="131"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="eDT-Xs-4ZC">
@@ -602,9 +602,6 @@
         <image name="theatermasks.fill" catalog="system" width="128" height="91"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
