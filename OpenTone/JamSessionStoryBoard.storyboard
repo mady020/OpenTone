@@ -226,10 +226,10 @@
             </objects>
             <point key="canvasLocation" x="1028" y="-156"/>
         </scene>
-        <!--Prepare Jam-->
+        <!--Prepare for 2 minutes-->
         <scene sceneID="u4T-6h-tGG">
             <objects>
-                <viewController id="Hlz-xN-p0Z" customClass="PrepareJam" sceneMemberID="viewController">
+                <viewController id="Hlz-xN-p0Z" customClass="PrepareJamViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lZd-Bh-Gzg" customClass="MainContainer">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -243,13 +243,8 @@
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
-                                <view key="backgroundView" contentMode="scaleToFill" id="PyC-Tw-bcZ">
-                                    <rect key="frame" x="0.0" y="0.0" width="393" height="508"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                </view>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TimerCell" id="705-xj-QqS" customClass="TImerCell">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TimerCell" id="705-xj-QqS" customClass="TimerCell" customModule="OpenTone" customModuleProvider="target">
                                         <rect key="frame" x="132.66666666666666" y="0.0" width="127.99999999999997" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="67J-ko-9Kz">
@@ -270,26 +265,26 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="re5-7T-cT6">
-                                                    <rect key="frame" x="44.666666666666657" y="28" width="39" height="72"/>
-                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="60"/>
-                                                    <color key="textColor" red="0.56078431370000004" green="0.47061516640000001" blue="0.91786287550000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sl4-Cz-K6B" userLabel="countdownLabel">
+                                                    <rect key="frame" x="50.000000000000007" y="37.666666666666657" width="28.333333333333336" height="53"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="44"/>
+                                                    <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="umL-6p-HeK" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="COr-qg-p80"/>
-                                                <constraint firstItem="re5-7T-cT6" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="JgJ-Ya-bkQ"/>
+                                                <constraint firstItem="Sl4-Cz-K6B" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="XVS-Ru-bkq"/>
+                                                <constraint firstItem="Sl4-Cz-K6B" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="Xl5-rk-S4p"/>
                                                 <constraint firstItem="umL-6p-HeK" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="fyO-mG-m7v"/>
                                                 <constraint firstItem="Imj-zK-9EW" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="geg-fK-G7u"/>
                                                 <constraint firstItem="Imj-zK-9EW" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="rkT-kX-kch"/>
-                                                <constraint firstItem="re5-7T-cT6" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="urs-bh-8T6"/>
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <connections>
-                                            <outlet property="readyLable" destination="re5-7T-cT6" id="rlD-vi-OrR"/>
-                                            <outlet property="timerLabel" destination="Imj-zK-9EW" id="BOX-G3-FNV"/>
-                                            <outlet property="timerRingView" destination="umL-6p-HeK" id="4qQ-Of-hzD"/>
+                                            <outlet property="countdownLabel" destination="Sl4-Cz-K6B" id="hH9-eQ-w8a"/>
+                                            <outlet property="timerLabel" destination="Imj-zK-9EW" id="hoI-ca-mJv"/>
+                                            <outlet property="timerRingView" destination="umL-6p-HeK" id="SMn-kF-YTg"/>
                                         </connections>
                                     </collectionViewCell>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TopicCell" id="uTw-YY-JNd" customClass="TopicCell" customModule="OpenTone" customModuleProvider="target">
@@ -323,11 +318,10 @@
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <connections>
-                                            <outlet property="HotTopicLabel" destination="KiC-3g-4KI" id="Tf7-b3-kLJ"/>
-                                            <outlet property="TitleLable" destination="aLR-q3-M3D" id="Kky-VG-u2z"/>
+                                            <outlet property="titleLabel" destination="aLR-q3-M3D" id="xMP-i8-c01"/>
                                         </connections>
                                     </collectionViewCell>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SuggestionCell" id="bF9-lg-w0m" customClass="SuggestionCell">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SuggestionCell" id="bF9-lg-w0m" customClass="SuggestionCell" customModule="OpenTone" customModuleProvider="target">
                                         <rect key="frame" x="165.66666666666666" y="240.66666666666666" width="62" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="vYb-Jh-FcA">
@@ -372,10 +366,14 @@
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <connections>
-                                            <outlet property="suggestionLabel" destination="WVD-N1-3cp" id="C7T-M3-HE9"/>
+                                            <outlet property="suggestedLabel" destination="WVD-N1-3cp" id="Vza-3u-Pcn"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="Hlz-xN-p0Z" id="D1H-Ua-6K1"/>
+                                    <outlet property="delegate" destination="Hlz-xN-p0Z" id="FLz-dv-BrA"/>
+                                </connections>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wXJ-VG-nds">
                                 <rect key="frame" x="35" y="604.33333333333337" width="19.666666666666671" height="28.666666666666629"/>
@@ -439,7 +437,10 @@
                             <constraint firstItem="wXJ-VG-nds" firstAttribute="leading" secondItem="PIh-Yg-8TA" secondAttribute="leading" constant="35" id="yYi-dp-tL8"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="yLg-mr-BuW"/>
+                    <navigationItem key="navigationItem" title="Prepare for 2 minutes" id="yLg-mr-BuW"/>
+                    <connections>
+                        <outlet property="collectionView" destination="DEa-Gt-g51" id="Xnk-Ec-U8i"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Fd-xx-iLj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

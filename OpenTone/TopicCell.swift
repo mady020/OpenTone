@@ -2,17 +2,12 @@
 //  TopicCell.swift
 //  OpenTone
 //
-//  Created by Student on 27/11/25.
+//  Created by Student on 28/11/25.
 //
 
-import Foundation
 import UIKit
 
-class topicCell : UICollectionViewCell {
-   
+class TopicCell: UICollectionViewCell {
     
-    @IBOutlet var HotTopicLabel: UILabel!
-    
-    @IBOutlet var TitleLable: UILabel!
-    
+    @IBOutlet weak var titleLabel: UILabel!
 }

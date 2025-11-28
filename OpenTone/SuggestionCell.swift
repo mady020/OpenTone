@@ -10,6 +10,6 @@ import UIKit
 
 class SuggestionCell: UICollectionViewCell {
     
-    @IBOutlet weak var suggestionLabel: UILabel!
+    @IBOutlet weak var suggestedLabel: UILabel!
     
 }
