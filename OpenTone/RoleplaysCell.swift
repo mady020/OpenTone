@@ -24,7 +24,11 @@ class RoleplaysCell: UICollectionViewCell {
     }
 
     func configure(title: String, imageName: String) {
+      
+        titleLabel.font = UIFont.systemFont(ofSize: 14 , weight: .bold)
+        
         titleLabel.text = title
         roleplayImageView.image = UIImage(named: imageName)
     }
+  
 }

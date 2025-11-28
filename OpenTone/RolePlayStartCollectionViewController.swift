@@ -1,0 +1,109 @@
+import UIKit
+
+class RolePlayStartCollectionViewController: UICollectionViewController,
+                                         UICollectionViewDelegateFlowLayout {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = "Grocery Shopping"
+
+        collectionView.collectionViewLayout = createLayout()
+    }
+
+    // MARK: - Number of Cells
+    override func collectionView(_ collectionView: UICollectionView,
+                                 numberOfItemsInSection section: Int) -> Int {
+        return 3
+    }
+
+    // MARK: - Cell Provider
+    override func collectionView(_ collectionView: UICollectionView,
+                                 cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+
+        switch indexPath.item {
+
+        // CELL 0 - Description
+        case 0:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "DescriptionCell",
+                for: indexPath) as! DescriptionCell
+
+            cell.configure(
+                description: "In a grocery store, students learn how to ask about prices, locate items, and discuss payment methods.",
+                time: "5 minutes"
+            )
+            return cell
+
+        // CELL 1 - Script + Phrases
+        case 1:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "ScriptCell",
+                for: indexPath) as! ScriptCell
+
+            cell.configure(
+                
+                guidedText: "Speak the provided lines to practice the conversation.",
+
+               
+                keyPhrases: [
+                    "How much does this cost?",
+                    "Where can I find the checkout?",
+                    "Do you have this in another brand?"
+                ],
+
+                
+                premiumText: "Speak freely and get real-time pronunciation feedback."
+            )
+
+            return cell
+
+        // CELL 2 - Button
+        default:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "ButtonCell",
+                for: indexPath) as! ButtonCell
+
+            cell.onStartTapped = {
+                print("Start Role-Play tapped ✅")
+            }
+            return cell
+        }
+        
+        
+    }
+}
+
+
+extension RolePlayStartCollectionViewController {
+    func createLayout() -> UICollectionViewCompositionalLayout {
+        return UICollectionViewCompositionalLayout { sectionIndex, env in
+
+            let item = NSCollectionLayoutItem(
+                layoutSize: NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .estimated(200)
+                )
+            )
+
+            let group = NSCollectionLayoutGroup.vertical(
+                layoutSize: NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .estimated(200)
+                ),
+                subitems: [item]
+            )
+
+            let section = NSCollectionLayoutSection(group: group)
+
+           
+                section.contentInsets = NSDirectionalEdgeInsets(
+                    top: 16, leading: 16, bottom: 16, trailing: 16
+                )
+                section.interGroupSpacing = 16
+        
+
+            return section
+        }
+    }
+}
