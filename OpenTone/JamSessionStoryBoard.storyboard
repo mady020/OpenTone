@@ -226,7 +226,7 @@
             </objects>
             <point key="canvasLocation" x="1028" y="-156"/>
         </scene>
-        <!--Prepare for 2 minutes-->
+        <!--Topic & Preparation-->
         <scene sceneID="u4T-6h-tGG">
             <objects>
                 <viewController id="Hlz-xN-p0Z" customClass="PrepareJamViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
@@ -244,54 +244,55 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TimerCell" id="705-xj-QqS" customClass="TimerCell" customModule="OpenTone" customModuleProvider="target">
-                                        <rect key="frame" x="132.66666666666666" y="0.0" width="127.99999999999997" height="128"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="67J-ko-9Kz">
-                                            <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
-                                            <autoresizingMask key="autoresizingMask"/>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TimerCell" translatesAutoresizingMaskIntoConstraints="NO" id="705-xj-QqS" customClass="TimerCell" customModule="OpenTone" customModuleProvider="target">
+                                        <rect key="frame" x="76" y="0.0" width="240" height="240"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="67J-ko-9Kz">
+                                            <rect key="frame" x="0.0" y="0.0" width="240" height="240"/>
                                             <subviews>
-                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="umL-6p-HeK" customClass="TimerRingView">
-                                                    <rect key="frame" x="-56" y="-56" width="240" height="240"/>
+                                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="umL-6p-HeK" userLabel="TimerRing View" customClass="TimerRingView">
+                                                    <rect key="frame" x="0.0" y="0.0" width="240" height="240"/>
                                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="240" id="owh-Jt-7al"/>
-                                                        <constraint firstAttribute="width" constant="240" id="unk-pE-RqL"/>
+                                                        <constraint firstAttribute="height" constant="240" id="ClS-pe-uXk"/>
+                                                        <constraint firstAttribute="width" constant="240" id="inw-1J-hMa"/>
                                                     </constraints>
                                                 </view>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="02:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Imj-zK-9EW">
-                                                    <rect key="frame" x="12.666666666666671" y="42.666666666666657" width="103" height="43"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="02:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Imj-zK-9EW">
+                                                    <rect key="frame" x="140" y="197" width="100" height="43"/>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sl4-Cz-K6B" userLabel="countdownLabel">
-                                                    <rect key="frame" x="50.000000000000007" y="37.666666666666657" width="28.333333333333336" height="53"/>
+                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sl4-Cz-K6B" userLabel="countdownLabel">
+                                                    <rect key="frame" x="214" y="187" width="26" height="53"/>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="44"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="umL-6p-HeK" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="COr-qg-p80"/>
-                                                <constraint firstItem="Sl4-Cz-K6B" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="XVS-Ru-bkq"/>
-                                                <constraint firstItem="Sl4-Cz-K6B" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="Xl5-rk-S4p"/>
-                                                <constraint firstItem="umL-6p-HeK" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="fyO-mG-m7v"/>
-                                                <constraint firstItem="Imj-zK-9EW" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="geg-fK-G7u"/>
-                                                <constraint firstItem="Imj-zK-9EW" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="rkT-kX-kch"/>
+                                                <constraint firstItem="Sl4-Cz-K6B" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="1SA-Ba-Z5I"/>
+                                                <constraint firstItem="umL-6p-HeK" firstAttribute="top" secondItem="67J-ko-9Kz" secondAttribute="top" constant="16" id="3by-hs-18M"/>
+                                                <constraint firstItem="Sl4-Cz-K6B" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="ePM-zT-cE5"/>
+                                                <constraint firstItem="Imj-zK-9EW" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="fb6-s6-heM"/>
+                                                <constraint firstItem="umL-6p-HeK" firstAttribute="centerX" secondItem="67J-ko-9Kz" secondAttribute="centerX" id="hNQ-FQ-Q3c"/>
+                                                <constraint firstItem="Imj-zK-9EW" firstAttribute="centerY" secondItem="67J-ko-9Kz" secondAttribute="centerY" id="vOU-o4-mgt"/>
                                             </constraints>
                                         </collectionViewCellContentView>
+                                        <color key="backgroundColor" red="0.5607843137254902" green="0.47058823529411764" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <size key="customSize" width="240" height="240"/>
                                         <connections>
-                                            <outlet property="countdownLabel" destination="Sl4-Cz-K6B" id="hH9-eQ-w8a"/>
-                                            <outlet property="timerLabel" destination="Imj-zK-9EW" id="hoI-ca-mJv"/>
-                                            <outlet property="timerRingView" destination="umL-6p-HeK" id="SMn-kF-YTg"/>
+                                            <outlet property="countdownLabel" destination="Sl4-Cz-K6B" id="nn6-9x-irD"/>
+                                            <outlet property="timerLabel" destination="Imj-zK-9EW" id="99f-BD-XS9"/>
+                                            <outlet property="timerRingView" destination="umL-6p-HeK" id="iIs-Po-fsD"/>
                                         </connections>
                                     </collectionViewCell>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TopicCell" id="uTw-YY-JNd" customClass="TopicCell" customModule="OpenTone" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="138" width="393" height="92.666666666666686"/>
+                                        <rect key="frame" x="0.0" y="250" width="393" height="92.666666666666657"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="EHq-JN-l7C">
-                                            <rect key="frame" x="0.0" y="0.0" width="393" height="92.666666666666686"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="92.666666666666657"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your Hot Topic:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KiC-3g-4KI">
@@ -318,11 +319,11 @@
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <connections>
-                                            <outlet property="titleLabel" destination="aLR-q3-M3D" id="xMP-i8-c01"/>
+                                            <outlet property="tileLabel" destination="aLR-q3-M3D" id="DS9-aR-3lZ"/>
                                         </connections>
                                     </collectionViewCell>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SuggestionCell" id="bF9-lg-w0m" customClass="SuggestionCell" customModule="OpenTone" customModuleProvider="target">
-                                        <rect key="frame" x="165.66666666666666" y="240.66666666666666" width="62" height="128"/>
+                                        <rect key="frame" x="165.66666666666666" y="352.66666666666669" width="62" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="vYb-Jh-FcA">
                                             <rect key="frame" x="0.0" y="0.0" width="62" height="128"/>
@@ -375,18 +376,6 @@
                                     <outlet property="delegate" destination="Hlz-xN-p0Z" id="FLz-dv-BrA"/>
                                 </connections>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wXJ-VG-nds">
-                                <rect key="frame" x="35" y="604.33333333333337" width="19.666666666666671" height="28.666666666666629"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain">
-                                    <imageReference key="image" image="lightbulb.fill" catalog="system" symbolScale="large" renderingMode="template"/>
-                                    <backgroundConfiguration key="background" cornerRadius="20">
-                                        <color key="backgroundColor" red="0.94901960784313721" green="0.93333333333333335" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                    </backgroundConfiguration>
-                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
-                                    <color key="baseForegroundColor" red="0.5625" green="0.4709472656" blue="0.916015625" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                </buttonConfiguration>
-                            </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="R7E-bY-AQ4" userLabel="BottomButtonContainer">
                                 <rect key="frame" x="0.0" y="645" width="393" height="90"/>
                                 <subviews>
@@ -422,22 +411,38 @@
                                     <constraint firstItem="QFd-km-CbI" firstAttribute="top" secondItem="R7E-bY-AQ4" secondAttribute="top" constant="12" id="ssk-Pz-vqE"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wXJ-VG-nds">
+                                <rect key="frame" x="35" y="601" width="42" height="42"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="42" id="9xH-UO-saJ"/>
+                                    <constraint firstAttribute="width" constant="42" id="IpT-ra-Yk6"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <imageReference key="image" image="lightbulb.fill" catalog="system" symbolScale="large" renderingMode="template"/>
+                                    <backgroundConfiguration key="background" cornerRadius="20">
+                                        <color key="backgroundColor" red="0.94901960784313721" green="0.93333333333333335" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                    </backgroundConfiguration>
+                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
+                                    <color key="baseForegroundColor" red="0.5625" green="0.4709472656" blue="0.916015625" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                </buttonConfiguration>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="PIh-Yg-8TA"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="R7E-bY-AQ4" firstAttribute="leading" secondItem="PIh-Yg-8TA" secondAttribute="leading" id="8xq-LD-gVq"/>
-                            <constraint firstItem="R7E-bY-AQ4" firstAttribute="top" secondItem="wXJ-VG-nds" secondAttribute="bottom" constant="12" id="C06-cM-JiT"/>
                             <constraint firstAttribute="bottom" secondItem="DEa-Gt-g51" secondAttribute="bottom" constant="120" id="Icb-kA-P0f"/>
+                            <constraint firstItem="PIh-Yg-8TA" firstAttribute="bottom" secondItem="wXJ-VG-nds" secondAttribute="bottom" constant="92" id="T3q-kI-rvB"/>
                             <constraint firstItem="DEa-Gt-g51" firstAttribute="trailing" secondItem="PIh-Yg-8TA" secondAttribute="trailing" id="X1v-Xm-x2q"/>
                             <constraint firstItem="DEa-Gt-g51" firstAttribute="top" secondItem="PIh-Yg-8TA" secondAttribute="top" id="XEA-Cs-5YK"/>
                             <constraint firstItem="PIh-Yg-8TA" firstAttribute="trailing" secondItem="R7E-bY-AQ4" secondAttribute="trailing" id="XMK-WL-L3h"/>
+                            <constraint firstItem="wXJ-VG-nds" firstAttribute="leading" secondItem="PIh-Yg-8TA" secondAttribute="leading" constant="35" id="elR-Jm-TU8"/>
                             <constraint firstItem="DEa-Gt-g51" firstAttribute="leading" secondItem="PIh-Yg-8TA" secondAttribute="leading" id="l5p-3C-qbE"/>
                             <constraint firstItem="PIh-Yg-8TA" firstAttribute="bottom" secondItem="R7E-bY-AQ4" secondAttribute="bottom" id="slo-kJ-HKR"/>
-                            <constraint firstItem="wXJ-VG-nds" firstAttribute="leading" secondItem="PIh-Yg-8TA" secondAttribute="leading" constant="35" id="yYi-dp-tL8"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Prepare for 2 minutes" id="yLg-mr-BuW"/>
+                    <navigationItem key="navigationItem" title="Topic &amp; Preparation" id="yLg-mr-BuW"/>
                     <connections>
                         <outlet property="collectionView" destination="DEa-Gt-g51" id="Xnk-Ec-U8i"/>
                     </connections>
