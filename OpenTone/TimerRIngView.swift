@@ -11,33 +11,34 @@ class TimerRingView: UIView {
     private let backgroundLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
 
-    private let ringWidth: CGFloat = 18
-
-    var totalTime: CGFloat = 120
-    var remainingTime: CGFloat = 120 {
-        didSet { updateProgress() }
-    }
+    private let ringWidth: CGFloat = 22
+    private var didSetup = false
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        setupRing()
+
+        // Ensure setup only once AND when size is valid
+        if !didSetup && bounds.width > 0 && bounds.height > 0 {
+            didSetup = true
+            setupRing()
+        }
     }
 
     private func setupRing() {
         layer.sublayers?.forEach { $0.removeFromSuperlayer() }
 
         let centerPoint = CGPoint(x: bounds.midX, y: bounds.midY)
-        let radius = min(bounds.width, bounds.height) / 2 - ringWidth/2
+        let radius = min(bounds.width, bounds.height) / 2 - ringWidth / 2
 
         let path = UIBezierPath(
             arcCenter: centerPoint,
             radius: radius,
-            startAngle: -.pi/2,
+            startAngle: -.pi / 2,
             endAngle: 1.5 * .pi,
             clockwise: true
         )
 
-        // Light background ring
+        // Background ring
         backgroundLayer.path = path.cgPath
         backgroundLayer.strokeColor = UIColor(
             red: 242/255, green: 238/255, blue: 255/255, alpha: 1
@@ -47,7 +48,7 @@ class TimerRingView: UIView {
         backgroundLayer.lineCap = .round
         layer.addSublayer(backgroundLayer)
 
-        // Purple progress ring
+        // Progress ring
         progressLayer.path = path.cgPath
         progressLayer.strokeColor = UIColor(
             red: 143/255, green: 120/255, blue: 234/255, alpha: 1
@@ -55,36 +56,38 @@ class TimerRingView: UIView {
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round
-        progressLayer.strokeEnd = 1
+        progressLayer.strokeEnd = 1.0
         layer.addSublayer(progressLayer)
     }
 
-    private func updateProgress() {
-        let progress = remainingTime / totalTime
-        progressLayer.strokeEnd = progress
-    }
-
-    func animateRing(duration: TimeInterval) {
-        remainingTime = totalTime
-        progressLayer.removeAllAnimations()
-
-        let anim = CABasicAnimation(keyPath: "strokeEnd")
-        anim.fromValue = 1
-        anim.toValue = 0
-        anim.duration = duration
-        anim.fillMode = .forwards
-        anim.isRemovedOnCompletion = false
-        progressLayer.add(anim, forKey: "ring")
-    }
-
-    // New: reset helper used by TimerCell
+    // Reset to full ring
     func resetRing() {
         progressLayer.removeAllAnimations()
-        remainingTime = totalTime
-        progressLayer.strokeEnd = 1
-        // If layout hasn’t happened yet, ensure layers exist
-        if layer.sublayers == nil || layer.sublayers?.isEmpty == true {
-            setupRing()
+        progressLayer.strokeEnd = 1.0
+    }
+
+    // Safe animation function
+    func animateRing(duration: TimeInterval) {
+        layoutIfNeeded()
+
+        // If path isn't ready yet, retry slightly later
+        if progressLayer.path == nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in
+                self?.animateRing(duration: duration)
+            }
+            return
         }
+
+        progressLayer.removeAllAnimations()
+        progressLayer.strokeEnd = 1.0
+
+        let animation = CABasicAnimation(keyPath: "strokeEnd")
+        animation.fromValue = 1
+        animation.toValue = 0
+        animation.duration = duration
+        animation.fillMode = .forwards
+        animation.isRemovedOnCompletion = false
+
+        progressLayer.add(animation, forKey: "ringAnimation")
     }
 }

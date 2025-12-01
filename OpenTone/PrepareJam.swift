@@ -25,7 +25,7 @@ class PrepareJamViewController: UIViewController{
    extension PrepareJamViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
        func numberOfSections(in collectionView: UICollectionView) -> Int {
-           return 3   // Timer, Topic, Suggestions
+           return 1   // Timer, Topic, Suggestions
        }
 
        func collectionView(_ collectionView: UICollectionView,
