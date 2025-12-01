@@ -1,88 +1,139 @@
-//
-//  ProfileCollectionViewController.swift
-//  OpenTone
-//
-//  Created by M S on 01/12/25.
-//
-
 import UIKit
 
-private let reuseIdentifier = "Cell"
 
 class ProfileCollectionViewController: UICollectionViewController {
+    
+    var interests = [
+        "Movies",
+        "Technology",
+        "Gaming",
+        "Travel",
+        "Food",
+        "Art"
+    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Register cell classes
-        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
-        // Do any additional setup after loading the view.
+        collectionView.collectionViewLayout = createLayout()
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-    // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 2
     }
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-        return 0
+        switch section{
+        case 0:
+            return 1
+        case 1:
+            return interests.count
+            
+        default:
+            return 0
+        }
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
+        
+        switch indexPath.section {
+        case 0:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "ProfileCell",
+                for: indexPath
+            ) as! ProfileCell
+            return cell
+        case 1:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "InterestCell",
+                for: indexPath
+            ) as! InterestCell
+            cell.interestButton.titleLabel?.text = interests[indexPath.row]
+            return cell
+            
+        default:
+            return UICollectionViewCell()
+        }
+    }
+}
+
+
+
+extension ProfileCollectionViewController {
+
     
-        // Configure the cell
-    
-        return cell
-    }
+    private func createLayout() -> UICollectionViewCompositionalLayout {
+        return UICollectionViewCompositionalLayout { sectionIndex, env in
 
-    // MARK: UICollectionViewDelegate
+            switch sectionIndex {
 
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
+            case 0:
+                let item = NSCollectionLayoutItem(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .estimated(200)
+                    )
+                )
+                let group = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .estimated(200)
+                    ),
+                    subitems: [item]
+                )
+                let section = NSCollectionLayoutSection(group: group)
+                section.contentInsets = NSDirectionalEdgeInsets(
+                    top: 4, leading: 16, bottom: 16, trailing: 16
+                )
+                return section
 
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
+            case 1:
+                
+                let item = NSCollectionLayoutItem(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .absolute(44)
+                    )
+                )
 
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
+                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16)
 
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
+                let group = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .estimated(160),
+                        heightDimension: .absolute(120)
+                    ),
+                    subitems: [item]
+                )
 
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+
+                
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
+
+                return section
+
+
+                
+                
+            default:
+                let item = NSCollectionLayoutItem(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .estimated(80)
+                    )
+                )
+                let group = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .estimated(80)
+                    ),
+                    subitems: [item]
+                )
+                return NSCollectionLayoutSection(group: group)
+            }
+        }
     }
-    */
 
 }
