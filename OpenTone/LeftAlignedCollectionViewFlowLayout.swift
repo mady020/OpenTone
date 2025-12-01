@@ -16,6 +16,7 @@ class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
 
                 if layoutAttribute.frame.origin.y >= maxY {
                     leftMargin = sectionInset.left
+                    
                 }
 
                 layoutAttribute.frame.origin.x = leftMargin

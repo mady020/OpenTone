@@ -16,12 +16,19 @@ class RoleplaysCell: UICollectionViewCell {
         roleplayImageView.clipsToBounds = true
 
     
-        titleLabel.alpha = 0.4
+//        titleLabel.alpha = 0.4
+        
+        titleLabel.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        
 
     }
 
     func configure(title: String, imageName: String) {
+      
+        titleLabel.font = UIFont.systemFont(ofSize: 14 , weight: .bold)
+        
         titleLabel.text = title
         roleplayImageView.image = UIImage(named: imageName)
     }
+  
 }
