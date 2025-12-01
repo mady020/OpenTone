@@ -16,7 +16,7 @@ class FeedbackCollectionViewController: UICollectionViewController {
         switch section {
         case 0: return 1
         case 1: return 1
-        case 2: return 1
+        case 2: return 3
         case 3: return 1
         default: return 0
         }
