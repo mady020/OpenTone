@@ -65,7 +65,7 @@
                                         <connections>
                                             <outlet property="roleplayImageView" destination="unb-hC-apD" id="Hyp-7u-gic"/>
                                             <outlet property="titleLabel" destination="rRb-Bc-w4j" id="SfJ-Pu-0wM"/>
-                                            <segue destination="UrW-Xx-Gvv" kind="show" id="3Ab-17-RZU"/>
+                                            <segue destination="UrW-Xx-Gvv" kind="show" identifier="RoleplayCell" id="3Ab-17-RZU"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -272,7 +272,7 @@
         <!--Grocery Shopping-->
         <scene sceneID="3MS-u9-64X">
             <objects>
-                <viewController id="7LU-8A-oHx" sceneMemberID="viewController">
+                <viewController id="7LU-8A-oHx" customClass="ChatViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="1wN-IR-UlT">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
