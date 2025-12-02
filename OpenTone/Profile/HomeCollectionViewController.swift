@@ -210,7 +210,7 @@ extension HomeCollectionViewController {
 
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
+                widthDimension: .fractionalWidth(1.2),
                 heightDimension: .absolute(130)
             )
         )
