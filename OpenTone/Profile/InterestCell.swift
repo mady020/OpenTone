@@ -1,15 +1,11 @@
-//
-//  InterestCell.swift
-//  OpenTone
-//
-//  Created by M S on 01/12/25.
-//
-
 import UIKit
 
 class InterestCell: UICollectionViewCell {
+    @IBOutlet var interestLabel: UILabel!
     
-    @IBOutlet var interestButton: UIButton!
-    
-    
+    override func awakeFromNib() {
+            super.awakeFromNib()
+            layer.cornerRadius = 16
+            layer.masksToBounds = true
+    }
 }

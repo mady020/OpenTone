@@ -48,12 +48,24 @@ class ProfileCollectionViewController: UICollectionViewController {
                 withReuseIdentifier: "InterestCell",
                 for: indexPath
             ) as! InterestCell
-            cell.interestButton.titleLabel?.text = interests[indexPath.row]
+            cell.interestLabel.text = interests[indexPath.item]
             return cell
             
         default:
             return UICollectionViewCell()
         }
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header  = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "profileHeader", for: indexPath) as! HeaderCollectionReusableView
+        
+        switch (indexPath.section){
+        case 1:
+            header.headerLabel.text = "Interests"
+        default:
+            header.headerLabel.text = ""
+        }
+        return header
     }
 }
 
@@ -105,12 +117,27 @@ extension ProfileCollectionViewController {
                     ),
                     subitems: [item]
                 )
+                
+               
+
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .continuous
 
                 
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
+                
+                let headerSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .absolute(50)
+                )
+
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: headerSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top
+                )
+                section.boundarySupplementaryItems = [header]
 
                 return section
 
