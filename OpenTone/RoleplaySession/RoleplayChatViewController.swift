@@ -46,7 +46,7 @@ class RoleplayChatViewController: UIViewController {
 
         // For automatic dynamic height
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 60
+        tableView.estimatedRowHeight = 120
     }
 
     // 🔥 FIX: Only load script after view is fully on screen
@@ -94,11 +94,13 @@ class RoleplayChatViewController: UIViewController {
      //MARK: - Safe Reload + Scroll
     func reloadTableSafely() {
         tableView.reloadData()
+        tableView.layoutIfNeeded()
 
         DispatchQueue.main.async {
             self.scrollToBottom()
         }
     }
+
 
     func scrollToBottom() {
         guard messages.count > 0 else { return }
