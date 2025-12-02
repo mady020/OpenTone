@@ -11,8 +11,17 @@ class AppMessageCell: UITableViewCell {
 
     
     @IBOutlet weak var messageLabel: UILabel!
+    
+    @IBOutlet var bubbleView: UIView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        bubbleView.layer.cornerRadius = 18
+               bubbleView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.12)
+        
+        bubbleView.clipsToBounds = true
+
         // Initialization code
     }
 
