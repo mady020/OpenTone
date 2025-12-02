@@ -13,59 +13,137 @@ class PrepareJamViewController: UIViewController{
     
     @IBOutlet weak var collectionView: UICollectionView!
     
+    
+    @IBOutlet weak var bulbButton: UIButton!
+    
+    let allSuggestions: [String] = [
+            "Increased Flexibility",
+            "Global Collaboration",
+            "Work-Life Balance",
+            "Productivity Trends",
+            "Employee Wellbeing",
+            "Hybrid Work Challenges"
+        ]
 
-    override func viewDidLoad() {
-           super.viewDidLoad()
+        // Start by showing only first 4 suggestions
+        var visibleCount = 4
 
-           collectionView.delegate = self
-           collectionView.dataSource = self
-       }
-   }
+        // The suggestions actually shown in collection view
+        var visibleSuggestions: [String] {
+            return Array(allSuggestions.prefix(visibleCount))
+        }
 
-   extension PrepareJamViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+        override func viewDidLoad() {
+            super.viewDidLoad()
 
-       func numberOfSections(in collectionView: UICollectionView) -> Int {
-           return 1   // Timer, Topic, Suggestions
-       }
+            collectionView.delegate = self
+            collectionView.dataSource = self
 
-       func collectionView(_ collectionView: UICollectionView,
-                           numberOfItemsInSection section: Int) -> Int {
+            // Layout
+            let layout = UICollectionViewFlowLayout()
+            layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
+            layout.minimumInteritemSpacing = 12
+            layout.minimumLineSpacing = 15
+            collectionView.collectionViewLayout = layout
 
-           if section == 0 { return 1 }   // TimerCell
-           if section == 1 { return 1 }   // TopicCell
-           return 6                      // Suggestions
-       }
+            // Show or hide bulb
+            bulbButton.isHidden = (visibleCount >= allSuggestions.count)
+        }
 
-       func collectionView(_ collectionView: UICollectionView,
-                           cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        // MARK: - Bulb button reveals remaining suggestions
+        @IBAction func bulbTapped(_ sender: UIButton) {
 
-           if indexPath.section == 0 {
-               return collectionView.dequeueReusableCell(withReuseIdentifier: "TimerCell", for: indexPath)
-           }
+            // Already showing all? Hide the button
+            if visibleCount >= allSuggestions.count {
+                bulbButton.isHidden = true
+                return
+            }
 
-           if indexPath.section == 1 {
-               return collectionView.dequeueReusableCell(withReuseIdentifier: "TopicCell", for: indexPath)
-           }
+            let startIndex = visibleCount
+            visibleCount = allSuggestions.count   // reveal all suggestions
 
-           return collectionView.dequeueReusableCell(withReuseIdentifier: "SuggestionCell", for: indexPath)
-       }
+            // Build index paths for new items (2 items)
+            var newIndexPaths: [IndexPath] = []
+            for i in startIndex..<visibleCount {
+                newIndexPaths.append(IndexPath(item: i, section: 2))
+            }
 
-       // CELL SIZES
-       func collectionView(_ collectionView: UICollectionView,
-                           layout collectionViewLayout: UICollectionViewLayout,
-                           sizeForItemAt indexPath: IndexPath) -> CGSize {
+            // Insert the new rows
+            collectionView.performBatchUpdates({
+                collectionView.insertItems(at: newIndexPaths)
+            })
 
-           let width = collectionView.bounds.width - 32
+            // Hide bulb after showing remaining suggestions
+            bulbButton.isHidden = true
+        }
+    }
 
-           if indexPath.section == 0 {
-               return CGSize(width: width, height: 300)
-           }
+    extension PrepareJamViewController:
+        UICollectionViewDataSource,
+        UICollectionViewDelegateFlowLayout
+    {
+        func numberOfSections(in collectionView: UICollectionView) -> Int {
+            return 3
+        }
 
-           if indexPath.section == 1 {
-               return CGSize(width: width, height: 100)
-           }
+        func collectionView(_ collectionView: UICollectionView,
+                            numberOfItemsInSection section: Int) -> Int {
+            
+            if section == 0 { return 1 }
+            if section == 1 { return 1 }
+            
+            // show only visible suggestions
+            return visibleSuggestions.count
+        }
 
-           let chipWidth = (width - 10) / 2
-           return CGSize(width: chipWidth, height: 44)
-       }
-}
+        func collectionView(_ collectionView: UICollectionView,
+                            cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+
+            if indexPath.section == 0 {
+                return collectionView.dequeueReusableCell(withReuseIdentifier: "TimerCell", for: indexPath)
+            }
+
+            if indexPath.section == 1 {
+                return collectionView.dequeueReusableCell(withReuseIdentifier: "TopicCell", for: indexPath)
+            }
+
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "SuggestionCell",
+                for: indexPath
+            ) as! SuggestionCell
+
+            cell.configure(text: visibleSuggestions[indexPath.item])
+            return cell
+        }
+
+        // Sizes
+        func collectionView(_ collectionView: UICollectionView,
+                            layout collectionViewLayout: UICollectionViewLayout,
+                            sizeForItemAt indexPath: IndexPath) -> CGSize {
+
+            let totalWidth = collectionView.bounds.width
+
+            if indexPath.section == 0 {
+                return CGSize(width: totalWidth - 30, height: 255)
+            }
+
+            if indexPath.section == 1 {
+                return CGSize(width: totalWidth, height: 105)
+            }
+
+            let leftRightPadding: CGFloat = 15
+            let columnSpacing: CGFloat = 12
+
+            let availableWidth = totalWidth - (leftRightPadding * 2) - columnSpacing
+            let itemWidth = availableWidth / 2
+
+            return CGSize(width: itemWidth, height: 50)
+        }
+
+        func collectionView(_ collectionView: UICollectionView,
+                            layout collectionViewLayout: UICollectionViewLayout,
+                            minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+            return 15
+        }
+    }
+
