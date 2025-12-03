@@ -16,7 +16,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func signinButtonTapped(_ sender: Any) {
-        goToDashboard()
+//        goToDashboard()
+        goToInterestsChoice()
     }
     
     private func goToDashboard() {
@@ -28,6 +29,18 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         self.view.window?.makeKeyAndVisible()
     }
     
+    private func goToInterestsChoice() {
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let introVC = storyboard.instantiateViewController(withIdentifier: "InterestsIntro")
+
+        let nav = UINavigationController(rootViewController: introVC)
+        nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .crossDissolve
+
+        self.view.window?.rootViewController = nav
+        self.view.window?.makeKeyAndVisible()
+    }
+
     private func addIconsToTextFields() {
         let emailIcon = UIImageView(image: UIImage(systemName: "envelope.fill"))
         emailIcon.tintColor = .secondaryLabel
