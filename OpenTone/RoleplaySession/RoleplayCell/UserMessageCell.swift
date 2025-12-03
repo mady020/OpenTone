@@ -14,6 +14,9 @@ class UserMessageCell: UITableViewCell {
     
     @IBOutlet var bubbleView: UIView!
     
+    
+ 
+
     override func awakeFromNib() {
         super.awakeFromNib()
         
@@ -21,12 +24,17 @@ class UserMessageCell: UITableViewCell {
         bubbleView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.22)
         
         bubbleView.clipsToBounds = true
+        
+        
+        bubbleView.translatesAutoresizingMaskIntoConstraints = false
+
+
+        
+        
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
 
 }

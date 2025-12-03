@@ -312,10 +312,10 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="7Xe-Es-ff4" secondAttribute="bottom" constant="8" id="48v-r7-R4h"/>
-                                            <constraint firstItem="7Xe-Es-ff4" firstAttribute="leading" secondItem="xDL-Um-yQc" secondAttribute="leading" constant="16" id="4QW-fG-TOP"/>
-                                            <constraint firstItem="7Xe-Es-ff4" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="xDL-Um-yQc" secondAttribute="centerX" constant="100" id="XIf-Ng-bmd"/>
-                                            <constraint firstItem="7Xe-Es-ff4" firstAttribute="top" secondItem="xDL-Um-yQc" secondAttribute="top" constant="8" id="gzI-bt-6Gw"/>
+                                            <constraint firstItem="7Xe-Es-ff4" firstAttribute="bottom" secondItem="eol-em-uZo" secondAttribute="bottom" constant="-8" id="48v-r7-R4h"/>
+                                            <constraint firstItem="7Xe-Es-ff4" firstAttribute="leading" secondItem="eol-em-uZo" secondAttribute="leading" constant="16" id="4QW-fG-TOP"/>
+                                            <constraint firstItem="7Xe-Es-ff4" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="eol-em-uZo" secondAttribute="centerX" multiplier="0.7" constant="100" id="XIf-Ng-bmd"/>
+                                            <constraint firstItem="7Xe-Es-ff4" firstAttribute="top" secondItem="eol-em-uZo" secondAttribute="top" constant="8" id="gzI-bt-6Gw"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="bubbleView" destination="7Xe-Es-ff4" id="87I-bN-RNR"/>
@@ -329,11 +329,11 @@
                                             <rect key="frame" x="0.0" y="0.0" width="393" height="51"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hIP-5d-zVB">
-                                                    <rect key="frame" x="296.66666666666669" y="8" width="80.333333333333314" height="35"/>
+                                                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hIP-5d-zVB">
+                                                    <rect key="frame" x="302.33333333333331" y="8" width="74.666666666666686" height="35"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bs5-W3-fLX">
-                                                            <rect key="frame" x="12.000000000000004" y="8" width="56.333333333333343" height="19"/>
+                                                            <rect key="frame" x="15.999999999999996" y="8" width="42.666666666666657" height="19"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -343,17 +343,17 @@
                                                     <constraints>
                                                         <constraint firstItem="bs5-W3-fLX" firstAttribute="top" secondItem="hIP-5d-zVB" secondAttribute="top" constant="8" id="RNM-bp-gM8"/>
                                                         <constraint firstAttribute="bottom" secondItem="bs5-W3-fLX" secondAttribute="bottom" constant="8" id="gss-HK-t6I"/>
-                                                        <constraint firstItem="bs5-W3-fLX" firstAttribute="leading" secondItem="hIP-5d-zVB" secondAttribute="leading" constant="12" id="qAa-uw-869"/>
-                                                        <constraint firstAttribute="trailing" secondItem="bs5-W3-fLX" secondAttribute="trailing" constant="12" id="yo4-h5-vrr"/>
+                                                        <constraint firstItem="bs5-W3-fLX" firstAttribute="leading" secondItem="hIP-5d-zVB" secondAttribute="leading" constant="16" id="qAa-uw-869"/>
+                                                        <constraint firstAttribute="trailing" secondItem="bs5-W3-fLX" secondAttribute="trailing" constant="16" id="yo4-h5-vrr"/>
                                                     </constraints>
                                                 </view>
                                             </subviews>
                                         </tableViewCellContentView>
                                         <constraints>
-                                            <constraint firstItem="hIP-5d-zVB" firstAttribute="top" secondItem="XKG-ZC-uQB" secondAttribute="top" constant="8" id="7Qn-Gk-yfa"/>
-                                            <constraint firstAttribute="trailing" secondItem="hIP-5d-zVB" secondAttribute="trailing" constant="16" id="AjC-hE-XAB"/>
-                                            <constraint firstItem="hIP-5d-zVB" firstAttribute="leading" relation="lessThanOrEqual" secondItem="XKG-ZC-uQB" secondAttribute="centerX" constant="100" id="Cu8-4z-NKs"/>
-                                            <constraint firstAttribute="bottom" secondItem="hIP-5d-zVB" secondAttribute="bottom" constant="8" id="WcJ-jl-mgu"/>
+                                            <constraint firstItem="hIP-5d-zVB" firstAttribute="top" secondItem="laN-VU-Afg" secondAttribute="top" constant="8" id="7Qn-Gk-yfa"/>
+                                            <constraint firstItem="laN-VU-Afg" firstAttribute="trailing" secondItem="hIP-5d-zVB" secondAttribute="trailing" constant="16" id="AjC-hE-XAB"/>
+                                            <constraint firstItem="hIP-5d-zVB" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="laN-VU-Afg" secondAttribute="centerX" multiplier="0.7" constant="16" id="Cu8-4z-NKs"/>
+                                            <constraint firstItem="hIP-5d-zVB" firstAttribute="bottom" secondItem="laN-VU-Afg" secondAttribute="bottom" constant="-8" id="WcJ-jl-mgu"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="bubbleView" destination="hIP-5d-zVB" id="P6J-rU-TLR"/>
