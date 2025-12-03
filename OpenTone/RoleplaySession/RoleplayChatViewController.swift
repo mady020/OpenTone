@@ -29,7 +29,7 @@ class RoleplayChatViewController: UIViewController {
     // Simple script
     let script = [
         ("Where can I find the milk?",
-         ["How much does this cost?", "I am looking for milk", "Where is checkout?"]),
+         ["How much does this cost, how can i buy it, please help me?", "I am looking for milk", "Where is checkout?"]),
         
         ("The milk is in the dairy section next to eggs.",
          ["Show me directions", "Got it!", "Can I pay by card?"]),
@@ -47,6 +47,9 @@ class RoleplayChatViewController: UIViewController {
         // For automatic dynamic height
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 120
+        
+    
+
     }
 
     override func viewDidAppear(_ animated: Bool) {
