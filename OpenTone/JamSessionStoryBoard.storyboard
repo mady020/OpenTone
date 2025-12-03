@@ -244,7 +244,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TimerCell" translatesAutoresizingMaskIntoConstraints="NO" id="705-xj-QqS" customClass="TimerCellCollectionViewCell" customModule="OpenTone" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" misplaced="YES" reuseIdentifier="TimerCell" translatesAutoresizingMaskIntoConstraints="NO" id="705-xj-QqS" customClass="TimerCellCollectionViewCell" customModule="OpenTone" customModuleProvider="target">
                                         <rect key="frame" x="96.666666666666671" y="0.0" width="200" height="200"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="qPc-Ws-hon">
@@ -292,20 +292,20 @@
                                         </connections>
                                     </collectionViewCell>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TopicCell" id="uTw-YY-JNd" customClass="TopicCell" customModule="OpenTone" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="210" width="609.66666666666663" height="68.666666666666686"/>
+                                        <rect key="frame" x="0.0" y="210" width="611.66666666666663" height="68.666666666666686"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="EHq-JN-l7C">
-                                            <rect key="frame" x="0.0" y="0.0" width="609.66666666666663" height="68.666666666666686"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="611.66666666666663" height="68.666666666666686"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your Hot Topic:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KiC-3g-4KI">
-                                                    <rect key="frame" x="16" y="0.0" width="581.66666666666663" height="22"/>
+                                                    <rect key="frame" x="16" y="0.0" width="583.66666666666663" height="22"/>
                                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
                                                     <color key="textColor" red="0.2106933594" green="0.47875979540000002" blue="0.4536132812" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="THE FUTURE OF REMOTE WORK AND CHALLENGES" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aLR-q3-M3D">
-                                                    <rect key="frame" x="15" y="30" width="579.66666666666663" height="28.666666666666671"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="THE FUTURE OF REMOTE WORK AND CHALLAGNES" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aLR-q3-M3D">
+                                                    <rect key="frame" x="15" y="30" width="581.66666666666663" height="28.666666666666671"/>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -408,7 +408,7 @@
                                             <color key="baseBackgroundColor" red="0.56078431370000004" green="0.4709472656" blue="0.916015625" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         </buttonConfiguration>
                                         <connections>
-                                            <segue destination="3p0-fV-fhI" kind="push" id="KWD-yj-mCK"/>
+                                            <action selector="startJamTapped:" destination="Hlz-xN-p0Z" eventType="touchUpInside" id="In9-tg-Hrp"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -465,28 +465,28 @@
             </objects>
             <point key="canvasLocation" x="1768.7022900763359" y="-173.2394366197183"/>
         </scene>
-        <!--Start Jam View Controller-->
+        <!--Your Speach TIme-->
         <scene sceneID="vDA-lf-fOB">
             <objects>
-                <viewController id="3p0-fV-fhI" customClass="StartJamViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="StartJamViewController" id="3p0-fV-fhI" customClass="StartJamViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="36I-3p-DRV">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xA4-LH-rcD" userLabel="Container View">
-                                <rect key="frame" x="81.666666666666686" y="182" width="230" height="230"/>
+                                <rect key="frame" x="81.666666666666686" y="128" width="230" height="230"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fOQ-fk-J1l" userLabel="TimerRingView" customClass="TimerRingView" customModule="OpenTone" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="18" width="230" height="230"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="02:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7u9-tv-TLS">
-                                                <rect key="frame" x="63.333333333333329" y="93.666666666666686" width="102.99999999999999" height="43"/>
+                                                <rect key="frame" x="63.333333333333329" y="93.666666666666657" width="102.99999999999999" height="43"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mRG-Fj-a7V" userLabel="countdownLabel">
-                                                <rect key="frame" x="100.66666666666667" y="88.666666666666686" width="28.333333333333329" height="52.666666666666657"/>
+                                                <rect key="frame" x="100.66666666666667" y="88.666666666666657" width="28.333333333333329" height="52.666666666666657"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="44"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
@@ -512,26 +512,26 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z1y-WA-nyv" userLabel="waveView">
-                                <rect key="frame" x="20" y="432" width="353" height="80"/>
+                                <rect key="frame" x="20" y="398" width="353" height="80"/>
                                 <color key="backgroundColor" systemColor="tertiarySystemGroupedBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="80" id="0YF-it-cWD"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="YOUR HOT TOPIC :" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WTQ-BH-tiv">
-                                <rect key="frame" x="20" y="532" width="353" height="20.333333333333371"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
+                                <rect key="frame" x="20" y="498" width="353" height="21.666666666666629"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
+                                <color key="textColor" red="0.2106933594" green="0.47875979540000002" blue="0.4536132812" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="THE FUTURE OF REMOTE WORK" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r0t-ai-1mI">
-                                <rect key="frame" x="20" y="562.33333333333337" width="353" height="20.333333333333371"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="20" y="529.66666666666663" width="353" height="28.666666666666629"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" alignment="center" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="L0a-DZ-0DA">
-                                <rect key="frame" x="53.666666666666657" y="629" width="286" height="86"/>
+                                <rect key="frame" x="53.666666666666657" y="678" width="286" height="86"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vCE-4t-50n">
                                         <rect key="frame" x="0.0" y="18" width="50" height="50"/>
@@ -549,9 +549,6 @@
                                             <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
                                             <color key="baseForegroundColor" red="0.5625" green="0.4709472656" blue="0.916015625" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         </buttonConfiguration>
-                                        <connections>
-                                            <action selector="bulbTapped:" destination="Hlz-xN-p0Z" eventType="touchUpInside" id="YQq-0W-Le1"/>
-                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hgM-pr-6bC">
                                         <rect key="frame" x="100" y="0.0" width="86" height="86"/>
@@ -577,6 +574,9 @@
                                                 <color key="strokeColor" red="0.56078431370000004" green="0.4709472656" blue="0.916015625" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                             </backgroundConfiguration>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="cancelTapped:" destination="3p0-fV-fhI" eventType="touchUpInside" id="hqp-lC-Ke6"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -591,7 +591,7 @@
                             <constraint firstItem="r0t-ai-1mI" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="20" id="Oet-gS-0oX"/>
                             <constraint firstItem="r0t-ai-1mI" firstAttribute="top" secondItem="WTQ-BH-tiv" secondAttribute="bottom" constant="10" id="SGf-OZ-53I"/>
                             <constraint firstItem="xA4-LH-rcD" firstAttribute="centerX" secondItem="36I-3p-DRV" secondAttribute="centerX" id="cph-rl-E1V"/>
-                            <constraint firstItem="Z1y-WA-nyv" firstAttribute="top" secondItem="xA4-LH-rcD" secondAttribute="bottom" constant="20" id="lcP-3m-vzc"/>
+                            <constraint firstItem="Z1y-WA-nyv" firstAttribute="top" secondItem="xA4-LH-rcD" secondAttribute="bottom" constant="40" id="lcP-3m-vzc"/>
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="WTQ-BH-tiv" secondAttribute="trailing" constant="20" id="n2d-sA-dVo"/>
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="bottom" secondItem="L0a-DZ-0DA" secondAttribute="bottom" constant="20" id="oA2-jV-Bhd"/>
                             <constraint firstItem="Z1y-WA-nyv" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="20" id="qS1-bc-E2E"/>
@@ -599,11 +599,16 @@
                             <constraint firstItem="WTQ-BH-tiv" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="20" id="ts9-7Y-hu5"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="HO4-ug-MvW"/>
+                    <navigationItem key="navigationItem" title="Your Speach TIme" largeTitleDisplayMode="never" id="HO4-ug-MvW"/>
                     <connections>
-                        <outlet property="bulbButton" destination="vCE-4t-50n" id="ltn-C9-Kov"/>
-                        <outlet property="cancelButton" destination="tnC-Gw-fi0" id="skj-vZ-FtG"/>
-                        <outlet property="micButton" destination="hgM-pr-6bC" id="jzW-Zk-gpR"/>
+                        <outlet property="bulbButton" destination="vCE-4t-50n" id="yTr-c8-C9h"/>
+                        <outlet property="cancelButton" destination="tnC-Gw-fi0" id="g24-c2-Xbq"/>
+                        <outlet property="countdownLabel" destination="mRG-Fj-a7V" id="8Hu-ZK-x9c"/>
+                        <outlet property="micButton" destination="hgM-pr-6bC" id="sxY-db-MDX"/>
+                        <outlet property="timerLabel" destination="7u9-tv-TLS" id="0vY-pq-Tmj"/>
+                        <outlet property="timerRingView" destination="fOQ-fk-J1l" id="57A-FP-O1d"/>
+                        <outlet property="topicTitleLabel" destination="r0t-ai-1mI" id="FCf-tp-Czk"/>
+                        <outlet property="waveView" destination="Z1y-WA-nyv" id="wor-g7-YPR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ubX-bc-UJJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

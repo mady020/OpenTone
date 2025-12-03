@@ -5,145 +5,166 @@
 //  Created by Student on 28/11/25.
 //
 
-import Foundation
+//
+//  PrepareJamViewController.swift
+//  OpenTone
+//
+
 import UIKit
 
-class PrepareJamViewController: UIViewController{
-    
-    
+class PrepareJamViewController: UIViewController {
+
     @IBOutlet weak var collectionView: UICollectionView!
-    
-    
     @IBOutlet weak var bulbButton: UIButton!
-    
-    let allSuggestions: [String] = [
-            "Increased Flexibility",
-            "Global Collaboration",
-            "Work-Life Balance",
-            "Productivity Trends",
-            "Employee Wellbeing",
-            "Hybrid Work Challenges"
-        ]
 
-        // Start by showing only first 4 suggestions
-        var visibleCount = 4
+    // topic to pass forward (can be set from AI later)
+    private(set) var selectedTopic: String = ""
 
-        // The suggestions actually shown in collection view
-        var visibleSuggestions: [String] {
-            return Array(allSuggestions.prefix(visibleCount))
-        }
+    private let allSuggestions: [String] = [
+        "Increased Flexibility",
+        "Global Collaboration",
+        "Work-Life Balance",
+        "Productivity Trends",
+        "Employee Wellbeing",
+        "Hybrid Work Challenges"
+    ]
 
-        override func viewDidLoad() {
-            super.viewDidLoad()
-
-            collectionView.delegate = self
-            collectionView.dataSource = self
-
-            // Layout
-            let layout = UICollectionViewFlowLayout()
-            layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
-            layout.minimumInteritemSpacing = 12
-            layout.minimumLineSpacing = 15
-            collectionView.collectionViewLayout = layout
-
-            // Show or hide bulb
-            bulbButton.isHidden = (visibleCount >= allSuggestions.count)
-        }
-
-        // MARK: - Bulb button reveals remaining suggestions
-        @IBAction func bulbTapped(_ sender: UIButton) {
-
-            // Already showing all? Hide the button
-            if visibleCount >= allSuggestions.count {
-                bulbButton.isHidden = true
-                return
-            }
-
-            let startIndex = visibleCount
-            visibleCount = allSuggestions.count   // reveal all suggestions
-
-            // Build index paths for new items (2 items)
-            var newIndexPaths: [IndexPath] = []
-            for i in startIndex..<visibleCount {
-                newIndexPaths.append(IndexPath(item: i, section: 2))
-            }
-
-            // Insert the new rows
-            collectionView.performBatchUpdates({
-                collectionView.insertItems(at: newIndexPaths)
-            })
-
-            // Hide bulb after showing remaining suggestions
-            bulbButton.isHidden = true
-        }
+    private var visibleCount = 4
+    private var visibleSuggestions: [String] {
+        return Array(allSuggestions.prefix(visibleCount))
     }
 
-    extension PrepareJamViewController:
-        UICollectionViewDataSource,
-        UICollectionViewDelegateFlowLayout
-    {
-        func numberOfSections(in collectionView: UICollectionView) -> Int {
-            return 3
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        collectionView.delegate = self
+        collectionView.dataSource = self
+
+        let layout = UICollectionViewFlowLayout()
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
+        layout.minimumInteritemSpacing = 12
+        layout.minimumLineSpacing = 15
+        collectionView.collectionViewLayout = layout
+
+        // set a sensible default topic until AI integration
+        if selectedTopic.isEmpty {
+            selectedTopic = "THE FUTURE OF REMOTE WORK"
         }
 
-        func collectionView(_ collectionView: UICollectionView,
-                            numberOfItemsInSection section: Int) -> Int {
-            
-            if section == 0 { return 1 }
-            if section == 1 { return 1 }
-            
-            // show only visible suggestions
-            return visibleSuggestions.count
+        bulbButton.isHidden = (visibleCount >= allSuggestions.count)
+    }
+
+    // MARK: - Actions
+
+    @IBAction func bulbTapped(_ sender: UIButton) {
+        guard visibleCount < allSuggestions.count else {
+            bulbButton.isHidden = true
+            return
         }
 
-        func collectionView(_ collectionView: UICollectionView,
-                            cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let startIndex = visibleCount
+        visibleCount = allSuggestions.count
 
-            if indexPath.section == 0 {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: "TimerCell", for: indexPath)
-            }
+        var newIndexPaths: [IndexPath] = []
+        for i in startIndex..<visibleCount {
+            newIndexPaths.append(IndexPath(item: i, section: 2))
+        }
 
-            if indexPath.section == 1 {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: "TopicCell", for: indexPath)
-            }
+        collectionView.performBatchUpdates({
+            collectionView.insertItems(at: newIndexPaths)
+        }, completion: nil)
 
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: "SuggestionCell",
-                for: indexPath
-            ) as! SuggestionCell
+        bulbButton.isHidden = true
+    }
 
-            cell.configure(text: visibleSuggestions[indexPath.item])
+    @IBAction func startJamTapped(_ sender: UIButton) {
+        goToStartJam()
+    }
+
+    // MARK: - Navigation helper (safe)
+    func goToStartJam() {
+        // if selectedTopic is empty (rare), try to read from the topic cell
+        if selectedTopic.isEmpty {
+            if let topic = topicFromVisibleCell() { selectedTopic = topic }
+        }
+
+        guard let vc = storyboard?.instantiateViewController(withIdentifier: "StartJamViewController") as? StartJamViewController else {
+            return
+        }
+
+        vc.topicText = selectedTopic
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    // Helper: attempt to read topic label text from TopicCell (fallback)
+    private func topicFromVisibleCell() -> String? {
+        let indexPath = IndexPath(item: 0, section: 1)
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TopicCell else {
+            return nil
+        }
+        let t = cell.tileLabel.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (t?.isEmpty == false) ? t : nil
+    }
+}
+
+// MARK: - TimerCellDelegate (called by the cell when timer finishes)
+extension PrepareJamViewController: TimerCellDelegate {
+    func timerDidFinish() {
+        goToStartJam()
+    }
+}
+
+// MARK: - CollectionView
+extension PrepareJamViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+
+    func numberOfSections(in collectionView: UICollectionView) -> Int { 3 }
+
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if section == 0 { return 1 }     // timer
+        if section == 1 { return 1 }     // topic
+        return visibleSuggestions.count  // suggestions
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+
+        if indexPath.section == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TimerCell", for: indexPath) as! TimerCellCollectionViewCell
+            cell.delegate = self
             return cell
         }
 
-        // Sizes
-        func collectionView(_ collectionView: UICollectionView,
-                            layout collectionViewLayout: UICollectionViewLayout,
-                            sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if indexPath.section == 1 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TopicCell", for: indexPath) as! TopicCell
 
-            let totalWidth = collectionView.bounds.width
-
-            if indexPath.section == 0 {
-                return CGSize(width: totalWidth - 30, height: 255)
+            // set or update topic text (this guarantees the PrepareVC has the topic)
+            if selectedTopic.isEmpty {
+                selectedTopic = "THE FUTURE OF REMOTE WORK"
             }
-
-            if indexPath.section == 1 {
-                return CGSize(width: totalWidth, height: 105)
-            }
-
-            let leftRightPadding: CGFloat = 15
-            let columnSpacing: CGFloat = 12
-
-            let availableWidth = totalWidth - (leftRightPadding * 2) - columnSpacing
-            let itemWidth = availableWidth / 2
-
-            return CGSize(width: itemWidth, height: 50)
+            cell.tileLabel.text = selectedTopic
+            return cell
         }
 
-        func collectionView(_ collectionView: UICollectionView,
-                            layout collectionViewLayout: UICollectionViewLayout,
-                            minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-            return 15
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SuggestionCell", for: indexPath) as! SuggestionCell
+        cell.configure(text: visibleSuggestions[indexPath.item])
+        return cell
     }
 
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+
+        let width = collectionView.bounds.width
+        if indexPath.section == 0 { return CGSize(width: width - 30, height: 255) }
+        if indexPath.section == 1 { return CGSize(width: width, height: 105) }
+
+        let leftRight: CGFloat = 15
+        let spacing: CGFloat = 12
+        let available = width - (leftRight * 2) - spacing
+        let itemWidth = available / 2
+        return CGSize(width: itemWidth, height: 50)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 15
+    }
+}
