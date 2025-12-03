@@ -2,18 +2,23 @@
 //  DashboardViewController.swift
 //  OpenTone
 //
-//  Created by M S on 03/12/25.
+//  Created by OpenTone Dashboard
 //
-
 
 import UIKit
 
-// MARK: - DashboardViewController
-
 final class DashboardViewController: UIViewController {
 
-    // MARK: Sections
+    // MARK: Theme
+    private let bgColor      = UIColor(hex: "#F4F5F7")
+    private let heroGradientTop  = UIColor(hex: "#EBDDFF")
+    private let heroGradientBottom = UIColor(hex: "#CDB3FF")
+    private let accentPurple = UIColor(hex: "#5B3CC4")
+    private let softCard     = UIColor(hex: "#FBF8FF")
+    private let labelPrimary = UIColor(hex: "#3C3644")
+    private let labelSecondary = UIColor(hex: "#736A84")
 
+    // MARK: Sections
     private enum Section: Int, CaseIterable {
         case hero
         case quickActions
@@ -22,108 +27,82 @@ final class DashboardViewController: UIViewController {
     }
 
     // MARK: Models
-
     struct QuickAction {
         let title: String
         let subtitle: String
-        let systemImageName: String
+        let systemImage: String
     }
 
     struct ScenarioItem {
         let title: String
         let subtitle: String
-        let imageName: String
+        let systemImage: String
+        let background: UIColor
+        let tint: UIColor
     }
 
     // MARK: Data
-
     private let quickActions: [QuickAction] = [
-        QuickAction(title: "Find a Peer",
-                    subtitle: "1-to-1 practice call",
-                    systemImageName: "person.2.fill"),
-        QuickAction(title: "2-Min JAM",
-                    subtitle: "Quick warm-up",
-                    systemImageName: "timer"),
-        QuickAction(title: "Random Roleplay",
-                    subtitle: "Surprise scenario",
-                    systemImageName: "sparkles")
+        .init(title: "Find a Peer", subtitle: "1-to-1 practice call", systemImage: "person.2.fill"),
+        .init(title: "2-Min JAM", subtitle: "Quick warm-up", systemImage: "timer"),
+        .init(title: "Random Roleplay", subtitle: "Surprise scenario", systemImage: "sparkles")
     ]
 
-    // In a real app these would come from your interests / backend.
     private let recommendedItems: [ScenarioItem] = [
-        ScenarioItem(title: "Grocery Shopping",
-                     subtitle: "Asking for items & prices",
-                     imageName: "GroceryShopping"),
-        ScenarioItem(title: "Making Friends",
-                     subtitle: "Small talk & follow-ups",
-                     imageName: "MakingFriends"),
-        ScenarioItem(title: "Job Interview",
-                     subtitle: "Answering common questions",
-                     imageName: "JobInterview")
+        .init(title: "Grocery Shopping", subtitle: "Asking for items & prices", systemImage: "cart.fill",
+              background: UIColor(hex: "#FFD7A1"), tint: UIColor(hex: "#9C4A00")),
+        .init(title: "Making Friends", subtitle: "Small talk & follow-ups", systemImage: "person.3.fill",
+              background: UIColor(hex: "#CFE0FF"), tint: UIColor(hex: "#003F92")),
+        .init(title: "Job Interview", subtitle: "Common HR questions", systemImage: "briefcase.fill",
+              background: UIColor(hex: "#C3FFF2"), tint: UIColor(hex: "#005E54"))
     ]
 
     private let allScenarios: [ScenarioItem] = [
-        ScenarioItem(title: "Airport Check-in",
-                     subtitle: "Check-in & boarding",
-                     imageName: "AirportCheckin"),
-        ScenarioItem(title: "Ordering Food",
-                     subtitle: "Restaurant conversation",
-                     imageName: "OrderingFood"),
-        ScenarioItem(title: "Birthday Celebration",
-                     subtitle: "Social small talk",
-                     imageName: "BirthdayCelebration"),
-        ScenarioItem(title: "Hotel Booking",
-                     subtitle: "Reservations & questions",
-                     imageName: "HotelBooking"),
-        ScenarioItem(title: "First Date",
-                     subtitle: "Confident introductions",
-                     imageName: "FirstDate")
+        .init(title: "Airport Check-in", subtitle: "Check-in & boarding", systemImage: "airplane",
+              background: UIColor(hex: "#D9EFFF"), tint: UIColor(hex: "#004E89")),
+        .init(title: "Ordering Food", subtitle: "Restaurant conversation", systemImage: "fork.knife",
+              background: UIColor(hex: "#FFE4CC"), tint: UIColor(hex: "#A24C00")),
+        .init(title: "Birthday Celebration", subtitle: "Group social chat", systemImage: "gift.fill",
+              background: UIColor(hex: "#FFDAF0"), tint: UIColor(hex: "#9E005C")),
+        .init(title: "Hotel Booking", subtitle: "Reservations & questions", systemImage: "bed.double.fill",
+              background: UIColor(hex: "#E3F3FF"), tint: UIColor(hex: "#004E87")),
+        .init(title: "First Date", subtitle: "Confident introductions", systemImage: "heart.fill",
+              background: UIColor(hex: "#FFE2E5"), tint: UIColor(hex: "#B30024"))
     ]
 
-    // MARK: UI
-
+    // MARK: CollectionView
     private var collectionView: UICollectionView!
-
-    // MARK: Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "OpenTone"
-        view.backgroundColor = .systemBackground
-
+        view.backgroundColor = bgColor
         configureCollectionView()
     }
-
-    // MARK: Setup
 
     private func configureCollectionView() {
         let layout = createLayout()
 
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
+        collectionView.backgroundColor = bgColor
+        collectionView.dataSource = self
+        collectionView.delegate = self
         collectionView.alwaysBounceVertical = true
 
-        collectionView.dataSource = self
-        collectionView.delegate   = self
-
         // Cells
-        collectionView.register(HeroCardCell.self,
-                                forCellWithReuseIdentifier: HeroCardCell.reuseIdentifier)
-        collectionView.register(QuickActionCell.self,
-                                forCellWithReuseIdentifier: QuickActionCell.reuseIdentifier)
-        collectionView.register(ScenarioCardCell.self,
-                                forCellWithReuseIdentifier: ScenarioCardCell.reuseIdentifier)
+        collectionView.register(HeroCardCell.self, forCellWithReuseIdentifier: HeroCardCell.reuseIdentifier)
+        collectionView.register(QuickActionCell.self, forCellWithReuseIdentifier: QuickActionCell.reuseIdentifier)
+        collectionView.register(ScenarioModuleCell.self, forCellWithReuseIdentifier: ScenarioModuleCell.reuseIdentifier)
 
         // Headers
-        collectionView.register(DashboardSectionHeaderView.self,
+        collectionView.register(DashboardSectionHeader.self,
                                 forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: DashboardSectionHeaderView.reuseIdentifier)
+                                withReuseIdentifier: DashboardSectionHeader.reuseIdentifier)
 
         view.addSubview(collectionView)
-
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -131,566 +110,394 @@ final class DashboardViewController: UIViewController {
     }
 
     // MARK: Layout
-
     private func createLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else { return nil }
+        UICollectionViewCompositionalLayout { index, _ in
+            guard let sec = Section(rawValue: index) else { return nil }
 
-            switch section {
-            case .hero:
-                return Self.makeHeroSection()
-            case .quickActions:
-                return Self.makeQuickActionsSection()
-            case .recommended:
-                return Self.makeHorizontalScenarioSection()
-            case .scenarios:
-                return Self.makeHorizontalScenarioSection()
+            switch sec {
+            case .hero: return Self.heroSection()
+            case .quickActions: return Self.quickSection()
+            case .recommended, .scenarios: return Self.horizontalModules()
             }
         }
-        return layout
     }
 
-    private static func makeHeroSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(1.0)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(200)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: [item]
-        )
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16)
-        return section
+    private static func heroSection() -> NSCollectionLayoutSection {
+        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1),
+                                                            heightDimension: .fractionalHeight(1)))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1),
+                                                                          heightDimension: .absolute(225)),
+                                                       subitems: [item])
+        let sec = NSCollectionLayoutSection(group: group)
+        sec.contentInsets = .init(top: 18, leading: 18, bottom: 10, trailing: 18)
+        return sec
     }
 
-    private static func makeQuickActionsSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0 / 3.0),
-            heightDimension: .fractionalHeight(1.0)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4)
+    private static func quickSection() -> NSCollectionLayoutSection {
+        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1/3),
+                                                            heightDimension: .fractionalHeight(1)))
+        item.contentInsets = .init(top: 0, leading: 6, bottom: 0, trailing: 6)
 
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(120)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: [item, item, item]
-        )
-
-        let section = NSCollectionLayoutSection(group: group)
-
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [header]
-        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 16, trailing: 16)
-        return section
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1),
+                                                                         heightDimension: .absolute(118)),
+                                                       subitems: [item, item, item])
+        let sec = NSCollectionLayoutSection(group: group)
+        sec.boundarySupplementaryItems = [Self.header()]
+        sec.contentInsets = .init(top: 4, leading: 12, bottom: 16, trailing: 12)
+        return sec
     }
 
-    private static func makeHorizontalScenarioSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(220),
-            heightDimension: .absolute(160)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 12)
+    private static func horizontalModules() -> NSCollectionLayoutSection {
+        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(245),
+                                                            heightDimension: .absolute(150)))
+        item.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 14)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(245),
+                                                                         heightDimension: .absolute(150)),
+                                                       subitems: [item])
+        let sec = NSCollectionLayoutSection(group: group)
+        sec.orthogonalScrollingBehavior = .continuous
+        sec.boundarySupplementaryItems = [Self.header()]
+        sec.contentInsets = .init(top: 4, leading: 18, bottom: 16, trailing: 18)
+        return sec
+    }
 
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(220),
-            heightDimension: .absolute(160)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: [item]
-        )
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [header]
-        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 16, trailing: 16)
-        return section
+    private static func header() -> NSCollectionLayoutBoundarySupplementaryItem {
+        .init(layoutSize: .init(widthDimension: .fractionalWidth(1),
+                                heightDimension: .absolute(42)),
+              elementKind: UICollectionView.elementKindSectionHeader,
+              alignment: .top)
     }
 }
 
-// MARK: - UICollectionViewDataSource
-
+// MARK: Data Source
 extension DashboardViewController: UICollectionViewDataSource {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        Section.allCases.count
-    }
+    func numberOfSections(in cv: UICollectionView) -> Int { Section.allCases.count }
 
-    func collectionView(_ collectionView: UICollectionView,
+    func collectionView(_ cv: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
-        guard let sectionType = Section(rawValue: section) else { return 0 }
-        switch sectionType {
-        case .hero:
-            return 1
-        case .quickActions:
-            return quickActions.count
-        case .recommended:
-            return recommendedItems.count
-        case .scenarios:
-            return allScenarios.count
+        switch Section(rawValue: section)! {
+        case .hero: return 1
+        case .quickActions: return quickActions.count
+        case .recommended: return recommendedItems.count
+        case .scenarios: return allScenarios.count
         }
     }
 
-    func collectionView(_ collectionView: UICollectionView,
+    func collectionView(_ cv: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        switch Section(rawValue: indexPath.section)! {
 
-        guard let sectionType = Section(rawValue: indexPath.section) else {
-            return UICollectionViewCell()
-        }
-
-        switch sectionType {
         case .hero:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: HeroCardCell.reuseIdentifier,
-                for: indexPath
-            ) as! HeroCardCell
-            cell.configure(
-                title: "Keep building your communication skills",
-                subtitle: "Practice a quick session today to stay sharp.",
-                buttonTitle: "Start Practice"
-            )
-            cell.onPrimaryAction = { [weak self] in
-                // Later: push your “best next action” screen.
-                print("Hero card tapped - start practice")
-                self?.startBestNextPractice()
-            }
+            let cell = cv.dequeueReusableCell(withReuseIdentifier: HeroCardCell.reuseIdentifier,
+                                              for: indexPath) as! HeroCardCell
+            cell.configure(title: "Keep building your communication skills",
+                           subtitle: "Practice a quick session today to stay sharp.",
+                           button: "Start Practice")
             return cell
 
         case .quickActions:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: QuickActionCell.reuseIdentifier,
-                for: indexPath
-            ) as! QuickActionCell
-            let action = quickActions[indexPath.item]
-            cell.configure(with: action)
+            let cell = cv.dequeueReusableCell(withReuseIdentifier: QuickActionCell.reuseIdentifier,
+                                              for: indexPath) as! QuickActionCell
+            cell.configure(quickActions[indexPath.item])
             return cell
 
         case .recommended:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: ScenarioCardCell.reuseIdentifier,
-                for: indexPath
-            ) as! ScenarioCardCell
-            let scenario = recommendedItems[indexPath.item]
-            cell.configure(with: scenario)
+            let cell = cv.dequeueReusableCell(withReuseIdentifier: ScenarioModuleCell.reuseIdentifier,
+                                              for: indexPath) as! ScenarioModuleCell
+            cell.configure(recommendedItems[indexPath.item])
             return cell
 
         case .scenarios:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: ScenarioCardCell.reuseIdentifier,
-                for: indexPath
-            ) as! ScenarioCardCell
-            let scenario = allScenarios[indexPath.item]
-            cell.configure(with: scenario)
+            let cell = cv.dequeueReusableCell(withReuseIdentifier: ScenarioModuleCell.reuseIdentifier,
+                                              for: indexPath) as! ScenarioModuleCell
+            cell.configure(allScenarios[indexPath.item])
             return cell
         }
     }
 
     // Headers
-    func collectionView(_ collectionView: UICollectionView,
+    func collectionView(_ cv: UICollectionView,
                         viewForSupplementaryElementOfKind kind: String,
                         at indexPath: IndexPath) -> UICollectionReusableView {
-        guard kind == UICollectionView.elementKindSectionHeader,
-              let sectionType = Section(rawValue: indexPath.section) else {
-            return UICollectionReusableView()
+        let header = cv.dequeueReusableSupplementaryView(ofKind: kind,
+                                                         withReuseIdentifier: DashboardSectionHeader.reuseIdentifier,
+                                                         for: indexPath) as! DashboardSectionHeader
+
+        switch Section(rawValue: indexPath.section)! {
+        case .hero: header.titleLabel.text = nil
+        case .quickActions: header.titleLabel.text = "Practice Modes"
+        case .recommended: header.titleLabel.text = "Recommended for You"
+        case .scenarios: header.titleLabel.text = "Explore Roleplays"
         }
-
-        let header = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind,
-            withReuseIdentifier: DashboardSectionHeaderView.reuseIdentifier,
-            for: indexPath
-        ) as! DashboardSectionHeaderView
-
-        switch sectionType {
-        case .hero:
-            header.titleLabel.text = nil // no header for hero
-        case .quickActions:
-            header.titleLabel.text = "Practice Modes"
-        case .recommended:
-            header.titleLabel.text = "Recommended for You"
-        case .scenarios:
-            header.titleLabel.text = "Explore Roleplays"
-        }
-
         return header
     }
 }
 
-// MARK: - UICollectionViewDelegate
-
+// MARK: Delegate
 extension DashboardViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView,
-                        didSelectItemAt indexPath: IndexPath) {
-        guard let sectionType = Section(rawValue: indexPath.section) else { return }
-
-        switch sectionType {
-        case .hero:
-            startBestNextPractice()
-
-        case .quickActions:
-            switch indexPath.item {
-            case 0:
-                print("QuickAction: Find a Peer tapped")
-                // navigationController?.pushViewController(peerVC, animated: true)
-            case 1:
-                print("QuickAction: 2-Min JAM tapped")
-                // navigationController?.pushViewController(jamVC, animated: true)
-            case 2:
-                print("QuickAction: Random Roleplay tapped")
-                // navigationController?.pushViewController(randomRoleplayVC, animated: true)
-            default:
-                break
-            }
-
-        case .recommended:
-            let item = recommendedItems[indexPath.item]
-            print("Recommended scenario tapped:", item.title)
-            // navigationController?.pushViewController(roleplayDetailVC(for: item), animated: true)
-
-        case .scenarios:
-            let item = allScenarios[indexPath.item]
-            print("Scenario tapped:", item.title)
-            // navigationController?.pushViewController(roleplayDetailVC(for: item), animated: true)
+    func collectionView(_ cv: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let sec = Section(rawValue: indexPath.section)!
+        switch sec {
+        case .hero: print("Start best next practice")
+        case .quickActions: print("Quick action tapped:", quickActions[indexPath.item].title)
+        case .recommended: print("Recommended tapped:", recommendedItems[indexPath.item].title)
+        case .scenarios: print("Scenario tapped:", allScenarios[indexPath.item].title)
         }
     }
-
-    private func startBestNextPractice() {
-        print("Start best next practice flow")
-        // Decide best next action based on interests / history and push that VC.
-    }
 }
 
-// MARK: - HeroCardCell
+//
+//  Cells
+//
 
+// MARK: Hero
 final class HeroCardCell: UICollectionViewCell {
-
     static let reuseIdentifier = "HeroCardCell"
 
-    var onPrimaryAction: (() -> Void)?
-
-    private let containerView: UIView = {
-        let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        v.layer.cornerRadius = 20
-        v.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.1)
-        return v
-    }()
-
-    private let titleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 22, weight: .bold)
-        lbl.numberOfLines = 2
-        lbl.textColor = .label
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
-
-    private let subtitleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 15, weight: .regular)
-        lbl.numberOfLines = 2
-        lbl.textColor = .secondaryLabel
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
-
-    private let primaryButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitle("Start", for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
-        btn.backgroundColor = .systemPurple
-        btn.tintColor = .white
-        btn.layer.cornerRadius = 16
-        btn.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        return btn
-    }()
+    private let container = UIView()
+    private let title = UILabel()
+    private let subtitle = UILabel()
+    private let button = UIButton(type: .system)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.backgroundColor = .clear
 
-        contentView.addSubview(containerView)
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(subtitleLabel)
-        containerView.addSubview(primaryButton)
+        // gradient
+        let gradient = CAGradientLayer()
+        gradient.colors = [UIColor(hex: "#EBDDFF").cgColor, UIColor(hex: "#CDB3FF").cgColor]
+        gradient.startPoint = CGPoint(x: 0, y: 0)
+        gradient.endPoint = CGPoint(x: 1, y: 1)
+        gradient.cornerRadius = 24
+
+        container.layer.insertSublayer(gradient, at: 0)
+        container.layer.cornerRadius = 24
+        container.clipsToBounds = true
+        container.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(container)
+
+        title.font = .systemFont(ofSize: 23, weight: .bold)
+        title.textColor = UIColor(hex: "#3C3644")
+        title.numberOfLines = 2
+
+        subtitle.font = .systemFont(ofSize: 15)
+        subtitle.textColor = UIColor(hex: "#6D6480")
+        subtitle.numberOfLines = 2
+
+        button.layer.cornerRadius = 16
+        button.backgroundColor = UIColor(hex: "#5B3CC4")
+        button.tintColor = .white
+
+        [title, subtitle, button].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview($0)
+        }
 
         NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            container.topAnchor.constraint(equalTo: contentView.topAnchor),
+            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 
-            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            title.topAnchor.constraint(equalTo: container.topAnchor, constant: 20),
+            title.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 18),
+            title.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -18),
 
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            subtitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            subtitleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            subtitle.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 8),
+            subtitle.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 18),
+            subtitle.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -18),
 
-            primaryButton.topAnchor.constraint(greaterThanOrEqualTo: subtitleLabel.bottomAnchor, constant: 12),
-            primaryButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            primaryButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
+            button.topAnchor.constraint(greaterThanOrEqualTo: subtitle.bottomAnchor, constant: 14),
+            button.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 18),
+            button.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -20),
+            button.heightAnchor.constraint(equalToConstant: 44),
+            button.widthAnchor.constraint(equalToConstant: 165)
         ])
-
-        primaryButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func configure(title: String, subtitle: String, buttonTitle: String) {
-        titleLabel.text = title
-        subtitleLabel.text = subtitle
-        primaryButton.setTitle(buttonTitle, for: .normal)
-    }
-
-    @objc private func buttonTapped() {
-        onPrimaryAction?()
-    }
-}
-
-// MARK: - QuickActionCell
-
-final class QuickActionCell: UICollectionViewCell {
-
-    static let reuseIdentifier = "QuickActionCell"
-
-    private let containerView: UIView = {
-        let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        v.layer.cornerRadius = 16
-        v.backgroundColor = UIColor.secondarySystemBackground
-        return v
-    }()
-
-    private let iconView: UIImageView = {
-        let iv = UIImageView()
-        iv.tintColor = .systemPurple
-        iv.contentMode = .scaleAspectFit
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-
-    private let titleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 15, weight: .semibold)
-        lbl.textColor = .label
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
-
-    private let subtitleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 12, weight: .regular)
-        lbl.textColor = .secondaryLabel
-        lbl.numberOfLines = 2
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        contentView.backgroundColor = .clear
-
-        contentView.addSubview(containerView)
-        containerView.addSubview(iconView)
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(subtitleLabel)
-
-        NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-
-            iconView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
-            iconView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            iconView.heightAnchor.constraint(equalToConstant: 24),
-            iconView.widthAnchor.constraint(equalToConstant: 24),
-
-            titleLabel.topAnchor.constraint(equalTo: iconView.bottomAnchor, constant: 8),
-            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
-
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
-            subtitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            subtitleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
-            subtitleLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -8)
-        ])
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func configure(with action: DashboardViewController.QuickAction) {
-        titleLabel.text = action.title
-        subtitleLabel.text = action.subtitle
-        iconView.image = UIImage(systemName: action.systemImageName)
-    }
-}
-
-// MARK: - ScenarioCardCell
-
-final class ScenarioCardCell: UICollectionViewCell {
-
-    static let reuseIdentifier = "ScenarioCardCell"
-
-    private let imageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-
-    private let gradientView: UIView = {
-        let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
-    }()
-
-    private let titleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 15, weight: .semibold)
-        lbl.textColor = .white
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
-
-    private let subtitleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 12, weight: .regular)
-        lbl.textColor = UIColor.white.withAlphaComponent(0.8)
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        contentView.layer.cornerRadius = 16
-        contentView.clipsToBounds = true
-
-        contentView.addSubview(imageView)
-        contentView.addSubview(gradientView)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(subtitleLabel)
-
-        NSLayoutConstraint.activate([
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-
-            gradientView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            gradientView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            gradientView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            gradientView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.45),
-
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            titleLabel.bottomAnchor.constraint(equalTo: subtitleLabel.topAnchor, constant: -2),
-
-            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
-        ])
-
-        applyGradient()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func configure(with item: DashboardViewController.ScenarioItem) {
-        imageView.image = UIImage(named: item.imageName)
-        titleLabel.text = item.title
-        subtitleLabel.text = item.subtitle
-    }
-
-    private func applyGradient() {
-        let layer = CAGradientLayer()
-        layer.colors = [
-            UIColor.black.withAlphaComponent(0.0).cgColor,
-            UIColor.black.withAlphaComponent(0.7).cgColor
-        ]
-        layer.locations = [0.0, 1.0]
-        layer.startPoint = CGPoint(x: 0.5, y: 0.0)
-        layer.endPoint = CGPoint(x: 0.5, y: 1.0)
-        layer.frame = CGRect(origin: .zero, size: CGSize(width: 1, height: 1)) // real frame set in layoutSubviews
-        gradientView.layer.insertSublayer(layer, at: 0)
-
-        gradientView.layer.masksToBounds = true
-        gradientView.layer.cornerRadius = 0
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        gradientView.layer.sublayers?.forEach { $0.frame = gradientView.bounds }
+        container.layer.sublayers?.first?.frame = container.bounds
     }
+
+    func configure(title t: String, subtitle s: String, button bt: String) {
+        title.text = t
+        subtitle.text = s
+        button.setTitle(bt, for: .normal)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
 }
 
-// MARK: - Section Header
+// MARK: Quick Action
+final class QuickActionCell: UICollectionViewCell {
+    static let reuseIdentifier = "QuickActionCell"
 
-final class DashboardSectionHeaderView: UICollectionReusableView {
-
-    static let reuseIdentifier = "DashboardSectionHeaderView"
-
-    let titleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 20, weight: .bold)
-        lbl.textColor = .label
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
+    private let container = UIView()
+    private let icon = UIImageView()
+    private let title = UILabel()
+    private let subtitle = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        contentView.backgroundColor = .clear
+
+        container.backgroundColor = UIColor(hex: "#FBF8FF")
+        container.layer.cornerRadius = 18
+        container.layer.shadowOpacity = 0.06
+        container.layer.shadowRadius = 6
+        container.layer.shadowOffset = CGSize(width: 0, height: 4)
+        container.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(container)
+
+        icon.tintColor = UIColor(hex: "#5B3CC4")
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        title.font = .systemFont(ofSize: 15, weight: .semibold)
+        title.textColor = UIColor(hex: "#3C3644")
+        subtitle.font = .systemFont(ofSize: 12)
+        subtitle.textColor = UIColor(hex: "#736A84")
+        subtitle.numberOfLines = 2
+
+        [icon, title, subtitle].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview($0)
+        }
+
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: contentView.topAnchor),
+            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+
+            icon.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            icon.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            icon.heightAnchor.constraint(equalToConstant: 28),
+            icon.widthAnchor.constraint(equalToConstant: 28),
+
+            title.topAnchor.constraint(equalTo: icon.bottomAnchor, constant: 6),
+            title.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            title.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
+
+            subtitle.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 2),
+            subtitle.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            subtitle.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
+            subtitle.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -10)
+        ])
+    }
+
+    func configure(_ action: DashboardViewController.QuickAction) {
+        icon.image = UIImage(systemName: action.systemImage)
+        title.text = action.title
+        subtitle.text = action.subtitle
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+}
+
+// MARK: Scenario Module (Workout-style)
+final class ScenarioModuleCell: UICollectionViewCell {
+    static let reuseIdentifier = "ScenarioModuleCell"
+
+    private let container = UIView()
+    private let icon = UIImageView()
+    private let title = UILabel()
+    private let subtitle = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.backgroundColor = .clear
+
+        container.layer.cornerRadius = 20
+        container.layer.shadowOpacity = 0.08
+        container.layer.shadowRadius = 8
+        container.layer.shadowOffset = CGSize(width: 0, height: 5)
+        container.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(container)
+
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.contentMode = .scaleAspectFit
+
+        title.font = .systemFont(ofSize: 18, weight: .semibold)
+        title.numberOfLines = 1
+
+        subtitle.font = .systemFont(ofSize: 14)
+        subtitle.textColor = .white.withAlphaComponent(0.8)
+        subtitle.numberOfLines = 1
+
+        [icon, title, subtitle].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview($0)
+        }
+
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: contentView.topAnchor),
+            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+
+            icon.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 18),
+            icon.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            icon.widthAnchor.constraint(equalToConstant: 38),
+            icon.heightAnchor.constraint(equalToConstant: 38),
+
+            title.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 14),
+            title.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -18),
+            title.topAnchor.constraint(equalTo: container.topAnchor, constant: 28),
+
+            subtitle.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 14),
+            subtitle.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -18),
+            subtitle.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 2)
+        ])
+    }
+
+    func configure(_ item: DashboardViewController.ScenarioItem) {
+        container.backgroundColor = item.background
+        icon.image = UIImage(systemName: item.systemImage)
+        icon.tintColor = item.tint
+        title.text = item.title
+        title.textColor = item.tint
+        subtitle.text = item.subtitle
+        subtitle.textColor = item.tint.withAlphaComponent(0.8)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+}
+
+// MARK: Header
+final class DashboardSectionHeader: UICollectionReusableView {
+    static let reuseIdentifier = "DashboardSectionHeader"
+
+    let titleLabel = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
+        titleLabel.textColor = UIColor(hex: "#3C3644")
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(titleLabel)
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
             titleLabel.topAnchor.constraint(equalTo: topAnchor)
         ])
     }
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    required init?(coder: NSCoder) { fatalError() }
+}
+
+//
+//  Utility
+//
+extension UIColor {
+    convenience init(hex: String) {
+        var hexSanitized = hex.replacingOccurrences(of: "#", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        var rgb: UInt64 = 0
+        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+        self.init(red: CGFloat((rgb >> 16) & 0xFF) / 255,
+                  green: CGFloat((rgb >> 8) & 0xFF) / 255,
+                  blue: CGFloat(rgb & 0xFF) / 255,
+                  alpha: 1)
     }
 }
+
