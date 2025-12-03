@@ -49,15 +49,11 @@ class RoleplayChatViewController: UIViewController {
         tableView.estimatedRowHeight = 120
     }
 
-    // 🔥 FIX: Only load script after view is fully on screen
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//
-//        if !initialLoaded {
-//            initialLoaded = true
-//            loadStep(0)
-//        }
-//    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        (tabBarController as? MainTabBarController)?.isRoleplayInProgress = true
+    }
     
     private var didLoadChat = false
 
@@ -66,7 +62,7 @@ class RoleplayChatViewController: UIViewController {
 
         if !didLoadChat {
             didLoadChat = true
-            loadStep(0)   // 👍 tableView is guaranteed to exist here
+            loadStep(0)
         }
     }
 
@@ -204,7 +200,81 @@ extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource
             return cell
         }
     }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.delegate = self
+    }
+
+    func showRoleplayExitAlert(for viewController: UIViewController) {
+        let alert = UIAlertController(
+            title: "Exit Roleplay?",
+            message: "Your progress will be lost if you leave this screen.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Stay", style: .cancel))
+
+        alert.addAction(UIAlertAction(title: "Exit", style: .destructive, handler: { _ in
+            
+            self.navigationController?.popViewController(animated: true)
+            self.tabBarController?.selectedViewController = viewController
+        }))
+
+        present(alert, animated: true)
+    }
+    
+    
+    
+    @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
+        triggerScoreScreenFlow()
+    }
+
+
+    func triggerScoreScreenFlow() {
+        // If alert is currently shown → dismiss then show Score
+        if let alert = self.presentedViewController as? UIAlertController {
+            alert.dismiss(animated: true) {
+                self.presentScoreScreen()
+            }
+        } else {
+            // Alert not showing → directly show Score
+            self.presentScoreScreen()
+        }
+    }
+
+    private func presentScoreScreen() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let scoreVC = storyboard.instantiateViewController(withIdentifier: "ScoreScreenVC") as? ScoreViewController else { return }
+        
+        scoreVC.modalPresentationStyle = .fullScreen
+        scoreVC.modalTransitionStyle = .crossDissolve
+        self.present(scoreVC, animated: true)
+    }
+
+
+ 
+
+
 }
+
+
+extension RoleplayChatViewController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController,
+                          shouldSelect viewController: UIViewController) -> Bool {
+
+        // If tapping the current tab, allow
+        if viewController == tabBarController.selectedViewController {
+            return true
+        }
+
+        // Show confirmation alert instead of switching tab
+        showRoleplayExitAlert(for: viewController)
+        return false
+    }
+}
+
 
 // MARK: - Suggestions Tap
 extension RoleplayChatViewController: SuggestionCellDelegate {
@@ -212,3 +282,5 @@ extension RoleplayChatViewController: SuggestionCellDelegate {
         userResponded(suggestion)
     }
 }
+
+
