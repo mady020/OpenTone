@@ -28,12 +28,107 @@ class RoleplayChatViewController: UIViewController {
 
     // Simple script
     let script = [
-        ("Where can I find the milk?",
-         ["How much does this cost, how can i buy it, please help me?", "I am looking for milk", "Where is checkout?"]),
+        (
+            "Where can I find the milk?",
+            [
+                "I am looking for milk, could you point me to the right section?",
+                "How much does a bottle of milk cost here?",
+                "Can you help me locate dairy products?",
+                "Is the milk fresh today?"
+            ]
+        ),
         
-        ("The milk is in the dairy section next to eggs.",
-         ["Show me directions", "Got it!", "Can I pay by card?"]),
+        (
+            "The milk is in the dairy section next to the eggs.",
+            [
+                "Great, thanks!",
+                "Can you show me directions on a map?",
+                "Do you have plant-based milk as well?",
+                "Can I pay by card at checkout?"
+            ]
+        ),
+        
+        (
+            "If you need plant-based milk, it's right beside the regular milk.",
+            [
+                "Amazing! I’ll check that out.",
+                "Do you have any offers on almond or oat milk?",
+                "Which one is best for coffee?",
+                "I want lactose-free milk, do you have that?"
+            ]
+        ),
+        
+        (
+            "Yes, we have lactose-free milk on the top shelf.",
+            [
+                "Thank you! I’ll grab one.",
+                "How long does it stay fresh?",
+                "Is it more expensive than regular milk?",
+                "Are there smaller packs available?"
+            ]
+        ),
+        
+        (
+            "You can check the price on the shelf label.",
+            [
+                "Perfect, I’ll take a look.",
+                "Do you have a loyalty program?",
+                "Where can I get a shopping basket?",
+                "What time does the store close?"
+            ]
+        ),
+        
+        (
+            "Baskets are available near the entrance, and yes, we close at 10 PM.",
+            [
+                "Thanks for the info!",
+                "Where do I find the checkout counters?",
+                "Can I self-scan the products?",
+                "Do you have a bakery section as well?"
+            ]
+        ),
+        
+        (
+            "Checkout counters are straight ahead, and the bakery is on your left.",
+            [
+                "I’ll grab some bread too!",
+                "Is there someone at the bakery to assist with slicing?",
+                "Do you have gluten-free bread?",
+                "Are there fresh cakes available?"
+            ]
+        ),
+        
+        (
+            "Yes, fresh cakes arrive every morning, and the staff can assist you at the bakery.",
+            [
+                "Nice! I’ll check them out.",
+                "Do you have any seasonal items?",
+                "Where can I find snacks or chips?",
+                "Is there a section for cold drinks?"
+            ]
+        ),
+        
+        (
+            "Snacks are in aisle 5 and cold drinks are near the checkout refrigerators.",
+            [
+                "Wonderful, thank you so much!",
+                "Do you also have a pharmacy section?",
+                "Where are the cleaning supplies?",
+                "Can I ask for home delivery?"
+            ]
+        ),
+        
+        (
+            "We do provide home delivery—please ask at the service desk near the entrance.",
+            [
+                "Thanks! That’s very helpful.",
+                "I’ll sign up for delivery later.",
+                "Can I get assistance loading groceries into my car?",
+                "Do you sell gift cards?"
+            ]
+        ),
     ]
+
 
     var step = 0
     private var initialLoaded = false   // 👈 prevents double execution
@@ -47,7 +142,8 @@ class RoleplayChatViewController: UIViewController {
         // For automatic dynamic height
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 120
-        
+        tableView.separatorStyle = .none
+
     
 
     }
@@ -231,7 +327,9 @@ extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource
     
     
     @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
+        
         triggerScoreScreenFlow()
+        
     }
 
 

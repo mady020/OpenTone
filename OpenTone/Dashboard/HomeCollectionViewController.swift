@@ -280,7 +280,19 @@ extension HomeCollectionViewController {
 
         case .realLifeScenario:
             print("Scenario tapped: \(indexPath.row)")
-            tabBarController?.selectedIndex = 1
+            let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+
+            guard let navController = storyboard.instantiateInitialViewController() as? UINavigationController else {
+                print("CallStoryBoard initial is not NavigationController")
+                return
+            }
+
+            guard let rootVC = navController.viewControllers.first else {
+                print("No root VC in CallStoryBoard")
+                return
+            }
+
+            self.navigationController?.pushViewController(rootVC, animated: true)
         }
     }
 
