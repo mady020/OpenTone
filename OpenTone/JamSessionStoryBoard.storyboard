@@ -244,7 +244,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" misplaced="YES" reuseIdentifier="TimerCell" translatesAutoresizingMaskIntoConstraints="NO" id="705-xj-QqS" customClass="TimerCellCollectionViewCell" customModule="OpenTone" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TimerCell" translatesAutoresizingMaskIntoConstraints="NO" id="705-xj-QqS" customClass="TimerCellCollectionViewCell" customModule="OpenTone" customModuleProvider="target">
                                         <rect key="frame" x="96.666666666666671" y="0.0" width="200" height="200"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="qPc-Ws-hon">
@@ -645,11 +645,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qOt-A9-MIM">
-                                <rect key="frame" x="56.666666666666657" y="311.33333333333331" width="280" height="149.33333333333331"/>
+                                <rect key="frame" x="54" y="233.66666666666663" width="285" height="285"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ready" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ees-Zd-FGN">
-                                        <rect key="frame" x="17.666666666666671" y="24.000000000000007" width="244.33333333333331" height="101.66666666666669"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="85"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ees-Zd-FGN">
+                                        <rect key="frame" x="142.66666666666666" y="142.33333333333334" width="0.0" height="0.0"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="90"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -657,13 +657,13 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="Ees-Zd-FGN" firstAttribute="centerX" secondItem="qOt-A9-MIM" secondAttribute="centerX" id="0lh-fN-k55"/>
-                                    <constraint firstAttribute="width" secondItem="qOt-A9-MIM" secondAttribute="height" multiplier="15:8" id="a7G-0i-s3b"/>
+                                    <constraint firstAttribute="width" secondItem="qOt-A9-MIM" secondAttribute="height" multiplier="1:1" id="a7G-0i-s3b"/>
                                     <constraint firstItem="Ees-Zd-FGN" firstAttribute="centerY" secondItem="qOt-A9-MIM" secondAttribute="centerY" id="ieq-dT-V9p"/>
-                                    <constraint firstAttribute="width" constant="280" id="nUJ-fw-kKl"/>
+                                    <constraint firstAttribute="width" constant="285" id="nUJ-fw-kKl"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Preparation Time" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bpn-cp-uqE">
-                                <rect key="frame" x="85" y="560.66666666666663" width="223" height="33.666666666666629"/>
+                                <rect key="frame" x="85" y="558.66666666666663" width="223" height="33.666666666666629"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -673,9 +673,9 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="qOt-A9-MIM" firstAttribute="centerX" secondItem="Tuo-0C-R2i" secondAttribute="centerX" id="04Q-Mt-PO6"/>
-                            <constraint firstItem="qOt-A9-MIM" firstAttribute="centerY" secondItem="Tuo-0C-R2i" secondAttribute="centerY" constant="-40" id="EYz-9l-b4H"/>
+                            <constraint firstItem="qOt-A9-MIM" firstAttribute="centerY" secondItem="Tuo-0C-R2i" secondAttribute="centerY" constant="-50" id="EYz-9l-b4H"/>
                             <constraint firstItem="bpn-cp-uqE" firstAttribute="centerX" secondItem="Tuo-0C-R2i" secondAttribute="centerX" id="JMq-gO-iY2"/>
-                            <constraint firstItem="bpn-cp-uqE" firstAttribute="top" secondItem="qOt-A9-MIM" secondAttribute="bottom" constant="100" id="YkJ-OX-YMt"/>
+                            <constraint firstItem="bpn-cp-uqE" firstAttribute="top" secondItem="qOt-A9-MIM" secondAttribute="bottom" constant="40" id="YkJ-OX-YMt"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="NBu-l6-JcE"/>
@@ -721,7 +721,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tertiarySystemGroupedBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
