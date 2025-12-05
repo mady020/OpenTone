@@ -169,10 +169,18 @@ final class OnboardingInterestsViewController: UIViewController {
 
     @objc private func continueTapped() {
         guard selectedItems.count >= 3 else { return }
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let tabBarVC = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
-        tabBarVC.modalPresentationStyle = .fullScreen
-        self.view.window?.rootViewController = tabBarVC
+        goToCommitmentChoice()
+    }
+    
+    private func goToCommitmentChoice() {
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let introVC = storyboard.instantiateViewController(withIdentifier: "CommitmentScreen")
+
+        let nav = UINavigationController(rootViewController: introVC)
+        nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .crossDissolve
+
+        self.view.window?.rootViewController = nav
         self.view.window?.makeKeyAndVisible()
     }
 }
