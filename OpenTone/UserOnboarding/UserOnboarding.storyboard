@@ -23,6 +23,36 @@
             </objects>
             <point key="canvasLocation" x="816" y="394"/>
         </scene>
+        <!--Confidence View Controller-->
+        <scene sceneID="W9i-m8-qyb">
+            <objects>
+                <viewController storyboardIdentifier="ConfidenceScreen" id="WK0-m5-pVZ" customClass="ConfidenceViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="CKV-Ph-JqQ">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="9H4-A3-7TJ"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="RVl-XB-R3l" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1602" y="394"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="1Lt-iS-D1D">
+            <objects>
+                <viewController id="bsR-d0-CTY" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="bbn-kQ-ALa">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="msk-r4-c9z"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="xmp-mY-gWo" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2410" y="394"/>
+        </scene>
         <!--Onboarding Interests View Controller-->
         <scene sceneID="83O-vr-Ysk">
             <objects>

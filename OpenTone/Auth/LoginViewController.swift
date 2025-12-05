@@ -17,7 +17,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func signinButtonTapped(_ sender: Any) {
 //        goToDashboard()
-        goToInterestsChoice()
+        goToConfidenceChoice()
     }
     
     private func goToDashboard() {
@@ -28,10 +28,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         self.view.window?.rootViewController = tabBarVC
         self.view.window?.makeKeyAndVisible()
     }
+
     
-    private func goToInterestsChoice() {
+    private func goToConfidenceChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let introVC = storyboard.instantiateViewController(withIdentifier: "InterestsIntro")
+        let introVC = storyboard.instantiateViewController(withIdentifier: "ConfidenceScreen")
 
         let nav = UINavigationController(rootViewController: introVC)
         nav.modalPresentationStyle = .fullScreen
