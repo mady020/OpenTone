@@ -183,7 +183,7 @@ extension ConfidenceViewController: UICollectionViewDataSource, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let option = options[indexPath.row]
-        selectedOption = option   // exactly one selection
+        selectedOption = option  
         updateContinueState()
         collectionView.reloadData()
     }

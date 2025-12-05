@@ -38,10 +38,10 @@
             </objects>
             <point key="canvasLocation" x="1602" y="394"/>
         </scene>
-        <!--View Controller-->
+        <!--Commitment View Controller-->
         <scene sceneID="1Lt-iS-D1D">
             <objects>
-                <viewController id="bsR-d0-CTY" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CommitmentScreen" id="bsR-d0-CTY" customClass="CommitmentViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="bbn-kQ-ALa">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
