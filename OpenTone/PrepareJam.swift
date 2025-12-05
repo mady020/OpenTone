@@ -1,13 +1,8 @@
 //
-//  PrepareJam.swift
+//  PrepareJamViewController.swift
 //  OpenTone
 //
 //  Created by Student on 28/11/25.
-//
-
-//
-//  PrepareJamViewController.swift
-//  OpenTone
 //
 
 import UIKit
@@ -46,7 +41,7 @@ class PrepareJamViewController: UIViewController {
         layout.minimumLineSpacing = 15
         collectionView.collectionViewLayout = layout
 
-        // set a sensible default topic until AI integration
+        // default topic if empty
         if selectedTopic.isEmpty {
             selectedTopic = "THE FUTURE OF REMOTE WORK"
         }
@@ -78,25 +73,35 @@ class PrepareJamViewController: UIViewController {
     }
 
     @IBAction func startJamTapped(_ sender: UIButton) {
-        goToStartJam()
+        goToSpeechCountdown()
     }
 
-    // MARK: - Navigation helper (safe)
-    func goToStartJam() {
-        // if selectedTopic is empty (rare), try to read from the topic cell
+    // MARK: - NAVIGATION ENTRY FOR SPEECH COUNTDOWN
+    private func goToSpeechCountdown() {
+
+        // Ensure topic is selected
         if selectedTopic.isEmpty {
             if let topic = topicFromVisibleCell() { selectedTopic = topic }
         }
 
-        guard let vc = storyboard?.instantiateViewController(withIdentifier: "StartJamViewController") as? StartJamViewController else {
+        guard let countdownVC = storyboard?.instantiateViewController(
+            withIdentifier: "CountdownViewController"
+        ) as? CountdownViewController else {
             return
         }
 
-        vc.topicText = selectedTopic
-        navigationController?.pushViewController(vc, animated: true)
+        // Set mode to SPEECH ROUND
+        countdownVC.mode = .speech
+
+        navigationController?.pushViewController(countdownVC, animated: true)
     }
 
-    // Helper: attempt to read topic label text from TopicCell (fallback)
+    // MARK: - For timer auto-start case
+    func timerDidFinish() {
+        goToSpeechCountdown()
+    }
+
+    // Helper: read topic label
     private func topicFromVisibleCell() -> String? {
         let indexPath = IndexPath(item: 0, section: 1)
         guard let cell = collectionView.cellForItem(at: indexPath) as? TopicCell else {
@@ -107,11 +112,10 @@ class PrepareJamViewController: UIViewController {
     }
 }
 
-// MARK: - TimerCellDelegate (called by the cell when timer finishes)
+// MARK: - Conformance: TimerCellDelegate
 extension PrepareJamViewController: TimerCellDelegate {
-    func timerDidFinish() {
-        goToStartJam()
-    }
+    // We already have an implementation with the correct signature above,
+    // but we add the conformance here so `self` can be assigned to the cell's delegate.
 }
 
 // MARK: - CollectionView
@@ -125,18 +129,27 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
         return visibleSuggestions.count  // suggestions
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
 
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TimerCell", for: indexPath) as! TimerCellCollectionViewCell
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "TimerCell",
+                for: indexPath
+            ) as! TimerCellCollectionViewCell
+
             cell.delegate = self
             return cell
         }
 
         if indexPath.section == 1 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TopicCell", for: indexPath) as! TopicCell
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "TopicCell",
+                for: indexPath
+            ) as! TopicCell
 
-            // set or update topic text (this guarantees the PrepareVC has the topic)
             if selectedTopic.isEmpty {
                 selectedTopic = "THE FUTURE OF REMOTE WORK"
             }
@@ -144,13 +157,20 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
             return cell
         }
 
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SuggestionCell", for: indexPath) as! SuggestionCell
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "SuggestionCell",
+            for: indexPath
+        ) as! SuggestionCell
+
         cell.configure(text: visibleSuggestions[indexPath.item])
         return cell
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
 
         let width = collectionView.bounds.width
         if indexPath.section == 0 { return CGSize(width: width - 30, height: 255) }
@@ -163,8 +183,11 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
         return CGSize(width: itemWidth, height: 50)
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        minimumLineSpacingForSectionAt section: Int
+    ) -> CGFloat {
         return 15
     }
 }
