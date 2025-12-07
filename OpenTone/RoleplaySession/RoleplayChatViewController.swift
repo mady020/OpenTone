@@ -233,29 +233,74 @@ class RoleplayChatViewController: UIViewController {
         present(alert, animated: true)
     }
 
+    var wrongAttempts = 0
+
     func userResponded(_ text: String) {
 
-        // Remove suggestions row BEFORE adding user message
-        if messages.last?.sender == .suggestions {
-            messages.removeLast()
-        }
+        let expectedSuggestions = script[step].1.map { $0.lowercased() }
+        let spoken = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // User bubble
-        messages.append(
-            ChatMessage(sender: .user,
-                        text: text,
-                        suggestions: nil)
-        )
+        if expectedSuggestions.contains(spoken) {
+            // Reset wrong attempts
+            wrongAttempts = 0
 
-        reloadTableSafely()
-
-        // Load next script line
-        if step + 1 < script.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.loadStep(self.step + 1)
+            // VALID response 👍
+            if messages.last?.sender == .suggestions {
+                messages.removeLast()
             }
+
+            messages.append(ChatMessage(sender: .user, text: text, suggestions: nil))
+            reloadTableSafely()
+
+            // Move next
+            if step + 1 < script.count {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.loadStep(self.step + 1)
+                }
+            }
+
+        } else {
+            wrongAttempts += 1
+
+            if wrongAttempts < 3 {
+                // Friendly reminders
+                messages.append(
+                    ChatMessage(
+                        sender: .app,
+                        text: "Not quite 🤏\nTry saying one of the options below!",
+                        suggestions: nil
+                    )
+                )
+
+            } else {
+                // After 3 attempts → show correct answer & move on
+                wrongAttempts = 0
+
+                let correct = script[step].1.first ?? "Default correct answer"
+                messages.append(
+                    ChatMessage(
+                        sender: .app,
+                        text: "Correct phrasing: \"\(correct)\" 👍",
+                        suggestions: nil
+                    )
+                )
+
+                // Remove old suggestions & progress
+                if messages.last?.sender == .suggestions {
+                    messages.removeLast()
+                }
+
+                if step + 1 < script.count {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        self.loadStep(self.step + 1)
+                    }
+                }
+            }
+
+            reloadTableSafely()
         }
     }
+
 }
 
 // MARK: - UITableView

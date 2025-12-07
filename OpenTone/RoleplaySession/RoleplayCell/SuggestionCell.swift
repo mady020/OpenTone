@@ -12,6 +12,8 @@ class SuggestionCell: UITableViewCell {
 
     weak var delegate: SuggestionCellDelegate?
 
+    private var allButtons: [UIButton] { [button1, button2, button3] }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         button1.isHidden = true
