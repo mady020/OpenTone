@@ -10,6 +10,8 @@ struct DayProgress {
 
 class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
+    @IBOutlet weak var historyCardView: RoundedCardView!
+    @IBOutlet weak var insightsCardView: RoundedCardView!
     @IBOutlet weak var weekdayCollection: UICollectionView!
     @IBOutlet weak var bigCircularRing: BigCircularProgressView!
     @IBOutlet weak var percentLabel: UILabel!
@@ -25,6 +27,34 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         DayProgress(weekdayShort: "S", progress: 0.0, isSelected: false),
         DayProgress(weekdayShort: "S", progress: 0.0, isSelected: false)
     ]
+    
+    override func viewDidLoad() {
+            super.viewDidLoad()
+            setupTapGestures()
+        
+        weekdayCollection.delegate = self
+        weekdayCollection.dataSource = self
+        // Do any additional setup after loading the view.
+        }
+
+        func setupTapGestures() {
+            let historyTap = UITapGestureRecognizer(target: self, action: #selector(historyTapped))
+            historyCardView.isUserInteractionEnabled = true
+            historyCardView.addGestureRecognizer(historyTap)
+
+            let insightsTap = UITapGestureRecognizer(target: self, action: #selector(insightsTapped))
+            insightsCardView.isUserInteractionEnabled = true
+            insightsCardView.addGestureRecognizer(insightsTap)
+        }
+
+        @objc func historyTapped() {
+            performSegue(withIdentifier: "HistoryViewSegue", sender: self)
+        }
+
+        @objc func insightsTapped() {
+            print("Insights tapped")
+        }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -34,12 +64,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         percentLabel.text = "\(Int(p * 100))%"  // update percentage
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        weekdayCollection.delegate = self
-        weekdayCollection.dataSource = self
-        // Do any additional setup after loading the view.
-    }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return weekdays.count
     }
