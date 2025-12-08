@@ -63,7 +63,7 @@
             <objects>
                 <viewController id="hsS-GQ-WnD" customClass="LoginViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="sCq-0G-5jf">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="793"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="74S-Xt-aol">
@@ -279,11 +279,11 @@
             <objects>
                 <viewController id="Sya-NO-C24" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lVc-MC-Adt">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="793"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="bg_image" translatesAutoresizingMaskIntoConstraints="NO" id="vND-kh-bOW">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="793"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                             </imageView>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="biu-hF-51U">
                                 <rect key="frame" x="30" y="160" width="333" height="580"/>
@@ -505,7 +505,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="cpr-Uf-Vnw"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="fX4-TZ-ACw">
-                        <rect key="frame" x="0.0" y="16" width="393" height="54"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -519,7 +519,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="urd-Md-bvC"/>
+        <segue reference="54Y-vL-WWz"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="bg_image" width="341.33334350585938" height="341.33334350585938"/>

@@ -16,6 +16,9 @@ class CountdownViewController: UIViewController {
 
     var mode: CountdownMode = .preparation
 
+    // ⭐ ADDED: topic passed from Prepare screen
+    var topicText: String?
+
     @IBOutlet weak var circleContainer: UIView!
     @IBOutlet weak var countdownLabel: UILabel!
     @IBOutlet weak var bottomLabel: UILabel!
@@ -34,7 +37,7 @@ class CountdownViewController: UIViewController {
         view.backgroundColor = .white
         bottomLabel.text = (mode == .preparation) ? "Preparation Time" : "Speech Time"
 
-        // READY SHOULD BE VISIBLE FROM THE START
+        // READY IS ALWAYS VISIBLE INITIALLY
         countdownLabel.text = "Ready"
         countdownLabel.font = UIFont.systemFont(ofSize: 70, weight: .semibold)
         countdownLabel.alpha = 1
@@ -112,7 +115,7 @@ class CountdownViewController: UIViewController {
         ringLayer.strokeEnd = 1.0
         ringLayer.add(anim, forKey: "rightHalfReveal")
 
-        // After right half reveals → fade out READY
+        // Fade out READY after right half completes
         DispatchQueue.main.asyncAfter(deadline: .now() + rightAppearDuration + 0.2) {
             self.fadeOutReady()
         }
@@ -121,7 +124,6 @@ class CountdownViewController: UIViewController {
     // MARK: - READY FADE OUT
     private func fadeOutReady() {
 
-        // Simply fade Ready away (no pop, no transform)
         UIView.animate(withDuration: 0.6, delay: 0.0, options: [.curveEaseInOut], animations: {
             self.countdownLabel.alpha = 0
         }, completion: { _ in
@@ -159,7 +161,6 @@ class CountdownViewController: UIViewController {
             return
         }
 
-        // Animate the arc fade
         let fade = CABasicAnimation(keyPath: "strokeStart")
         fade.fromValue = ringLayer.presentation()?.strokeStart ?? ringLayer.strokeStart
         fade.toValue   = fadeTo
@@ -180,7 +181,7 @@ class CountdownViewController: UIViewController {
         }
     }
 
-    // MARK: - NAVIGATION
+    // MARK: - NAVIGATION (Fixed)
     private func goNext() {
 
         UIView.animate(withDuration: 0.35) {
@@ -201,6 +202,7 @@ class CountdownViewController: UIViewController {
                     self.storyboard?.instantiateViewController(withIdentifier: "PrepareJamViewController")
                         as? PrepareJamViewController else { return }
 
+                
                 nav.setViewControllers([root, prepareVC], animated: true)
 
             case .speech:
@@ -211,6 +213,11 @@ class CountdownViewController: UIViewController {
                 guard let startVC =
                     self.storyboard?.instantiateViewController(withIdentifier: "StartJamViewController")
                         as? StartJamViewController else { return }
+
+                // ⭐ MAIN FIX – pass topic to StartJam
+                if let t = self.topicText, !t.isEmpty {
+                    startVC.topicText = t
+                }
 
                 nav.setViewControllers([root, prepareVC, startVC], animated: true)
             }

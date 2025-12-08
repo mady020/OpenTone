@@ -13,7 +13,7 @@ class PrepareJamViewController: UIViewController {
     @IBOutlet weak var bulbButton: UIButton!
 
     // topic to pass forward (can be set from AI later)
-    private(set) var selectedTopic: String = ""
+    private(set) var selectedTopic: String = "THE FUTURE OF REMOTE WORK AND CHALLAGNES"
 
     private let allSuggestions: [String] = [
         "Increased Flexibility",
@@ -49,7 +49,6 @@ class PrepareJamViewController: UIViewController {
         bulbButton.isHidden = (visibleCount >= allSuggestions.count)
     }
 
-    // MARK: - Actions
 
     @IBAction func bulbTapped(_ sender: UIButton) {
         guard visibleCount < allSuggestions.count else {
@@ -76,7 +75,7 @@ class PrepareJamViewController: UIViewController {
         goToSpeechCountdown()
     }
 
-    // MARK: - NAVIGATION ENTRY FOR SPEECH COUNTDOWN
+    // NAVIGATION ENTRY FOR SPEECH COUNTDOWN
     private func goToSpeechCountdown() {
 
         // Ensure topic is selected
@@ -92,11 +91,14 @@ class PrepareJamViewController: UIViewController {
 
         // Set mode to SPEECH ROUND
         countdownVC.mode = .speech
+        
+        //  passing topic for start screen
+        countdownVC.topicText = selectedTopic
 
         navigationController?.pushViewController(countdownVC, animated: true)
     }
 
-    // MARK: - For timer auto-start case
+    // For timer auto-start case
     func timerDidFinish() {
         goToSpeechCountdown()
     }
@@ -112,13 +114,12 @@ class PrepareJamViewController: UIViewController {
     }
 }
 
-// MARK: - Conformance: TimerCellDelegate
 extension PrepareJamViewController: TimerCellDelegate {
     // We already have an implementation with the correct signature above,
     // but we add the conformance here so `self` can be assigned to the cell's delegate.
 }
 
-// MARK: - CollectionView
+
 extension PrepareJamViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int { 3 }

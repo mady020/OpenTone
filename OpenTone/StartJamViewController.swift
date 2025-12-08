@@ -9,15 +9,13 @@ import UIKit
 
 class StartJamViewController: UIViewController {
 
-    // TIMER OUTLETS
+
     @IBOutlet weak var timerRingView: TimerRingView!
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var waveView: UIView!
 
-    // TOPIC
     @IBOutlet weak var topicTitleLabel: UILabel!
 
-    // BUTTONS
     @IBOutlet weak var bulbButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
 
@@ -26,11 +24,28 @@ class StartJamViewController: UIViewController {
     @IBOutlet weak var micImageView: UIImageView!
     @IBOutlet weak var waveAnimationView: UIView!
 
-    // TOPIC FROM PREVIOUS SCREEN
+    // BOTTOM SHEET
+    @IBOutlet weak var bottomSheetView: UIView!
+    
+    
+    
+    @IBOutlet weak var collapsedControlsView: UIStackView!
+    @IBOutlet weak var pauseMenuView: UIStackView!
+
+    // MARK: - VARIABLES
+
     var topicText: String = ""
 
     private let timerManager = TimerManager()
     private var didStart = false
+
+    // Bottom Sheet Control
+    private var isSheetExpanded = false
+    private let collapsedHeight: CGFloat = 120
+    private let expandedHeight: CGFloat = 320
+
+
+    // MARK: - VIEW LIFE CYCLE
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,32 +55,53 @@ class StartJamViewController: UIViewController {
         timerManager.delegate = self
         setupInitialUI()
         setupWaveAnimation()
+        setupBottomSheet()
 
-        // Mic tap
+        // Mic toggle gesture
         let tap = UITapGestureRecognizer(target: self, action: #selector(micTapped))
         micContainerView.addGestureRecognizer(tap)
-        micImageView.tintColor = .black
 
+        micImageView.tintColor = .black
         micImageView.image = UIImage(systemName: "mic.slash.fill")
         waveAnimationView.isHidden = true
     }
 
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
         topicTitleLabel.text = topicText
         topicTitleLabel.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
 
-        micContainerView.layer.cornerRadius = micContainerView.bounds.width / 2
-        micContainerView.clipsToBounds = true
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
 
-        // ❗ REMOVE TIMER AUTO-START — we now use Countdown screen for speech
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            if !self.didStart {
+                self.didStart = true
+
+                self.timerRingView.resetRing()
+                self.timerRingView.animateRing(duration: 120)
+
+                self.timerManager.start()
+            }
+        }
     }
 
-    // MARK: - MIC UI LOGIC
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        micContainerView.layer.cornerRadius = micContainerView.bounds.width / 2
+        micContainerView.clipsToBounds = true
+    }
+
+
+    // MARK: - MIC UI
+
     @objc func micTapped() {
         if waveAnimationView.isHidden {
             showWaveformState()
@@ -86,17 +122,14 @@ class StartJamViewController: UIViewController {
         stopWaveAnimation()
     }
 
-    // WAVES
     func startWaveAnimation() {
         waveAnimationView.layer.removeAllAnimations()
-        UIView.animate(
-            withDuration: 1.2,
-            delay: 0,
-            options: [.repeat, .autoreverse],
-            animations: {
-                self.waveAnimationView.transform = CGAffineTransform(scaleX: 1, y: 4)
-            }
-        )
+        UIView.animate(withDuration: 1.2,
+                       delay: 0,
+                       options: [.repeat, .autoreverse],
+                       animations: {
+                        self.waveAnimationView.transform = CGAffineTransform(scaleX: 1, y: 4)
+                       })
     }
 
     func stopWaveAnimation() {
@@ -104,11 +137,12 @@ class StartJamViewController: UIViewController {
         waveAnimationView.transform = .identity
     }
 
-    // MARK: - UI SETUP
+
+    // MARK: - INITIAL UI
+
     private func setupInitialUI() {
         timerLabel.text = "02:00"
         timerLabel.textColor = .black
-        timerLabel.isHidden = false
     }
 
     private func setupWaveAnimation() {
@@ -125,38 +159,125 @@ class StartJamViewController: UIViewController {
         wave.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin]
         waveView.addSubview(wave)
 
-        UIView.animate(
-            withDuration: 1.2,
-            delay: 0,
-            options: [.repeat, .autoreverse],
-            animations: {
-                wave.transform = CGAffineTransform(scaleX: 1, y: 5)
+        UIView.animate(withDuration: 1.2,
+                       delay: 0,
+                       options: [.repeat, .autoreverse],
+                       animations: {
+                        wave.transform = CGAffineTransform(scaleX: 1, y: 5)
+                       })
+    }
+
+
+    // MARK: - BOTTOM SHEET SETUP
+
+    func setupBottomSheet() {
+
+        bottomSheetBottomConstraint.constant = 0
+        pauseMenuView.isHidden = true
+
+        bottomSheetView.layer.cornerRadius = 22
+        bottomSheetView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        bottomSheetView.clipsToBounds = true
+
+        // Add pan gesture
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handleSheetPan(_:)))
+        bottomSheetView.addGestureRecognizer(pan)
+    }
+
+
+    // MARK: - SHEET DRAG BEHAVIOR
+
+    @objc func handleSheetPan(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: view)
+
+        switch gesture.state {
+
+        case .changed:
+            if translation.y < 0 { // dragging upward
+                bottomSheetBottomConstraint.constant =
+                    max(translation.y, -(expandedHeight - collapsedHeight))
             }
-        )
+
+        case .ended:
+            if translation.y < -40 {
+                expandSheet()
+            } else {
+                collapseSheet()
+            }
+
+        default:
+            break
+        }
     }
 
-    // MARK: - CANCEL BUTTON
+
+    func expandSheet() {
+        isSheetExpanded = true
+
+        bottomSheetBottomConstraint.constant = -(expandedHeight - collapsedHeight)
+
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 0.85,
+                       initialSpringVelocity: 0.4,
+                       options: [.curveEaseInOut]) {
+            self.view.layoutIfNeeded()
+        }
+
+        collapsedControlsView.isHidden = true
+        pauseMenuView.isHidden = false
+    }
+
+
+    func collapseSheet() {
+        isSheetExpanded = false
+
+        bottomSheetBottomConstraint.constant = 0
+
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 0.85,
+                       initialSpringVelocity: 0.4,
+                       options: [.curveEaseInOut]) {
+            self.view.layoutIfNeeded()
+        }
+
+        collapsedControlsView.isHidden = false
+        pauseMenuView.isHidden = true
+    }
+
+
+    // MARK: - BUTTON ACTIONS
+
     @IBAction func cancelTapped(_ sender: UIButton) {
-        navigationController?.popViewController(animated: true)
+        expandSheet()  // pressing X opens the pause menu
     }
 
-    // MARK: - START SPEECH → GO TO COUNTDOWN (SPEECH MODE)
-    @IBAction func beginSpeechTapped(_ sender: UIButton) {
 
+    @IBAction func beginSpeechTapped(_ sender: UIButton) {
         guard let countdownVC = storyboard?.instantiateViewController(
             withIdentifier: "CountdownViewController"
         ) as? CountdownViewController else { return }
 
-        countdownVC.mode = .speech  // ⭐ VERY IMPORTANT
-
+        countdownVC.mode = .speech
         navigationController?.pushViewController(countdownVC, animated: true)
     }
 }
 
-// MARK: - IGNORE TIMER DELEGATE (WE DO NOT AUTO-START TIMER ANYMORE)
+
+// MARK: - TIMER DELEGATE
+
 extension StartJamViewController: TimerManagerDelegate {
 
-    func timerManagerDidStartMainTimer() {}
-    func timerManagerDidUpdateMainTimer(_ formattedTime: String) {}
-    func timerManagerDidFinish() {}
+    func timerManagerDidStartMainTimer() {
+        timerLabel.text = "02:00"
+    }
+
+    func timerManagerDidUpdateMainTimer(_ formattedTime: String) {
+        timerLabel.text = formattedTime
+    }
+
+    func timerManagerDidFinish() {
+        timerLabel.text = "00:00"
+    }
 }
