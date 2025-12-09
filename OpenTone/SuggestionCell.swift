@@ -15,7 +15,7 @@ class SuggestionCell: UICollectionViewCell {
     override func awakeFromNib() {
            super.awakeFromNib()
 
-           let ringColor = UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 1.0)
+        let ringColor = UIColor(red: 0.42, green: 0.05, blue: 0.68, alpha: 1.0)
            let ringLight = UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 0.08)
 
            backgroundColor = ringLight
@@ -32,7 +32,7 @@ class SuggestionCell: UICollectionViewCell {
            suggestedLabel.minimumScaleFactor = 0.60
            suggestedLabel.lineBreakMode = .byClipping
 
-           suggestedLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+           suggestedLabel.font = UIFont.systemFont(ofSize: 17, weight: .medium)
        }
 
        func configure(text: String) {

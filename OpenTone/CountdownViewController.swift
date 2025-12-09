@@ -57,9 +57,9 @@ class CountdownViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         animateRightHalf()
+        tabBarController?.tabBar.isHidden = true
     }
 
-    // MARK: - LAYER SETUP
     private func setupLayers() {
 
         let thickness: CGFloat = 26

@@ -52,7 +52,7 @@ class TimerRingView: UIView {
 
         backgroundLayer.path = path.cgPath
         backgroundLayer.strokeColor = UIColor(
-            red: 242/255, green: 238/255, blue: 255/255, alpha: 1
+            red: 0.90, green: 0.80, blue: 1.0, alpha: 1
         ).cgColor
         backgroundLayer.fillColor = UIColor.clear.cgColor
         backgroundLayer.lineWidth = ringWidth
@@ -60,7 +60,7 @@ class TimerRingView: UIView {
 
         progressLayer.path = path.cgPath
         progressLayer.strokeColor = UIColor(
-            red: 143/255, green: 120/255, blue: 234/255, alpha: 1
+            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
         ).cgColor
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth

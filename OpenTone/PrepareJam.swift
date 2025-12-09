@@ -41,13 +41,17 @@ class PrepareJamViewController: UIViewController {
         layout.minimumLineSpacing = 15
         collectionView.collectionViewLayout = layout
 
-        // default topic if empty
         if selectedTopic.isEmpty {
             selectedTopic = "THE FUTURE OF REMOTE WORK"
         }
 
         bulbButton.isHidden = (visibleCount >= allSuggestions.count)
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.tabBar.isHidden = true
+    }
+
 
 
     @IBAction func bulbTapped(_ sender: UIButton) {
@@ -174,7 +178,7 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
     ) -> CGSize {
 
         let width = collectionView.bounds.width
-        if indexPath.section == 0 { return CGSize(width: width - 30, height: 255) }
+        if indexPath.section == 0 { return CGSize(width: width - 30, height: 260) }
         if indexPath.section == 1 { return CGSize(width: width, height: 105) }
 
         let leftRight: CGFloat = 15
