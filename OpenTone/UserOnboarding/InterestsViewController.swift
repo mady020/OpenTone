@@ -2,6 +2,8 @@ import UIKit
 
 // MARK: - InterestsViewController
 final class InterestsViewController: UIViewController {
+    
+    var user: User?
 
     // MARK: - All interests
     private let items: [InterestItem] = [
@@ -146,12 +148,18 @@ final class InterestsViewController: UIViewController {
         continueButton.tintColor = .white
     }
 
+    
     @objc private func continueTapped() {
         guard selectedInterests.count >= 3 else { return }
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let tabBarVC = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
-        tabBarVC.modalPresentationStyle = .fullScreen
-        self.view.window?.rootViewController = tabBarVC
+        user?.interests = selectedInterests
+        goToCommitmentChoice(user: user)
+    }
+    private func goToCommitmentChoice(user: User?) {
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "CommitmentScreen") as! CommitmentViewController
+        vc.user = user
+
+        self.view.window?.rootViewController = vc
         self.view.window?.makeKeyAndVisible()
     }
 }

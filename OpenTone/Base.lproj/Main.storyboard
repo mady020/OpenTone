@@ -48,10 +48,10 @@
             </objects>
             <point key="canvasLocation" x="3224" y="293"/>
         </scene>
-        <!--Tab Bar Controller-->
+        <!--Main Tab Bar Controller-->
         <scene sceneID="fPz-wB-Etc">
             <objects>
-                <tabBarController storyboardIdentifier="MainTabBarController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1zZ-yX-fFu" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="MainTabBarController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1zZ-yX-fFu" customClass="MainTabBarController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="nzm-Ym-5qf"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="OyS-FQ-WGB">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>

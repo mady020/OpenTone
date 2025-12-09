@@ -8,6 +8,8 @@ enum DashboardSection: Int, CaseIterable {
 }
 
 class HomeCollectionViewController: UICollectionViewController {
+    
+    var user: User?
 
     
     var roleplays: [String] = [

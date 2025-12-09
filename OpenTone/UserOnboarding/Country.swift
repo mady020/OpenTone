@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct Country: Hashable {
+struct Country: Hashable, Codable {
     let name: String
     let code: String
     var flag: String {

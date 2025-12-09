@@ -3,16 +3,18 @@ import UIKit
 struct CommitmentOption: Hashable {
     let title: String
     let subtitle: String
+    let number: Int
 }
 
 final class CommitmentViewController: UIViewController {
 
+    var user: User?
     // MARK: - Data
     private let options: [CommitmentOption] = [
-        CommitmentOption(title: "5 minutes per day", subtitle: "Quick daily progress"),
-        CommitmentOption(title: "10 minutes per day", subtitle: "Steady improvement"),
-        CommitmentOption(title: "20 minutes per day", subtitle: "Fast growth"),
-        CommitmentOption(title: "No schedule", subtitle: "I'll practice whenever I want")
+        CommitmentOption(title: "5 minutes per day", subtitle: "Quick daily progress", number: 5),
+        CommitmentOption(title: "10 minutes per day", subtitle: "Steady improvement", number: 10),
+        CommitmentOption(title: "20 minutes per day", subtitle: "Fast growth", number: 20),
+        CommitmentOption(title: "No schedule", subtitle: "I'll practice whenever I want", number: 0)
     ]
 
     private var selectedOption: CommitmentOption? = nil
@@ -140,7 +142,9 @@ final class CommitmentViewController: UIViewController {
     }
     private func goToDashboard() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let tabBarVC = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
+        let tabBarVC = storyboard.instantiateViewController(withIdentifier: "MainTabBarController") as! MainTabBarController
+        print(user ?? "nil")
+        tabBarVC.user = user
         tabBarVC.modalPresentationStyle = .fullScreen
         tabBarVC.modalTransitionStyle = .crossDissolve
         self.view.window?.rootViewController = tabBarVC
@@ -150,6 +154,7 @@ final class CommitmentViewController: UIViewController {
     // MARK: - Next Step
     @objc private func continueTapped() {
         guard let selected = selectedOption else { return }
+        user?.streak?.commitment = selected.number
         goToDashboard()
     }
 }

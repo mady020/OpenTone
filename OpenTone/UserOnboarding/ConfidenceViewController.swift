@@ -1,12 +1,14 @@
 import UIKit
 
-struct ConfidenceOption: Hashable {
+struct ConfidenceOption: Hashable, Codable{
     let title: String
     let emoji: String
 }
 
 final class ConfidenceViewController: UIViewController {
 
+    
+    var user: User?
     // MARK: - Data
     private let options: [ConfidenceOption] = [
         ConfidenceOption(title: "Very Confident", emoji: "💪"),
@@ -142,9 +144,11 @@ final class ConfidenceViewController: UIViewController {
     
     private func goToInterestsChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let introVC = storyboard.instantiateViewController(withIdentifier: "InterestsIntro")
-
+        let introVC = storyboard.instantiateViewController(withIdentifier: "InterestsIntro") as! OnboardingInterestsViewController
+        
+        introVC.user = user
         let nav = UINavigationController(rootViewController: introVC)
+        
         nav.modalPresentationStyle = .fullScreen
         nav.modalTransitionStyle = .crossDissolve
 
@@ -155,7 +159,7 @@ final class ConfidenceViewController: UIViewController {
     // MARK: - Actions
     @objc private func continueTapped() {
         guard selectedOption != nil else { return }
-    
+        user?.confidenceLevel = selectedOption
         goToInterestsChoice()
     }
 }

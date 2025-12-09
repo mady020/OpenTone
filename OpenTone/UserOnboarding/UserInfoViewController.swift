@@ -1,7 +1,8 @@
 import UIKit
 
-final class UserinfoViewController: UIViewController {
-
+class UserinfoViewController: UIViewController {
+    
+    var user: User?
     // MARK: - UI
     private let titleLabel: UILabel = {
         let lbl = UILabel()
@@ -14,7 +15,7 @@ final class UserinfoViewController: UIViewController {
 
     private let nameField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Enter your name"
+        tf.placeholder = "Enter user bio"
         tf.backgroundColor = UIColor(hex: "#FFFFFF")
         tf.layer.cornerRadius = 14
         tf.layer.borderWidth = 1
@@ -134,7 +135,9 @@ final class UserinfoViewController: UIViewController {
 
     private func goToConfidenceChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let introVC = storyboard.instantiateViewController(withIdentifier: "ConfidenceScreen")
+        let introVC = storyboard.instantiateViewController(withIdentifier: "ConfidenceScreen") as! ConfidenceViewController
+        
+        introVC.user = user
         let nav = UINavigationController(rootViewController: introVC)
         nav.modalPresentationStyle = .fullScreen
         nav.modalTransitionStyle = .crossDissolve
@@ -143,7 +146,11 @@ final class UserinfoViewController: UIViewController {
     }
 
     @objc private func continueTapped() {
-        guard selectedCountry != nil else { return }
+
+        guard let bio = nameField.text , let country = selectedCountry else {return}
+                
+        user?.bio = bio
+        user?.country = country
         goToConfidenceChoice()
     }
 }
