@@ -36,6 +36,12 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         weekdayCollection.dataSource = self
         // Do any additional setup after loading the view.
         }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "HistoryViewSegue" {
+            let dest = segue.destination as! HistoryViewController
+            dest.weekData = weekdays   // example
+        }
+    }
 
         func setupTapGestures() {
             let historyTap = UITapGestureRecognizer(target: self, action: #selector(historyTapped))
@@ -60,8 +66,9 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
 
         let p = SessionProgressManager.shared.overallProgress()  // value 0 → 1
 
-        bigCircularRing.progress = CGFloat(p)   // animate ring
-        percentLabel.text = "\(Int(p * 100))%"  // update percentage
+        bigCircularRing.animate(progress: CGFloat(p))
+        percentLabel.text = "\(Int(p * 100))%"
+
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -77,6 +84,8 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.configure(with: weekdays[indexPath.row])
         return cell
     }
+    
+
 
     /*
     // MARK: - Navigation

@@ -2,81 +2,56 @@ import UIKit
 
 class BigCircularProgressView: UIView {
 
-    private let trackLayer = CAShapeLayer()
+    private let backgroundLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
 
-    // Value between 0.0 → 1.0
-    var progress: CGFloat = 0 {
-        didSet {
-            updateProgress(animated: true)
-        }
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupLayers()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupLayers()
-    }
+    private var isSetupDone = false
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        layoutCircularPath()
+        if !isSetupDone {
+            setupRing()
+            isSetupDone = true
+        }
     }
 
-    //Setup Layers
-    private func setupLayers() {
-        layer.addSublayer(trackLayer)
-        layer.addSublayer(progressLayer)
+    private func setupRing() {
+        layer.sublayers?.removeAll()
 
-        trackLayer.fillColor = UIColor.clear.cgColor
-        progressLayer.fillColor = UIColor.clear.cgColor
+        let center = CGPoint(x: bounds.midX, y: bounds.midY)
+        let radius = min(bounds.width, bounds.height) / 2 - 12
 
-        trackLayer.lineCap = .round
-        progressLayer.lineCap = .round
-
-        trackLayer.lineWidth = 14
-        progressLayer.lineWidth = 14
-
-        trackLayer.strokeColor = UIColor.systemGray5.cgColor
-        progressLayer.strokeColor = UIColor.systemPurple.cgColor
-
-        progressLayer.strokeEnd = 0
-    }
-
-    // Path
-    private func layoutCircularPath() {
-        let centerPoint = CGPoint(x: bounds.midX, y: bounds.midY)
-        let radius = min(bounds.width, bounds.height) / 2.2
-
-        let circularPath = UIBezierPath(
-            arcCenter: centerPoint,
+        let path = UIBezierPath(
+            arcCenter: center,
             radius: radius,
-            startAngle: -CGFloat.pi / 2,
-            endAngle: CGFloat.pi * 1.5,
+            startAngle: -.pi / 2,
+            endAngle: 1.5 * .pi,
             clockwise: true
         )
 
-        trackLayer.path = circularPath.cgPath
-        progressLayer.path = circularPath.cgPath
+        backgroundLayer.path = path.cgPath
+        backgroundLayer.strokeColor = UIColor.systemGray5.cgColor
+        backgroundLayer.lineWidth = 12
+        backgroundLayer.fillColor = UIColor.clear.cgColor
+
+        progressLayer.path = path.cgPath
+        progressLayer.strokeColor = UIColor.systemPurple.cgColor
+        progressLayer.lineWidth = 12
+        progressLayer.lineCap = .round
+        progressLayer.fillColor = UIColor.clear.cgColor
+        progressLayer.strokeEnd = 0
+
+        layer.addSublayer(backgroundLayer)
+        layer.addSublayer(progressLayer)
     }
 
-    // Progress Update
-    private func updateProgress(animated: Bool) {
-        let clampedProgress = max(0, min(progress, 1))
-
-        if animated {
-            let animation = CABasicAnimation(keyPath: "strokeEnd")
-            animation.fromValue = progressLayer.strokeEnd
-            animation.toValue = clampedProgress
-            animation.duration = 0.8
-            animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            progressLayer.add(animation, forKey: "progressAnimation")
-        }
-
-        progressLayer.strokeEnd = clampedProgress
+    func animate(progress: CGFloat) {
+        let animation = CABasicAnimation(keyPath: "strokeEnd")
+        animation.fromValue = 0
+        animation.toValue = progress
+        animation.duration = 1.2
+        animation.fillMode = .forwards
+        animation.isRemovedOnCompletion = false
+        progressLayer.add(animation, forKey: "bigRingAnimation")
     }
 }
