@@ -28,12 +28,107 @@ class RoleplayChatViewController: UIViewController {
 
     // Simple script
     let script = [
-        ("Where can I find the milk?",
-         ["How much does this cost?", "I am looking for milk", "Where is checkout?"]),
+        (
+            "Where can I find the milk?",
+            [
+                "I am looking for milk, could you point me to the right section?",
+                "How much does a bottle of milk cost here?",
+                "Can you help me locate dairy products?",
+                "Is the milk fresh today?"
+            ]
+        ),
         
-        ("The milk is in the dairy section next to eggs.",
-         ["Show me directions", "Got it!", "Can I pay by card?"]),
+        (
+            "The milk is in the dairy section next to the eggs.",
+            [
+                "Great, thanks!",
+                "Can you show me directions on a map?",
+                "Do you have plant-based milk as well?",
+                "Can I pay by card at checkout?"
+            ]
+        ),
+        
+        (
+            "If you need plant-based milk, it's right beside the regular milk.",
+            [
+                "Amazing! I’ll check that out.",
+                "Do you have any offers on almond or oat milk?",
+                "Which one is best for coffee?",
+                "I want lactose-free milk, do you have that?"
+            ]
+        ),
+        
+        (
+            "Yes, we have lactose-free milk on the top shelf.",
+            [
+                "Thank you! I’ll grab one.",
+                "How long does it stay fresh?",
+                "Is it more expensive than regular milk?",
+                "Are there smaller packs available?"
+            ]
+        ),
+        
+        (
+            "You can check the price on the shelf label.",
+            [
+                "Perfect, I’ll take a look.",
+                "Do you have a loyalty program?",
+                "Where can I get a shopping basket?",
+                "What time does the store close?"
+            ]
+        ),
+        
+        (
+            "Baskets are available near the entrance, and yes, we close at 10 PM.",
+            [
+                "Thanks for the info!",
+                "Where do I find the checkout counters?",
+                "Can I self-scan the products?",
+                "Do you have a bakery section as well?"
+            ]
+        ),
+        
+        (
+            "Checkout counters are straight ahead, and the bakery is on your left.",
+            [
+                "I’ll grab some bread too!",
+                "Is there someone at the bakery to assist with slicing?",
+                "Do you have gluten-free bread?",
+                "Are there fresh cakes available?"
+            ]
+        ),
+        
+        (
+            "Yes, fresh cakes arrive every morning, and the staff can assist you at the bakery.",
+            [
+                "Nice! I’ll check them out.",
+                "Do you have any seasonal items?",
+                "Where can I find snacks or chips?",
+                "Is there a section for cold drinks?"
+            ]
+        ),
+        
+        (
+            "Snacks are in aisle 5 and cold drinks are near the checkout refrigerators.",
+            [
+                "Wonderful, thank you so much!",
+                "Do you also have a pharmacy section?",
+                "Where are the cleaning supplies?",
+                "Can I ask for home delivery?"
+            ]
+        ),
+        
+        (
+            "We do provide home delivery—please ask at the service desk near the entrance.",
+            [
+                "Thanks! That’s very helpful.",
+                "I’ll sign up for delivery later.",
+                "Can I get assistance loading groceries into my car?",
+                "Do you sell gift cards?"
+            ]
+        ),
     ]
+
 
     var step = 0
     private var initialLoaded = false
@@ -46,18 +141,18 @@ class RoleplayChatViewController: UIViewController {
 
         // For automatic dynamic height
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 60
+        tableView.estimatedRowHeight = 120
+        tableView.separatorStyle = .none
+
+    
+
     }
 
-    // 🔥 FIX: Only load script after view is fully on screen
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//
-//        if !initialLoaded {
-//            initialLoaded = true
-//            loadStep(0)
-//        }
-//    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        (tabBarController as? MainTabBarController)?.isRoleplayInProgress = true
+    }
     
     private var didLoadChat = false
 
@@ -66,7 +161,7 @@ class RoleplayChatViewController: UIViewController {
 
         if !didLoadChat {
             didLoadChat = true
-            loadStep(0)   // 👍 tableView is guaranteed to exist here
+            loadStep(0)
         }
     }
 
@@ -94,11 +189,13 @@ class RoleplayChatViewController: UIViewController {
      //MARK: - Safe Reload + Scroll
     func reloadTableSafely() {
         tableView.reloadData()
+        tableView.layoutIfNeeded()
 
         DispatchQueue.main.async {
             self.scrollToBottom()
         }
     }
+
 
     func scrollToBottom() {
         guard messages.count > 0 else { return }
@@ -136,29 +233,74 @@ class RoleplayChatViewController: UIViewController {
         present(alert, animated: true)
     }
 
+    var wrongAttempts = 0
+
     func userResponded(_ text: String) {
 
-        // Remove suggestions row BEFORE adding user message
-        if messages.last?.sender == .suggestions {
-            messages.removeLast()
-        }
+        let expectedSuggestions = script[step].1.map { $0.lowercased() }
+        let spoken = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // User bubble
-        messages.append(
-            ChatMessage(sender: .user,
-                        text: text,
-                        suggestions: nil)
-        )
+        if expectedSuggestions.contains(spoken) {
+            // Reset wrong attempts
+            wrongAttempts = 0
 
-        reloadTableSafely()
-
-        // Load next script line
-        if step + 1 < script.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.loadStep(self.step + 1)
+            // VALID response 👍
+            if messages.last?.sender == .suggestions {
+                messages.removeLast()
             }
+
+            messages.append(ChatMessage(sender: .user, text: text, suggestions: nil))
+            reloadTableSafely()
+
+            // Move next
+            if step + 1 < script.count {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.loadStep(self.step + 1)
+                }
+            }
+
+        } else {
+            wrongAttempts += 1
+
+            if wrongAttempts < 3 {
+                // Friendly reminders
+                messages.append(
+                    ChatMessage(
+                        sender: .app,
+                        text: "Not quite 🤏\nTry saying one of the options below!",
+                        suggestions: nil
+                    )
+                )
+
+            } else {
+                // After 3 attempts → show correct answer & move on
+                wrongAttempts = 0
+
+                let correct = script[step].1.first ?? "Default correct answer"
+                messages.append(
+                    ChatMessage(
+                        sender: .app,
+                        text: "Correct phrasing: \"\(correct)\" 👍",
+                        suggestions: nil
+                    )
+                )
+
+                // Remove old suggestions & progress
+                if messages.last?.sender == .suggestions {
+                    messages.removeLast()
+                }
+
+                if step + 1 < script.count {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        self.loadStep(self.step + 1)
+                    }
+                }
+            }
+
+            reloadTableSafely()
         }
     }
+
 }
 
 // MARK: - UITableView
@@ -202,7 +344,83 @@ extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource
             return cell
         }
     }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.delegate = self
+    }
+
+    func showRoleplayExitAlert(for viewController: UIViewController) {
+        let alert = UIAlertController(
+            title: "Exit Roleplay?",
+            message: "Your progress will be lost if you leave this screen.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Stay", style: .cancel))
+
+        alert.addAction(UIAlertAction(title: "Exit", style: .destructive, handler: { _ in
+            
+            self.navigationController?.popViewController(animated: true)
+            self.tabBarController?.selectedViewController = viewController
+        }))
+
+        present(alert, animated: true)
+    }
+    
+    
+    
+    @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
+        
+        triggerScoreScreenFlow()
+        
+    }
+
+
+    func triggerScoreScreenFlow() {
+        // If alert is currently shown → dismiss then show Score
+        if let alert = self.presentedViewController as? UIAlertController {
+            alert.dismiss(animated: true) {
+                self.presentScoreScreen()
+            }
+        } else {
+            // Alert not showing → directly show Score
+            self.presentScoreScreen()
+        }
+    }
+
+    private func presentScoreScreen() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let scoreVC = storyboard.instantiateViewController(withIdentifier: "ScoreScreenVC") as? ScoreViewController else { return }
+        
+        scoreVC.modalPresentationStyle = .fullScreen
+        scoreVC.modalTransitionStyle = .crossDissolve
+        self.present(scoreVC, animated: true)
+    }
+
+
+ 
+
+
 }
+
+
+extension RoleplayChatViewController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController,
+                          shouldSelect viewController: UIViewController) -> Bool {
+
+        // If tapping the current tab, allow
+        if viewController == tabBarController.selectedViewController {
+            return true
+        }
+
+        // Show confirmation alert instead of switching tab
+        showRoleplayExitAlert(for: viewController)
+        return false
+    }
+}
+
 
 // MARK: - Suggestions Tap
 extension RoleplayChatViewController: SuggestionCellDelegate {
@@ -210,3 +428,5 @@ extension RoleplayChatViewController: SuggestionCellDelegate {
         userResponded(suggestion)
     }
 }
+
+

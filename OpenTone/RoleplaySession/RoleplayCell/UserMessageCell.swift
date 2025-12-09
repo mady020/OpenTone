@@ -11,15 +11,34 @@ class UserMessageCell: UITableViewCell {
 
     
     @IBOutlet weak var messageLabel: UILabel!
+    
+    @IBOutlet var bubbleView: UIView!
+    
+    
+ 
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
+        bubbleView.layer.cornerRadius = 18
+//        bubbleView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.22)
+        
+        bubbleView.clipsToBounds = true
+        
+        
+        bubbleView.translatesAutoresizingMaskIntoConstraints = false
+
+        bubbleView.layer.maskedCorners = [
+            .layerMinXMinYCorner, // top-left
+            .layerMaxXMinYCorner ,   // top-right
+            .layerMaxXMaxYCorner
+        ]
+        
+        
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
 
 }
