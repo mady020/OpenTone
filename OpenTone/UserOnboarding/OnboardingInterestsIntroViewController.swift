@@ -1,6 +1,8 @@
 import UIKit
 
 final class OnboardingInterestsViewController: UIViewController {
+    
+    var user: User?
 
     // MARK: - Popular subset (shown on first onboarding screen)
     private let popularItems: [InterestItem] = [
@@ -163,24 +165,24 @@ final class OnboardingInterestsViewController: UIViewController {
     // MARK: - Actions
     @objc private func openFullInterests() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "InterestsScreen")
+        let vc = storyboard.instantiateViewController(withIdentifier: "InterestsScreen") as! InterestsViewController
+        
+        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 
     @objc private func continueTapped() {
         guard selectedItems.count >= 3 else { return }
+        user?.interests = selectedItems
         goToCommitmentChoice()
     }
     
     private func goToCommitmentChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let introVC = storyboard.instantiateViewController(withIdentifier: "CommitmentScreen")
+        let vc = storyboard.instantiateViewController(withIdentifier: "CommitmentScreen") as! CommitmentViewController
+        vc.user = user
 
-        let nav = UINavigationController(rootViewController: introVC)
-        nav.modalPresentationStyle = .fullScreen
-        nav.modalTransitionStyle = .crossDissolve
-
-        self.view.window?.rootViewController = nav
+        self.view.window?.rootViewController = vc
         self.view.window?.makeKeyAndVisible()
     }
 }

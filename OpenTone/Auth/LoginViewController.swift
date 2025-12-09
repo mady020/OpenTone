@@ -16,7 +16,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func signinButtonTapped(_ sender: Any) {
-        goToUserInfo()
+//        goToUserInfo()
+        goToDashboard()
     }
     
     private func goToDashboard() {

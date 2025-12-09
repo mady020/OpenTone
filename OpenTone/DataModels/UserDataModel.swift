@@ -129,17 +129,12 @@ class UserDataModel {
         return [User(
             name: "Madhav Sharma",
             email: "madhav@opentone.com",
+            password: "madhav123",
+            country: Country(name: "India", code: "🇮🇳"),
             age: 20,
             gender: .male,
             bio: "Learning to communicate every day and loving the progress.",
             englishLevel: .beginner,
-            interests: [
-                .technology,
-                .movies,
-                .science,
-                .education,
-                .entertainment
-                , .music, .sports],
             currentPlan: .free,
             avatar: "pp1",
             streak: nil,
@@ -151,11 +146,12 @@ class UserDataModel {
         ) , User(
             name: "Harshdeep Singh",
             email: "harsh@opentone.com",
+            password: "harsh123",
+            country: Country(name: "India", code: "🇮🇳"),
             age: 19,
             gender: .male,
             bio: "On a journey to improve my Communication Skills",
             englishLevel: .beginner,
-            interests: [.technology , .art , .food],
             currentPlan: .free,
             avatar: "pp2",
             streak: nil,

@@ -36,7 +36,7 @@ class RoleplayChatViewController: UIViewController {
     ]
 
     var step = 0
-    private var initialLoaded = false   // 👈 prevents double execution
+    private var initialLoaded = false
 
     override func viewDidLoad() {
         super.viewDidLoad()

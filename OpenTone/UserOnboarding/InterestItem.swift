@@ -1,6 +1,6 @@
 import Foundation
 
-struct InterestItem: Hashable{
+struct InterestItem: Hashable, Codable{
     let title: String
     let symbol: String
 }

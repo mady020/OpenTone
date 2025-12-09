@@ -7,7 +7,20 @@ class SignupViewController: UIViewController {
 
     private var isPasswordVisible = false
     
+    private func goToUserInfo(user: User){
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "UserInfoScreen") as? UserinfoViewController
+        vc?.user = user
+        self.view.window?.rootViewController = vc
+        self.view.window?.makeKeyAndVisible()
+    }
+    
     @IBAction func signupButtonTapped(_ sender: UIButton) {
+        guard let name = nameField.text , let  email = emailField.text , let passwd = passwordField.text else{
+            return
+        }
+        let user: User = User(name: name, email: email, password: passwd, country: nil)
+        goToUserInfo(user: user)
     }
     @IBAction func signinButtonTapped(_ sender: UIButton) {
         navigationController?.popViewController(animated: true)
