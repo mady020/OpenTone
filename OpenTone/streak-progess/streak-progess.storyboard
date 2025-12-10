@@ -149,7 +149,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F9I-zG-2Yi" customClass="RoundedCardView" customModule="OpenTone" customModuleProvider="target">
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="F9I-zG-2Yi" customClass="RoundedCardView" customModule="OpenTone" customModuleProvider="target">
                                 <rect key="frame" x="20" y="728.33333333333337" width="353" height="150"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Weekly Insights" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cY5-OJ-ook">
@@ -172,7 +172,7 @@ Total this week : 12 hr
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="150" id="8l0-cU-N9n"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" id="YRM-Iy-b3G"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -253,17 +253,17 @@ Total this week : 12 hr
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="HistoryCell" id="Ia1-Oo-iy8" customClass="HistoryTableViewCell">
-                                        <rect key="frame" x="0.0" y="50" width="393" height="177"/>
+                                        <rect key="frame" x="0.0" y="50" width="393" height="180"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Ia1-Oo-iy8" id="M4O-y4-mbj">
-                                            <rect key="frame" x="0.0" y="0.0" width="393" height="177"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="180"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CSW-cV-vpN">
-                                                    <rect key="frame" x="16" y="8" width="361" height="161"/>
+                                                    <rect key="frame" x="16" y="8" width="361" height="164"/>
                                                     <subviews>
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Rc4-wp-oZh">
-                                                            <rect key="frame" x="16" y="60.666666666666671" width="65" height="40"/>
+                                                            <rect key="frame" x="16" y="62" width="65" height="40"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="40" id="2aJ-Gv-cbV"/>
                                                                 <constraint firstAttribute="width" constant="40" id="R9z-gF-wDF"/>
@@ -278,7 +278,7 @@ Total this week : 12 hr
                                                     </constraints>
                                                 </view>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="okw-4W-V7V">
-                                                    <rect key="frame" x="110" y="16" width="267" height="145"/>
+                                                    <rect key="frame" x="110" y="16" width="267" height="148"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ohb-h0-uy8">
                                                             <rect key="frame" x="0.0" y="0.0" width="47" height="18"/>
@@ -299,7 +299,7 @@ Total this week : 12 hr
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1eW-jc-KVx">
-                                                            <rect key="frame" x="0.0" y="44" width="35.333333333333336" height="101"/>
+                                                            <rect key="frame" x="0.0" y="44" width="35.333333333333336" height="104"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="17.999999999999993" id="R9X-e5-UP0"/>
                                                             </constraints>
@@ -310,19 +310,19 @@ Total this week : 12 hr
                                                     </subviews>
                                                 </stackView>
                                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xLx-E8-Wab">
-                                                    <rect key="frame" x="120" y="82" width="257" height="79"/>
+                                                    <rect key="frame" x="120" y="82" width="257" height="82"/>
                                                     <subviews>
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="chU-Tq-Qho">
-                                                            <rect key="frame" x="0.0" y="0.0" width="174.33333333333334" height="79"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="174.33333333333334" height="82"/>
                                                         </imageView>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ESy-hx-C7w">
-                                                            <rect key="frame" x="174.33333333333331" y="0.0" width="41.333333333333343" height="79"/>
+                                                            <rect key="frame" x="174.33333333333331" y="0.0" width="41.333333333333343" height="82"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iL4-yv-KiB">
-                                                            <rect key="frame" x="215.66666666666669" y="0.0" width="41.333333333333314" height="79"/>
+                                                            <rect key="frame" x="215.66666666666669" y="0.0" width="41.333333333333314" height="82"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>

@@ -34,10 +34,10 @@ class CircularProgressView: UIView {
         layer.addSublayer(ringLayer)
     }
 
-    func animate(isCompleted: Bool) {
+    func animate(progress: CGFloat) {
         let animation = CABasicAnimation(keyPath: "strokeEnd")
         animation.fromValue = 0
-        animation.toValue = isCompleted ? 1 : 0.2
+        animation.toValue = progress
         animation.duration = 0.6
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false

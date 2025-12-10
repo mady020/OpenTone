@@ -18,7 +18,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     @IBOutlet weak var goalLabel: UILabel!
     @IBOutlet weak var deltaLabel: UILabel!
     
-    var weekdays: [DayProgress] = [
+    let weekdays: [DayProgress] = [
         DayProgress(weekdayShort: "M", progress: 0.8, isSelected: false),
         DayProgress(weekdayShort: "T", progress: 0.7, isSelected: false),
         DayProgress(weekdayShort: "W", progress: 0.9, isSelected: false),
@@ -27,6 +27,8 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         DayProgress(weekdayShort: "S", progress: 0.0, isSelected: false),
         DayProgress(weekdayShort: "S", progress: 0.0, isSelected: false)
     ]
+    
+    
     
     override func viewDidLoad() {
             super.viewDidLoad()
@@ -61,12 +63,27 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             print("Insights tapped")
         }
     
+//    func overallProgress() -> CGFloat {
+//        // Example weekly progress values (0 → 1)
+//        let weekProgress: [CGFloat] = [1.0, 0.7, 0.4, 1.0, 0.6, 0.0, 0.0]
+//
+//        let total = weekProgress.reduce(0, +)
+//        return total / CGFloat(weekProgress.count)
+//    }
+
+    func overallProgress() -> CGFloat {
+        guard !weekdays.isEmpty else { return 0 }
+        return weekdays.map { $0.progress }.reduce(0, +) / CGFloat(weekdays.count)
+    }
+
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        let p = SessionProgressManager.shared.overallProgress()  // value 0 → 1
+        let p = overallProgress() // 0 → 1
+        bigCircularRing.animate(progress: p)
+    
 
-        bigCircularRing.animate(progress: CGFloat(p))
         percentLabel.text = "\(Int(p * 100))%"
 
     }

@@ -4,11 +4,11 @@ class BigCircularProgressView: UIView {
 
     private let backgroundLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
-
     private var isSetupDone = false
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        if bounds.width == 0 || bounds.height == 0 { return }
         if !isSetupDone {
             setupRing()
             isSetupDone = true
@@ -16,27 +16,25 @@ class BigCircularProgressView: UIView {
     }
 
     private func setupRing() {
-        layer.sublayers?.removeAll()
-
         let center = CGPoint(x: bounds.midX, y: bounds.midY)
-        let radius = min(bounds.width, bounds.height) / 2 - 12
+          let radius = min(bounds.width, bounds.height) / 2 - 14
 
-        let path = UIBezierPath(
-            arcCenter: center,
-            radius: radius,
-            startAngle: -.pi / 2,
-            endAngle: 1.5 * .pi,
-            clockwise: true
-        )
+          let path = UIBezierPath(
+              arcCenter: center,
+              radius: radius,
+              startAngle: -.pi / 2,
+              endAngle: 1.5 * .pi,
+              clockwise: true
+          )
 
         backgroundLayer.path = path.cgPath
         backgroundLayer.strokeColor = UIColor.systemGray5.cgColor
-        backgroundLayer.lineWidth = 12
+        backgroundLayer.lineWidth = 14
         backgroundLayer.fillColor = UIColor.clear.cgColor
 
         progressLayer.path = path.cgPath
         progressLayer.strokeColor = UIColor.systemPurple.cgColor
-        progressLayer.lineWidth = 12
+        progressLayer.lineWidth = 14
         progressLayer.lineCap = .round
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.strokeEnd = 0
