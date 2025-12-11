@@ -14,7 +14,7 @@ class HomeCollectionViewController: UICollectionViewController {
     
     var user: User?
     
-    var isNewUser = true
+    var isNewUser = false
     
     // MARK: - Colors
     private let screenBackground  = UIColor(hex: "#F4F5F7")
@@ -90,7 +90,7 @@ class HomeCollectionViewController: UICollectionViewController {
         case .callSession:
             return 2
         case .recommended:
-            return 3
+            return 5
         }
     }
     
@@ -233,7 +233,7 @@ extension HomeCollectionViewController {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(169)
+                heightDimension: .absolute(124)
             )
         )
 
@@ -396,7 +396,10 @@ extension HomeCollectionViewController {
 
         case .completeTask:
 
+            print("Complete Task Clicked!")
+        
 
+        case .callSession:
             if indexPath.row == 0 {
                 print("1-to-1 Call tapped")
 
@@ -415,25 +418,12 @@ extension HomeCollectionViewController {
                 self.navigationController?.pushViewController(rootVC, animated: true)
             }
 
-        case .callSession:
-            print("2 Min JAM tapped")
-            tabBarController?.selectedIndex = 2
-
         case .recommended:
             print("Scenario tapped: \(indexPath.row)")
             let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
-
-            guard let navController = storyboard.instantiateInitialViewController() as? UINavigationController else {
-                print("CallStoryBoard initial is not NavigationController")
-                return
-            }
-
-            guard let rootVC = navController.viewControllers.first else {
-                print("No root VC in CallStoryBoard")
-                return
-            }
-
-            self.navigationController?.pushViewController(rootVC, animated: true)
+            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayInfo")
+            vc.title = roleplays[indexPath.item]
+            navigationController?.pushViewController(vc, animated: true)
         }
     }
 

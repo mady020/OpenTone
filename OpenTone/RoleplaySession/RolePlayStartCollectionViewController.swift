@@ -6,8 +6,6 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Grocery Shopping"
-
         collectionView.collectionViewLayout = createLayout()
     }
 

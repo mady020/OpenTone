@@ -98,7 +98,7 @@
         <!--Grocery Shopping-->
         <scene sceneID="ieI-tD-d4c">
             <objects>
-                <collectionViewController id="UrW-Xx-Gvv" customClass="RolePlayStartCollectionViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                <collectionViewController storyboardIdentifier="RoleplayInfo" id="UrW-Xx-Gvv" customClass="RolePlayStartCollectionViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="C1O-z0-QDA">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
