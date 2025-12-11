@@ -1,0 +1,30 @@
+//
+//  ProgressCell.swift
+//  OpenTone
+//
+//  Created by M S on 10/12/25.
+//
+
+import UIKit
+
+class ProgressCell: UICollectionViewCell {
+    
+    
+    @IBOutlet var progressLabel: UILabel!
+    @IBOutlet var overallProgressButton: UIButton!
+    
+    @IBAction func overallProgressButton(_ sender: UIButton) {
+    }
+    @IBOutlet var progressRingView: TimerRingView!
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        layer.cornerRadius = 30
+        clipsToBounds = true
+        progressRingView.setProgress(value: 1, max: 5)
+       
+        
+    }
+    
+
+
+}

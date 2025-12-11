@@ -13,7 +13,6 @@ class RoleplaysViewController: UIViewController {
         "Job Interview",
         "Birthday Celebration",
         "Hotel Booking",
-        "First Date"
     ]
 
     var filteredRoleplays: [String] = []

@@ -5,22 +5,16 @@ class RoleplaysCell: UICollectionViewCell {
     @IBOutlet weak var roleplayImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
 
+    private let baseCardColor  = UIColor(hex: "#FBF8FF")
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-
-        contentView.layer.cornerRadius = 30
-        contentView.clipsToBounds = true
-
- 
+        backgroundColor = baseCardColor
+        layer.cornerRadius = 30
+        clipsToBounds = true
         roleplayImageView.contentMode = .scaleAspectFill
         roleplayImageView.clipsToBounds = true
-
-    
-//        titleLabel.alpha = 0.4
-        
         titleLabel.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-        
-
     }
 
     func configure(title: String, imageName: String) {

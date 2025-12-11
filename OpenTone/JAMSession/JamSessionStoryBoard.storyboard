@@ -106,7 +106,7 @@
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WgD-Td-3o3">
                                 <rect key="frame" x="20" y="506.33333333333331" width="353" height="138.66666666666669"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="bOQ-d4-EGA">
-                                    <rect key="frame" x="0.0" y="0.0" width="353" height="138.66666666666669"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="353" height="139"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="v8F-dm-uQH">

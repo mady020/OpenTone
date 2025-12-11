@@ -1,21 +1,12 @@
 //
-//  TimerRingView.swift
-//  OpenTone
-//
-//  Created by Student on 27/11/25.
-
-
-
-//
-//  TimerRingView.swift
-//  OpenTone
-//
-
 import UIKit
 
 class TimerRingView: UIView {
 
     private let backgroundLayer = CAShapeLayer()
+    
+    private let baseCardColor     = UIColor(hex: "#FBF8FF")
+    private let selectedCardColor = UIColor(hex: "#5B3CC4")
     private let progressLayer = CAShapeLayer()
 
     private let ringWidth: CGFloat = 22
@@ -49,7 +40,7 @@ class TimerRingView: UIView {
             endAngle: 1.5 * .pi,
             clockwise: true
         )
-
+        
         backgroundLayer.path = path.cgPath
         backgroundLayer.strokeColor = UIColor(
             red: 0.90, green: 0.80, blue: 1.0, alpha: 1
@@ -65,8 +56,13 @@ class TimerRingView: UIView {
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round
-        progressLayer.strokeEnd = 1.0
     }
+    
+    func setProgress(value: CGFloat, max: CGFloat) {
+        progressLayer.strokeEnd = value / max
+    }
+
+
 
     func resetRing() {
         progressLayer.removeAllAnimations()
@@ -95,4 +91,3 @@ class TimerRingView: UIView {
         progressLayer.add(animation, forKey: "ringAnimation")
     }
 }
-
