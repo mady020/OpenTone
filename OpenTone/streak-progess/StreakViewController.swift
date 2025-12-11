@@ -16,11 +16,44 @@ class StreakViewController: UIViewController {
 
         let vc = storyboard?.instantiateViewController(withIdentifier: "HistoryViewController") as! HistoryViewController
         navigationController?.pushViewController(vc, animated: true)
+        
+        
     }
     @IBOutlet weak var bigCircularRing: BigCircularProgressView!
     @IBOutlet weak var weekdaysStackView: UIStackView!
     
+    
+    
+    var historyItemsArray: [HistoryItem] = [
+        HistoryItem(
+            title: "2 Min Session",
+            subtitle: "You completed 2 min session",
+            topic: "Time Travel",
+            duration: "2 min",
+            xp: "15 XP",
+            iconName: "mic.fill"
+        ),
+        HistoryItem(
+            title: "RolePlays",
+            subtitle: "You completed RolePlays session",
+            topic: "Time Travel",
+            duration: "15 min",
+            xp: "15 XP",
+            iconName: "theatermasks.fill"
+        ),
+        HistoryItem(
+            title: "1 to 1 Call",
+            subtitle: "You completed 1 to 1 call session",
+            topic: "—",
+            duration: "10 min",
+            xp: "15 XP",
+            iconName: "phone.fill"
+        )
 
+    ]
+
+    
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         animateWeekdays()
@@ -51,5 +84,13 @@ class StreakViewController: UIViewController {
             }
         }
     }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showHistorySegue" {
+            if let dest = segue.destination as? HistoryViewController {
+                dest.items = self.historyItemsArray   // your real data
+            }
+        }
+    }
+
 
 }
