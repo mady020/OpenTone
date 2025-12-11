@@ -468,7 +468,7 @@
                         <barButtonItem key="rightBarButtonItem" title="End" id="hm1-wz-fzC">
                             <connections>
                                 <action selector="endButtonTapped:" destination="Z8h-z1-9tc" id="p3s-5R-Zwm"/>
-                                <segue destination="rzK-Io-w2W" kind="presentation" id="inU-UY-rx0"/>
+                                <segue destination="6h4-oI-Bzs" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="iLm-Nc-dU4"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -478,13 +478,14 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VmJ-3U-8rX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="6h4-oI-Bzs" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="2580.9160305343512" y="130.98591549295776"/>
         </scene>
         <!--Score View Controller-->
         <scene sceneID="ZpF-Sp-7wa">
             <objects>
-                <viewController storyboardIdentifier="ScoreScreenVC" wantsFullScreenLayout="YES" modalPresentationStyle="fullScreen" hidesBottomBarWhenPushed="YES" keyboardType="off" id="rzK-Io-w2W" customClass="ScoreViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController restorationIdentifier="ScoreScreenVC" storyboardIdentifier="ScoreScreenVC" wantsFullScreenLayout="YES" modalPresentationStyle="fullScreen" hidesBottomBarWhenPushed="YES" keyboardType="off" id="rzK-Io-w2W" customClass="ScoreViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="R8i-1X-gpf">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

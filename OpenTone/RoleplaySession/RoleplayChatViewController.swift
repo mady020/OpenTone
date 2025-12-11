@@ -143,6 +143,8 @@ class RoleplayChatViewController: UIViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 120
         tableView.separatorStyle = .none
+        
+        navigationItem.hidesBackButton = true
 
     
 
@@ -253,11 +255,19 @@ class RoleplayChatViewController: UIViewController {
             reloadTableSafely()
 
             // Move next
+            // NEXT STEP HANDLING
             if step + 1 < script.count {
+                // Continue script
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.loadStep(self.step + 1)
                 }
+            } else {
+                // Script is finished 👍
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    self.presentScoreScreen()
+                }
             }
+
 
         } else {
             wrongAttempts += 1
@@ -291,7 +301,7 @@ class RoleplayChatViewController: UIViewController {
                 }
 
                 if step + 1 < script.count {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
                         self.loadStep(self.step + 1)
                     }
                 }
@@ -391,7 +401,7 @@ extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource
     }
 
     private func presentScoreScreen() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
         guard let scoreVC = storyboard.instantiateViewController(withIdentifier: "ScoreScreenVC") as? ScoreViewController else { return }
         
         scoreVC.modalPresentationStyle = .fullScreen
