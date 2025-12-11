@@ -11,12 +11,14 @@ class AppMessageCell: UITableViewCell {
         messageLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         bubbleView.layer.cornerRadius = 18
-//        bubbleView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.12)
+
+        
         bubbleView.layer.maskedCorners = [
             .layerMinXMinYCorner, // top-left
             .layerMaxXMinYCorner ,   // top-right
-            .layerMinXMaxYCorner
+            .layerMaxXMaxYCorner
         ]
+        
         bubbleView.translatesAutoresizingMaskIntoConstraints = false
 
 
