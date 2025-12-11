@@ -29,7 +29,7 @@ class HistoryViewController: UIViewController {
 
         // Search setup
         searchBar.delegate = self
-        searchBar.placeholder = "Search history (title, topic, duration...)"
+        searchBar.placeholder = "Search your activity"
 
         // Sample data if none provided
         if items.isEmpty {
