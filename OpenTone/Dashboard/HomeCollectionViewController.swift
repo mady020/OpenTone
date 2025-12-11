@@ -60,7 +60,8 @@ class HomeCollectionViewController: UICollectionViewController {
         
         switch DashboardSection(rawValue: indexPath.section)! {
         case .progress:
-            header.titleLabel.text = "Progress"
+        return header
+           
         case .completeTask:
             if(!isNewUser){
                 header.titleLabel.text = "Complete your task"
@@ -209,20 +210,6 @@ extension HomeCollectionViewController {
         )
 
         let section = NSCollectionLayoutSection(group: group)
-//        section.orthogonalScrollingBehavior = .continuous
-
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
-        )
-
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [header]
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
 
         return section
