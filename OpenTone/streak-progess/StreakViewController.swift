@@ -9,21 +9,18 @@ import UIKit
 
 class StreakViewController: UIViewController {
     @IBOutlet weak var percentLabel: UILabel!
-    
     @IBAction func historyButtonTapped(_ sender: UIButton) {
        // let storyboard = UIStoryboard(name: "streak-progess", bundle: nil)
         print("History tapped")   // IMPORTANT → test this first!
 
         let vc = storyboard?.instantiateViewController(withIdentifier: "HistoryViewController") as! HistoryViewController
         navigationController?.pushViewController(vc, animated: true)
-        
-        
     }
     @IBOutlet weak var bigCircularRing: BigCircularProgressView!
     @IBOutlet weak var weekdaysStackView: UIStackView!
     
-    
-    
+
+
     var historyItemsArray: [HistoryItem] = [
         HistoryItem(
             title: "2 Min Session",
