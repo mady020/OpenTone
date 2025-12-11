@@ -114,8 +114,79 @@
                                     <outlet property="progressRingView" destination="BOO-qn-0J5" id="ydm-G7-yjS"/>
                                 </connections>
                             </collectionViewCell>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LastTaskCell" id="dOm-Gs-fkS" customClass="LastTaskCell" customModule="OpenTone" customModuleProvider="target">
+                                <rect key="frame" x="66.666666666666671" y="276" width="260" height="109"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="5i3-cV-fDm">
+                                    <rect key="frame" x="0.0" y="0.0" width="260" height="109"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="bFp-GZ-XhS">
+                                            <rect key="frame" x="16" y="16" width="228" height="77"/>
+                                            <subviews>
+                                                <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="mjz-Jc-4jQ">
+                                                    <rect key="frame" x="0.0" y="0.0" width="140.33333333333334" height="38.666666666666664"/>
+                                                    <subviews>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="theatermasks" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="4oc-AC-KZI">
+                                                            <rect key="frame" x="0.0" y="-0.66666666666666785" width="40" height="40.333333333333329"/>
+                                                            <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" constant="40" id="67b-1I-JAz"/>
+                                                                <constraint firstAttribute="height" constant="40" id="A1r-Pw-3IR"/>
+                                                            </constraints>
+                                                        </imageView>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="RolePlay" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oYc-6O-8E3">
+                                                            <rect key="frame" x="45.999999999999993" y="5.0000000000000018" width="94.333333333333314" height="28.666666666666671"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="24"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                    </subviews>
+                                                </stackView>
+                                                <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="eky-aB-Oas">
+                                                    <rect key="frame" x="0.0" y="38.666666666666657" width="223" height="38.333333333333343"/>
+                                                    <subviews>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Grocery Shopping " textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wVm-lg-wSl">
+                                                            <rect key="frame" x="0.0" y="0.0" width="109.66666666666667" height="38.333333333333336"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uxp-OJ-WWk">
+                                                            <rect key="frame" x="113.66666666666666" y="0.0" width="109.33333333333334" height="38.333333333333336"/>
+                                                            <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                            <color key="tintColor" systemColor="systemBackgroundColor"/>
+                                                            <state key="normal" title="Button"/>
+                                                            <buttonConfiguration key="configuration" style="plain" title="Continue"/>
+                                                            <connections>
+                                                                <action selector="continueTapped:" destination="dOm-Gs-fkS" eventType="touchUpInside" id="Esx-li-KmF"/>
+                                                            </connections>
+                                                        </button>
+                                                    </subviews>
+                                                </stackView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="eky-aB-Oas" secondAttribute="trailing" constant="5" id="cAL-WA-Wd3"/>
+                                            </constraints>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="bFp-GZ-XhS" firstAttribute="top" secondItem="5i3-cV-fDm" secondAttribute="top" constant="16" id="3pD-ug-8EG"/>
+                                        <constraint firstItem="bFp-GZ-XhS" firstAttribute="leading" secondItem="5i3-cV-fDm" secondAttribute="leading" constant="16" id="Ov5-0v-W5b"/>
+                                        <constraint firstAttribute="bottom" secondItem="bFp-GZ-XhS" secondAttribute="bottom" constant="16" id="c4G-Xn-Eba"/>
+                                        <constraint firstAttribute="trailing" secondItem="bFp-GZ-XhS" secondAttribute="trailing" constant="16" id="ivV-HE-04A"/>
+                                    </constraints>
+                                </collectionViewCellContentView>
+                                <size key="customSize" width="260" height="109"/>
+                                <connections>
+                                    <outlet property="continueButton" destination="uxp-OJ-WWk" id="CH3-8j-qIJ"/>
+                                    <outlet property="iconImageView" destination="4oc-AC-KZI" id="TmR-ko-pFI"/>
+                                    <outlet property="titleLabel" destination="wVm-lg-wSl" id="AF0-MX-FhM"/>
+                                    <outlet property="typeLabel" destination="oYc-6O-8E3" id="T7r-gr-25J"/>
+                                </connections>
+                            </collectionViewCell>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CallSessionCell" id="Hyr-h0-yJT" customClass="CallSessionCell" customModule="OpenTone" customModuleProvider="target">
-                                <rect key="frame" x="66.666666666666671" y="276" width="260" height="128"/>
+                                <rect key="frame" x="66.666666666666671" y="395" width="260" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="c9E-X1-u7r">
                                     <rect key="frame" x="0.0" y="0.0" width="260" height="128"/>
@@ -193,6 +264,7 @@
         <image name="house" catalog="system" width="128" height="104"/>
         <image name="house.fill" catalog="system" width="128" height="104"/>
         <image name="sparkles" catalog="system" width="115" height="128"/>
+        <image name="theatermasks" catalog="system" width="128" height="87"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

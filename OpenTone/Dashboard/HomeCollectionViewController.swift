@@ -114,20 +114,14 @@ class HomeCollectionViewController: UICollectionViewController {
         case .completeTask:
            
                 let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: "Cell",
+                    withReuseIdentifier: "LastTaskCell",
                     for: indexPath
-                ) as! HomeCollectionViewCell
-
-                cell.imageView.contentMode = .scaleAspectFill
-                cell.imageView.clipsToBounds = true
-
-                if indexPath.row == 0 {
-                    cell.imageView.image = UIImage(named: "Call")
-                    cell.backgroundColor = .clear
-                    cell.textLabel.text = "Find A Peer"
-                } else {
-                    cell.backgroundColor = .purple
-                }
+                ) as! LastTaskCell
+                
+            
+            cell.backgroundColor = baseCardColor
+            cell.continueButton.backgroundColor = selectedCardColor
+                
                 return cell
             
 
