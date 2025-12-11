@@ -1,6 +1,13 @@
+//
+//  CircularProgress.swift
+//  OpenTone
+//
+//  Created by Student on 10/12/25.
+//
+
 import UIKit
 
-class RoundedCardView: UIView {
+class CircularProgress: UIView {
 
     /*
     // Only override draw() if you perform custom drawing.
