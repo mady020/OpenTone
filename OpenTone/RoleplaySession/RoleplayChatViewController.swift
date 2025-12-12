@@ -21,6 +21,10 @@ struct ChatMessage {
 
 class RoleplayChatViewController: UIViewController {
 
+    var currentScenario: RoleplayScenario?
+    var currentSession: RoleplaySession?
+    
+    
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
 

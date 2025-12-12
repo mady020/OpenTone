@@ -5,21 +5,15 @@ class RoleplaysViewController: UIViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
 
-    var roleplays: [String] = [
-        "Grocery Shopping",
-        "Making Friends",
-        "Airport Check-in",
-        "Ordering Food",
-        "Job Interview",
-        "Birthday Celebration",
-        "Hotel Booking",
-    ]
-
-    var filteredRoleplays: [String] = []
+    // Data from your DataModel
+    var roleplays: [RoleplayScenario] = []
+    var filteredRoleplays: [RoleplayScenario] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Load scenarios
+        roleplays = RoleplayScenarioDataModel.shared.getAll()
         filteredRoleplays = roleplays
 
         setupSearchBar()
@@ -31,6 +25,7 @@ class RoleplaysViewController: UIViewController {
         setupCollectionViewLayout()
     }
 
+    // MARK: - UI Setup
     func setupSearchBar() {
         searchBar.delegate = self
         searchBar.placeholder = "Search roleplays"
@@ -68,6 +63,8 @@ class RoleplaysViewController: UIViewController {
     }
 }
 
+
+// MARK: - CollectionView
 extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -82,18 +79,35 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
             for: indexPath
         ) as! RoleplaysCell
 
-        let title = filteredRoleplays[indexPath.row]
-        let imageName = title.replacingOccurrences(of: " ", with: "")
+        let scenario = filteredRoleplays[indexPath.row]
+        cell.configure(title: scenario.title, imageName: scenario.imageURL)
 
-        cell.configure(title: title, imageName: imageName)
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Selected:", filteredRoleplays[indexPath.row])
+
+        let scenario = filteredRoleplays[indexPath.row]
+        print("Selected Roleplay:", scenario.title)
+
+        guard let newSession = RoleplaySessionDataModel.shared.startSession(scenarioId: scenario.id) else {
+            print("Failed to start session")
+            return
+        }
+
+        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC") as? RolePlayStartCollectionViewController {
+
+            vc.currentScenario = scenario
+            vc.currentSession = newSession
+
+//            navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
 
+
+// MARK: - Search Bar
 extension RoleplaysViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -102,7 +116,7 @@ extension RoleplaysViewController: UISearchBarDelegate {
             filteredRoleplays = roleplays
         } else {
             filteredRoleplays = roleplays.filter {
-                $0.lowercased().contains(searchText.lowercased())
+                $0.title.lowercased().contains(searchText.lowercased())
             }
         }
 
@@ -112,11 +126,8 @@ extension RoleplaysViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }
-    
-    
-    @IBAction func unwindToRoleplaysVC(_ segue: UIStoryboardSegue) {
-        // You can write code here if needed
-        print("Unwound to First View Controller")
-    }
 
+    @IBAction func unwindToRoleplaysVC(_ segue: UIStoryboardSegue) {
+        print("Returned to Roleplays screen")
+    }
 }
