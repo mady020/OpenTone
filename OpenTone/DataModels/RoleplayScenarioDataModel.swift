@@ -7,10 +7,6 @@ class RoleplayScenarioDataModel {
 
     private init() {}
 
-//    private(set) var scenarios: [RoleplayScenario] = []
-    
-    
-    
     
     var scenarios: [RoleplayScenario] = [
 

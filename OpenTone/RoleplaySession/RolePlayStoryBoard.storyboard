@@ -66,7 +66,6 @@
                                         <connections>
                                             <outlet property="roleplayImageView" destination="unb-hC-apD" id="Hyp-7u-gic"/>
                                             <outlet property="titleLabel" destination="rRb-Bc-w4j" id="SfJ-Pu-0wM"/>
-                                            <segue destination="UrW-Xx-Gvv" kind="show" identifier="RoleplayCell" id="3Ab-17-RZU"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -89,6 +88,7 @@
                     <connections>
                         <outlet property="collectionView" destination="tad-df-2r3" id="sDg-fE-3V1"/>
                         <outlet property="searchBar" destination="L6R-5r-col" id="Qww-js-eKn"/>
+                        <segue destination="UrW-Xx-Gvv" kind="show" identifier="showRoleplayScenario" id="62q-r5-2Go"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

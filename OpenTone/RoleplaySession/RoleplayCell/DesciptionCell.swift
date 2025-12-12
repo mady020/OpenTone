@@ -15,6 +15,5 @@ class DescriptionCell: UICollectionViewCell {
     func configure(description: String, time: String) {
         descriptionLabel.text = description
         timeLabel.text = time
-//        timeLabel.textColor = .systemGreen
     }
 }

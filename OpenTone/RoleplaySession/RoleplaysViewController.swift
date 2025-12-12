@@ -61,6 +61,9 @@ class RoleplaysViewController: UIViewController {
 
         collectionView.collectionViewLayout = layout
     }
+    
+    
+    
 }
 
 
@@ -88,20 +91,22 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
         let scenario = filteredRoleplays[indexPath.row]
-        print("Selected Roleplay:", scenario.title)
-
-        guard let newSession = RoleplaySessionDataModel.shared.startSession(scenarioId: scenario.id) else {
-            print("Failed to start session")
-            return
-        }
-
-        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+        print("Selected Roleplay in didSelectRowAt:", scenario.title)
         
-        if let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC") as? RolePlayStartCollectionViewController {
-            vc.currentScenario = scenario
-            vc.currentSession = newSession
+        performSegue(withIdentifier: "showRoleplayScenario", sender: scenario)
+        
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier  == "showRoleplayScenario" {
+            if let scenario = sender as? RoleplayScenario {
+                let destVC = segue.destination as? RolePlayStartCollectionViewController
+                destVC?.currentScenario = scenario
+                destVC?.title = scenario.title
+            }
         }
     }
+    
 }
 
 

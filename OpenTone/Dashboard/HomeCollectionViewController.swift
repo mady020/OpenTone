@@ -25,17 +25,13 @@ class HomeCollectionViewController: UICollectionViewController {
     private let cardBorderColor   = UIColor(hex: "#E6E3EE")
     
     
-    var roleplays: [String] = [
-        "Grocery Shopping",
-        "Making Friends",
-        "Airport Check-in",
-        "Ordering Food",
-        "Birthday Celebration"
-    ]
+    var roleplays: [RoleplayScenario]?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        roleplays = RoleplayScenarioDataModel.shared.getAll()
         
         collectionView.register(
             DashboardHeaderView.self,
@@ -91,7 +87,8 @@ class HomeCollectionViewController: UICollectionViewController {
         case .callSession:
             return 2
         case .recommended:
-            return 5
+            guard let roleplays else {return 0}
+            return roleplays.count > 5 ? 5 : roleplays.count
         }
     }
     
@@ -143,16 +140,19 @@ class HomeCollectionViewController: UICollectionViewController {
                 withReuseIdentifier: "Cell",
                 for: indexPath
             ) as! HomeCollectionViewCell
-
             
-            let title = roleplays[indexPath.row]
-            let imageName = title.replacingOccurrences(of: " ", with: "")
+            if let roleplays {
+                
+                let title = roleplays[indexPath.row].title
+                let imageName = title.replacingOccurrences(of: " ", with: "")
+                
+                cell.imageView.image = UIImage(named: imageName)
+                cell.imageView.contentMode = .scaleAspectFill
+                cell.imageView.clipsToBounds = true
+                cell.configure(title: "roleplays")
+                cell.textLabel.text = title
+            }
             
-            cell.imageView.image = UIImage(named: imageName)
-            cell.imageView.contentMode = .scaleAspectFill
-            cell.imageView.clipsToBounds = true
-            cell.configure(title: "roleplays")
-            cell.textLabel.text = roleplays[indexPath.row]
             return cell
         }
     }
@@ -402,8 +402,12 @@ extension HomeCollectionViewController {
         case .recommended:
             print("Scenario tapped: \(indexPath.row)")
             let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC")
-            vc.title = roleplays[indexPath.item]
+            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC") as! RolePlayStartCollectionViewController
+            if let roleplays{
+                vc.currentScenario = roleplays[indexPath.row]
+                vc.title = roleplays[indexPath.row].title
+            }
+        
             navigationController?.pushViewController(vc, animated: true)
         }
     }

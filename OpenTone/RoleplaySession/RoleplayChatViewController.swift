@@ -1,10 +1,3 @@
-//
-//  RoleplayChatViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 02/12/25.
-//
-
 import UIKit
 
 enum ChatSender {

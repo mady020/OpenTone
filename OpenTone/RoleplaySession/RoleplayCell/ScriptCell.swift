@@ -1,10 +1,3 @@
-//
-//  ScriptCell.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 28/11/25.
-//
-
 import UIKit
 
 
@@ -31,29 +24,22 @@ class ScriptCell: UICollectionViewCell {
        
         guidedText: String,
        
-        keyPhrases: [String],
-       
-        premiumText: String
+        keyPhrases: [RoleplayMessage]
     ) {
-        // Assign fixed texts
-      
         guidedDescriptionLabel.text = guidedText
-
-       
-
         keyphrases.font = UIFont.systemFont(ofSize: 15)
         keyphrases.numberOfLines = 0
         keyphrases.textColor = .label
         keyphrases.text? = ""
 
-        for phrase in keyPhrases {
+        for message in keyPhrases {
 
-            let label  = "• \(phrase)\n"
+            let label  = "• \(message.text)\n"
             
             keyphrases.text?.append(label)
         }
+        
     }
-    
-    
+
 }
 

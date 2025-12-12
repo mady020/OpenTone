@@ -31,11 +31,15 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "DescriptionCell",
                 for: indexPath) as! DescriptionCell
-
-            cell.configure(
-                description: "In a grocery store, students learn how to ask about prices, locate items, and discuss payment methods.",
-                time: "5 minutes"
-            )
+            
+            if let scenario = currentScenario {
+                print(scenario.description)
+                print(scenario.estimatedTimeMinutes)
+                cell.configure(
+                    description: scenario.description,
+                    time: "\(scenario.estimatedTimeMinutes) minutes"
+                )
+            }
             return cell
 
         // CELL 1 - Script + Phrases
@@ -43,21 +47,13 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "ScriptCell",
                 for: indexPath) as! ScriptCell
-
-            cell.configure(
-                
-                guidedText: "Speak the provided lines to practice the conversation.",
-
-               
-                keyPhrases: [
-                    "How much does this cost?",
-                    "Where can I find the checkout?",
-                    "Do you have this in another brand?"
-                ],
-
-                
-                premiumText: "Speak freely and get real-time pronunciation feedback."
-            )
+            
+            if let scenario = currentScenario {
+                cell.configure(
+                    guidedText: "Speak the provided lines to practice the conversation.",
+                    keyPhrases: scenario.previewLines
+                )
+            }
 
             return cell
 
