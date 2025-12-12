@@ -23,108 +23,8 @@ class RoleplayChatViewController: UIViewController {
 
     var messages: [ChatMessage] = []
 
-    // Simple script
-    let script = [
-        (
-            "Where can I find the milk?",
-            [
-                "I am looking for milk, could you point me to the right section?",
-                "How much does a bottle of milk cost here?",
-                "Can you help me locate dairy products?",
-                "Is the milk fresh today?"
-            ]
-        ),
-        
-        (
-            "The milk is in the dairy section next to the eggs.",
-            [
-                "Great, thanks!",
-                "Can you show me directions on a map?",
-                "Do you have plant-based milk as well?",
-                "Can I pay by card at checkout?"
-            ]
-        ),
-        
-        (
-            "If you need plant-based milk, it's right beside the regular milk.",
-            [
-                "Amazing! I’ll check that out.",
-                "Do you have any offers on almond or oat milk?",
-                "Which one is best for coffee?",
-                "I want lactose-free milk, do you have that?"
-            ]
-        ),
-        
-        (
-            "Yes, we have lactose-free milk on the top shelf.",
-            [
-                "Thank you! I’ll grab one.",
-                "How long does it stay fresh?",
-                "Is it more expensive than regular milk?",
-                "Are there smaller packs available?"
-            ]
-        ),
-        
-        (
-            "You can check the price on the shelf label.",
-            [
-                "Perfect, I’ll take a look.",
-                "Do you have a loyalty program?",
-                "Where can I get a shopping basket?",
-                "What time does the store close?"
-            ]
-        ),
-        
-        (
-            "Baskets are available near the entrance, and yes, we close at 10 PM.",
-            [
-                "Thanks for the info!",
-                "Where do I find the checkout counters?",
-                "Can I self-scan the products?",
-                "Do you have a bakery section as well?"
-            ]
-        ),
-        
-        (
-            "Checkout counters are straight ahead, and the bakery is on your left.",
-            [
-                "I’ll grab some bread too!",
-                "Is there someone at the bakery to assist with slicing?",
-                "Do you have gluten-free bread?",
-                "Are there fresh cakes available?"
-            ]
-        ),
-        
-        (
-            "Yes, fresh cakes arrive every morning, and the staff can assist you at the bakery.",
-            [
-                "Nice! I’ll check them out.",
-                "Do you have any seasonal items?",
-                "Where can I find snacks or chips?",
-                "Is there a section for cold drinks?"
-            ]
-        ),
-        
-        (
-            "Snacks are in aisle 5 and cold drinks are near the checkout refrigerators.",
-            [
-                "Wonderful, thank you so much!",
-                "Do you also have a pharmacy section?",
-                "Where are the cleaning supplies?",
-                "Can I ask for home delivery?"
-            ]
-        ),
-        
-        (
-            "We do provide home delivery—please ask at the service desk near the entrance.",
-            [
-                "Thanks! That’s very helpful.",
-                "I’ll sign up for delivery later.",
-                "Can I get assistance loading groceries into my car?",
-                "Do you sell gift cards?"
-            ]
-        ),
-    ]
+  
+    
 
 
     var step = 0
@@ -142,8 +42,6 @@ class RoleplayChatViewController: UIViewController {
         tableView.separatorStyle = .none
         
         navigationItem.hidesBackButton = true
-
-    
 
     }
 
@@ -168,10 +66,23 @@ class RoleplayChatViewController: UIViewController {
     func loadStep(_ i: Int) {
         step = i
 
+        guard let scenario = currentScenario else {
+            return
+        }
+        let appMessage = scenario.script[i].text
+        let suggestedRoleplayMessages = scenario.script[i].suggestedMessages
+        var suggestedMessages : [String] = []
+        if let suggestedRoleplayMessages{
+            for message in suggestedRoleplayMessages {
+                suggestedMessages.append(message)
+            }
+        }
+       
+        
         // 1️⃣ App message
         messages.append(
             ChatMessage(sender: .app,
-                        text: script[i].0,
+                        text: appMessage,
                         suggestions: nil)
         )
 
@@ -179,7 +90,7 @@ class RoleplayChatViewController: UIViewController {
         messages.append(
             ChatMessage(sender: .suggestions,
                         text: "",
-                        suggestions: script[i].1)
+                        suggestions:  suggestedMessages)
         )
 
         reloadTableSafely()
@@ -235,8 +146,20 @@ class RoleplayChatViewController: UIViewController {
     var wrongAttempts = 0
 
     func userResponded(_ text: String) {
-
-        let expectedSuggestions = script[step].1.map { $0.lowercased() }
+       
+        guard let scenario = currentScenario else {
+            return
+        }
+        let suggestedRoleplayMessages = scenario.script[step].suggestedMessages
+        var suggestedMessages : [String]
+        if let suggestedRoleplayMessages{
+            for message in suggestedRoleplayMessages {
+                suggestedMessages.append(message)
+            }
+        }
+        
+        
+        let expectedSuggestions = suggestedMessages.map { $0.lowercased() }
         let spoken = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
 
         if expectedSuggestions.contains(spoken) {
@@ -253,7 +176,7 @@ class RoleplayChatViewController: UIViewController {
 
             // Move next
             // NEXT STEP HANDLING
-            if step + 1 < script.count {
+            if step + 1 < scenario.script.count {
                 // Continue script
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.loadStep(self.step + 1)
@@ -283,7 +206,7 @@ class RoleplayChatViewController: UIViewController {
                 // After 3 attempts → show correct answer & move on
                 wrongAttempts = 0
 
-                let correct = script[step].1.first ?? "Default correct answer"
+                let correct = suggestedMessages.first ?? "Default correct answer"
                 messages.append(
                     ChatMessage(
                         sender: .app,
@@ -297,7 +220,7 @@ class RoleplayChatViewController: UIViewController {
                     messages.removeLast()
                 }
 
-                if step + 1 < script.count {
+                if step + 1 < scenario.script.count {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
                         self.loadStep(self.step + 1)
                     }
