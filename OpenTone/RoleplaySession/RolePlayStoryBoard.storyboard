@@ -249,9 +249,6 @@
                                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <state key="normal" title="Button"/>
                                             <buttonConfiguration key="configuration" style="plain" title="Start Roleplay" cornerStyle="dynamic"/>
-                                            <connections>
-                                                <segue destination="Z8h-z1-9tc" kind="show" destinationCreationSelector="startButtonTapped:" id="zba-Gy-1Gi"/>
-                                            </connections>
                                         </button>
                                     </subviews>
                                     <constraints>
@@ -280,13 +277,13 @@
         <!--Grocery Shopping-->
         <scene sceneID="bh6-UW-6mV">
             <objects>
-                <viewController id="Z8h-z1-9tc" customClass="RoleplayChatViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RoleplayChat" id="Z8h-z1-9tc" customClass="RoleplayChatViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lE6-rN-xOA">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="8zv-LH-wjs">
-                                <rect key="frame" x="0.0" y="214" width="393" height="411"/>
+                                <rect key="frame" x="0.0" y="108" width="393" height="566"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="AppMessageCell" id="xDL-Um-yQc" customClass="AppMessageCell" customModule="OpenTone" customModuleProvider="target">
@@ -424,7 +421,7 @@
                                 </prototypes>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zIg-Tq-Sr7">
-                                <rect key="frame" x="0.0" y="625" width="393" height="100"/>
+                                <rect key="frame" x="0.0" y="674" width="393" height="100"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A0e-y0-j1j">
                                         <rect key="frame" x="151.66666666666666" y="5" width="90" height="90"/>
@@ -553,7 +550,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Wh9-f2-vI1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="mFw-fi-6s6" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3494" y="131"/>
+            <point key="canvasLocation" x="3352" y="131"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="5N1-P9-Xcl">

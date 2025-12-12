@@ -17,15 +17,12 @@ class RoleplayChatViewController: UIViewController {
     var currentScenario: RoleplayScenario?
     var currentSession: RoleplaySession?
     
+   
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
 
     var messages: [ChatMessage] = []
-
-  
-    
-
 
     var step = 0
     private var initialLoaded = false
@@ -67,16 +64,16 @@ class RoleplayChatViewController: UIViewController {
         step = i
 
         guard let scenario = currentScenario else {
+            print("scenarios is nil")
             return
         }
+    
         let appMessage = scenario.script[i].text
-        let suggestedRoleplayMessages = scenario.script[i].suggestedMessages
-        var suggestedMessages : [String] = []
-        if let suggestedRoleplayMessages{
-            for message in suggestedRoleplayMessages {
-                suggestedMessages.append(message)
-            }
+        
+        guard let suggestedMessages = scenario.script[i].suggestedMessages else{
+            return
         }
+        print(suggestedMessages)
        
         
         // 1️⃣ App message
@@ -150,19 +147,13 @@ class RoleplayChatViewController: UIViewController {
         guard let scenario = currentScenario else {
             return
         }
-        let suggestedRoleplayMessages = scenario.script[step].suggestedMessages
-        var suggestedMessages : [String]
-        if let suggestedRoleplayMessages{
-            for message in suggestedRoleplayMessages {
-                suggestedMessages.append(message)
-            }
+        _ = scenario.script[step].suggestedMessages
+        let spoken = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let suggestedMessages = scenario.script[step].suggestedMessages else{
+            return
         }
         
-        
-        let expectedSuggestions = suggestedMessages.map { $0.lowercased() }
-        let spoken = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if expectedSuggestions.contains(spoken) {
+        if suggestedMessages.contains(spoken) {
             // Reset wrong attempts
             wrongAttempts = 0
 
@@ -275,6 +266,7 @@ extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource
         }
     }
     
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -307,6 +299,8 @@ extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource
         
     }
 
+    
+    
 
     func triggerScoreScreenFlow() {
         // If alert is currently shown → dismiss then show Score

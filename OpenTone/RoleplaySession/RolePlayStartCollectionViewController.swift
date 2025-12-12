@@ -2,7 +2,7 @@ import UIKit
 
 class RolePlayStartCollectionViewController: UICollectionViewController,
                                          UICollectionViewDelegateFlowLayout {
-
+    
     
     var currentScenario: RoleplayScenario?
     var currentSession: RoleplaySession?
@@ -69,6 +69,22 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
         
         
     }
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.item == 2, let scenarioId = currentScenario?.id {
+            
+            let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayChat") as! RoleplayChatViewController
+            
+            if let newSession = RoleplaySessionDataModel.shared.startSession(scenarioId: scenarioId) {
+                vc.currentSession = newSession
+                vc.currentScenario = RoleplayScenarioDataModel.shared.getScenario(by: scenarioId)
+            }
+            
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+
 }
 
 
