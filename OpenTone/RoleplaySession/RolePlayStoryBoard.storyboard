@@ -250,7 +250,7 @@
                                             <state key="normal" title="Button"/>
                                             <buttonConfiguration key="configuration" style="plain" title="Start Roleplay" cornerStyle="dynamic"/>
                                             <connections>
-                                                <segue destination="Z8h-z1-9tc" kind="show" id="zba-Gy-1Gi"/>
+                                                <segue destination="Z8h-z1-9tc" kind="show" destinationCreationSelector="startButtonTapped:" id="zba-Gy-1Gi"/>
                                             </connections>
                                         </button>
                                     </subviews>
