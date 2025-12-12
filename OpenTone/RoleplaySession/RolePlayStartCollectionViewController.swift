@@ -6,6 +6,8 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
     
     var currentScenario: RoleplayScenario?
     var currentSession: RoleplaySession?
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -64,10 +66,8 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "ButtonCell",
                 for: indexPath) as! ButtonCell
-
-            cell.onStartTapped = {
-                print("Start Role-Play tapped ✅")
-            }
+            
+            cell.scenarioId = currentScenario?.id
             return cell
         }
         

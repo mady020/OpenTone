@@ -11,6 +11,7 @@ class ButtonCell: UICollectionViewCell {
 
     @IBOutlet weak var startButton: UIButton!
     static var reuseId = "ButtonCell";
+    var scenarioId: UUID?
 
     var onStartTapped: (() -> Void)?
 
@@ -21,8 +22,15 @@ class ButtonCell: UICollectionViewCell {
         startButton.setTitleColor(.white, for: .normal)
         startButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
     }
-
-    @IBAction func startTapped(_ sender: UIButton) {
-        onStartTapped?()
+    @IBSegueAction func startButtonTapped(_ coder: NSCoder) -> RoleplayChatViewController? {
+        
+        let vc = RoleplayChatViewController(coder: coder)
+        
+        if let scenarioId, let newSession = RoleplaySessionDataModel.shared.startSession(scenarioId: scenarioId) {
+            vc?.currentSession = newSession
+        }
+        
+        return vc
     }
+    
 }

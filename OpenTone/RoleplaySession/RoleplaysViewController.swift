@@ -96,12 +96,10 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
         }
 
         let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+        
         if let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC") as? RolePlayStartCollectionViewController {
-
             vc.currentScenario = scenario
             vc.currentSession = newSession
-
-//            navigationController?.pushViewController(vc, animated: true)
         }
     }
 }
