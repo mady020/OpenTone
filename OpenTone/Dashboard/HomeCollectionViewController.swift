@@ -60,7 +60,8 @@ class HomeCollectionViewController: UICollectionViewController {
         
         switch DashboardSection(rawValue: indexPath.section)! {
         case .progress:
-            header.titleLabel.text = "Progress"
+        return header
+           
         case .completeTask:
             if(!isNewUser){
                 header.titleLabel.text = "Complete your task"
@@ -113,20 +114,14 @@ class HomeCollectionViewController: UICollectionViewController {
         case .completeTask:
            
                 let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: "Cell",
+                    withReuseIdentifier: "LastTaskCell",
                     for: indexPath
-                ) as! HomeCollectionViewCell
-
-                cell.imageView.contentMode = .scaleAspectFill
-                cell.imageView.clipsToBounds = true
-
-                if indexPath.row == 0 {
-                    cell.imageView.image = UIImage(named: "Call")
-                    cell.backgroundColor = .clear
-                    cell.textLabel.text = "Find A Peer"
-                } else {
-                    cell.backgroundColor = .purple
-                }
+                ) as! LastTaskCell
+                
+            
+            cell.backgroundColor = baseCardColor
+            cell.continueButton.backgroundColor = selectedCardColor
+                
                 return cell
             
 
@@ -209,20 +204,6 @@ extension HomeCollectionViewController {
         )
 
         let section = NSCollectionLayoutSection(group: group)
-//        section.orthogonalScrollingBehavior = .continuous
-
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
-        )
-
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [header]
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
 
         return section
@@ -421,7 +402,7 @@ extension HomeCollectionViewController {
         case .recommended:
             print("Scenario tapped: \(indexPath.row)")
             let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayInfo")
+            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC")
             vc.title = roleplays[indexPath.item]
             navigationController?.pushViewController(vc, animated: true)
         }
