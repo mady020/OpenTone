@@ -37,3 +37,5 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
         lhs.id == rhs.id
     }
 }
+
+

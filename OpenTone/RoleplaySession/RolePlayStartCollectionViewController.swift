@@ -3,6 +3,9 @@ import UIKit
 class RolePlayStartCollectionViewController: UICollectionViewController,
                                          UICollectionViewDelegateFlowLayout {
 
+    
+    var currentScenario: RoleplayScenario?
+    var currentSession: RoleplaySession?
     override func viewDidLoad() {
         super.viewDidLoad()
 

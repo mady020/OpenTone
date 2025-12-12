@@ -13,7 +13,7 @@
         <!--Roleplays-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
-                <viewController id="Y6W-OH-hqX" customClass="RoleplaysViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="Y6W-OH-hqX" customClass="RoleplaysViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -98,7 +98,7 @@
         <!--Grocery Shopping-->
         <scene sceneID="ieI-tD-d4c">
             <objects>
-                <collectionViewController storyboardIdentifier="RoleplayInfo" id="UrW-Xx-Gvv" customClass="RolePlayStartCollectionViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                <collectionViewController storyboardIdentifier="RoleplayStartVC" id="UrW-Xx-Gvv" customClass="RolePlayStartCollectionViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="C1O-z0-QDA">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

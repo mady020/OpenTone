@@ -402,7 +402,7 @@ extension HomeCollectionViewController {
         case .recommended:
             print("Scenario tapped: \(indexPath.row)")
             let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayInfo")
+            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC")
             vc.title = roleplays[indexPath.item]
             navigationController?.pushViewController(vc, animated: true)
         }
