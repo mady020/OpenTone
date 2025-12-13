@@ -1,112 +1,52 @@
 import UIKit
 
 class UserinfoViewController: UIViewController {
-    
+
     var user: User?
-    // MARK: - UI
-    private let titleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.text = "Tell us about you"
-        lbl.font = .systemFont(ofSize: 28, weight: .bold)
-        lbl.textColor = UIColor(hex: "#2E2E2E")
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        return lbl
-    }()
 
-    private let nameField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Enter user bio"
-        tf.backgroundColor = UIColor(hex: "#FFFFFF")
-        tf.layer.cornerRadius = 14
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        tf.font = .systemFont(ofSize: 18)
-        tf.setLeftPaddingPoints(16)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        return tf
-    }()
+    @IBOutlet private weak var titleLabel: UILabel!
+    @IBOutlet private weak var nameField: UITextField!
+    @IBOutlet private weak var countryField: UIButton!
+    @IBOutlet private weak var continueButton: UIButton!
 
-    private let countryField: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitle("Select country", for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 18)
-        btn.tintColor = UIColor(hex: "#333333")
-        btn.backgroundColor = UIColor(hex: "#FFFFFF")
-        btn.layer.cornerRadius = 14
-        btn.layer.borderWidth = 1
-        btn.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        btn.contentHorizontalAlignment = .left
-        btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        return btn
-    }()
-
-    private let continueButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitle("Continue", for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        btn.layer.cornerRadius = 18
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        return btn
-    }()
-
-    private let spacer: UIView = {
-        let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
-    }()
-
-    // MARK: - State
-    private var selectedCountry: Country? = nil {
+    private var selectedCountry: Country? {
         didSet { updateContinueState() }
     }
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(hex: "#F4F5F7")
-
-        setupLayout()
+        setupUI()
         setupActions()
         updateContinueState()
     }
+    
+    private func setupUI() {
+        view.backgroundColor = UIColor(hex: "#F4F5F7")
 
-    // MARK: - Layout
-    private func setupLayout() {
-        view.addSubview(titleLabel)
-        view.addSubview(nameField)
-        view.addSubview(countryField)
-        view.addSubview(spacer)
-        view.addSubview(continueButton)
+        titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        titleLabel.textColor = UIColor(hex: "#2E2E2E")
 
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+        nameField.backgroundColor = .white
+        nameField.layer.cornerRadius = 14
+        nameField.layer.borderWidth = 1
+        nameField.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        nameField.font = .systemFont(ofSize: 18)
+        nameField.setLeftPaddingPoints(16)
 
-            nameField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 32),
-            nameField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            nameField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            nameField.heightAnchor.constraint(equalToConstant: 54),
+        countryField.backgroundColor = .white
+        countryField.layer.cornerRadius = 14
+        countryField.layer.borderWidth = 1
+        countryField.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        countryField.titleLabel?.font = .systemFont(ofSize: 18)
+        countryField.setTitleColor(UIColor(hex: "#333333"), for: .normal)
+        countryField.contentHorizontalAlignment = .left
+        countryField.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
 
-            countryField.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: 18),
-            countryField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            countryField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            countryField.heightAnchor.constraint(equalToConstant: 54),
-
-            spacer.topAnchor.constraint(equalTo: countryField.bottomAnchor),
-            spacer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            spacer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            spacer.bottomAnchor.constraint(equalTo: continueButton.topAnchor),
-
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -22),
-            continueButton.heightAnchor.constraint(equalToConstant: 54)
-        ])
+        continueButton.layer.cornerRadius = 18
+        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
     }
 
-    // MARK: - Actions
+
     private func setupActions() {
         nameField.addTarget(self, action: #selector(nameChanged), for: .editingChanged)
         countryField.addTarget(self, action: #selector(openCountryPicker), for: .touchUpInside)
@@ -129,38 +69,42 @@ class UserinfoViewController: UIViewController {
     private func updateContinueState() {
         let valid = !(nameField.text ?? "").isEmpty && selectedCountry != nil
         continueButton.isUserInteractionEnabled = valid
-        continueButton.backgroundColor = valid ? UIColor(hex: "#5B3CC4") : UIColor(hex: "#C9C7D6")
+        continueButton.backgroundColor = valid
+            ? UIColor(hex: "#5B3CC4")
+            : UIColor(hex: "#C9C7D6")
         continueButton.tintColor = .white
     }
 
-    private func goToConfidenceChoice() {
-        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let introVC = storyboard.instantiateViewController(withIdentifier: "ConfidenceScreen") as! ConfidenceViewController
-        
-        introVC.user = user
-        let nav = UINavigationController(rootViewController: introVC)
-        nav.modalPresentationStyle = .fullScreen
-        nav.modalTransitionStyle = .crossDissolve
-        self.view.window?.rootViewController = nav
-        self.view.window?.makeKeyAndVisible()
-    }
-
     @objc private func continueTapped() {
+        guard let bio = nameField.text,
+              let country = selectedCountry else { return }
 
-        guard let bio = nameField.text , let country = selectedCountry else {return}
-                
         user?.bio = bio
         user?.country = country
         goToConfidenceChoice()
     }
+
+    private func goToConfidenceChoice() {
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let vc = storyboard.instantiateViewController(
+            withIdentifier: "ConfidenceScreen"
+        ) as! ConfidenceViewController
+
+        vc.user = user
+
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .crossDissolve
+        view.window?.rootViewController = nav
+        view.window?.makeKeyAndVisible()
+    }
 }
 
-// MARK: - Padding helper
+
 private extension UITextField {
     func setLeftPaddingPoints(_ amount: CGFloat) {
-        let padding = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
+        let padding = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: frame.height))
         leftView = padding
         leftViewMode = .always
     }
 }
-
