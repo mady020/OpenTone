@@ -18,6 +18,7 @@ final class UserinfoViewController: UIViewController {
         setupUI()
         setupActions()
         updateContinueState()
+        navigationItem.hidesBackButton = true
     }
 
     private func setupUI() {
@@ -104,13 +105,9 @@ final class UserinfoViewController: UIViewController {
         ) as! ConfidenceViewController
 
         vc.user = user
-
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        nav.modalTransitionStyle = .crossDissolve
-        view.window?.rootViewController = nav
-        view.window?.makeKeyAndVisible()
+        navigationController?.pushViewController(vc, animated: true)
     }
+
 }
 
 

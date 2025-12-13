@@ -112,13 +112,22 @@ final class CommitmentViewController: UIViewController {
 
     private func goToDashboard() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let tabBarVC = storyboard.instantiateViewController(
+        let vc = storyboard.instantiateViewController(
             withIdentifier: "MainTabBarController"
         ) as! MainTabBarController
 
-        tabBarVC.user = user
-        view.window?.rootViewController = tabBarVC
-        view.window?.makeKeyAndVisible()
+        vc.user = user
+        guard let window = view.window else { return }
+
+            let transition = CATransition()
+            transition.duration = 0.35
+            transition.type = .push
+            transition.subtype = .fromRight
+            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+
+            window.layer.add(transition, forKey: kCATransition)
+            window.rootViewController = vc
+            window.makeKeyAndVisible()
     }
 }
 

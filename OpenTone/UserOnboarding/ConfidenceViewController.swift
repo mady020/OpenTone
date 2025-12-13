@@ -111,13 +111,7 @@ final class ConfidenceViewController: UIViewController {
         ) as! OnboardingInterestsViewController
 
         vc.user = user
-
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        nav.modalTransitionStyle = .crossDissolve
-
-        view.window?.rootViewController = nav
-        view.window?.makeKeyAndVisible()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 

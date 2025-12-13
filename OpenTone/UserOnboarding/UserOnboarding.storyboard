@@ -177,6 +177,9 @@
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="Continue"/>
+                                <connections>
+                                    <action selector="continueTapped" destination="Y6W-OH-hqX" eventType="touchUpInside" id="n94-1N-1nE"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
