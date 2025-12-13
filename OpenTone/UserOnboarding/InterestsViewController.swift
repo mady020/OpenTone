@@ -156,12 +156,15 @@ final class InterestsViewController: UIViewController {
     }
     private func goToCommitmentChoice(user: User?) {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "CommitmentScreen") as! CommitmentViewController
-        vc.user = user
+        let vc = storyboard.instantiateViewController(
+            withIdentifier: "CommitmentScreen"
+        ) as! CommitmentViewController
 
-        self.view.window?.rootViewController = vc
-        self.view.window?.makeKeyAndVisible()
+        vc.user = user
+        navigationController?.pushViewController(vc, animated: true)
     }
+
+
 }
 
 // MARK: - UICollectionViewDataSource
