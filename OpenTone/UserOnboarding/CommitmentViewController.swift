@@ -27,7 +27,7 @@ final class CommitmentViewController: UIViewController {
         let lbl = UILabel()
         lbl.text = "Daily practice commitment"
         lbl.font = .systemFont(ofSize: 28, weight: .bold)
-        lbl.textColor = UIColor(hex: "#2E2E2E")
+        lbl.textColor = UIColor(named: "#2E2E2E")
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()
@@ -36,18 +36,18 @@ final class CommitmentViewController: UIViewController {
         let lbl = UILabel()
         lbl.text = "Choose one option to continue"
         lbl.font = .systemFont(ofSize: 15, weight: .regular)
-        lbl.textColor = UIColor(hex: "#6B6B6B")
+        lbl.textColor = UIColor(named: "#6B6B6B")
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()
 
     // MARK: - Colors
-    private let bgSoft = UIColor(hex: "#F4F5F7")
-    private let baseCard = UIColor(hex: "#FBF8FF")
-    private let selectedCard = UIColor(hex: "#5B3CC4")
-    private let baseTint = UIColor(hex: "#333333")
+    private let bgSoft = UIColor(named: "#F4F5F7")
+    private let baseCard = UIColor(named: "#FBF8FF")
+    private let selectedCard = UIColor(named: "#5B3CC4")
+    private let baseTint = UIColor(named: "#333333")
     private let selectedTint = UIColor.white
-    private let borderColor = UIColor(hex: "#E6E3EE")
+    private let borderColor = UIColor(named: "#E6E3EE")
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -136,7 +136,7 @@ final class CommitmentViewController: UIViewController {
     private func updateContinueState() {
         let enabled = selectedOption != nil
         continueButton.isUserInteractionEnabled = enabled
-        continueButton.backgroundColor = enabled ? selectedCard : UIColor(hex: "#C9C7D6")
+        continueButton.backgroundColor = enabled ? selectedCard : UIColor(named: "#C9C7D6")
         continueButton.tintColor = .white
         subtitleLabel.text = enabled ? "Great! Continue now." : "Choose one option to continue"
     }

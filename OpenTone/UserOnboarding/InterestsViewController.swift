@@ -1,11 +1,13 @@
 import UIKit
 
-// MARK: - InterestsViewController
-final class InterestsViewController: UIViewController {
+class InterestsViewController: UIViewController {
 
     var user: User?
 
-    // MARK: - All interests (source of truth)1
+    @IBOutlet private weak var searchBar: UISearchBar!
+    @IBOutlet private weak var collectionView: UICollectionView!
+    @IBOutlet private weak var continueButton: UIButton!
+    
     private let allItems: [InterestItem] = [
         InterestItem(title: "Technology",   symbol: "cpu"),
         InterestItem(title: "Gaming",       symbol: "gamecontroller.fill"),
@@ -29,65 +31,66 @@ final class InterestsViewController: UIViewController {
         InterestItem(title: "Art & Design", symbol: "paintpalette.fill")
     ]
 
-    // MARK: - Filtered list (drives UI)
     private var filteredItems: [InterestItem] = []
 
-    // MARK: - Shared selection storage
     private var selectedInterests: Set<InterestItem> {
         get { InterestSelectionStore.shared.selected }
         set { InterestSelectionStore.shared.selected = newValue }
     }
 
-    // MARK: - UI
-    private let searchBar = UISearchBar()
-    private var collectionView: UICollectionView!
-    private let continueButton = UIButton(type: .system)
-
-    // MARK: - Colors
-    private let screenBackground  = UIColor(named: "#F4F5F7")
-    private let baseCardColor     = UIColor(named: "#FBF8FF")
-    private let selectedCardColor = UIColor(named: "#5B3CC4")
-    private let normalTint        = UIColor(named: "#333333")
+    private let baseCardColor     = UIColor(hex: "#FBF8FF")
+    private let selectedCardColor = UIColor(hex: "#5B3CC4")
+    private let normalTint        = UIColor(hex: "#333333")
     private let selectedTint      = UIColor.white
-    private let cardBorderColor   = UIColor(named: "#E6E3EE")
+    private let borderColor       = UIColor(hex: "#E6E3EE")
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = screenBackground
         filteredItems = allItems
 
-        configureSearchBar()
-        configureCollectionView()
-        configureContinueButton()
+        setupSearchBar()
+        setupCollectionView()
+        setupContinueButton()
         updateContinueState()
     }
 
-    // MARK: - Search Bar
-    private func configureSearchBar() {
+    // MARK: - Setup
+    private func setupSearchBar() {
         searchBar.searchBarStyle = .minimal
         searchBar.placeholder = "Search Interests"
         searchBar.delegate = self
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
 
-        searchBar.searchTextField.backgroundColor = UIColor(named: "#F7F5FB")
-        searchBar.searchTextField.textColor = normalTint
-        searchBar.searchTextField.layer.cornerRadius = 18
-        searchBar.searchTextField.layer.masksToBounds = true
-
-        view.addSubview(searchBar)
-
-        NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
+        let tf = searchBar.searchTextField
+        tf.backgroundColor = UIColor(hex: "#F7F5FB")
+        tf.textColor = normalTint
+        tf.layer.cornerRadius = 18
+        tf.layer.masksToBounds = true
     }
 
-    // MARK: - Collection View
-    private func configureCollectionView() {
-        let layout = UICollectionViewCompositionalLayout { _, _ in
+    private func setupCollectionView() {
+        collectionView.backgroundColor = .clear
+        collectionView.dataSource = self
+        collectionView.delegate = self
+
+        collectionView.register(
+            UINib(nibName: "InterestCard", bundle: nil),
+            forCellWithReuseIdentifier: InterestCard.reuseIdentifier
+        )
+
+        collectionView.collectionViewLayout = makeLayout()
+    }
+
+    private func setupContinueButton() {
+        continueButton.layer.cornerRadius = 18
+        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        continueButton.tintColor = .white
+    }
+
+    // MARK: - Layout
+    private func makeLayout() -> UICollectionViewLayout {
+        UICollectionViewCompositionalLayout { _, _ in
+
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0 / 3.0),
                 heightDimension: .fractionalHeight(1.0)
@@ -114,62 +117,26 @@ final class InterestsViewController: UIViewController {
 
             return section
         }
-
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .clear
-        collectionView.dataSource = self
-        collectionView.delegate = self
-
-        collectionView.register(
-            UINib(nibName: "InterestCard", bundle: nil),
-            forCellWithReuseIdentifier: InterestCard.reuseIdentifier
-        )
-
-        view.addSubview(collectionView)
-
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 12),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
     }
 
-    // MARK: - Continue Button
-    private func configureContinueButton() {
-        continueButton.setTitle("Continue", for: .normal)
-        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.layer.cornerRadius = 18
-        continueButton.translatesAutoresizingMaskIntoConstraints = false
-        continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
-
-        view.addSubview(continueButton)
-
-        NSLayoutConstraint.activate([
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -22),
-            continueButton.heightAnchor.constraint(equalToConstant: 54)
-        ])
-    }
-
+    // MARK: - State
     private func updateContinueState() {
         let enabled = selectedInterests.count >= 3
         continueButton.isHidden = !enabled
         continueButton.isUserInteractionEnabled = enabled
-        continueButton.backgroundColor = enabled ? UIColor(named: "#5B3CC4") : UIColor(named: "#C9C7D6")
-        continueButton.tintColor = .white
+        continueButton.backgroundColor = enabled
+            ? UIColor(hex: "#5B3CC4")
+            : UIColor(hex: "#C9C7D6")
     }
 
     // MARK: - Actions
-    @objc private func continueTapped() {
+    @IBAction private func continueTapped() {
         guard selectedInterests.count >= 3 else { return }
         user?.interests = selectedInterests
-        goToCommitmentChoice(user: user)
+        goToCommitment()
     }
 
-    private func goToCommitmentChoice(user: User?) {
+    private func goToCommitment() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "CommitmentScreen"
@@ -192,12 +159,10 @@ extension InterestsViewController: UICollectionViewDataSource {
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
 
-        guard let cell = collectionView.dequeueReusableCell(
+        let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: InterestCard.reuseIdentifier,
             for: indexPath
-        ) as? InterestCard else {
-            return UICollectionViewCell()
-        }
+        ) as! InterestCard
 
         let item = filteredItems[indexPath.item]
         let isSelected = selectedInterests.contains(item)
@@ -206,7 +171,7 @@ extension InterestsViewController: UICollectionViewDataSource {
             with: item,
             backgroundColor: isSelected ? selectedCardColor : baseCardColor,
             tintColor: isSelected ? selectedTint : normalTint,
-            borderColor: cardBorderColor,
+            borderColor: borderColor,
             selected: isSelected
         )
 
@@ -235,15 +200,13 @@ extension InterestsViewController: UICollectionViewDelegate {
 extension InterestsViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let query = searchText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
 
-        if query.isEmpty {
-            filteredItems = allItems
-        } else {
-            filteredItems = allItems.filter {
-                $0.title.lowercased().contains(query)
-            }
-        }
+        filteredItems = query.isEmpty
+            ? allItems
+            : allItems.filter { $0.title.lowercased().contains(query) }
 
         collectionView.reloadData()
     }
@@ -253,3 +216,17 @@ extension InterestsViewController: UISearchBarDelegate {
     }
 }
 
+extension UIColor {
+    convenience init(hex: String) {
+        var hexSanitized = hex.replacingOccurrences(of: "#", with: "")
+        var rgb: UInt64 = 0
+        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+
+        self.init(
+            red: CGFloat((rgb >> 16) & 0xFF) / 255,
+            green: CGFloat((rgb >> 8) & 0xFF) / 255,
+            blue: CGFloat(rgb & 0xFF) / 255,
+            alpha: 1
+        )
+    }
+}

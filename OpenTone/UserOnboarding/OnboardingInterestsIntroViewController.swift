@@ -2,12 +2,14 @@ import UIKit
 
 final class OnboardingInterestsViewController: UIViewController {
 
+    // MARK: - IBOutlets
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var requirementLabel: UILabel!
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var showAllButton: UIButton!
     @IBOutlet private weak var continueButton: UIButton!
 
+    // MARK: - Data
     var user: User?
 
     private let popularItems: [InterestItem] = [
@@ -24,6 +26,7 @@ final class OnboardingInterestsViewController: UIViewController {
         set { InterestSelectionStore.shared.selected = newValue }
     }
 
+    // MARK: - Colors
     private let bgSoft = UIColor(hex: "#F4F5F7")
     private let baseCard = UIColor(hex: "#FBF8FF")
     private let selectedCard = UIColor(hex: "#5B3CC4")
@@ -31,6 +34,7 @@ final class OnboardingInterestsViewController: UIViewController {
     private let selectedTint = UIColor.white
     private let borderColor = UIColor(hex: "#E6E3EE")
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -38,6 +42,7 @@ final class OnboardingInterestsViewController: UIViewController {
         updateContinueState()
     }
 
+    // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = bgSoft
 
@@ -59,16 +64,23 @@ final class OnboardingInterestsViewController: UIViewController {
         continueButton.setTitleColor(.white, for: .normal)
     }
 
+    // MARK: - Collection View
     private func setupCollectionView() {
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
+
+        collectionView.register(
+            UINib(nibName: "InterestCard", bundle: nil),
+            forCellWithReuseIdentifier: InterestCard.reuseIdentifier
+        )
 
         let layout = UICollectionViewCompositionalLayout { _, _ in
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0 / 3.0),
                 heightDimension: .fractionalHeight(1.0)
             )
+
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
 
@@ -76,6 +88,7 @@ final class OnboardingInterestsViewController: UIViewController {
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .absolute(145)
             )
+
             let group = NSCollectionLayoutGroup.horizontal(
                 layoutSize: groupSize,
                 subitems: [item, item, item]
@@ -86,12 +99,14 @@ final class OnboardingInterestsViewController: UIViewController {
             section.contentInsets = NSDirectionalEdgeInsets(
                 top: 14, leading: 12, bottom: 140, trailing: 12
             )
+
             return section
         }
 
         collectionView.collectionViewLayout = layout
     }
 
+    // MARK: - State
     private func updateContinueState() {
         let enabled = selectedItems.count >= 3
 
@@ -105,6 +120,7 @@ final class OnboardingInterestsViewController: UIViewController {
             : "Select at least 3 interests to continue"
     }
 
+    // MARK: - Actions
     @IBAction private func showAllTapped(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
@@ -132,6 +148,7 @@ final class OnboardingInterestsViewController: UIViewController {
     }
 }
 
+// MARK: - Collection View DataSource & Delegate
 extension OnboardingInterestsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -145,7 +162,7 @@ extension OnboardingInterestsViewController: UICollectionViewDataSource, UIColle
 
         let item = popularItems[indexPath.item]
         let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: "InterestCard",
+            withReuseIdentifier: InterestCard.reuseIdentifier,
             for: indexPath
         ) as! InterestCard
 

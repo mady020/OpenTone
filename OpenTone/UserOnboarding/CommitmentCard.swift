@@ -41,13 +41,13 @@ final class CommitmentCard: UICollectionViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     func configure(with option: CommitmentOption,
-                   backgroundColor: UIColor,
-                   tintColor: UIColor,
-                   borderColor: UIColor) {
+                   backgroundColor: UIColor?,
+                   tintColor: UIColor?,
+                   borderColor: UIColor?) {
         self.backgroundColor = backgroundColor
-        self.layer.borderColor = borderColor.cgColor
+        self.layer.borderColor = borderColor?.cgColor
         titleLabel.textColor = tintColor
-        subtitleLabel.textColor = tintColor.withAlphaComponent(0.8)
+        subtitleLabel.textColor = tintColor?.withAlphaComponent(0.8)
         titleLabel.text = option.title
         subtitleLabel.text = option.subtitle
     }
