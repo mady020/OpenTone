@@ -1,6 +1,6 @@
 import UIKit
 
-class UserinfoViewController: UIViewController {
+final class UserinfoViewController: UIViewController {
 
     var user: User?
 
@@ -19,8 +19,9 @@ class UserinfoViewController: UIViewController {
         setupActions()
         updateContinueState()
     }
-    
+
     private func setupUI() {
+
         view.backgroundColor = UIColor(hex: "#F4F5F7")
 
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
@@ -33,6 +34,7 @@ class UserinfoViewController: UIViewController {
         nameField.font = .systemFont(ofSize: 18)
         nameField.setLeftPaddingPoints(16)
 
+        countryField.setTitle("Select country", for: .normal)
         countryField.backgroundColor = .white
         countryField.layer.cornerRadius = 14
         countryField.layer.borderWidth = 1
@@ -42,8 +44,10 @@ class UserinfoViewController: UIViewController {
         countryField.contentHorizontalAlignment = .left
         countryField.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
 
-        continueButton.layer.cornerRadius = 18
+        continueButton.layer.cornerRadius = 27
+        continueButton.clipsToBounds = true
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+
     }
 
 
@@ -54,13 +58,19 @@ class UserinfoViewController: UIViewController {
     }
 
     @objc private func openCountryPicker() {
-        let vc = CountryPickerViewController()
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let vc = storyboard.instantiateViewController(
+            withIdentifier: "CountryPickerViewController"
+        ) as! CountryPickerViewController
+
         vc.onSelect = { [weak self] country in
             self?.selectedCountry = country
             self?.countryField.setTitle("\(country.flag) \(country.name)", for: .normal)
         }
+
         present(vc, animated: true)
     }
+
 
     @objc private func nameChanged() {
         updateContinueState()
@@ -68,12 +78,15 @@ class UserinfoViewController: UIViewController {
 
     private func updateContinueState() {
         let valid = !(nameField.text ?? "").isEmpty && selectedCountry != nil
+
         continueButton.isUserInteractionEnabled = valid
         continueButton.backgroundColor = valid
             ? UIColor(hex: "#5B3CC4")
             : UIColor(hex: "#C9C7D6")
-        continueButton.tintColor = .white
+
+        continueButton.setTitleColor(.white, for: .normal)
     }
+
 
     @objc private func continueTapped() {
         guard let bio = nameField.text,
@@ -108,3 +121,4 @@ private extension UITextField {
         leftViewMode = .always
     }
 }
+
