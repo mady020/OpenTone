@@ -2,30 +2,25 @@ import UIKit
 
 final class StatsCell: UICollectionViewCell {
 
-    // MARK: - UI
+    @IBOutlet private weak var containerView: UIView!
+    @IBOutlet private weak var stackView: UIStackView!
 
-    private let containerView = UIView()
-    private let stackView = UIStackView()
+    @IBOutlet private weak var callsStackView: UIStackView!
+    @IBOutlet private weak var callsValueLabel: UILabel!
+    @IBOutlet private weak var callsTitleLabel: UILabel!
 
-    private let callsView = StatItemView()
-    private let roleplaysView = StatItemView()
-    private let jamsView = StatItemView()
+    @IBOutlet private weak var roleplaysStackView: UIStackView!
+    @IBOutlet private weak var roleplaysValueLabel: UILabel!
+    @IBOutlet private weak var roleplaysTitleLabel: UILabel!
 
-    // MARK: - Init
+    @IBOutlet private weak var jamsStackView: UIStackView!
+    @IBOutlet private weak var jamsValueLabel: UILabel!
+    @IBOutlet private weak var jamsTitleLabel: UILabel!
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func awakeFromNib() {
+        super.awakeFromNib()
         setupUI()
-        setupConstraints()
     }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupUI()
-        setupConstraints()
-    }
-
-    // MARK: - Setup
 
     private func setupUI() {
         contentView.backgroundColor = .clear
@@ -34,42 +29,42 @@ final class StatsCell: UICollectionViewCell {
         containerView.layer.cornerRadius = 16
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(containerView)
 
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         stackView.alignment = .center
         stackView.spacing = 8
-        stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        containerView.addSubview(stackView)
+        styleValueLabel(callsValueLabel)
+        styleValueLabel(roleplaysValueLabel)
+        styleValueLabel(jamsValueLabel)
 
-        stackView.addArrangedSubview(callsView)
-        stackView.addArrangedSubview(roleplaysView)
-        stackView.addArrangedSubview(jamsView)
+        styleTitleLabel(callsTitleLabel)
+        styleTitleLabel(roleplaysTitleLabel)
+        styleTitleLabel(jamsTitleLabel)
     }
 
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-
-            stackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
-        ])
+    private func styleValueLabel(_ label: UILabel) {
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.textColor = UIColor(hex: "#333333")
+        label.textAlignment = .center
     }
 
-    // MARK: - Configuration
-
+    private func styleTitleLabel(_ label: UILabel) {
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .center
+    }
+    
     func configure(calls: Int, roleplays: Int, jams: Int) {
-        callsView.configure(title: "Calls", value: calls)
-        roleplaysView.configure(title: "Roleplays", value: roleplays)
-        jamsView.configure(title: "Jam Sessions", value: jams)
+        callsValueLabel.text = "\(calls)"
+        callsTitleLabel.text = "Calls"
+
+        roleplaysValueLabel.text = "\(roleplays)"
+        roleplaysTitleLabel.text = "Roleplays"
+
+        jamsValueLabel.text = "\(jams)"
+        jamsTitleLabel.text = "Jam Sessions"
     }
 }
 

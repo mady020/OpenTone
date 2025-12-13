@@ -2,112 +2,59 @@ import UIKit
 
 final class ProfileCell: UICollectionViewCell {
 
-    // MARK: - UI
 
-    private let containerView = UIView()
+    @IBOutlet var containerView: UIView!
+    
+    @IBOutlet var avatarImageView: UIImageView!
+    
+    @IBOutlet var nameLabel: UILabel!
+    
+    @IBOutlet var countryLabel: UILabel!
+    
+    @IBOutlet var levelLabel: UILabel!
+    
+    @IBOutlet var bioLabel: UILabel!
+    
+    @IBOutlet var streakLabel: UILabel!
 
-    private let avatarImageView = UIImageView()
 
-    private let nameLabel = UILabel()
-    private let countryLabel = UILabel()
-    private let levelLabel = UILabel()
-    private let bioLabel = UILabel()
-    private let streakLabel = UILabel()
-
-    // MARK: - Init
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func awakeFromNib() {
+        super.awakeFromNib()
         setupUI()
-        setupConstraints()
     }
 
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupUI()
-        setupConstraints()
-    }
-
-    // MARK: - Setup
 
     private func setupUI() {
-        contentView.backgroundColor = .clear
+            contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = UIColor(hex: "#FBF8FF")
-        containerView.layer.cornerRadius = 16
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(containerView)
+            containerView.backgroundColor = UIColor(hex: "#FBF8FF")
+            containerView.layer.cornerRadius = 16
+            containerView.layer.borderWidth = 1
+            containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
 
-        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
-        avatarImageView.layer.cornerRadius = 32
-        avatarImageView.clipsToBounds = true
-        avatarImageView.contentMode = .scaleAspectFill
-        avatarImageView.backgroundColor = UIColor(hex: "#E6E3EE")
+            avatarImageView.layer.cornerRadius = 32
+            avatarImageView.clipsToBounds = true
+            avatarImageView.contentMode = .scaleAspectFill
 
-        nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        nameLabel.textColor = UIColor(hex: "#333333")
+            nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+            nameLabel.textColor = UIColor(hex: "#333333")
 
-        countryLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        countryLabel.textColor = .secondaryLabel
+            countryLabel.font = .systemFont(ofSize: 14)
+            countryLabel.textColor = .secondaryLabel
 
-        levelLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        levelLabel.textColor = UIColor(hex: "#5B3CC4")
+            levelLabel.font = .systemFont(ofSize: 14, weight: .medium)
+            levelLabel.textColor = UIColor(hex: "#5B3CC4")
 
-        bioLabel.font = .systemFont(ofSize: 14)
-        bioLabel.textColor = UIColor(hex: "#333333")
-        bioLabel.numberOfLines = 0
+            bioLabel.font = .systemFont(ofSize: 14)
+            bioLabel.textColor = UIColor(hex: "#333333")
+            bioLabel.numberOfLines = 0
 
-        streakLabel.font = .systemFont(ofSize: 13, weight: .medium)
-        streakLabel.textColor = UIColor(hex: "#5B3CC4")
-
-        [avatarImageView,
-         nameLabel,
-         countryLabel,
-         levelLabel,
-         bioLabel,
-         streakLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            containerView.addSubview($0)
+            streakLabel.font = .systemFont(ofSize: 13, weight: .medium)
+            streakLabel.textColor = UIColor(hex: "#5B3CC4")
         }
-    }
 
-    private func setupConstraints() {
+    
 
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-
-            avatarImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-            avatarImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 64),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 64),
-
-            nameLabel.topAnchor.constraint(equalTo: avatarImageView.topAnchor),
-            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
-            nameLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-
-            countryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            countryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            countryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-
-            levelLabel.topAnchor.constraint(equalTo: countryLabel.bottomAnchor, constant: 4),
-            levelLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-
-            bioLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 12),
-            bioLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            bioLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-
-            streakLabel.topAnchor.constraint(equalTo: bioLabel.bottomAnchor, constant: 12),
-            streakLabel.leadingAnchor.constraint(equalTo: bioLabel.leadingAnchor),
-            streakLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
-        ])
-    }
-
-    // MARK: - Configuration
 
     func configure(
         name: String,

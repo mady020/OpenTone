@@ -1,12 +1,8 @@
 import UIKit
 
-final class ProfileCollectionViewController: UICollectionViewController {
+final class ProfileStoryboardCollectionViewController: UICollectionViewController {
 
-    // MARK: - Auth toggle (temporary)
-
-    private let isLoggedIn: Bool = true   // ← flip to false to test visitor mode
-
-    // MARK: - Dummy data (replace later)
+    private let isLoggedIn: Bool = true
 
     private let interests = [
         "Movies", "Technology", "Gaming", "Travel", "Food", "Art"
@@ -18,8 +14,6 @@ final class ProfileCollectionViewController: UICollectionViewController {
         ("Explorer", "Tried 5 different topics")
     ]
 
-    // MARK: - Sections
-
     private enum Section: Int, CaseIterable {
         case profile
         case interests
@@ -28,8 +22,6 @@ final class ProfileCollectionViewController: UICollectionViewController {
         case actions
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -37,11 +29,9 @@ final class ProfileCollectionViewController: UICollectionViewController {
         collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
         collectionView.collectionViewLayout = createLayout()
     }
-
-    // MARK: - Data Source
-
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return Section.allCases.count
+        Section.allCases.count
     }
 
     override func collectionView(
@@ -54,16 +44,12 @@ final class ProfileCollectionViewController: UICollectionViewController {
         switch section {
         case .profile:
             return 1
-
         case .interests:
             return interests.count
-
         case .stats:
             return 1
-
         case .achievements:
             return achievements.count
-
         case .actions:
             return isLoggedIn ? 1 : 0
         }
@@ -146,7 +132,6 @@ final class ProfileCollectionViewController: UICollectionViewController {
         }
     }
 
-    // MARK: - Actions
 
     @objc private func didTapSettings() {
         print("Settings tapped")
@@ -157,9 +142,8 @@ final class ProfileCollectionViewController: UICollectionViewController {
     }
 }
 
-// MARK: - Layout
 
-extension ProfileCollectionViewController {
+extension ProfileStoryboardCollectionViewController {
 
     private func createLayout() -> UICollectionViewCompositionalLayout {
 
@@ -170,21 +154,18 @@ extension ProfileCollectionViewController {
             }
 
             switch section {
-
             case .profile:
                 return self.verticalSection(estimatedHeight: 220)
-
             case .interests:
                 return self.horizontalPillsSection()
-
             case .stats:
-                return self.verticalSection(estimatedHeight: 120)
-
+                return self.verticalSection(estimatedHeight: 140)
             case .achievements:
-                return self.verticalSection(estimatedHeight: 100)
-
+                return self.verticalSection(estimatedHeight: 110)
             case .actions:
-                return self.verticalSection(estimatedHeight: 120)
+                let section = self.verticalSection(estimatedHeight: 120)
+                section.contentInsets.bottom = 32
+                return section
             }
         }
     }
@@ -220,14 +201,14 @@ extension ProfileCollectionViewController {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .estimated(80),
-                heightDimension: .absolute(40)
+                heightDimension: .absolute(44)
             )
         )
 
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .estimated(80),
-                heightDimension: .absolute(40)
+                heightDimension: .absolute(44)
             ),
             subitems: [item]
         )
@@ -242,4 +223,3 @@ extension ProfileCollectionViewController {
         return section
     }
 }
-
