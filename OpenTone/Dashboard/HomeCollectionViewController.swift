@@ -24,27 +24,24 @@ class HomeCollectionViewController: UICollectionViewController {
     private let selectedTint      = UIColor.white
     private let cardBorderColor   = UIColor(hex: "#E6E3EE")
     
-    
-    var roleplays: [String] = [
-        "Grocery Shopping",
-        "Making Friends",
-        "Airport Check-in",
-        "Ordering Food",
-        "Birthday Celebration"
-    ]
-    
+
+    var recommendedScenarios: [RoleplayScenario] = []
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        recommendedScenarios = RoleplayScenarioDataModel.shared.getAll()
+
         collectionView.register(
             DashboardHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: "DashboardHeader"
         )
-        
+
         collectionView.collectionViewLayout = createLayout()
     }
+
     
     override func collectionView(
         _ collectionView: UICollectionView,
@@ -91,7 +88,7 @@ class HomeCollectionViewController: UICollectionViewController {
         case .callSession:
             return 2
         case .recommended:
-            return 5
+            return recommendedScenarios.count
         }
     }
     
@@ -144,16 +141,12 @@ class HomeCollectionViewController: UICollectionViewController {
                 for: indexPath
             ) as! HomeCollectionViewCell
 
-            
-            let title = roleplays[indexPath.row]
-            let imageName = title.replacingOccurrences(of: " ", with: "")
-            
-            cell.imageView.image = UIImage(named: imageName)
-            cell.imageView.contentMode = .scaleAspectFill
-            cell.imageView.clipsToBounds = true
-            cell.configure(title: "roleplays")
-            cell.textLabel.text = roleplays[indexPath.row]
+            let scenario = recommendedScenarios[indexPath.row]
+            cell.configure(with: scenario)
+
             return cell
+
+
         }
     }
 
@@ -400,11 +393,24 @@ extension HomeCollectionViewController {
             }
 
         case .recommended:
-            print("Scenario tapped: \(indexPath.row)")
+
+            let scenario = recommendedScenarios[indexPath.item]
+
+            // Start session
+            guard let session = RoleplaySessionDataModel.shared.startSession(
+                scenarioId: scenario.id
+            ) else { return }
+
             let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC")
-            vc.title = roleplays[indexPath.item]
+            let vc = storyboard.instantiateViewController(
+                withIdentifier: "RolePlayStartVC"
+            ) as! RolePlayStartCollectionViewController
+
+            vc.currentScenario = scenario
+            vc.currentSession = session
+
             navigationController?.pushViewController(vc, animated: true)
+
         }
     }
 

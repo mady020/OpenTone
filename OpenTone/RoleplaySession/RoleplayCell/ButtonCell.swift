@@ -1,16 +1,9 @@
-//
-//  ButtonCell.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 28/11/25.
-//
-
 import UIKit
 
 class ButtonCell: UICollectionViewCell {
 
     @IBOutlet weak var startButton: UIButton!
-    static var reuseId = "ButtonCell";
+    static let reuseId = "ButtonCell"
 
     var onStartTapped: (() -> Void)?
 

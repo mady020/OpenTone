@@ -1,84 +1,134 @@
 import UIKit
 
 class RolePlayStartCollectionViewController: UICollectionViewController,
-                                         UICollectionViewDelegateFlowLayout {
+                                             UICollectionViewDelegateFlowLayout {
 
-    
+    // MARK: - Passed Data
     var currentScenario: RoleplayScenario?
     var currentSession: RoleplaySession?
+    private var shouldStartRoleplay = false
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        guard currentScenario != nil, currentSession != nil else {
+            fatalError("RolePlayStartVC: Scenario or Session not passed")
+        }
+
+        title = currentScenario?.title
         collectionView.collectionViewLayout = createLayout()
     }
 
-    // MARK: - Number of Cells
-    override func collectionView(_ collectionView: UICollectionView,
-                                 numberOfItemsInSection section: Int) -> Int {
+    // MARK: - Collection View Data Source
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         return 3
     }
 
-    // MARK: - Cell Provider
-    override func collectionView(_ collectionView: UICollectionView,
-                                 cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
 
         switch indexPath.item {
 
-        // CELL 0 - Description
+        // MARK: - Cell 0 : Description
         case 0:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "DescriptionCell",
-                for: indexPath) as! DescriptionCell
-
+                for: indexPath
+            ) as! DescriptionCell
+            print("description")
             cell.configure(
-                description: "In a grocery store, students learn how to ask about prices, locate items, and discuss payment methods.",
-                time: "5 minutes"
+                description: currentScenario?.description ?? "",
+                time: "\(currentScenario?.estimatedTimeMinutes ?? 0) minutes"
             )
+
             return cell
 
-        // CELL 1 - Script + Phrases
+        // MARK: - Cell 1 : Script Preview + Key Phrases
         case 1:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "ScriptCell",
-                for: indexPath) as! ScriptCell
+                for: indexPath
+            ) as! ScriptCell
+
+            let firstMessage = currentScenario?.script.first
 
             cell.configure(
-                
-                guidedText: "Speak the provided lines to practice the conversation.",
-
-               
-                keyPhrases: [
-                    "How much does this cost?",
-                    "Where can I find the checkout?",
-                    "Do you have this in another brand?"
-                ],
-
-                
+                guidedText: "Choose a response and practice speaking naturally.",
+                keyPhrases: firstMessage?.replyOptions ?? [],
                 premiumText: "Speak freely and get real-time pronunciation feedback."
             )
 
             return cell
 
-        // CELL 2 - Button
-        default:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: "ButtonCell",
-                for: indexPath) as! ButtonCell
+            // MARK: - Cell 2 : Start Button
+            default:
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: "ButtonCell",
+                    for: indexPath
+                ) as! ButtonCell
 
-            cell.onStartTapped = {
-                print("Start Role-Play tapped ✅")
-            }
-            return cell
+                cell.onStartTapped = { [weak self] in
+                    guard let self = self else { return }
+                    self.performSegue(withIdentifier: "toRoleplayChat", sender: self)
+                }
+
+                return cell
+
+
         }
-        
-        
+    }
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if segue.identifier == "toRoleplayChat",
+           let chatVC = segue.destination as? RoleplayChatViewController {
+
+            guard let scenario = currentScenario,
+                  let session = currentSession else {
+                assertionFailure("Scenario or Session missing before segue")
+                return
+            }
+
+            chatVC.scenario = scenario
+            chatVC.session = session
+        }
+    }
+
+}
+
+// MARK: - Navigation
+extension RolePlayStartCollectionViewController {
+
+    private func startRoleplay() {
+
+        guard let scenario = currentScenario,
+              let session = currentSession else { return }
+
+        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+        let vc = storyboard.instantiateViewController(
+            withIdentifier: "RoleplayChatViewController"
+        ) as! RoleplayChatViewController
+
+        vc.scenario = scenario
+        vc.session = session
+
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
-
+// MARK: - Layout
 extension RolePlayStartCollectionViewController {
+
     func createLayout() -> UICollectionViewCompositionalLayout {
-        return UICollectionViewCompositionalLayout { sectionIndex, env in
+
+        UICollectionViewCompositionalLayout { _, _ in
 
             let item = NSCollectionLayoutItem(
                 layoutSize: NSCollectionLayoutSize(
@@ -96,15 +146,14 @@ extension RolePlayStartCollectionViewController {
             )
 
             let section = NSCollectionLayoutSection(group: group)
-
-           
-                section.contentInsets = NSDirectionalEdgeInsets(
-                    top: 16, leading: 16, bottom: 16, trailing: 16
-                )
-                section.interGroupSpacing = 16
-        
+            section.contentInsets = NSDirectionalEdgeInsets(
+                top: 16, leading: 16, bottom: 16, trailing: 16
+            )
+            section.interGroupSpacing = 16
 
             return section
         }
     }
+    
+    
 }

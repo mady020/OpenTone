@@ -4,7 +4,8 @@ class RoleplaysViewController: UIViewController {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
-
+    var selectedScenario: RoleplayScenario?
+    var selectedSession: RoleplaySession?
     // Data from your DataModel
     var roleplays: [RoleplayScenario] = []
     var filteredRoleplays: [RoleplayScenario] = []
@@ -84,26 +85,30 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
 
         return cell
     }
+    
+  
+
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
-        let scenario = filteredRoleplays[indexPath.row]
-        print("Selected Roleplay:", scenario.title)
+        selectedScenario = filteredRoleplays[indexPath.row]
+        selectedSession = RoleplaySessionDataModel.shared.startSession(
+            scenarioId: selectedScenario!.id
+        )
 
-        guard let newSession = RoleplaySessionDataModel.shared.startSession(scenarioId: scenario.id) else {
-            print("Failed to start session")
-            return
-        }
+        performSegue(withIdentifier: "toRolePlayStart", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toRolePlayStart",
+           let vc = segue.destination as? RolePlayStartCollectionViewController {
 
-        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
-        if let vc = storyboard.instantiateViewController(withIdentifier: "RoleplayStartVC") as? RolePlayStartCollectionViewController {
-
-            vc.currentScenario = scenario
-            vc.currentSession = newSession
-
-//            navigationController?.pushViewController(vc, animated: true)
+            vc.currentScenario = selectedScenario
+            vc.currentSession = selectedSession
         }
     }
+
+
 }
 
 
