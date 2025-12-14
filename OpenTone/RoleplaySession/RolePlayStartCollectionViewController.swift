@@ -6,14 +6,16 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
     // MARK: - Passed Data
     var currentScenario: RoleplayScenario?
     var currentSession: RoleplaySession?
+    
+
     private var shouldStartRoleplay = false
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        guard currentScenario != nil, currentSession != nil else {
-            fatalError("RolePlayStartVC: Scenario or Session not passed")
+        guard currentScenario != nil else {
+            fatalError("RolePlayStartVC: Scenario")
         }
 
         title = currentScenario?.title
@@ -67,6 +69,7 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
             return cell
 
             // MARK: - Cell 2 : Start Button
+            // MARK: - Cell 2 : Start Button
             default:
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "ButtonCell",
@@ -74,14 +77,16 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
                 ) as! ButtonCell
 
                 cell.onStartTapped = { [weak self] in
-                    guard let self = self else { return }
-                    self.performSegue(withIdentifier: "toRoleplayChat", sender: self)
+                    self?.startRoleplay()
                 }
 
                 return cell
 
 
         }
+        
+        
+
     }
     
     
@@ -98,6 +103,8 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
 
             chatVC.scenario = scenario
             chatVC.session = session
+         
+
         }
     }
 
@@ -106,20 +113,18 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
 // MARK: - Navigation
 extension RolePlayStartCollectionViewController {
 
-    private func startRoleplay() {
+    private  func startRoleplay() {
+        
+        guard let scenario = currentScenario else { return }
 
-        guard let scenario = currentScenario,
-              let session = currentSession else { return }
+        // Session starts HERE (correct place)
+        guard let session = RoleplaySessionDataModel.shared.startSession(
+            scenarioId: scenario.id
+        ) else { return }
 
-        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
-        let vc = storyboard.instantiateViewController(
-            withIdentifier: "RoleplayChatViewController"
-        ) as! RoleplayChatViewController
-
-        vc.scenario = scenario
-        vc.session = session
-
-        navigationController?.pushViewController(vc, animated: true)
+        self.currentSession = session
+        print("session has created")
+        performSegue(withIdentifier: "toRoleplayChat", sender: self)
     }
 }
 

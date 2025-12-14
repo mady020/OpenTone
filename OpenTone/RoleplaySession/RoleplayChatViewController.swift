@@ -6,6 +6,12 @@ enum ChatSender {
     case suggestions
 }
 
+enum RoleplayEntryPoint {
+    case dashboard
+    case roleplays
+}
+
+
 struct ChatMessage {
     let sender: ChatSender
     let text: String
@@ -25,6 +31,7 @@ class RoleplayChatViewController: UIViewController {
     // MARK: - Passed Data (FROM prepare segue)
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
+    
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
@@ -226,7 +233,10 @@ class RoleplayChatViewController: UIViewController {
     // MARK: - End / Score
     @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
 //        triggerScoreScreenFlow()
+   
     }
+
+
 
 //    private func triggerScoreScreenFlow() {
 //        if let alert = presentedViewController as? UIAlertController {

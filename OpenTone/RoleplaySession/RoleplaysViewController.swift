@@ -104,7 +104,7 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
            let vc = segue.destination as? RolePlayStartCollectionViewController {
 
             vc.currentScenario = selectedScenario
-            vc.currentSession = selectedSession
+           
         }
     }
 

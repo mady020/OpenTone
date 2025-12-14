@@ -396,18 +396,12 @@ extension HomeCollectionViewController {
 
             let scenario = recommendedScenarios[indexPath.item]
 
-            // Start session
-            guard let session = RoleplaySessionDataModel.shared.startSession(
-                scenarioId: scenario.id
-            ) else { return }
-
             let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
             let vc = storyboard.instantiateViewController(
                 withIdentifier: "RolePlayStartVC"
             ) as! RolePlayStartCollectionViewController
 
             vc.currentScenario = scenario
-            vc.currentSession = session
 
             navigationController?.pushViewController(vc, animated: true)
 
