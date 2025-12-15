@@ -8,13 +8,17 @@
 import UIKit
 
 class BigCircularProgressView: UIView {
-
+    
+    private var isConfigured = false
     private let backgroundLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        setupRing()
+        if !isConfigured {
+            setupRing()
+            isConfigured = true
+        }
     }
 
     private func setupRing() {
@@ -55,7 +59,8 @@ class BigCircularProgressView: UIView {
 
     func setProgress(_ progress: CGFloat, animated: Bool = true) {
 
-        progressLayer.strokeEnd = progress   // IMPORTANT
+        progressLayer.removeAllAnimations()
+        progressLayer.strokeEnd = progress
 
         guard animated else { return }
 
@@ -69,5 +74,6 @@ class BigCircularProgressView: UIView {
 
         progressLayer.add(animation, forKey: "bigRingAnimation")
     }
+
 }
 

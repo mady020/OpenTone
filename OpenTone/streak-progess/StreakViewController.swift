@@ -7,6 +7,15 @@
 
 import UIKit
 
+struct WeekdayStreak {
+    let completed: Int
+    let target: Int
+
+    var progress: CGFloat {
+        return CGFloat(completed) / CGFloat(target)
+    }
+}
+
 class StreakViewController: UIViewController {
     @IBOutlet weak var percentLabel: UILabel!
     @IBAction func historyButtonTapped(_ sender: UIButton) {
@@ -19,7 +28,8 @@ class StreakViewController: UIViewController {
     @IBOutlet weak var bigCircularRing: BigCircularProgressView!
     @IBOutlet weak var weekdaysStackView: UIStackView!
     
-
+    private var hasAnimated = false
+    private var weekdayData: [WeekdayStreak] = []
 
     var historyItemsArray: [HistoryItem] = [
         HistoryItem(
@@ -48,39 +58,55 @@ class StreakViewController: UIViewController {
         )
 
     ]
-
-    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        guard !hasAnimated else { return }
+        hasAnimated = true
+
+        loadWeekdayData()
         animateWeekdays()
-        super.viewDidAppear(animated)
         animateBigRing()
     }
+
     
     func animateBigRing() {
 
-        let overallProgress: CGFloat = 0.65   // 65%
+        let totalCompleted = weekdayData.reduce(0) { $0 + $1.completed }
+        let totalTarget = weekdayData.reduce(0) { $0 + $1.target }
 
-        bigCircularRing.setProgress(overallProgress)
-        percentLabel.text = "\(Int(overallProgress * 100))%"
+        guard totalTarget > 0 else {
+            bigCircularRing.setProgress(0)
+            percentLabel.text = "0%"
+            return
+        }
+
+        let rawProgress = CGFloat(totalCompleted) / CGFloat(totalTarget)
+        let safeProgress = min(max(rawProgress, 0), 1)   
+
+        bigCircularRing.setProgress(safeProgress)
+        percentLabel.text = "\(Int(safeProgress * 100))%"
     }
-
 
     func animateWeekdays() {
 
-        let progress: [CGFloat] = [0.6, 0.4, 0.8, 0.5, 0, 0, 0]
-
         for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
+
+            guard index < weekdayData.count else { return }
 
             let dayStack = view as! UIStackView
             let ringView = dayStack.arrangedSubviews[1] as! WeekdayRingView
 
+            let rawProgress = weekdayData[index].progress
+            let progress = min(max(rawProgress, 0), 1)  
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1 * Double(index)) {
-                ringView.animate(progress: progress[index])
+                ringView.animate(progress: progress)
             }
         }
     }
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showHistorySegue" {
             if let dest = segue.destination as? HistoryViewController {
@@ -88,6 +114,29 @@ class StreakViewController: UIViewController {
             }
         }
     }
+    func loadWeekdayData() {
+
+        // Read from SessionProgressManager
+        let manager = SessionProgressManager.shared
+        let completedCount = manager.completedSessions.count
+        let todayProgress = completedCount
+        let target = 3   // total sessions per day
+
+        // Prepare empty week
+        weekdayData = Array(
+            repeating: WeekdayStreak(completed: 0, target: target),
+            count: 7
+        )
+
+        // Put progress only on TODAY
+        let todayIndex = Calendar.current.component(.weekday, from: Date()) - 1
+
+        weekdayData[todayIndex] = WeekdayStreak(
+            completed: todayProgress,
+            target: target
+        )
+    }
+
 
 
 }

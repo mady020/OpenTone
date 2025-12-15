@@ -8,13 +8,17 @@
 import UIKit
 
 class WeekdayRingView: UIView {
-
+    
+    private var isConfigured = false
     private let bgLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        setup()
+        if !isConfigured {
+            setup()
+            isConfigured = true
+        }
     }
 
     private func setup() {
@@ -48,12 +52,28 @@ class WeekdayRingView: UIView {
     }
 
     func animate(progress: CGFloat) {
+
+        let safeProgress = min(max(progress, 0), 1)
+
+        progressLayer.removeAllAnimations()
+        progressLayer.strokeEnd = 0
+
         let animation = CABasicAnimation(keyPath: "strokeEnd")
         animation.fromValue = 0
-        animation.toValue = progress
+        animation.toValue = safeProgress
         animation.duration = 0.6
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false
+
         progressLayer.add(animation, forKey: "weekdayProgress")
     }
+    
+    func setProgress(_ progress: CGFloat) {
+
+        let safeProgress = min(max(progress, 0), 1)   // safety
+
+        progressLayer.removeAllAnimations()
+        progressLayer.strokeEnd = safeProgress
+    }
+
 }
