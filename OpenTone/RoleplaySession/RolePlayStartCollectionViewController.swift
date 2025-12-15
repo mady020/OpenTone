@@ -160,5 +160,7 @@ extension RolePlayStartCollectionViewController {
         }
     }
     
-    
+    @IBAction func unwindToRoleplaysVC(_ segue: UIStoryboardSegue) {
+        print("Returned to Roleplay Start screen")
+    }
 }
