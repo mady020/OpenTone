@@ -92,9 +92,6 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
         selectedScenario = filteredRoleplays[indexPath.row]
-        selectedSession = RoleplaySessionDataModel.shared.startSession(
-            scenarioId: selectedScenario!.id
-        )
 
         performSegue(withIdentifier: "toRolePlayStart", sender: self)
     }

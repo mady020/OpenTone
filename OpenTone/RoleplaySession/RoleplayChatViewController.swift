@@ -167,17 +167,28 @@ class RoleplayChatViewController: UIViewController {
         session.currentLineIndex += 1
 
         if session.currentLineIndex < scenario.script.count {
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.loadCurrentStep()
             }
+
         } else {
+            // MARK SESSION COMPLETED
             session.status = .completed
             session.endedAt = Date()
+
+            // UPDATE SESSION IN DATA MODEL
+            RoleplaySessionDataModel.shared.updateSession(
+                session,
+                scenario: scenario
+            )
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.presentScoreScreen()
             }
         }
     }
+
 
     private func handleWrongAttempt(expected: [String]) {
 
