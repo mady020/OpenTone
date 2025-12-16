@@ -1,20 +1,30 @@
 import Foundation
 
-struct RoleplayMessage: Identifiable, Codable {
-    let id: UUID
-    let sender: RoleplaySender
-    let text: String
-    let timestamp: Date
-
-    init(sender: RoleplaySender, text: String, timestamp: Date = Date()) {
-        self.id = UUID()
-        self.sender = sender
-        self.text = text
-        self.timestamp = timestamp
-    }
+enum RoleplaySpeaker: String, Codable {
+    case npc
+    case user
 }
 
-enum RoleplaySender: String, Codable {
-    case app
-    case user
+struct RoleplayMessage: Identifiable, Codable, Equatable {
+
+    let id: UUID
+    let speaker: RoleplaySpeaker
+
+    /// NPC line OR user selected reply
+    let text: String
+
+    /// Only filled for NPC messages
+    /// These are the selectable user replies
+    let replyOptions: [String]?
+
+    init(
+        speaker: RoleplaySpeaker,
+        text: String,
+        replyOptions: [String]? = nil
+    ) {
+        self.id = UUID()
+        self.speaker = speaker
+        self.text = text
+        self.replyOptions = replyOptions
+    }
 }

@@ -5,6 +5,9 @@ class RoleplaysViewController: UIViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
 
+    var selectedScenario: RoleplayScenario?
+    var selectedSession: RoleplaySession?
+
     // Data from your DataModel
     var roleplays: [RoleplayScenario] = []
     var filteredRoleplays: [RoleplayScenario] = []
@@ -87,26 +90,27 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
 
         return cell
     }
+    
+  
+
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
-        let scenario = filteredRoleplays[indexPath.row]
-        print("Selected Roleplay in didSelectRowAt:", scenario.title)
-        
-        performSegue(withIdentifier: "showRoleplayScenario", sender: scenario)
-        
+        selectedScenario = filteredRoleplays[indexPath.row]
+
+        performSegue(withIdentifier: "toRolePlayStart", sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier  == "showRoleplayScenario" {
-            if let scenario = sender as? RoleplayScenario {
-                let destVC = segue.destination as? RolePlayStartCollectionViewController
-                destVC?.currentScenario = scenario
-                destVC?.title = scenario.title
-            }
+        if segue.identifier == "toRolePlayStart",
+           let vc = segue.destination as? RolePlayStartCollectionViewController {
+
+            vc.currentScenario = selectedScenario
+           
         }
     }
-    
+
+
 }
 
 
@@ -130,7 +134,4 @@ extension RoleplaysViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
     }
 
-    @IBAction func unwindToRoleplaysVC(_ segue: UIStoryboardSegue) {
-        print("Returned to Roleplays screen")
-    }
 }
