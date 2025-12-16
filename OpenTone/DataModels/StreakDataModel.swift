@@ -9,7 +9,10 @@ class StreakDataModel {
         for: .documentDirectory, in: .userDomainMask
     ).first!
     private let archiveURL: URL
-
+    private let dailyArchiveURL =
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("dailyProgress.json")
+    
     private var streak: Streak?
 
     private init() {
@@ -82,4 +85,27 @@ class StreakDataModel {
     private func loadSampleStreak() -> Streak {
         return Streak(commitment : 0 , currentCount: 0, longestCount: 0, lastActiveDate: nil)
     }
+    func saveTodayProgress(minutes: Int) {
+        let today = Calendar.current.startOfDay(for: Date())
+        let progress = DailyProgress(date: today, minutesCompleted: minutes)
+
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(progress) {
+            try? data.write(to: dailyArchiveURL)
+        }
+    }
+    func loadYesterdayProgress() -> DailyProgress? {
+        guard let data = try? Data(contentsOf: dailyArchiveURL),
+              let saved = try? JSONDecoder().decode(DailyProgress.self, from: data)
+        else { return nil }
+
+        let yesterday =
+            Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+
+        if Calendar.current.isDate(saved.date, inSameDayAs: yesterday) {
+            return saved
+        }
+        return nil
+    }
+
 }

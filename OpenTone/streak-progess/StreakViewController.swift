@@ -17,6 +17,8 @@ struct WeekdayStreak {
 }
 
 class StreakViewController: UIViewController {
+    @IBOutlet weak var comparisonLabel: UILabel!
+    @IBOutlet weak var goalLabel: UILabel!
     @IBOutlet weak var percentLabel: UILabel!
     @IBAction func historyButtonTapped(_ sender: UIButton) {
        // let storyboard = UIStoryboard(name: "streak-progess", bundle: nil)
@@ -27,7 +29,7 @@ class StreakViewController: UIViewController {
     }
     @IBOutlet weak var bigCircularRing: BigCircularProgressView!
     @IBOutlet weak var weekdaysStackView: UIStackView!
-    
+    private let dailyGoalMinutes = 420   // 7 hours
     private var hasAnimated = false
     private var weekdayData: [WeekdayStreak] = []
 
@@ -68,6 +70,9 @@ class StreakViewController: UIViewController {
         loadWeekdayData()
         animateWeekdays()
         animateBigRing()
+        updateGoalLabel()
+        updateYesterdayComparisonLabel()
+
     }
 
     
@@ -137,6 +142,40 @@ class StreakViewController: UIViewController {
         )
     }
 
+    func updateGoalLabel() {
+
+        let completedMinutes =
+            SessionProgressManager.shared.totalMinutesCompleted()
+
+        let completedHours = Double(completedMinutes) / 60
+        let goalHours = Double(dailyGoalMinutes) / 60
+
+        goalLabel.text =
+            String(format: "%.1fh / %.0fh goal", completedHours, goalHours)
+    }
+    func updateYesterdayComparisonLabel() {
+
+        let todayMinutes =
+            SessionProgressManager.shared.totalMinutesCompleted()
+
+        guard let yesterday =
+            StreakDataModel.shared.loadYesterdayProgress()
+        else {
+            comparisonLabel.text = "No data from yesterday"
+            return
+        }
+
+        let diffMinutes = todayMinutes - yesterday.minutesCompleted
+        let diffHours = Double(abs(diffMinutes)) / 60
+
+        if diffMinutes >= 0 {
+            comparisonLabel.text =
+                String(format: "+%.1fh from yesterday", diffHours)
+        } else {
+            comparisonLabel.text =
+                String(format: "-%.1fh from yesterday", diffHours)
+        }
+    }
 
 
 }

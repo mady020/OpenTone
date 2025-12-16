@@ -333,6 +333,8 @@
                     </userDefinedRuntimeAttributes>
                     <connections>
                         <outlet property="bigCircularRing" destination="bbh-Iy-C8E" id="aK4-NV-dLU"/>
+                        <outlet property="comparisonLabel" destination="x8s-35-n5l" id="UUk-yz-zVW"/>
+                        <outlet property="goalLabel" destination="IDk-1n-rvC" id="e7L-Ec-cW7"/>
                         <outlet property="percentLabel" destination="9fP-YN-0XN" id="dBa-Vv-UDo"/>
                         <outlet property="weekdaysStackView" destination="hTA-1L-eOa" id="cNh-g5-tYA"/>
                         <segue destination="QqN-60-2Mu" kind="push" identifier="showHistorySegue" id="haQ-zC-SgQ"/>
