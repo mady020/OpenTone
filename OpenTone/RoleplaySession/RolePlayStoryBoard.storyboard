@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="PDo-xB-peT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="PDo-xB-peT">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -88,7 +88,8 @@
                     <connections>
                         <outlet property="collectionView" destination="tad-df-2r3" id="sDg-fE-3V1"/>
                         <outlet property="searchBar" destination="L6R-5r-col" id="Qww-js-eKn"/>
-                        <segue destination="UrW-Xx-Gvv" kind="show" identifier="showRoleplayScenario" id="62q-r5-2Go"/>
+                        <segue destination="UrW-Xx-Gvv" kind="show" identifier="toRolePlayStart" id="iKP-wM-FgT"/>
+
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -98,7 +99,9 @@
         <!--Grocery Shopping-->
         <scene sceneID="ieI-tD-d4c">
             <objects>
-                <collectionViewController storyboardIdentifier="RoleplayStartVC" id="UrW-Xx-Gvv" customClass="RolePlayStartCollectionViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+
+                <collectionViewController storyboardIdentifier="RolePlayStartVC" id="UrW-Xx-Gvv" customClass="RolePlayStartCollectionViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="C1O-z0-QDA">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -250,7 +253,9 @@
                                             <state key="normal" title="Button"/>
                                             <buttonConfiguration key="configuration" style="plain" title="Start Roleplay" cornerStyle="dynamic"/>
                                             <connections>
-                                                <segue destination="Z8h-z1-9tc" kind="show" destinationCreationSelector="startButtonTapped:" id="zba-Gy-1Gi"/>
+
+                                                <action selector="startTapped:" destination="a6x-Fd-ect" eventType="touchUpInside" id="3mc-BA-vTX"/>
+
                                             </connections>
                                         </button>
                                     </subviews>
@@ -272,6 +277,9 @@
                         </connections>
                     </collectionView>
                     <navigationItem key="navigationItem" title="Grocery Shopping" id="ggH-e2-VZp"/>
+                    <connections>
+                        <segue destination="Z8h-z1-9tc" kind="show" identifier="toRoleplayChat" id="39e-zC-38A"/>
+                    </connections>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="f3P-Ju-4KB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -468,7 +476,7 @@
                         <barButtonItem key="rightBarButtonItem" title="End" id="hm1-wz-fzC">
                             <connections>
                                 <action selector="endButtonTapped:" destination="Z8h-z1-9tc" id="p3s-5R-Zwm"/>
-                                <segue destination="6h4-oI-Bzs" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="iLm-Nc-dU4"/>
+                                <segue destination="6h4-oI-Bzs" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="k7x-uv-6YT"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -531,7 +539,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="tinted" title="Exit"/>
                                 <connections>
-                                    <segue destination="mFw-fi-6s6" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="22v-U2-dJn"/>
+                                    <segue destination="mFw-fi-6s6" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="ZpZ-hc-zM1"/>
                                 </connections>
                             </button>
                         </subviews>

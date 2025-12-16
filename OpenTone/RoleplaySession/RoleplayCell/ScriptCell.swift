@@ -24,22 +24,29 @@ class ScriptCell: UICollectionViewCell {
        
         guidedText: String,
        
-        keyPhrases: [RoleplayMessage]
+        keyPhrases: [String],
+       
+        premiumText: String
     ) {
+        // Assign fixed texts
+      
         guidedDescriptionLabel.text = guidedText
+
+       
+
         keyphrases.font = UIFont.systemFont(ofSize: 15)
         keyphrases.numberOfLines = 0
         keyphrases.textColor = .label
         keyphrases.text? = ""
 
-        for message in keyPhrases {
+        for phrase in keyPhrases {
 
-            let label  = "• \(message.text)\n"
+            let label  = "• \(phrase)\n"
             
             keyphrases.text?.append(label)
         }
-        
     }
-
+    
+    
 }
 

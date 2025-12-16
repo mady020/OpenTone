@@ -1,17 +1,9 @@
-//
-//  ButtonCell.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 28/11/25.
-//
-
 import UIKit
 
 class ButtonCell: UICollectionViewCell {
 
     @IBOutlet weak var startButton: UIButton!
-    static var reuseId = "ButtonCell";
-    var scenarioId: UUID?
+    static let reuseId = "ButtonCell"
 
     var onStartTapped: (() -> Void)?
 
@@ -22,15 +14,8 @@ class ButtonCell: UICollectionViewCell {
         startButton.setTitleColor(.white, for: .normal)
         startButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
     }
-    @IBSegueAction func startButtonTapped(_ coder: NSCoder) -> RoleplayChatViewController? {
-        
-        let vc = RoleplayChatViewController(coder: coder)
-        
-        if let scenarioId, let newSession = RoleplaySessionDataModel.shared.startSession(scenarioId: scenarioId) {
-            vc?.currentSession = newSession
-        }
-        
-        return vc
+
+    @IBAction func startTapped(_ sender: UIButton) {
+        onStartTapped?()
     }
-    
 }
