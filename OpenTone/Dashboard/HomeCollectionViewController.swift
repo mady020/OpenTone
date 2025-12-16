@@ -144,6 +144,7 @@ class HomeCollectionViewController: UICollectionViewController {
             let scenario = recommendedScenarios[indexPath.row]
             cell.configure(with: scenario)
 
+
             return cell
 
 

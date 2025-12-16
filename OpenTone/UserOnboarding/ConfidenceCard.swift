@@ -2,45 +2,39 @@ import UIKit
 
 final class ConfidenceCard: UICollectionViewCell {
 
-    private let titleLabel = UILabel()
-    private let emojiLabel = UILabel()
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        layer.cornerRadius = 16
-        layer.borderWidth = 1
+    @IBOutlet private weak var emojiLabel: UILabel!
+    @IBOutlet private weak var titleLabel: UILabel!
 
-        emojiLabel.font = .systemFont(ofSize: 30)
-        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        contentView.addSubview(emojiLabel)
-        contentView.addSubview(titleLabel)
-
-        NSLayoutConstraint.activate([
-            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            emojiLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-
-            titleLabel.leadingAnchor.constraint(equalTo: emojiLabel.trailingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        setupUI()
     }
 
-    required init?(coder: NSCoder) { fatalError() }
+    private func setupUI() {
+        contentView.layer.cornerRadius = 16
+        contentView.layer.borderWidth = 1
+        contentView.clipsToBounds = true
 
-    func configure(with option: ConfidenceOption,
-                   backgroundColor: UIColor,
-                   tintColor: UIColor,
-                   borderColor: UIColor,
-                   selected: Bool) {
+        emojiLabel.font = .systemFont(ofSize: 30)
+
+        titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        titleLabel.numberOfLines = 1
+    }
+
+    func configure(
+        option: ConfidenceOption,
+        backgroundColor: UIColor,
+        textColor: UIColor,
+        borderColor: UIColor
+    ) {
         emojiLabel.text = option.emoji
         titleLabel.text = option.title
-        self.backgroundColor = backgroundColor
-        self.tintColor = tintColor
-        self.layer.borderColor = borderColor.cgColor
-        titleLabel.textColor = tintColor
+
+        contentView.backgroundColor = backgroundColor
+        contentView.layer.borderColor = borderColor.cgColor
+
+        titleLabel.textColor = textColor
+        emojiLabel.textColor = textColor
     }
 }

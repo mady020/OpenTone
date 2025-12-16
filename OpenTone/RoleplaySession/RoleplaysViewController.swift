@@ -4,8 +4,10 @@ class RoleplaysViewController: UIViewController {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
+
     var selectedScenario: RoleplayScenario?
     var selectedSession: RoleplaySession?
+
     // Data from your DataModel
     var roleplays: [RoleplayScenario] = []
     var filteredRoleplays: [RoleplayScenario] = []
@@ -62,6 +64,9 @@ class RoleplaysViewController: UIViewController {
 
         collectionView.collectionViewLayout = layout
     }
+    
+    
+    
 }
 
 
@@ -129,7 +134,4 @@ extension RoleplaysViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
     }
 
-//    @IBAction func unwindToRoleplaysVC(_ segue: UIStoryboardSegue) {
-//        print("Returned to Roleplays screen")
-//    }
 }

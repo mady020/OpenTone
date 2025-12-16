@@ -32,7 +32,6 @@ class RoleplayChatViewController: UIViewController {
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
     
-
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
 

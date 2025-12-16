@@ -10,14 +10,6 @@ class RoleplayScenarioDataModel {
 
     private init() {}
 
-//    private(set) var scenarios: [RoleplayScenario] = []
-
-    // private let scenariosURL = URL(string: "https://your-api.com/scenarios")!
-
-//    func fetchScenarios() {
-//        self.scenarios = scenarios
-//    }
-
 
     func getAll() -> [RoleplayScenario] {
         return scenarios
@@ -300,5 +292,3 @@ class RoleplayScenarioDataModel {
 
 
 }
-
-

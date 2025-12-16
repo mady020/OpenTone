@@ -9,8 +9,7 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
     
 
     private var shouldStartRoleplay = false
-
-    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -41,6 +40,7 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
         case 0:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "DescriptionCell",
+
                 for: indexPath
             ) as! DescriptionCell
             print("description")
@@ -49,12 +49,15 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
                 time: "\(currentScenario?.estimatedTimeMinutes ?? 0) minutes"
             )
 
+
+
             return cell
 
         // MARK: - Cell 1 : Script Preview + Key Phrases
         case 1:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "ScriptCell",
+
                 for: indexPath
             ) as! ScriptCell
 
@@ -81,6 +84,7 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
                 }
 
                 return cell
+
 
 
         }
