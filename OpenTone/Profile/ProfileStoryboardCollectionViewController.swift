@@ -3,6 +3,17 @@ import UIKit
 final class ProfileStoryboardCollectionViewController: UICollectionViewController {
 
     private let isLoggedIn: Bool = true
+    
+    private var callTimer: Timer?
+    private var callStartDate: Date?
+
+    
+    var titleText = "Profile"
+    
+    var isComingFromCall = false
+    
+    var isInCall = false
+
 
     private let interests = [
         "Movies", "Technology", "Gaming", "Travel", "Food", "Art"
@@ -13,21 +24,36 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         ("Consistency", "7-day streak achieved"),
         ("Explorer", "Tried 5 different topics")
     ]
+    private let suggestions = [
+        ("First Call", "Completed your first call"),
+        ("Consistency", "7-day streak achieved"),
+        ("Explorer", "Tried 5 different topics")
+    ]
+
 
     private enum Section: Int, CaseIterable {
         case profile
         case interests
         case stats
         case achievements
+        case suggestedQuestions
         case actions
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Profile"
+        title = titleText
         collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
         collectionView.collectionViewLayout = createLayout()
+        
+        collectionView.register(
+            SuggestedQuestionsHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: SuggestedQuestionsHeaderView.reuseIdentifier
+        )
+
+
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -40,7 +66,36 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     ) -> Int {
 
         guard let section = Section(rawValue: section) else { return 0 }
-
+        
+        if isInCall {
+            switch section {
+            case .profile:
+                return 1
+            case .interests:
+                return 0
+            case .suggestedQuestions:
+                return suggestions.count
+            case .actions:
+                return 1
+            default:
+                return 0
+            }
+        }
+        
+        if isComingFromCall {
+            switch section {
+            case .profile:
+                return 1
+            case .interests:
+                return interests.count
+            case .stats:
+                return 1
+            case .actions:
+                return 1
+            default:
+                return 0
+            }
+        }
         switch section {
         case .profile:
             return 1
@@ -52,8 +107,11 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             return achievements.count
         case .actions:
             return isLoggedIn ? 1 : 0
+        default:
+            return 0
         }
     }
+
 
     override func collectionView(
         _ collectionView: UICollectionView,
@@ -109,6 +167,16 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             let achievement = achievements[indexPath.item]
             cell.configure(title: achievement.0, subtitle: achievement.1)
             return cell
+        
+        case .suggestedQuestions:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "SuggestionCallCell",
+                for: indexPath
+            ) as! SuggestionCallCell
+
+            let suggestion = suggestions[indexPath.item]
+            cell.configure(title: suggestion.1)
+            return cell
 
         case .actions:
             let cell = collectionView.dequeueReusableCell(
@@ -116,22 +184,182 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 for: indexPath
             ) as! ProfileActionsCell
 
-            cell.settingsButton.addTarget(
-                self,
-                action: #selector(didTapSettings),
-                for: .touchUpInside
-            )
+            if isInCall {
+                cell.configure(mode: .inCall, timerText: "00:00")
+                cell.logoutButton.addTarget(
+                    self,
+                    action: #selector(didTapEndCall),
+                    for: .touchUpInside
+                )
 
-            cell.logoutButton.addTarget(
-                self,
-                action: #selector(didTapLogout),
-                for: .touchUpInside
-            )
+            } else if isComingFromCall {
+                cell.configure(mode: .postCall)
+
+                cell.settingsButton.addTarget(
+                    self,
+                    action: #selector(didTapStartCall),
+                    for: .touchUpInside
+                )
+
+                cell.logoutButton.addTarget(
+                    self,
+                    action: #selector(didTapSearchAgain),
+                    for: .touchUpInside
+                )
+
+            } else {
+                cell.configure(mode: .normal)
+
+                cell.settingsButton.addTarget(
+                    self,
+                    action: #selector(didTapSettings),
+                    for: .touchUpInside
+                )
+
+                cell.logoutButton.addTarget(
+                    self,
+                    action: #selector(didTapLogout),
+                    for: .touchUpInside
+                )
+            }
 
             return cell
+
+            
+            
+        }
+        
+    }
+    
+    private func setTabBar(hidden: Bool) {
+        guard let tabBar = tabBarController?.tabBar else { return }
+
+        UIView.animate(withDuration: 0.25) {
+            tabBar.alpha = hidden ? 0 : 1
         }
     }
 
+    
+    override func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+
+        guard kind == UICollectionView.elementKindSectionHeader else {
+            fatalError("Unsupported supplementary kind")
+        }
+
+        let section = Section(rawValue: indexPath.section)
+
+        switch section {
+        case .suggestedQuestions:
+            return collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: SuggestedQuestionsHeaderView.reuseIdentifier,
+                for: indexPath
+            )
+
+        default:
+            // This should NEVER be called if layout is correct
+            fatalError("Unexpected header request for section \(String(describing: section))")
+        }
+    }
+
+
+    
+    @objc private func didTapStartCall() {
+        isInCall = true
+        isComingFromCall = false
+
+        title = "In Call"
+        navigationItem.largeTitleDisplayMode = .never
+
+        setTabBar(hidden: true)
+
+        startCallTimer()
+
+        collectionView.reloadData()
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+    
+    @objc private func updateCallTimer() {
+        guard let start = callStartDate else { return }
+
+        let elapsed = Int(Date().timeIntervalSince(start))
+        let minutes = elapsed / 60
+        let seconds = elapsed % 60
+
+        let formatted = String(format: "%02d:%02d", minutes, seconds)
+
+        updateTimerLabel(formatted)
+    }
+    
+    private func updateTimerLabel(_ text: String) {
+        let indexPath = IndexPath(
+            item: 0,
+            section: Section.actions.rawValue
+        )
+
+        guard
+            let cell = collectionView.cellForItem(at: indexPath)
+                as? ProfileActionsCell
+        else { return }
+
+        cell.configure(mode: .inCall, timerText: text)
+    }
+
+
+    
+    private func startCallTimer() {
+        callStartDate = Date()
+
+        callTimer?.invalidate()
+        callTimer = Timer.scheduledTimer(
+            timeInterval: 1,
+            target: self,
+            selector: #selector(updateCallTimer),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+
+    private func stopCallTimer() {
+        callTimer?.invalidate()
+        callTimer = nil
+        callStartDate = nil
+    }
+
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if isInCall {
+            stopCallTimer()
+        }
+    }
+
+    
+    @objc private func didTapEndCall() {
+        stopCallTimer()
+
+        isInCall = false
+        isComingFromCall = true
+
+        title = titleText
+        navigationItem.largeTitleDisplayMode = .automatic
+
+        setTabBar(hidden: false)
+
+        collectionView.reloadData()
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+
+
+    
+    @objc private func didTapSearchAgain() {
+        print("Settings tapped")
+    }
 
     @objc private func didTapSettings() {
         print("Settings tapped")
@@ -166,6 +394,25 @@ extension ProfileStoryboardCollectionViewController {
                 let section = self.verticalSection(estimatedHeight: 120)
                 section.contentInsets.bottom = 32
                 return section
+            case .suggestedQuestions:
+                let section = self.verticalSection(estimatedHeight: 110)
+
+                let headerSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .absolute(44)
+                )
+
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: headerSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top
+                )
+
+                section.boundarySupplementaryItems = [header]
+                return section
+
+
+
             }
         }
     }

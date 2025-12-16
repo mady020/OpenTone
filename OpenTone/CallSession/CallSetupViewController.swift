@@ -274,7 +274,15 @@ extension CallSetupViewController: UICollectionViewDelegate {
         matchedUser = user
         selectedSessionInterests = session.interests
 
-        performSegue(withIdentifier: "goToMatch", sender: self)
+        goToUserProfile()
+    }
+    
+    func goToUserProfile(){
+        let storyboard = UIStoryboard(name: "UserProfile", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "UserProfile") as! ProfileStoryboardCollectionViewController
+        vc.isComingFromCall = true
+        vc.titleText = "🎉 Peer Found!"
+        navigationController?.pushViewController(vc, animated: true)
     }
 
 
