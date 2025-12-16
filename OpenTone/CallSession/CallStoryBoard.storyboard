@@ -76,7 +76,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="gray" title="Find a Peer">
                                     <color key="baseForegroundColor" systemColor="systemGroupedBackgroundColor"/>
-                                    <color key="baseBackgroundColor" systemColor="systemPurpleColor"/>
+                                    <color key="baseBackgroundColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </buttonConfiguration>
                                 <connections>
                                     <action selector="confirmButtonTapped:" destination="0Xz-5b-JZP" eventType="touchUpInside" id="nDf-wa-YcY"/>
@@ -163,7 +163,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="gray" title="Start Call">
                                     <color key="baseForegroundColor" systemColor="secondarySystemBackgroundColor"/>
-                                    <color key="baseBackgroundColor" systemColor="systemPurpleColor"/>
+                                    <color key="baseBackgroundColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </buttonConfiguration>
                                 <connections>
                                     <action selector="startCallTapped:" destination="gmV-cG-U6s" eventType="touchUpInside" id="ANJ-fH-66W"/>
@@ -177,7 +177,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="gray" title="Search Again">
                                     <color key="baseForegroundColor" systemColor="systemGroupedBackgroundColor"/>
-                                    <color key="baseBackgroundColor" systemColor="systemPurpleColor"/>
+                                    <color key="baseBackgroundColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </buttonConfiguration>
                             </button>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="L99-CW-bjY">
@@ -262,7 +262,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Dla-mH-aSf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3664.1791044776119" y="81.006864988558348"/>
+            <point key="canvasLocation" x="3599" y="81"/>
         </scene>
         <!--Call In Progress View Controller-->
         <scene sceneID="3iW-a1-1Cc">
@@ -755,10 +755,10 @@
                                 </collectionViewCellContentView>
                             </collectionViewCell>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FeedbackTranscriptCell" id="efE-nI-tv3" customClass="FeedbackTranscriptCell" customModule="OpenTone" customModuleProvider="target">
-                                <rect key="frame" x="68" y="510.33333333333331" width="266.33333333333331" height="146.66666666666674"/>
+                                <rect key="frame" x="68" y="510.33333333333331" width="266.33333333333331" height="146.66666666666669"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="vsq-b3-Grv">
-                                    <rect key="frame" x="0.0" y="0.0" width="266.33333333333331" height="146.66666666666674"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="266.33333333333331" height="146.66666666666669"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Conversation Transcript" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fde-n0-su2">

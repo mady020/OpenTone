@@ -242,7 +242,7 @@ extension CallSetupViewController: UICollectionViewDelegate {
             englishLevel: englishLevel
         )
 
-//        CallSessionDataModel.shared.startSession(session)
+        CallSessionDataModel.shared.startSession(session)
 
         print("""
         ✅ SESSION CREATED
@@ -257,24 +257,24 @@ extension CallSetupViewController: UICollectionViewDelegate {
     
     func findPeerAndNavigate() {
 
-//        guard let session = CallSessionDataModel.shared.getActiveSession() else { return }
-//
-//        guard let matches = CallSessionDataModel.shared.getMatches(
-//            interests: session.interests,
-//            gender: session.gender,
-//            englishLevel: session.englishLevel
-//        ),
-//        let matchID = matches.first,
-//        let user = UserDataModel.shared.getUser(by: matchID)
-//        else {
-//            print("❌ No peer found")
-//            return
-//        }
+        guard let session = CallSessionDataModel.shared.getActiveSession() else { return }
 
-//        matchedUser = user
-//        selectedSessionInterests = session.interests
-//
-//        performSegue(withIdentifier: "goToMatch", sender: self)
+        guard let matches = CallSessionDataModel.shared.getMatches(
+            interests: session.interests,
+            gender: session.gender,
+            englishLevel: session.englishLevel
+        ),
+        let matchID = matches.first,
+        let user = UserDataModel.shared.getUser(by: matchID)
+        else {
+            print("❌ No peer found")
+            return
+        }
+
+        matchedUser = user
+        selectedSessionInterests = session.interests
+
+        performSegue(withIdentifier: "goToMatch", sender: self)
     }
 
 
