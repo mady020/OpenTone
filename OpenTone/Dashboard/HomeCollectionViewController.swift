@@ -391,6 +391,18 @@ extension HomeCollectionViewController {
                 }
 
                 self.navigationController?.pushViewController(rootVC, animated: true)
+            }else{
+                
+                let storyboard = UIStoryboard(name: "AICall", bundle: nil)
+
+                guard let scoreVC = storyboard.instantiateInitialViewController() else {
+                    print("CallStoryBoard initial is not NavigationController")
+                    return
+                }
+                scoreVC.modalPresentationStyle = .fullScreen
+                scoreVC.modalTransitionStyle = .crossDissolve
+                present(scoreVC, animated: true)
+    
             }
 
         case .recommended:

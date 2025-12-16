@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="PDo-xB-peT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="PDo-xB-peT">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -89,7 +89,6 @@
                         <outlet property="collectionView" destination="tad-df-2r3" id="sDg-fE-3V1"/>
                         <outlet property="searchBar" destination="L6R-5r-col" id="Qww-js-eKn"/>
                         <segue destination="UrW-Xx-Gvv" kind="show" identifier="toRolePlayStart" id="iKP-wM-FgT"/>
-
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -99,9 +98,7 @@
         <!--Grocery Shopping-->
         <scene sceneID="ieI-tD-d4c">
             <objects>
-
                 <collectionViewController storyboardIdentifier="RolePlayStartVC" id="UrW-Xx-Gvv" customClass="RolePlayStartCollectionViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
-
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="C1O-z0-QDA">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -253,9 +250,7 @@
                                             <state key="normal" title="Button"/>
                                             <buttonConfiguration key="configuration" style="plain" title="Start Roleplay" cornerStyle="dynamic"/>
                                             <connections>
-
                                                 <action selector="startTapped:" destination="a6x-Fd-ect" eventType="touchUpInside" id="3mc-BA-vTX"/>
-
                                             </connections>
                                         </button>
                                     </subviews>
@@ -452,7 +447,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="A0e-y0-j1j" firstAttribute="centerY" secondItem="zIg-Tq-Sr7" secondAttribute="centerY" id="2jE-bn-giq"/>
                                     <constraint firstItem="A0e-y0-j1j" firstAttribute="centerX" secondItem="zIg-Tq-Sr7" secondAttribute="centerX" id="9PB-fS-I5f"/>

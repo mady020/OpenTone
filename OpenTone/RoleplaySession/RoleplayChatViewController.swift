@@ -275,6 +275,7 @@ extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }
+    
 
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -309,5 +310,6 @@ extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate
             return cell
         }
     }
+
 }
 
