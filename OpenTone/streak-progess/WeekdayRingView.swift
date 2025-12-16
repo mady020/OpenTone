@@ -8,7 +8,7 @@
 import UIKit
 
 class WeekdayRingView: UIView {
-    
+    var onTap: (() -> Void)?
     private var isConfigured = false
     private let bgLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
@@ -49,6 +49,14 @@ class WeekdayRingView: UIView {
 
         layer.addSublayer(bgLayer)
         layer.addSublayer(progressLayer)
+        
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTap)
+        )
+        addGestureRecognizer(tapGesture)
+        isUserInteractionEnabled = true
+
     }
 
     func animate(progress: CGFloat) {
@@ -74,6 +82,30 @@ class WeekdayRingView: UIView {
 
         progressLayer.removeAllAnimations()
         progressLayer.strokeEnd = safeProgress
+    }
+    func setEmphasis(isToday: Bool = false, isSelected: Bool = false) {
+
+        let scale: CGFloat = (isToday || isSelected) ? 1.12 : 1.0
+        let lineWidth: CGFloat = (isToday || isSelected) ? 5 : 4
+
+        transform = CGAffineTransform(scaleX: scale, y: scale)
+
+        bgLayer.lineWidth = lineWidth
+        progressLayer.lineWidth = lineWidth
+
+        // Color logic
+        if isToday {
+            progressLayer.strokeColor = UIColor.systemPurple.cgColor
+            bgLayer.strokeColor = UIColor.systemPurple.withAlphaComponent(0.2).cgColor
+        } else {
+            progressLayer.strokeColor = UIColor.systemGray3.cgColor
+            bgLayer.strokeColor = UIColor.systemGray4.cgColor
+        }
+        
+    }
+
+    @objc private func handleTap() {
+        onTap?()
     }
 
 }
