@@ -1,10 +1,3 @@
-//
-//  RoleplayChatViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 02/12/25.
-//
-
 import UIKit
 
 enum ChatSender {
@@ -13,161 +6,276 @@ enum ChatSender {
     case suggestions
 }
 
+enum RoleplayEntryPoint {
+    case dashboard
+    case roleplays
+}
+
+
 struct ChatMessage {
     let sender: ChatSender
     let text: String
     let suggestions: [String]?
 }
 
+extension RoleplayChatViewController: SuggestionCellDelegate {
+
+    func didTapSuggestion(_ suggestion: String) {
+        userResponded(suggestion)
+    }
+}
+
+
 class RoleplayChatViewController: UIViewController {
 
+    // MARK: - Passed Data (FROM prepare segue)
+    var scenario: RoleplayScenario!
+    var session: RoleplaySession!
+    
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
 
-    var messages: [ChatMessage] = []
+    // MARK: - UI State
+    private var messages: [ChatMessage] = []
+    private var didLoadChat = false
+    private var wrongAttempts = 0
 
-    // Simple script
-    let script = [
-        ("Where can I find the milk?",
-         ["How much does this cost?", "I am looking for milk", "Where is checkout?"]),
-        
-        ("The milk is in the dairy section next to eggs.",
-         ["Show me directions", "Got it!", "Can I pay by card?"]),
-    ]
-
-    var step = 0
-    private var initialLoaded = false   // 👈 prevents double execution
-
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        guard scenario != nil, session != nil else {
+            fatalError("RoleplayChatVC: Scenario or Session not passed")
+        }
+
+        title = scenario.title
+
         tableView.delegate = self
         tableView.dataSource = self
-
-        // For automatic dynamic height
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 60
-    }
+        tableView.estimatedRowHeight = 120
+        tableView.separatorStyle = .none
 
-    // 🔥 FIX: Only load script after view is fully on screen
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//
-//        if !initialLoaded {
-//            initialLoaded = true
-//            loadStep(0)
-//        }
-//    }
-    
-    private var didLoadChat = false
+        navigationItem.hidesBackButton = true
+    }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         if !didLoadChat {
             didLoadChat = true
-            loadStep(0)   // 👍 tableView is guaranteed to exist here
+            loadCurrentStep()
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        (tabBarController as? MainTabBarController)?.isRoleplayInProgress = true
+    }
 
-    func loadStep(_ i: Int) {
-        step = i
+    // MARK: - Load Step
+    private func loadCurrentStep() {
 
-        // 1️⃣ App message
+        let index = session.currentLineIndex
+        guard index < scenario.script.count else {
+            presentScoreScreen()
+            return
+        }
+
+        let message = scenario.script[index]
+
+        // 1️⃣ NPC / App message
         messages.append(
-            ChatMessage(sender: .app,
-                        text: script[i].0,
-                        suggestions: nil)
+            ChatMessage(
+                sender: .app,
+                text: message.text,
+                suggestions: nil
+            )
         )
 
-        // 2️⃣ Suggestions bubble
-        messages.append(
-            ChatMessage(sender: .suggestions,
-                        text: "",
-                        suggestions: script[i].1)
-        )
+        // 2️⃣ Suggestions
+        if let options = message.replyOptions {
+            messages.append(
+                ChatMessage(
+                    sender: .suggestions,
+                    text: "",
+                    suggestions: options
+                )
+            )
+        }
 
         reloadTableSafely()
     }
 
-     //MARK: - Safe Reload + Scroll
-    func reloadTableSafely() {
-        tableView.reloadData()
-
-        DispatchQueue.main.async {
-            self.scrollToBottom()
-        }
-    }
-
-    func scrollToBottom() {
-        guard messages.count > 0 else { return }
-        guard tableView != nil else { return }
-
-        tableView.layoutIfNeeded()
-
-        let last = messages.count - 1
-        let index = IndexPath(row: last, section: 0)
-
-        DispatchQueue.main.async {
-            if last < self.tableView.numberOfRows(inSection: 0) {
-                self.tableView.scrollToRow(at: index, at: .bottom, animated: true)
-            }
-        }
-    }
-
-
-    
-    // MARK: - Mic Button
+    // MARK: - Mic Input
     @IBAction func micTapped(_ sender: UIButton) {
         simulateSpeechInput()
     }
 
-    func simulateSpeechInput() {
-        let alert = UIAlertController(title: "Mic Input",
-                                      message: "Type what user said",
-                                      preferredStyle: .alert)
+    private func simulateSpeechInput() {
+        let alert = UIAlertController(
+            title: "Mic Input",
+            message: "Type what user said",
+            preferredStyle: .alert
+        )
         alert.addTextField()
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
             if let text = alert.textFields?.first?.text, !text.isEmpty {
                 self.userResponded(text)
             }
-        }))
+        })
         present(alert, animated: true)
     }
 
-    func userResponded(_ text: String) {
+    // MARK: - User Response Handling
+    private func userResponded(_ text: String) {
 
-        // Remove suggestions row BEFORE adding user message
-        if messages.last?.sender == .suggestions {
-            messages.removeLast()
+        let index = session.currentLineIndex
+        let expected = scenario.script[index].replyOptions ?? []
+        let normalized = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if expected.map({ $0.lowercased() }).contains(normalized) {
+
+            wrongAttempts = 0
+
+            // Remove suggestions
+            if messages.last?.sender == .suggestions {
+                messages.removeLast()
+            }
+
+            // Add user message
+            messages.append(
+                ChatMessage(
+                    sender: .user,
+                    text: text,
+                    suggestions: nil
+                )
+            )
+
+            advanceSession()
+
+        } else {
+            handleWrongAttempt(expected: expected)
         }
 
-        // User bubble
-        messages.append(
-            ChatMessage(sender: .user,
-                        text: text,
-                        suggestions: nil)
-        )
-
         reloadTableSafely()
+    }
 
-        // Load next script line
-        if step + 1 < script.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.loadStep(self.step + 1)
+    private func advanceSession() {
+
+        session.currentLineIndex += 1
+
+        if session.currentLineIndex < scenario.script.count {
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.loadCurrentStep()
+            }
+
+        } else {
+            // MARK SESSION COMPLETED
+            session.status = .completed
+            session.endedAt = Date()
+
+            // UPDATE SESSION IN DATA MODEL
+            RoleplaySessionDataModel.shared.updateSession(
+                session,
+                scenario: scenario
+            )
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.presentScoreScreen()
             }
         }
     }
+
+
+    private func handleWrongAttempt(expected: [String]) {
+
+        wrongAttempts += 1
+
+        if wrongAttempts < 3 {
+            messages.append(
+                ChatMessage(
+                    sender: .app,
+                    text: "Not quite 🤏\nTry one of the options below!",
+                    suggestions: nil
+                )
+            )
+        } else {
+            wrongAttempts = 0
+
+            let correct = expected.first ?? ""
+            messages.append(
+                ChatMessage(
+                    sender: .app,
+                    text: "Correct phrasing:\n\"\(correct)\" 👍",
+                    suggestions: nil
+                )
+            )
+
+            // Remove suggestions and advance
+            if messages.last?.sender == .suggestions {
+                messages.removeLast()
+            }
+
+            advanceSession()
+        }
+    }
+
+    // MARK: - Table Helpers
+    private func reloadTableSafely() {
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+        scrollToBottom()
+    }
+
+    func scrollToBottom() {
+        DispatchQueue.main.async {
+            let rows = self.tableView.numberOfRows(inSection: 0)
+            guard rows > 0 else { return }
+
+            let lastIndex = IndexPath(row: rows - 1, section: 0)
+            self.tableView.scrollToRow(at: lastIndex, at: .bottom, animated: true)
+        }
+    }
+
+
+    // MARK: - End / Score
+    @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
+//        triggerScoreScreenFlow()
+   
+    }
+
+
+
+//    private func triggerScoreScreenFlow() {
+//        if let alert = presentedViewController as? UIAlertController {
+//            alert.dismiss(animated: true) {
+//                self.presentScoreScreen()
+//            }
+//        } else {
+//            presentScoreScreen()
+//        }
+//    }
+
+    private func presentScoreScreen() {
+        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+        guard let scoreVC = storyboard.instantiateViewController(
+            withIdentifier: "ScoreScreenVC"
+        ) as? ScoreViewController else { return }
+
+        scoreVC.modalPresentationStyle = .fullScreen
+        scoreVC.modalTransitionStyle = .crossDissolve
+        present(scoreVC, animated: true)
+    }
 }
 
-// MARK: - UITableView
-extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource {
+extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate {
 
-    func tableView(_ tableView: UITableView,
-                   numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }
+    
 
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -202,11 +310,6 @@ extension RoleplayChatViewController: UITableViewDelegate, UITableViewDataSource
             return cell
         }
     }
+
 }
 
-// MARK: - Suggestions Tap
-extension RoleplayChatViewController: SuggestionCellDelegate {
-    func didTapSuggestion(_ suggestion: String) {
-        userResponded(suggestion)
-    }
-}

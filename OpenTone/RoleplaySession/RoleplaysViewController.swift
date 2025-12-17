@@ -5,22 +5,18 @@ class RoleplaysViewController: UIViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
 
-    var roleplays: [String] = [
-        "Grocery Shopping",
-        "Making Friends",
-        "Airport Check-in",
-        "Ordering Food",
-        "Job Interview",
-        "Birthday Celebration",
-        "Hotel Booking",
-        "First Date"
-    ]
+    var selectedScenario: RoleplayScenario?
+    var selectedSession: RoleplaySession?
 
-    var filteredRoleplays: [String] = []
+    // Data from your DataModel
+    var roleplays: [RoleplayScenario] = []
+    var filteredRoleplays: [RoleplayScenario] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Load scenarios
+        roleplays = RoleplayScenarioDataModel.shared.getAll()
         filteredRoleplays = roleplays
 
         setupSearchBar()
@@ -32,6 +28,7 @@ class RoleplaysViewController: UIViewController {
         setupCollectionViewLayout()
     }
 
+    // MARK: - UI Setup
     func setupSearchBar() {
         searchBar.delegate = self
         searchBar.placeholder = "Search roleplays"
@@ -67,8 +64,13 @@ class RoleplaysViewController: UIViewController {
 
         collectionView.collectionViewLayout = layout
     }
+    
+    
+    
 }
 
+
+// MARK: - CollectionView
 extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -83,18 +85,36 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
             for: indexPath
         ) as! RoleplaysCell
 
-        let title = filteredRoleplays[indexPath.row]
-        let imageName = title.replacingOccurrences(of: " ", with: "")
+        let scenario = filteredRoleplays[indexPath.row]
+        cell.configure(title: scenario.title, imageName: scenario.imageURL)
 
-        cell.configure(title: title, imageName: imageName)
         return cell
     }
+    
+  
+
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Selected:", filteredRoleplays[indexPath.row])
+
+        selectedScenario = filteredRoleplays[indexPath.row]
+
+        performSegue(withIdentifier: "toRolePlayStart", sender: self)
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toRolePlayStart",
+           let vc = segue.destination as? RolePlayStartCollectionViewController {
+
+            vc.currentScenario = selectedScenario
+           
+        }
+    }
+
+
 }
 
+
+// MARK: - Search Bar
 extension RoleplaysViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -103,7 +123,7 @@ extension RoleplaysViewController: UISearchBarDelegate {
             filteredRoleplays = roleplays
         } else {
             filteredRoleplays = roleplays.filter {
-                $0.lowercased().contains(searchText.lowercased())
+                $0.title.lowercased().contains(searchText.lowercased())
             }
         }
 
@@ -113,4 +133,5 @@ extension RoleplaysViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }
+
 }

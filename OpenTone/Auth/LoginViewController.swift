@@ -16,6 +16,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func signinButtonTapped(_ sender: Any) {
+//        goToUserInfo()
         goToDashboard()
     }
     
@@ -28,6 +29,31 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         self.view.window?.makeKeyAndVisible()
     }
     
+    private func goToUserInfo(){
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let introVC = storyboard.instantiateViewController(withIdentifier: "UserInfoScreen")
+
+        let nav = UINavigationController(rootViewController: introVC)
+        nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .crossDissolve
+
+        self.view.window?.rootViewController = nav
+        self.view.window?.makeKeyAndVisible()
+    }
+
+    
+    private func goToConfidenceChoice() {
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let introVC = storyboard.instantiateViewController(withIdentifier: "ConfidenceScreen")
+
+        let nav = UINavigationController(rootViewController: introVC)
+        nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .crossDissolve
+
+        self.view.window?.rootViewController = nav
+        self.view.window?.makeKeyAndVisible()
+    }
+
     private func addIconsToTextFields() {
         let emailIcon = UIImageView(image: UIImage(systemName: "envelope.fill"))
         emailIcon.tintColor = .secondaryLabel

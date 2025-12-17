@@ -20,7 +20,7 @@ class CallMatchViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupCollectionView()
-        configureData()
+//        configureData()
     }
 }
 
@@ -46,21 +46,21 @@ extension CallMatchViewController {
         view.layer.shadowRadius = 10
     }
 
-    func configureData() {
-        guard let user = matchedUser else { return }
-        let userData = CallSessionDataModel.shared.getParticipantDetails(from: user)
-        nameLabel.text = userData.name
-        bioLabel.text = userData.bio
-        
-
-        if let image = userData.image {
-            profileImageView.image = UIImage(named: image)
-        } else {
-            profileImageView.image = UIImage(systemName: "person.circle.fill")
-        }
-
-        sharedInterestsCollectionView.reloadData()
-    }
+//    func configureData() {
+//        guard let user = matchedUser else { return }
+//        let userData = CallSessionDataModel.shared.getParticipantDetails(from: user)
+//        nameLabel.text = userData.name
+//        bioLabel.text = userData.bio
+//        
+//
+//        if let image = userData.image {
+//            profileImageView.image = UIImage(named: image)
+//        } else {
+//            profileImageView.image = UIImage(systemName: "person.circle.fill")
+//        }
+//
+//        sharedInterestsCollectionView.reloadData()
+//    }
 }
 
 extension CallMatchViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -106,19 +106,19 @@ extension CallMatchViewController {
 
     @IBAction func startCallTapped(_ sender: UIButton) {
 
-        guard matchedUser != nil else {
-            print("❌ matchedUser not found")
-            return
-        }
-
-
-        generatedQuestions = CallSessionDataModel.shared
-            .generateSuggestedQuestions(from: sharedInterests)
-
-        print("✅ Questions Generated:")
-        generatedQuestions.forEach { print($0) }
-
-        performSegue(withIdentifier: "goToCallInProgress", sender: self)
+//        guard matchedUser != nil else {
+//            print("❌ matchedUser not found")
+//            return
+//        }
+//
+//
+//        generatedQuestions = CallSessionDataModel.shared
+//            .generateSuggestedQuestions(from: sharedInterests)
+//
+//        print("✅ Questions Generated:")
+//        generatedQuestions.forEach { print($0) }
+//
+//        performSegue(withIdentifier: "goToCallInProgress", sender: self)
     }
 
     

@@ -62,7 +62,9 @@ class RoleplaySessionDataModel {
                 xpEarned: 12,
                 isCompleted: true
             )
-
+            print(
+                "\(duration) seconds"
+            )
 
             activeSession = nil
         }

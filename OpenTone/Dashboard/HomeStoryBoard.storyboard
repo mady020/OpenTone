@@ -24,17 +24,17 @@
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="Cell" id="bkk-gP-koG" customClass="HomeCollectionViewCell" customModule="OpenTone" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="56" height="128"/>
+                                <rect key="frame" x="0.66666666666666663" y="0.0" width="392" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="7sL-93-Wiw">
-                                    <rect key="frame" x="0.0" y="0.0" width="56" height="128"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="392" height="128"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="n4z-OU-YDs">
-                                            <rect key="frame" x="0.0" y="0.0" width="56" height="128"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="392" height="128"/>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KRp-qz-NT9">
-                                            <rect key="frame" x="0.0" y="100.66666666666667" width="56" height="27.333333333333329"/>
+                                            <rect key="frame" x="0.0" y="100.66666666666667" width="392" height="27.333333333333329"/>
                                             <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                                             <color key="textColor" systemColor="groupTableViewBackgroundColor"/>
@@ -52,10 +52,177 @@
                                         <constraint firstAttribute="trailing" secondItem="n4z-OU-YDs" secondAttribute="trailing" id="klh-NR-f7w"/>
                                     </constraints>
                                 </collectionViewCellContentView>
-                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <size key="customSize" width="392" height="128"/>
                                 <connections>
                                     <outlet property="imageView" destination="n4z-OU-YDs" id="B0U-Dh-uNg"/>
                                     <outlet property="textLabel" destination="KRp-qz-NT9" id="gux-Vq-FSX"/>
+                                </connections>
+                            </collectionViewCell>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ProgressCell" id="PsW-26-diE" customClass="ProgressCell" customModule="OpenTone" customModuleProvider="target">
+                                <rect key="frame" x="39" y="138" width="315" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Gbo-1a-xxD">
+                                    <rect key="frame" x="0.0" y="0.0" width="315" height="128"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Zqf-TY-NPt">
+                                            <rect key="frame" x="16" y="16" width="283" height="96"/>
+                                            <subviews>
+                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="BgK-au-uHY">
+                                                    <rect key="frame" x="0.0" y="0.0" width="137.66666666666666" height="96"/>
+                                                    <subviews>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5 more tasks to complete today’s goal" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7TQ-gR-TEN">
+                                                            <rect key="frame" x="0.0" y="0.0" width="137.66666666666666" height="38"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9GL-ca-rWx">
+                                                            <rect key="frame" x="0.0" y="46" width="137.66666666666666" height="50"/>
+                                                            <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="height" constant="50" id="rmj-HA-FYM"/>
+                                                            </constraints>
+                                                            <state key="normal" title="Button"/>
+                                                            <buttonConfiguration key="configuration" style="plain" title="See overall progress">
+                                                                <fontDescription key="titleFontDescription" type="system" pointSize="16"/>
+                                                                <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            </buttonConfiguration>
+                                                            <connections>
+                                                                <action selector="overallProgressButton:" destination="PsW-26-diE" eventType="touchUpInside" id="9m1-BT-kEo"/>
+                                                            </connections>
+                                                        </button>
+                                                    </subviews>
+                                                </stackView>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BOO-qn-0J5" customClass="TimerRingView" customModule="OpenTone" customModuleProvider="target">
+                                                    <rect key="frame" x="145.66666666666663" y="0.0" width="137.33333333333337" height="96"/>
+                                                </view>
+                                            </subviews>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="Zqf-TY-NPt" firstAttribute="leading" secondItem="Gbo-1a-xxD" secondAttribute="leading" constant="16" id="RnD-rx-nKh"/>
+                                        <constraint firstAttribute="bottom" secondItem="Zqf-TY-NPt" secondAttribute="bottom" constant="16" id="SGZ-Ex-Djr"/>
+                                        <constraint firstItem="Zqf-TY-NPt" firstAttribute="top" secondItem="Gbo-1a-xxD" secondAttribute="top" constant="16" id="dBD-dt-aQT"/>
+                                        <constraint firstAttribute="trailing" secondItem="Zqf-TY-NPt" secondAttribute="trailing" constant="16" id="nJP-ap-CnZ"/>
+                                    </constraints>
+                                </collectionViewCellContentView>
+                                <size key="customSize" width="315" height="128"/>
+                                <connections>
+                                    <outlet property="overallProgressButton" destination="9GL-ca-rWx" id="5To-HV-8ZE"/>
+                                    <outlet property="progressLabel" destination="7TQ-gR-TEN" id="qtX-CY-GyD"/>
+                                    <outlet property="progressRingView" destination="BOO-qn-0J5" id="ydm-G7-yjS"/>
+                                </connections>
+                            </collectionViewCell>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LastTaskCell" id="dOm-Gs-fkS" customClass="LastTaskCell" customModule="OpenTone" customModuleProvider="target">
+                                <rect key="frame" x="66.666666666666671" y="276" width="260" height="109"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="5i3-cV-fDm">
+                                    <rect key="frame" x="0.0" y="0.0" width="260" height="109"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="bFp-GZ-XhS">
+                                            <rect key="frame" x="16" y="16" width="228" height="77"/>
+                                            <subviews>
+                                                <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="mjz-Jc-4jQ">
+                                                    <rect key="frame" x="0.0" y="0.0" width="140.33333333333334" height="38.666666666666664"/>
+                                                    <subviews>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="theatermasks" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="4oc-AC-KZI">
+                                                            <rect key="frame" x="0.0" y="-0.66666666666666785" width="40" height="40.333333333333329"/>
+                                                            <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" constant="40" id="67b-1I-JAz"/>
+                                                                <constraint firstAttribute="height" constant="40" id="A1r-Pw-3IR"/>
+                                                            </constraints>
+                                                        </imageView>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="RolePlay" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oYc-6O-8E3">
+                                                            <rect key="frame" x="45.999999999999993" y="5.0000000000000018" width="94.333333333333314" height="28.666666666666671"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="24"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                    </subviews>
+                                                </stackView>
+                                                <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="eky-aB-Oas">
+                                                    <rect key="frame" x="0.0" y="38.666666666666657" width="223" height="38.333333333333343"/>
+                                                    <subviews>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Grocery Shopping " textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wVm-lg-wSl">
+                                                            <rect key="frame" x="0.0" y="0.0" width="109.66666666666667" height="38.333333333333336"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uxp-OJ-WWk">
+                                                            <rect key="frame" x="113.66666666666666" y="0.0" width="109.33333333333334" height="38.333333333333336"/>
+                                                            <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                            <color key="tintColor" systemColor="systemBackgroundColor"/>
+                                                            <state key="normal" title="Button"/>
+                                                            <buttonConfiguration key="configuration" style="plain" title="Continue"/>
+                                                            <connections>
+                                                                <action selector="continueTapped:" destination="dOm-Gs-fkS" eventType="touchUpInside" id="Esx-li-KmF"/>
+                                                            </connections>
+                                                        </button>
+                                                    </subviews>
+                                                </stackView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="eky-aB-Oas" secondAttribute="trailing" constant="5" id="cAL-WA-Wd3"/>
+                                            </constraints>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="bFp-GZ-XhS" firstAttribute="top" secondItem="5i3-cV-fDm" secondAttribute="top" constant="16" id="3pD-ug-8EG"/>
+                                        <constraint firstItem="bFp-GZ-XhS" firstAttribute="leading" secondItem="5i3-cV-fDm" secondAttribute="leading" constant="16" id="Ov5-0v-W5b"/>
+                                        <constraint firstAttribute="bottom" secondItem="bFp-GZ-XhS" secondAttribute="bottom" constant="16" id="c4G-Xn-Eba"/>
+                                        <constraint firstAttribute="trailing" secondItem="bFp-GZ-XhS" secondAttribute="trailing" constant="16" id="ivV-HE-04A"/>
+                                    </constraints>
+                                </collectionViewCellContentView>
+                                <size key="customSize" width="260" height="109"/>
+                                <connections>
+                                    <outlet property="continueButton" destination="uxp-OJ-WWk" id="CH3-8j-qIJ"/>
+                                    <outlet property="iconImageView" destination="4oc-AC-KZI" id="TmR-ko-pFI"/>
+                                    <outlet property="titleLabel" destination="wVm-lg-wSl" id="AF0-MX-FhM"/>
+                                    <outlet property="typeLabel" destination="oYc-6O-8E3" id="T7r-gr-25J"/>
+                                </connections>
+                            </collectionViewCell>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CallSessionCell" id="Hyr-h0-yJT" customClass="CallSessionCell" customModule="OpenTone" customModuleProvider="target">
+                                <rect key="frame" x="66.666666666666671" y="395" width="260" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="c9E-X1-u7r">
+                                    <rect key="frame" x="0.0" y="0.0" width="260" height="128"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="zfD-eg-cD4">
+                                            <rect key="frame" x="16" y="16" width="228" height="96"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sparkles" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="FcZ-7L-IDg">
+                                                    <rect key="frame" x="84" y="-1" width="60" height="60.666666666666664"/>
+                                                    <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="60" id="Q3H-7N-ZEk"/>
+                                                        <constraint firstAttribute="width" constant="60" id="nfO-4Z-lyM"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Human" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xga-8p-B73">
+                                                    <rect key="frame" x="82.333333333333329" y="68" width="63.333333333333329" height="28"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="zfD-eg-cD4" secondAttribute="trailing" constant="16" id="L0X-lI-9pD"/>
+                                        <constraint firstAttribute="bottom" secondItem="zfD-eg-cD4" secondAttribute="bottom" constant="16" id="OQS-ZA-lgs"/>
+                                        <constraint firstItem="zfD-eg-cD4" firstAttribute="top" secondItem="c9E-X1-u7r" secondAttribute="top" constant="16" id="UnV-iM-GwZ"/>
+                                        <constraint firstItem="zfD-eg-cD4" firstAttribute="leading" secondItem="c9E-X1-u7r" secondAttribute="leading" constant="16" id="yaC-3j-YlK"/>
+                                    </constraints>
+                                </collectionViewCellContentView>
+                                <size key="customSize" width="260" height="128"/>
+                                <connections>
+                                    <outlet property="buttonLabel" destination="xga-8p-B73" id="Uq7-Pt-048"/>
+                                    <outlet property="image" destination="FcZ-7L-IDg" id="GDO-R7-DZl"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>
@@ -64,7 +231,9 @@
                             <outlet property="delegate" destination="ism-ez-pqQ" id="qNa-Kk-1ih"/>
                         </connections>
                     </collectionView>
-                    <tabBarItem key="tabBarItem" title="Home" image="house" catalog="system" selectedImage="house.fill" id="UUb-wC-BaS"/>
+                    <tabBarItem key="tabBarItem" title="Home" image="house" catalog="system" selectedImage="house.fill" id="UUb-wC-BaS">
+                        <color key="badgeColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </tabBarItem>
                     <navigationItem key="navigationItem" title="OpenTone" id="zZ3-9x-fMj"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                 </collectionViewController>
@@ -94,6 +263,8 @@
     <resources>
         <image name="house" catalog="system" width="128" height="104"/>
         <image name="house.fill" catalog="system" width="128" height="104"/>
+        <image name="sparkles" catalog="system" width="115" height="128"/>
+        <image name="theatermasks" catalog="system" width="128" height="87"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

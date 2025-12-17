@@ -2,25 +2,36 @@
 import UIKit
 
 enum DashboardSection: Int, CaseIterable {
-    case conversation
-    case twoMinuteSession
-    case realLifeScenario
+    case progress
+    case completeTask
+    case callSession
+    case recommended
 }
 
-class HomeCollectionViewController: UICollectionViewController {
 
+
+class HomeCollectionViewController: UICollectionViewController {
     
-    var roleplays: [String] = [
-        "GroceryShopping",
-        "MakingFriends",
-        "AirportCheckin",
-        "OrderingFood",
-        "BirthdayCelebration"
-    ]
+    var user: User?
     
+    var isNewUser = false
+    
+    // MARK: - Colors
+    private let screenBackground  = UIColor(hex: "#F4F5F7")
+    private let baseCardColor     = UIColor(hex: "#FBF8FF")
+    private let selectedCardColor = UIColor(hex: "#5B3CC4")
+    private let normalTint        = UIColor(hex: "#333333")
+    private let selectedTint      = UIColor.white
+    private let cardBorderColor   = UIColor(hex: "#E6E3EE")
+    
+
+    var recommendedScenarios: [RoleplayScenario] = []
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        recommendedScenarios = RoleplayScenarioDataModel.shared.getAll()
 
         collectionView.register(
             DashboardHeaderView.self,
@@ -31,88 +42,116 @@ class HomeCollectionViewController: UICollectionViewController {
         collectionView.collectionViewLayout = createLayout()
     }
 
+    
     override func collectionView(
         _ collectionView: UICollectionView,
         viewForSupplementaryElementOfKind kind: String,
         at indexPath: IndexPath
     ) -> UICollectionReusableView {
-
+        
         let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: "DashboardHeader",
             for: indexPath
         ) as! DashboardHeaderView
-
+        
         switch DashboardSection(rawValue: indexPath.section)! {
-        case .conversation:
-            header.titleLabel.text = "Conversation"
-        case .twoMinuteSession:
-            header.titleLabel.text = "2 Minute Session"
-        case .realLifeScenario:
-            header.titleLabel.text = "Real Life Scenario"
+        case .progress:
+        return header
+           
+        case .completeTask:
+            if(!isNewUser){
+                header.titleLabel.text = "Complete your task"
+            }
+            
+        case .callSession:
+            header.titleLabel.text = "Start call session with"
+        case .recommended:
+            header.titleLabel.text = "Recommended for you"
         }
-
         return header
     }
-
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return DashboardSection.allCases.count
     }
-
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch DashboardSection(rawValue: section)! {
-        case .conversation:
+        case .progress:
             return 1
-        case .twoMinuteSession:
+        case .completeTask:
+            if (isNewUser){
+                return 0
+            }
             return 1
-        case .realLifeScenario:
-            return 5
+        case .callSession:
+            return 2
+        case .recommended:
+            return recommendedScenarios.count
         }
     }
-
+    
     override func collectionView(_ collectionView: UICollectionView,
                                  cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: "Cell",
-            for: indexPath
-        ) as! HomeCollectionViewCell
-        
-        
         switch DashboardSection(rawValue: indexPath.section)! {
 
-        case .conversation:
-            cell.imageView.contentMode = .scaleAspectFill
-            cell.imageView.clipsToBounds = true
-            if(indexPath.row == 0){
-                cell.imageView.image = UIImage(named: "Call")
-                cell.backgroundColor = .clear
-                cell.textLabel.text = "Find A Peer"
-            }else{
-                cell.backgroundColor = .purple
-            }
+        case .progress:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "ProgressCell",
+                for: indexPath
+            ) as! ProgressCell
+
+            cell.backgroundColor = baseCardColor
+            cell.overallProgressButton.backgroundColor = selectedCardColor
+            cell.progressRingView.backgroundColor = baseCardColor
+            return cell
+
+        case .completeTask:
            
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: "LastTaskCell",
+                    for: indexPath
+                ) as! LastTaskCell
+                
+            
+            cell.backgroundColor = baseCardColor
+            cell.continueButton.backgroundColor = selectedCardColor
+                
+                return cell
+            
 
-        case .twoMinuteSession:
-            cell.imageView.image = UIImage(named: "Jam")
-            cell.imageView.contentMode = .scaleAspectFill
-            cell.imageView.clipsToBounds = true
-            cell.backgroundColor = .clear
-            cell.textLabel.text = "Start JAM Session"
 
-        case .realLifeScenario:
-            cell.imageView.image = UIImage(named: roleplays[indexPath.row])
-            cell.imageView.contentMode = .scaleAspectFill
-            cell.imageView.clipsToBounds = true
-            cell.backgroundColor = .clear
-            cell.configure(title: "roleplays")
-            cell.textLabel.text = roleplays[indexPath.row]
+        case .callSession:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "CallSessionCell",
+                for: indexPath
+            ) as! CallSessionCell
+            if( indexPath.item == 0){
+                cell.configure(imageURL: "person.line.dotted.person.fill", labelText: "Human")
+            }else{
+                cell.configure(imageURL: "sparkles", labelText: "AI")
+            }
+            return cell
+
+        case .recommended:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "Cell",
+                for: indexPath
+            ) as! HomeCollectionViewCell
+
+            let scenario = recommendedScenarios[indexPath.row]
+            cell.configure(with: scenario)
+
+
+            return cell
+
+
         }
-
-        return cell
     }
-}
 
+}
 
 extension HomeCollectionViewController {
 
@@ -123,26 +162,31 @@ extension HomeCollectionViewController {
             guard let sectionType = DashboardSection(rawValue: sectionIndex) else { return nil }
 
             switch sectionType {
+            case .progress:
+                return self.horizontalcompleteTaskSection()
 
-            case .conversation:
-                return self.horizontalConversationSection()
-
-            case .twoMinuteSession:
+            case .completeTask:
+                if(self.isNewUser){
+                    return self.nothingLayout()
+                }
                 return self.fullWidthSection()
 
-            case .realLifeScenario:
+            case .callSession:
+                return self.twoItemFixedSection()
+
+            case .recommended:
                 return self.horizontalScrollingSection()
             }
         }
     }
 
 
-    func horizontalConversationSection() -> NSCollectionLayoutSection {
+    func horizontalcompleteTaskSection() -> NSCollectionLayoutSection {
 
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .absolute(380),
-                heightDimension: .absolute(220)
+                heightDimension: .absolute(160)
             )
         )
 
@@ -154,20 +198,6 @@ extension HomeCollectionViewController {
         )
 
         let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
-        )
-
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [header]
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
 
         return section
@@ -178,7 +208,7 @@ extension HomeCollectionViewController {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(169)
+                heightDimension: .absolute(124)
             )
         )
 
@@ -205,12 +235,96 @@ extension HomeCollectionViewController {
 
         return section
     }
+    
+    func nothingLayout() -> NSCollectionLayoutSection {
 
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .absolute(0),
+                heightDimension: .absolute(0)
+            )
+        )
+
+        let group = NSCollectionLayoutGroup.vertical(
+            layoutSize: item.layoutSize,
+            subitems: [item]
+        )
+
+        let section = NSCollectionLayoutSection(group: group)
+
+        let headerSize = NSCollectionLayoutSize(
+            widthDimension: .absolute(0),
+            heightDimension: .absolute(0)
+        )
+
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+
+        section.boundarySupplementaryItems = [header]
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+
+        return section
+    }
+    
+    func twoItemFixedSection() -> NSCollectionLayoutSection {
+
+    
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(0.5),
+                heightDimension: .absolute(124)
+            )
+        )
+        item.contentInsets = NSDirectionalEdgeInsets(
+            top: 0,
+            leading: 0,
+            bottom: 0,
+            trailing: 16
+        )
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(124)
+            ),
+            subitem: item,
+            count: 2
+        )
+
+        let section = NSCollectionLayoutSection(group: group)
+
+        let headerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(40)
+        )
+
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+
+        section.boundarySupplementaryItems = [header]
+
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 10,
+            leading: 16,
+            bottom: 10,
+            trailing: 0
+        )
+
+        return section
+    }
+
+
+    
     func horizontalScrollingSection() -> NSCollectionLayoutSection {
 
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
+                widthDimension: .fractionalWidth(0.5),
                 heightDimension: .absolute(130)
             )
         )
@@ -219,10 +333,10 @@ extension HomeCollectionViewController {
 
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(
-                widthDimension: .estimated(160),
-                heightDimension: .absolute(120)
+                widthDimension: .fractionalWidth(0.93),
+                heightDimension: .absolute(130)
             ),
-            subitems: [item]
+            subitems: [item, item]
         )
 
         let section = NSCollectionLayoutSection(group: group)
@@ -252,10 +366,15 @@ extension HomeCollectionViewController {
         let section = DashboardSection(rawValue: indexPath.section)!
 
         switch section {
+        case .progress:
+            print("Progress Clicked")
 
-        case .conversation:
+        case .completeTask:
 
+            print("Complete Task Clicked!")
+        
 
+        case .callSession:
             if indexPath.row == 0 {
                 print("1-to-1 Call tapped")
 
@@ -272,15 +391,33 @@ extension HomeCollectionViewController {
                 }
 
                 self.navigationController?.pushViewController(rootVC, animated: true)
+            }else{
+                
+                let storyboard = UIStoryboard(name: "AICall", bundle: nil)
+
+                guard let scoreVC = storyboard.instantiateInitialViewController() else {
+                    print("CallStoryBoard initial is not NavigationController")
+                    return
+                }
+                scoreVC.modalPresentationStyle = .fullScreen
+                scoreVC.modalTransitionStyle = .crossDissolve
+                present(scoreVC, animated: true)
+    
             }
 
-        case .twoMinuteSession:
-            print("2 Min JAM tapped")
-            tabBarController?.selectedIndex = 2
+        case .recommended:
 
-        case .realLifeScenario:
-            print("Scenario tapped: \(indexPath.row)")
-            tabBarController?.selectedIndex = 1
+            let scenario = recommendedScenarios[indexPath.item]
+
+            let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+            let vc = storyboard.instantiateViewController(
+                withIdentifier: "RolePlayStartVC"
+            ) as! RolePlayStartCollectionViewController
+
+            vc.currentScenario = scenario
+
+            navigationController?.pushViewController(vc, animated: true)
+
         }
     }
 
