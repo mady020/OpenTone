@@ -35,6 +35,9 @@ class CallSetupViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.collectionViewLayout = createLayout()
         
+        collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
+        
+       
 
     }
     
@@ -282,21 +285,12 @@ extension CallSetupViewController: UICollectionViewDelegate {
         let vc = storyboard.instantiateViewController(withIdentifier: "UserProfile") as! ProfileStoryboardCollectionViewController
         vc.isComingFromCall = true
         vc.titleText = "🎉 Peer Found!"
+        navigationController?.navigationBar.prefersLargeTitles = false
         navigationController?.pushViewController(vc, animated: true)
     }
 
 
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-        if segue.identifier == "goToMatch",
-           let vc = segue.destination as? CallMatchViewController {
-
-            vc.matchedUser = matchedUser
-            vc.sharedInterests = selectedSessionInterests
-        }
-    }
-
 
 
 

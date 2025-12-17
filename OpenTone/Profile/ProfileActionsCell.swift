@@ -17,7 +17,14 @@ final class ProfileActionsCell: UICollectionViewCell {
         case normal        // Settings / Log Out
         case postCall      // Start Call / Search Again
         case inCall        // Timer + End Call
+        
+        
     }
+    
+    func updateTimer(text: String) {
+        timerLabel.text = text
+    }
+
 
     // MARK: - Lifecycle
 

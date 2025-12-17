@@ -269,20 +269,48 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
 
 
     
+//    @objc private func didTapStartCall() {
+//        isInCall = true
+//        isComingFromCall = false
+//
+//        title = "In Call"
+//        navigationItem.largeTitleDisplayMode = .never
+//
+//        setTabBar(hidden: true)
+//
+//        startCallTimer()
+//
+//        collectionView.reloadData()
+//        collectionView.collectionViewLayout.invalidateLayout()
+//    }
+    
     @objc private func didTapStartCall() {
-        isInCall = true
-        isComingFromCall = false
-
-        title = "In Call"
-        navigationItem.largeTitleDisplayMode = .never
-
         setTabBar(hidden: true)
 
-        startCallTimer()
+        UIView.animate(withDuration: 0.2, animations: {
+            self.view.alpha = 0.98
+        })
 
-        collectionView.reloadData()
-        collectionView.collectionViewLayout.invalidateLayout()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.isInCall = true
+            self.isComingFromCall = false
+
+            self.title = "In Call"
+            self.navigationItem.largeTitleDisplayMode = .never
+
+            self.startCallTimer()
+
+            UIView.transition(
+                with: self.collectionView,
+                duration: 0.3,
+                options: [.transitionCrossDissolve],
+                animations: {
+                    self.collectionView.reloadData()
+                }
+            )
+        }
     }
+
     
     @objc private func updateCallTimer() {
         guard let start = callStartDate else { return }
@@ -306,8 +334,9 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             let cell = collectionView.cellForItem(at: indexPath)
                 as? ProfileActionsCell
         else { return }
+        
+        cell.updateTimer(text: text)
 
-        cell.configure(mode: .inCall, timerText: text)
     }
 
 
@@ -339,9 +368,18 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             stopCallTimer()
         }
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        // 🔒 After CallSetup, large titles must NEVER appear
+        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationItem.largeTitleDisplayMode = .never
+    }
+
 
     func goToEndCallChoice(){
-        let storyboard = UIStoryboard(name: "CallStoryboard", bundle: nil)
+        let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "EndCall") as! CallEndedViewController
         
         navigationController?.pushViewController(vc, animated: true)
@@ -356,7 +394,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         isComingFromCall = true
 
         title = titleText
-        navigationItem.largeTitleDisplayMode = .automatic
 
         setTabBar(hidden: false)
         collectionView.reloadData()
