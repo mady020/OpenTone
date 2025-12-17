@@ -36,7 +36,7 @@ class ScriptCell: UICollectionViewCell {
 
         keyphrases.font = UIFont.systemFont(ofSize: 15)
         keyphrases.numberOfLines = 0
-        keyphrases.textColor = .label
+//        keyphrases.textColor = .label
         keyphrases.text? = ""
 
         for phrase in keyPhrases {

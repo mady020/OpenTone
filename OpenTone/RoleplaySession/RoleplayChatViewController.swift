@@ -26,24 +26,34 @@ extension RoleplayChatViewController: SuggestionCellDelegate {
 }
 
 
+
+
 class RoleplayChatViewController: UIViewController {
 
     // MARK: - Passed Data (FROM prepare segue)
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
     
+    private let baseCardColor = UIColor(hex: "#FBF8FF")
+    private let cardBorderColor = UIColor(hex: "#E6E3EE")
+    private var currentWrongStreak = 0
+    private var totalWrongAttempts = 0
+
+    
+
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
 
+    @IBOutlet var replayButton: UIButton!
     // MARK: - UI State
     private var messages: [ChatMessage] = []
     private var didLoadChat = false
-    private var wrongAttempts = 0
+     
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         guard scenario != nil, session != nil else {
             fatalError("RoleplayChatVC: Scenario or Session not passed")
         }
@@ -57,6 +67,17 @@ class RoleplayChatViewController: UIViewController {
         tableView.separatorStyle = .none
 
         navigationItem.hidesBackButton = true
+        
+        micButton.layer.cornerRadius = 28
+        micButton.backgroundColor = baseCardColor
+        micButton.layer.borderColor = cardBorderColor.cgColor
+        micButton.layer.borderWidth = 1
+        
+        replayButton.layer.cornerRadius = 28
+        replayButton.backgroundColor = baseCardColor
+        replayButton.layer.borderColor = cardBorderColor.cgColor
+        replayButton.layer.borderWidth = 1
+        
     }
 
     override func viewDidLayoutSubviews() {
@@ -68,12 +89,17 @@ class RoleplayChatViewController: UIViewController {
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        (tabBarController as? MainTabBarController)?.isRoleplayInProgress = true
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.tabBar.isHidden = true
     }
 
-    // MARK: - Load Step
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tabBarController?.tabBar.isHidden = false
+    }
+
     private func loadCurrentStep() {
 
         let index = session.currentLineIndex
@@ -84,7 +110,6 @@ class RoleplayChatViewController: UIViewController {
 
         let message = scenario.script[index]
 
-        // 1️⃣ NPC / App message
         messages.append(
             ChatMessage(
                 sender: .app,
@@ -93,7 +118,6 @@ class RoleplayChatViewController: UIViewController {
             )
         )
 
-        // 2️⃣ Suggestions
         if let options = message.replyOptions {
             messages.append(
                 ChatMessage(
@@ -107,7 +131,6 @@ class RoleplayChatViewController: UIViewController {
         reloadTableSafely()
     }
 
-    // MARK: - Mic Input
     @IBAction func micTapped(_ sender: UIButton) {
         simulateSpeechInput()
     }
@@ -127,7 +150,6 @@ class RoleplayChatViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    // MARK: - User Response Handling
     private func userResponded(_ text: String) {
 
         let index = session.currentLineIndex
@@ -136,14 +158,12 @@ class RoleplayChatViewController: UIViewController {
 
         if expected.map({ $0.lowercased() }).contains(normalized) {
 
-            wrongAttempts = 0
+            currentWrongStreak = 0
 
-            // Remove suggestions
             if messages.last?.sender == .suggestions {
                 messages.removeLast()
             }
 
-            // Add user message
             messages.append(
                 ChatMessage(
                     sender: .user,
@@ -172,11 +192,9 @@ class RoleplayChatViewController: UIViewController {
             }
 
         } else {
-            // MARK SESSION COMPLETED
             session.status = .completed
             session.endedAt = Date()
 
-            // UPDATE SESSION IN DATA MODEL
             RoleplaySessionDataModel.shared.updateSession(
                 session,
                 scenario: scenario
@@ -191,9 +209,11 @@ class RoleplayChatViewController: UIViewController {
 
     private func handleWrongAttempt(expected: [String]) {
 
-        wrongAttempts += 1
+        currentWrongStreak += 1
+        totalWrongAttempts += 1
 
-        if wrongAttempts < 3 {
+        if currentWrongStreak < 3 {
+
             messages.append(
                 ChatMessage(
                     sender: .app,
@@ -201,8 +221,10 @@ class RoleplayChatViewController: UIViewController {
                     suggestions: nil
                 )
             )
+
         } else {
-            wrongAttempts = 0
+
+            currentWrongStreak = 0
 
             let correct = expected.first ?? ""
             messages.append(
@@ -213,7 +235,6 @@ class RoleplayChatViewController: UIViewController {
                 )
             )
 
-            // Remove suggestions and advance
             if messages.last?.sender == .suggestions {
                 messages.removeLast()
             }
@@ -222,7 +243,7 @@ class RoleplayChatViewController: UIViewController {
         }
     }
 
-    // MARK: - Table Helpers
+
     private func reloadTableSafely() {
         tableView.reloadData()
         tableView.layoutIfNeeded()
@@ -240,34 +261,55 @@ class RoleplayChatViewController: UIViewController {
     }
 
 
-    // MARK: - End / Score
     @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
-//        triggerScoreScreenFlow()
-   
+        
+        RoleplaySessionDataModel.shared.cancelSession()
+
     }
 
 
+    
+    @IBAction func replayTapped(_ sender: UIButton) {
+        replayRoleplayFromStart()
+    }
 
-//    private func triggerScoreScreenFlow() {
-//        if let alert = presentedViewController as? UIAlertController {
-//            alert.dismiss(animated: true) {
-//                self.presentScoreScreen()
-//            }
-//        } else {
-//            presentScoreScreen()
-//        }
-//    }
+    
+    private func replayRoleplayFromStart() {
 
+        session.currentLineIndex = 0
+        session.status = .notStarted
+        session.endedAt = nil
+
+        messages.removeAll()
+        currentWrongStreak = 0
+        totalWrongAttempts = 0
+
+        tableView.reloadData()
+
+        loadCurrentStep()
+    }
+   
+
+
+
+
+
+    
     private func presentScoreScreen() {
+
         let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+
         guard let scoreVC = storyboard.instantiateViewController(
             withIdentifier: "ScoreScreenVC"
         ) as? ScoreViewController else { return }
 
-        scoreVC.modalPresentationStyle = .fullScreen
-        scoreVC.modalTransitionStyle = .crossDissolve
+        scoreVC.score = calculateScore()
+        scoreVC.pointsEarned = 5
+
+
         present(scoreVC, animated: true)
     }
+
 }
 
 extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate {
@@ -275,7 +317,6 @@ extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }
-    
 
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -310,6 +351,17 @@ extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate
             return cell
         }
     }
+    
+    private func calculateScore() -> Int {
+        let penalty = totalWrongAttempts * 5
+        return max(100 - penalty, 60)
+    }
+
+    
+    
+   
+
+    
+   
 
 }
-

@@ -1,33 +1,17 @@
-//
-//  ScoreViewController.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 03/12/25.
-//
-
 import UIKit
 
 class ScoreViewController: UIViewController {
 
-    @IBOutlet var ScoreLabel: UILabel!
-    
-    @IBOutlet var PointsLabel: UILabel!
-    
+    @IBOutlet weak var ScoreLabel: UILabel!
+    @IBOutlet weak var PointsLabel: UILabel!
+
+    var score: Int = 0
+    var pointsEarned: Int = 0
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        ScoreLabel.text = "Score : \(score)"
+        PointsLabel.text = "+ \(pointsEarned) points"
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
