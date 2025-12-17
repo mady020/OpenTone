@@ -13,6 +13,8 @@ import UIKit
 
 
 class LastTaskCell: UICollectionViewCell {
+    
+    private let baseCardColor  = UIColor(hex: "#FBF8FF")
 
     @IBOutlet weak var typeLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
@@ -25,8 +27,9 @@ class LastTaskCell: UICollectionViewCell {
         super.awakeFromNib()
         layer.cornerRadius = 30
         clipsToBounds = true
-        continueButton.layer.cornerRadius = 12
         continueButton.clipsToBounds = true
+        layer.borderWidth = 1
+        layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
     }
 
     @IBAction func continueTapped(_ sender: UIButton) {

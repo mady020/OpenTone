@@ -22,6 +22,9 @@ class HomeCollectionViewCell: UICollectionViewCell {
         textLabel.textColor = .white
         textLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         textLabel.numberOfLines = 2
+        
+        layer.borderWidth = 1
+        layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
     }
 
     override func prepareForReuse() {

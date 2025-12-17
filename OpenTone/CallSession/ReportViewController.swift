@@ -16,7 +16,6 @@ class ReportViewController: UIViewController {
     @IBOutlet weak var reason2Button: UIButton!
     @IBOutlet weak var reason3Button: UIButton!
     @IBOutlet weak var reason4Button: UIButton!
-    @IBOutlet weak var reason5Button: UIButton!
 
 
     var selectedReason: String?
@@ -33,15 +32,20 @@ class ReportViewController: UIViewController {
         
         titleLabel.text = "You are Leaving call Early!"
         subtitleLabel.text = "Still want to end? Please tell us why"
-
-
-        otherReasonTextField.layer.cornerRadius = 14
-        otherReasonTextField.layer.masksToBounds = true
-        otherReasonTextField.backgroundColor = .systemGray6
+        
+        otherReasonTextField.layer.cornerRadius = 22
+        otherReasonTextField.layer.borderWidth = 1
+        otherReasonTextField.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        otherReasonTextField.backgroundColor = UIColor(hex: "#FBF8FF")
 
         styleReasonButtons()
 
+   
         submitButton.layer.cornerRadius = 22
+        submitButton.layer.borderWidth = 1
+        submitButton.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        submitButton.backgroundColor = UIColor(hex: "#5B3CC4")
+        submitButton.setTitleColor(.white, for: .normal)
     }
 
     func styleReasonButtons() {
@@ -49,24 +53,19 @@ class ReportViewController: UIViewController {
             reason1Button,
             reason2Button,
             reason3Button,
-            reason4Button,
-            reason5Button
+            reason4Button
         ]
 
         buttons.forEach { button in
             button?.layer.cornerRadius = 30
-            button?.tintColor = .red
+            button?.layer.borderWidth = 1
+            button?.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+            button?.backgroundColor = UIColor(hex: "#FBF8FF")
         }
     }
 
 
-    @IBAction func reasonTapped(_ sender: UIButton) {
 
-        resetButtons()
-
-        sender.alpha = 0.7
-        selectedReason = sender.titleLabel?.text
-    }
     
     
 
@@ -75,8 +74,7 @@ class ReportViewController: UIViewController {
             reason1Button,
             reason2Button,
             reason3Button,
-            reason4Button,
-            reason5Button
+            reason4Button
         ]
 
         buttons.forEach { btn in
@@ -96,6 +94,18 @@ class ReportViewController: UIViewController {
 
  
     }
+    
+    
+    
+    @IBAction func reasonTapped(_ sender: UIButton) {
+        resetButtons()
+
+        sender.alpha = 0.7
+        selectedReason = sender.titleLabel?.text
+        dismiss(animated: true)
+    }
+    
+    
 
 
 }

@@ -21,6 +21,8 @@ class RoleplaysViewController: UIViewController {
 
         setupSearchBar()
         setupCollectionView()
+        
+        collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
     }
 
     override func viewDidLayoutSubviews() {

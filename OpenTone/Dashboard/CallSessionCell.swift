@@ -20,11 +20,13 @@ class CallSessionCell: UICollectionViewCell {
         backgroundColor = baseCardColor
         layer.cornerRadius = 30
         clipsToBounds = true
+        layer.borderWidth = 1
+        layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
     }
     
      func configure(imageURL: String, labelText: String){
         image.image = UIImage(systemName: imageURL)
         buttonLabel.text = labelText
     }
-
+    
 }
