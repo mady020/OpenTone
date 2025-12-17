@@ -133,10 +133,5 @@ extension RoleplaysViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }
-    func roleplayCompleted() {
-
-        SessionProgressManager.shared.markCompleted(.roleplay)
-
-        navigationController?.popViewController(animated: true)
-    }
+   
 }

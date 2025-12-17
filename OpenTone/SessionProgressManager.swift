@@ -1,5 +1,3 @@
-
-
 import Foundation
 
 class SessionProgressManager {
@@ -11,65 +9,49 @@ class SessionProgressManager {
         case oneToOne
         case twoMinJam
         case roleplay
-        
+
         var durationInMinutes: Int {
             switch self {
-            case .oneToOne:
-                return 10
-            case .twoMinJam:
-                return 2
-            case .roleplay:
-                return 15
+            case .oneToOne: return 10
+            case .twoMinJam: return 2
+            case .roleplay: return 15
             }
         }
-        var xp: Int { 15 }
+
+        var xp: Int {
+            switch self {
+            case .oneToOne: return 20
+            case .twoMinJam: return 15
+            case .roleplay: return 25
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .oneToOne: return "1 to 1 Call"
+            case .twoMinJam: return "2 Min Session"
+            case .roleplay: return "Roleplay"
+            }
+        }
+
+        var iconName: String {
+            switch self {
+            case .oneToOne: return "phone.fill"
+            case .twoMinJam: return "mic.fill"
+            case .roleplay: return "theatermasks.fill"
+            }
+        }
     }
 
-    //private(set) var completedSessions: Set<SessionType> = []
-    private(set) var completedSessionRecords: [CompletedSession] = []
+    func markCompleted(_ type: SessionType, topic: String) {
 
-
-//    func markCompleted(_ type: SessionType) {
-//
-//        completedSessions.insert(type)
-//
-//        let record = CompletedSession(
-//            activityName: type.rawValue,
-//            durationInMinutes: type.durationInMinutes,
-//            xpGained: 15,
-//            date: Date()
-//        )
-//
-//        completedSessionRecords.append(record)
-//    }
-    func markCompleted(_ type: SessionType) {
-
-        print(" SESSION COMPLETED:", type.rawValue)
-
-        let session = CompletedSession(
-            activityName: type.rawValue,
-            durationInMinutes: type.durationInMinutes,
-            xpGained: type.xp,
-            date: Date()
+        StreakDataModel.shared.logSession(
+            title: type.title,
+            subtitle: "You completed a session",
+            topic: topic,
+            durationMinutes: type.durationInMinutes,
+            xp: type.xp,
+            iconName: type.iconName
         )
-
-        completedSessionRecords.append(session)
-
-        print("TOTAL SESSIONS:", completedSessionRecords.count)
     }
-
-    func isCompleted(_ type: SessionType) -> Bool {
-        completedSessionRecords.contains {
-            $0.activityName == type.rawValue
-        }
-    }
-    func overallProgress() -> Float {
-        Float(completedSessionRecords.count) / 3.0
-    }
-    func totalMinutesCompleted() -> Int {
-        completedSessionRecords.reduce(0) {
-            $0 + $1.durationInMinutes
-        }
-    }
-
 }

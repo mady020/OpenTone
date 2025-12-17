@@ -8,19 +8,20 @@ class StreakDataModel {
     private let documentsDirectory = FileManager.default.urls(
         for: .documentDirectory, in: .userDomainMask
     ).first!
-    private let archiveURL: URL
-    private let dailyArchiveURL =
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("dailyProgress.json")
-    
+    private let streakURL: URL
+    private let sessionsURL: URL
+
+    private var sessions: [CompletedSession] = []
     private var streak: Streak?
 
     private init() {
-        archiveURL = documentsDirectory.appendingPathComponent("streak").appendingPathExtension(
-            "json")
+        streakURL = documentsDirectory.appendingPathComponent("streak.json")
+        sessionsURL = documentsDirectory.appendingPathComponent("sessions.json")
         loadStreak()
+        loadSessions()
     }
 
+    // MARK: - Streak Management
     func getStreak() -> Streak? {
         return streak
     }
@@ -39,7 +40,7 @@ class StreakDataModel {
             currentStreak.lastActiveDate = Date()
             streak = currentStreak
         } else {
-            streak = Streak(commitment : 0 , currentCount: 1, longestCount: 1, lastActiveDate: Date())
+            streak = Streak(commitment: 0, currentCount: 1, longestCount: 1, lastActiveDate: Date())
         }
         saveStreak()
     }
@@ -49,89 +50,118 @@ class StreakDataModel {
             currentStreak.currentCount = 0
             streak = currentStreak
         } else {
-            streak = Streak(commitment : 0 , currentCount: 0, longestCount: 0, lastActiveDate: nil)
+            streak = Streak(commitment: 0, currentCount: 0, longestCount: 0, lastActiveDate: nil)
         }
         saveStreak()
     }
 
     func deleteStreak() {
         streak = nil
-        try? FileManager.default.removeItem(at: archiveURL)
+        try? FileManager.default.removeItem(at: streakURL)
     }
 
     private func loadStreak() {
-        if let savedStreak = loadStreakFromDisk() {
-            streak = savedStreak
+        if let data = try? Data(contentsOf: streakURL),
+           let decoded = try? JSONDecoder().decode(Streak.self, from: data) {
+            streak = decoded
         } else {
-            streak = loadSampleStreak()
+            streak = Streak(commitment: 0, currentCount: 0, longestCount: 0, lastActiveDate: nil)
         }
-    }
-
-    private func loadStreakFromDisk() -> Streak? {
-        guard let codedStreak = try? Data(contentsOf: archiveURL) else { return nil }
-        let decoder = JSONDecoder()
-        return try? decoder.decode(Streak.self, from: codedStreak)
     }
 
     private func saveStreak() {
         guard let streak = streak else { return }
-        let encoder = JSONEncoder()
-        let codedStreak = try? encoder.encode(streak)
-        try? codedStreak?.write(to: archiveURL)
-    }
-    
-   
-
-    private func loadSampleStreak() -> Streak {
-        return Streak(commitment : 0 , currentCount: 0, longestCount: 0, lastActiveDate: nil)
-    }
-    func saveTodayProgress(minutes: Int) {
-        let today = Calendar.current.startOfDay(for: Date())
-        let progress = DailyProgress(date: today, minutesCompleted: minutes)
-
-        let encoder = JSONEncoder()
-        if let data = try? encoder.encode(progress) {
-            try? data.write(to: dailyArchiveURL)
+        if let data = try? JSONEncoder().encode(streak) {
+            try? data.write(to: streakURL)
         }
     }
-    func loadYesterdayProgress() -> DailyProgress? {
-        guard let data = try? Data(contentsOf: dailyArchiveURL),
-              let saved = try? JSONDecoder().decode(DailyProgress.self, from: data)
-        else { return nil }
 
-        let yesterday =
-            Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-
-        if Calendar.current.isDate(saved.date, inSameDayAs: yesterday) {
-            return saved
+    // MARK: - Sessions Management
+    private func loadSessions() {
+        guard let data = try? Data(contentsOf: sessionsURL),
+              let decoded = try? JSONDecoder().decode([CompletedSession].self, from: data)
+        else {
+            sessions = []
+            return
         }
-        return nil
+        sessions = decoded
     }
+
+    private func saveSessions() {
+        if let data = try? JSONEncoder().encode(sessions) {
+            try? data.write(to: sessionsURL)
+        }
+    }
+
+    func logSession(title: String,
+                    subtitle: String,
+                    topic: String,
+                    durationMinutes: Int,
+                    xp: Int,
+                    iconName: String) {
+        let session = CompletedSession(
+            id: UUID(),
+            date: Date(),
+            title: title,
+            subtitle: subtitle,
+            topic: topic,
+            durationMinutes: durationMinutes,
+            xp: xp,
+            iconName: iconName
+        )
+
+        sessions.append(session)
+        saveSessions()
+
+        // Update streak for today
+        updateStreakForToday()
+    }
+
+    func sessions(for date: Date) -> [CompletedSession] {
+        let start = Calendar.current.startOfDay(for: date)
+        return sessions.filter { Calendar.current.isDate($0.date, inSameDayAs: start) }
+    }
+
+    func totalMinutes(for date: Date) -> Int {
+        return sessions(for: date).reduce(0) { $0 + $1.durationMinutes }
+    }
+
+    func weeklyStats(referenceDate: Date = Date()) -> (totalMinutes: Int, bestDay: Date?) {
+        let calendar = Calendar.current
+        guard let weekStart = calendar.dateInterval(of: .weekOfYear, for: referenceDate)?.start else {
+            return (0, nil)
+        }
+
+        var totalsByDay: [Date: Int] = [:]
+
+        for i in 0..<7 {
+            guard let day = calendar.date(byAdding: .day, value: i, to: weekStart) else { continue }
+            totalsByDay[calendar.startOfDay(for: day)] = totalMinutes(for: day)
+        }
+
+        let totalWeek = totalsByDay.values.reduce(0, +)
+        let bestDay = totalsByDay.max { $0.value < $1.value }?.key
+
+        return (totalWeek, bestDay)
+    }
+
+    // MARK: - Streak Today
     func updateStreakForToday() {
         let today = Calendar.current.startOfDay(for: Date())
 
         if var streak = streak {
             if let lastDate = streak.lastActiveDate {
                 let lastDay = Calendar.current.startOfDay(for: lastDate)
-
-                let diff = Calendar.current.dateComponents(
-                    [.day],
-                    from: lastDay,
-                    to: today
-                ).day ?? 0
+                let diff = Calendar.current.dateComponents([.day], from: lastDay, to: today).day ?? 0
 
                 if diff == 0 {
-                    // Already counted today → do nothing
-                    return
+                    return // Already counted today
                 } else if diff == 1 {
-                    // Consecutive day
                     streak.currentCount += 1
                 } else {
-                    // Missed one or more days
                     streak.currentCount = 1
                 }
             } else {
-                // First ever activity
                 streak.currentCount = 1
             }
 
@@ -139,16 +169,9 @@ class StreakDataModel {
             streak.lastActiveDate = today
             self.streak = streak
         } else {
-            // No streak exists yet
-            streak = Streak(
-                commitment: 0,
-                currentCount: 1,
-                longestCount: 1,
-                lastActiveDate: today
-            )
+            streak = Streak(commitment: 0, currentCount: 1, longestCount: 1, lastActiveDate: today)
         }
 
         saveStreak()
     }
-
 }

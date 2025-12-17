@@ -184,16 +184,21 @@ extension StartJamViewController: TimerManagerDelegate {
     func timerManagerDidUpdateMainTimer(_ formattedTime: String) {
         timerLabel.text = formattedTime
     }
-
+ // session history record 
     func timerManagerDidFinish() {
         timerLabel.text = "00:00"
+
+        //  LOG SESSION FOR HISTORY & PROGRESS
+        StreakDataModel.shared.logSession(
+            title: "2 Min Session",
+            subtitle: "You completed a speaking session",
+            topic: topicText,          // REAL topic user spoke on
+            durationMinutes: 2,
+            xp: 15,
+            iconName: "mic.fill"
+        )
     }
+
     
-    func timerDidFinish() {
-
-        SessionProgressManager.shared.markCompleted(.twoMinJam)
-
-        navigationController?.popViewController(animated: true)
-    }
 
 }
