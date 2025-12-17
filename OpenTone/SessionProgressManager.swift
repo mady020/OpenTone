@@ -12,6 +12,17 @@ class SessionProgressManager {
         case oneToOne
         case twoMinJam
         case roleplay
+        
+        var durationInMinutes: Int {
+            switch self {
+            case .oneToOne:
+                return 10
+            case .twoMinJam:
+                return 2
+            case .roleplay:
+                return 15
+            }
+        }
     }
 
     private(set) var completedSessions: Set<SessionType> = []
@@ -27,4 +38,10 @@ class SessionProgressManager {
     func overallProgress() -> Float {
         return Float(completedSessions.count) / 3.0
     }
+    func totalMinutesCompleted() -> Int {
+        return completedSessions.reduce(into: 0) {
+            $0 + $1.durationInMinutes
+        }
+    }
+
 }
