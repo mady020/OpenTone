@@ -428,37 +428,41 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zIg-Tq-Sr7">
                                 <rect key="frame" x="0.0" y="625" width="393" height="100"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="150" translatesAutoresizingMaskIntoConstraints="NO" id="BNO-KX-B2F">
-                                        <rect key="frame" x="16" y="16" width="361" height="68"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="auu-2r-R14">
-                                                <rect key="frame" x="0.0" y="0.0" width="105.66666666666667" height="68"/>
-                                                <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" image="mic" catalog="system"/>
-                                                <connections>
-                                                    <action selector="micTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="KNO-bZ-piU"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9r6-DC-1me">
-                                                <rect key="frame" x="255.66666666666671" y="0.0" width="105.33333333333334" height="68"/>
-                                                <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" image="arrow.clockwise" catalog="system"/>
-                                                <connections>
-                                                    <action selector="replayTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="TUY-nM-OaT"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                    </stackView>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9r6-DC-1me">
+                                        <rect key="frame" x="16" y="28" width="56" height="56"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="56" id="Ah2-eU-YwW"/>
+                                            <constraint firstAttribute="width" constant="56" id="YHW-Nm-avr"/>
+                                        </constraints>
+                                        <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" image="arrow.clockwise" catalog="system"/>
+                                        <connections>
+                                            <action selector="replayTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="TUY-nM-OaT"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="auu-2r-R14">
+                                        <rect key="frame" x="321" y="28" width="56" height="56"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="56" id="quf-Ae-miw"/>
+                                            <constraint firstAttribute="height" constant="56" id="vmm-s6-5XW"/>
+                                        </constraints>
+                                        <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" image="mic.fill" catalog="system"/>
+                                        <connections>
+                                            <action selector="micTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="KNO-bZ-piU"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="BNO-KX-B2F" secondAttribute="trailing" constant="16" id="JW9-5J-yuX"/>
+                                    <constraint firstAttribute="bottom" secondItem="auu-2r-R14" secondAttribute="bottom" constant="16" id="76t-a6-INk"/>
+                                    <constraint firstItem="9r6-DC-1me" firstAttribute="leading" secondItem="zIg-Tq-Sr7" secondAttribute="leading" constant="16" id="8sl-9K-jcd"/>
                                     <constraint firstAttribute="height" constant="100" id="KuT-aI-UUx"/>
-                                    <constraint firstItem="BNO-KX-B2F" firstAttribute="leading" secondItem="zIg-Tq-Sr7" secondAttribute="leading" constant="16" id="hGF-nE-R1y"/>
-                                    <constraint firstItem="BNO-KX-B2F" firstAttribute="top" secondItem="zIg-Tq-Sr7" secondAttribute="top" constant="16" id="uj5-pf-m0T"/>
-                                    <constraint firstAttribute="bottom" secondItem="BNO-KX-B2F" secondAttribute="bottom" constant="16" id="x82-Zl-4CB"/>
+                                    <constraint firstAttribute="trailing" secondItem="auu-2r-R14" secondAttribute="trailing" constant="16" id="Q9Z-bf-Vgb"/>
+                                    <constraint firstItem="auu-2r-R14" firstAttribute="firstBaseline" secondItem="9r6-DC-1me" secondAttribute="baseline" id="VBK-2B-oBF"/>
+                                    <constraint firstAttribute="bottom" secondItem="9r6-DC-1me" secondAttribute="bottom" constant="16" id="yXP-n4-ylS"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -558,14 +562,14 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="PointsLabel" destination="o76-vS-DRw" id="YKc-A6-kg4"/>
-                        <outlet property="ScoreLabel" destination="gq1-tL-nE0" id="JXe-Ar-xt5"/>
+                        <outlet property="PointsLabel" destination="o76-vS-DRw" id="ctg-89-pjL"/>
+                        <outlet property="ScoreLabel" destination="gq1-tL-nE0" id="div-Nj-3Hz"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Wh9-f2-vI1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="mFw-fi-6s6" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3494" y="131"/>
+            <point key="canvasLocation" x="3493.8931297709923" y="130.98591549295776"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="5N1-P9-Xcl">
@@ -589,7 +593,7 @@
     <resources>
         <image name="arrow.clockwise" catalog="system" width="110" height="128"/>
         <image name="medal.fill" catalog="system" width="121" height="128"/>
-        <image name="mic" catalog="system" width="110" height="128"/>
+        <image name="mic.fill" catalog="system" width="110" height="128"/>
         <image name="theatermasks" catalog="system" width="128" height="87"/>
         <image name="theatermasks.fill" catalog="system" width="128" height="91"/>
         <image name="xmark" catalog="system" width="128" height="113"/>
