@@ -34,6 +34,7 @@ class CountryPickerViewController: UIViewController {
         setupUI()
         setupTable()
         setupActions()
+        navigationItem.title = "Select your country"
     }
 
     private func setupUI() {

@@ -50,9 +50,7 @@ class TimerRingView: UIView {
         backgroundLayer.lineCap = .round
 
         progressLayer.path = path.cgPath
-        progressLayer.strokeColor = UIColor(
-            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
-        ).cgColor
+        progressLayer.strokeColor = selectedCardColor.cgColor
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round

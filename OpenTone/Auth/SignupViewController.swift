@@ -22,7 +22,12 @@ class SignupViewController: UIViewController {
         guard let name = nameField.text , let  email = emailField.text , let passwd = passwordField.text else{
             return
         }
-        let user: User = User(name: name, email: email, password: passwd, country: nil)
+        if(name.isEmpty || email.isEmpty || passwd.isEmpty) {
+            return
+        }
+        
+        
+        let user: User = User(name: name, email: email, password: passwd, country: nil, avatar: "pp1")
         goToUserInfo(user: user)
     }
     @IBAction func signinButtonTapped(_ sender: UIButton) {

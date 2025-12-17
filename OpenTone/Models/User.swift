@@ -53,7 +53,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
         self.age = age
         self.gender = gender
         self.bio = bio
-        self.englishLevel = englishLevel
+        self.englishLevel = .beginner
         self.interests = interests
         self.currentPlan = currentPlan
         self.avatar = avatar

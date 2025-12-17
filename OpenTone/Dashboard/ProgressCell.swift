@@ -23,6 +23,7 @@ class ProgressCell: UICollectionViewCell {
         layer.cornerRadius = 30
         clipsToBounds = true
         progressRingView.setProgress(value: 1, max: 5)
+        progressRingView.tintColor = UIColor(hex: "#5B3CC4")
         backgroundColor = baseCardColor
         layer.borderWidth = 1
         layer.borderColor = UIColor(hex: "#E6E3EE").cgColor

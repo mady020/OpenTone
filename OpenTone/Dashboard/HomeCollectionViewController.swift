@@ -12,7 +12,10 @@ enum DashboardSection: Int, CaseIterable {
 
 class HomeCollectionViewController: UICollectionViewController {
     
-    var user: User?
+
+    var lastTask: Activity?
+    var currentProgress: Int?
+    var commitment : Int?
     
     var isNewUser = false
     
@@ -107,6 +110,12 @@ class HomeCollectionViewController: UICollectionViewController {
             cell.backgroundColor = baseCardColor
             cell.overallProgressButton.backgroundColor = selectedCardColor
             cell.progressRingView.backgroundColor = baseCardColor
+            cell.progressLabel.text = "Practice \((commitment ?? 0) - (currentProgress ?? 0)) more minutes to complete today’s goal"
+        
+            cell.progressRingView.setProgress(
+                value: CGFloat(currentProgress ?? 0) ,
+                max: CGFloat(commitment ?? 0))
+            
             return cell
 
         case .completeTask:

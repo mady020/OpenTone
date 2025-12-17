@@ -106,7 +106,7 @@ final class CommitmentViewController: UIViewController {
 
     @IBAction private func continueTapped(_ sender: UIButton) {
         guard let selected = selectedOption else { return }
-        user?.streak?.commitment = selected.number
+        user?.streak = Streak(commitment: selected.number, currentCount: 1, longestCount: 0)
         goToDashboard()
     }
 

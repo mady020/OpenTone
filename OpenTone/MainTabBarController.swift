@@ -9,44 +9,28 @@ class MainTabBarController: UITabBarController, UITabBarControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(user ?? "")
         self.delegate = self
+        
+
+        guard
+            let nav = viewControllers?[3] as? UINavigationController,
+            let userProfile = nav.viewControllers.first as? ProfileStoryboardCollectionViewController
+        else { return }
+
+        userProfile.user = user
+        
+        guard
+            let nav = viewControllers?[0] as? UINavigationController,
+            let home = nav.viewControllers.first as? HomeCollectionViewController
+        else { return }
+
+        home.currentProgress = user?.streak?.currentCount ?? 0
+        home.commitment = user?.streak?.commitment ?? 0
+        home.lastTask = nil
+        home.isNewUser = true
+
+
+
     }
-
-    // Intercept Tab Bar Tap
-//    func tabBarController(_ tabBarController: UITabBarController,
-//                          shouldSelect viewController: UIViewController) -> Bool {
-//        
-//        // Only block switching if roleplay is active & user taps a **different tab**
-//        if isRoleplayInProgress && viewController != tabBarController.selectedViewController {
-//            pendingTab = viewController
-//            //showProgressAlert()  // Show Alert Instead of UI Screen
-//            return false
-//        }
-//        
-//        return true
-//    }
-
-//    func showProgressAlert() {
-//        guard let currentVC = selectedViewController else { return }
-//
-//        let alert = UIAlertController(
-//            title: "Save Progress?",
-//            message: "Your progress will be lost if you exit this role-play.",
-//            preferredStyle: .alert
-//        )
-//
-//        alert.addAction(UIAlertAction(title: "Continue Here", style: .cancel))
-//
-//        alert.addAction(UIAlertAction(title: "Exit", style: .destructive, handler: { _ in
-//            self.isRoleplayInProgress = false
-//            if let tab = self.pendingTab {
-//                self.selectedViewController = tab
-//            }
-//            self.pendingTab = nil
-//        }))
-//
-//        currentVC.present(alert, animated: true)
-//    }
 
 }

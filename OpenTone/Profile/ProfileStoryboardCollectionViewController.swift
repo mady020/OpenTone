@@ -6,6 +6,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     
     private var callTimer: Timer?
     private var callStartDate: Date?
+    
+    var user: User?
 
     
     var titleText = "Profile"
@@ -13,11 +15,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     var isComingFromCall = false
     
     var isInCall = false
-
-
-    private let interests = [
-        "Movies", "Technology", "Gaming", "Travel", "Food", "Art"
-    ]
 
     private let achievements = [
         ("First Call", "Completed your first call"),
@@ -87,7 +84,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             case .profile:
                 return 1
             case .interests:
-                return interests.count
+                return user?.interests?.count ?? 0
             case .stats:
                 return 1
             case .actions:
@@ -100,7 +97,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         case .profile:
             return 1
         case .interests:
-            return interests.count
+            return user?.interests?.count ?? 0
         case .stats:
             return 1
         case .achievements:
@@ -129,14 +126,15 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 withReuseIdentifier: "ProfileCell",
                 for: indexPath
             ) as! ProfileCell
-
+            
+            
             cell.configure(
-                name: "Alex Johnson",
-                country: "🇮🇳 India",
-                level: "Intermediate",
-                bio: "Learning communication skills through daily practice and real conversations.",
-                streakText: "🔥 7 day streak",
-                avatar: UIImage(named: "pp1")
+                name: user?.name ?? "",
+                country: "\(user?.country?.flag ?? "") \(user?.country?.name ?? "")",
+                level: user?.englishLevel?.rawValue.capitalized ?? "",
+                bio: user?.bio ?? "",
+                streakText: "🔥 \(user?.streak?.currentCount ?? 0) day streak",
+                avatar: UIImage(named: user?.avatar ?? "pp1")
             )
             return cell
 
@@ -146,7 +144,11 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 for: indexPath
             ) as! InterestCell
 
-            cell.configure(title: interests[indexPath.item])
+    
+            let interests: [InterestItem] = Array(user?.interests ?? [])
+
+           
+            cell.configure(title:  interests[indexPath.item] .title)
             return cell
 
         case .stats:
@@ -155,7 +157,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 for: indexPath
             ) as! StatsCell
 
-            cell.configure(calls: 12, roleplays: 8, jams: 5)
+            cell.configure(calls: user?.callRecordIDs.count ?? 0, roleplays: user?.roleplayIDs.count ?? 0, jams: user?.jamSessionIDs.count ?? 0)
             return cell
 
         case .achievements:
