@@ -12,9 +12,10 @@ struct WeekdayStreak {
     let target: Int
 
     var progress: CGFloat {
-        return CGFloat(completed) / CGFloat(target)
-    }
-}
+          guard target > 0 else { return 0 }
+          return CGFloat(completed) / CGFloat(target)
+      }
+  }
 
 class StreakViewController: UIViewController {
     @IBOutlet weak var comparisonLabel: UILabel!
@@ -22,12 +23,20 @@ class StreakViewController: UIViewController {
     @IBOutlet weak var percentLabel: UILabel!
     
     @IBAction func historyButtonTapped(_ sender: UIButton) {
-       // let storyboard = UIStoryboard(name: "streak-progess", bundle: nil)
-        print("History tapped")   // IMPORTANT → test this first!
+        guard let selectedIndex = selectedWeekdayIndex else { return }
 
-        let vc = storyboard?.instantiateViewController(withIdentifier: "HistoryViewController") as! HistoryViewController
-        navigationController?.pushViewController(vc, animated: true)
-    }
+                    let selectedDate = dateForWeekday(at: selectedIndex)
+                    let dayKey = Calendar.current.startOfDay(for: selectedDate)
+
+                    let vc = storyboard?.instantiateViewController(
+                        withIdentifier: "HistoryViewController"
+                    ) as! HistoryViewController
+
+                    vc.items = historyByDate[dayKey] ?? []
+                    vc.selectedDate = selectedDate
+
+                    navigationController?.pushViewController(vc, animated: true)
+                }
     
     @IBOutlet weak var bestDayLabel: UILabel!
     @IBOutlet weak var totalWeekTimeLabel: UILabel!
@@ -38,306 +47,294 @@ class StreakViewController: UIViewController {
     private var hasAnimated = false
     private var weekdayData: [WeekdayStreak] = []
     private var selectedWeekdayIndex: Int?
+    private let dailyTargetSessions = 3
+    
+    private var historyByDate: [Date: [HistoryItem]] = [:]
 
-    var historyItemsArray: [HistoryItem] = [
-        HistoryItem(
-            title: "2 Min Session",
-            subtitle: "You completed 2 min session",
-            topic: "Time Travel",
-            duration: "2 min",
-            xp: "15 XP",
-            iconName: "mic.fill"
-        ),
-        HistoryItem(
-            title: "RolePlays",
-            subtitle: "You completed RolePlays session",
-            topic: "Time Travel",
-            duration: "15 min",
-            xp: "15 XP",
-            iconName: "theatermasks.fill"
-        ),
-        HistoryItem(
-            title: "1 to 1 Call",
-            subtitle: "You completed 1 to 1 call session",
-            topic: "—",
-            duration: "10 min",
-            xp: "15 XP",
-            iconName: "phone.fill"
-        )
-
-    ]
+      
+      /// USER JOINED YESTERDAY
+      private let joinDate: Date = Calendar.current.date(
+          byAdding: .day,
+          value: -1,
+          to: Date()
+      )!
     
     override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+            super.viewDidAppear(animated)
 
-        guard !hasAnimated else { return }
-        hasAnimated = true
+            guard !hasAnimated else { return }
+            hasAnimated = true
 
-        let todayIndex = Calendar.current.component(.weekday, from: Date()) - 1
-        selectedWeekdayIndex = todayIndex
-        refreshWeekdayEmphasis()
- 
-        loadWeekdayData()
-        animateWeekdays()
-        animateBigRing()
-        updateGoalLabel()
-        updateYesterdayComparisonLabel()
-        updateWeeklyInsights()
-        updateNavigationDateTitle()
-        emphasizeTodayRingAndLabel()
-        setupWeekdayRingTaps()
+            loadWeekdayData()
+            loadSampleHistoryData()
 
-    }
 
-    
-    func animateBigRing() {
+            let todayIndex = mondayBasedWeekdayIndex(from: Date())
+            selectedWeekdayIndex = todayIndex
 
-        let totalCompleted = weekdayData.reduce(0) { $0 + $1.completed }
-        let totalTarget = weekdayData.reduce(0) { $0 + $1.target }
-
-        guard totalTarget > 0 else {
-            bigCircularRing.setProgress(0)
-            percentLabel.text = "0%"
-            return
+            animateWeekdays()
+            animateBigRing()
+            updateGoalLabel()
+            updateYesterdayComparisonLabel()
+            updateWeeklyInsights()
+            updateNavigationDateTitle()
+            emphasizeTodayRingAndLabel()
+            setupWeekdayRingTaps()
         }
 
-        let rawProgress = CGFloat(totalCompleted) / CGFloat(totalTarget)
-        let safeProgress = min(max(rawProgress, 0), 1)   
+        
+        private func loadSampleHistoryData() {
 
-        bigCircularRing.setProgress(safeProgress)
-        percentLabel.text = "\(Int(safeProgress * 100))%"
-    }
+               let calendar = Calendar.current
+               let today = calendar.startOfDay(for: Date())
+               let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
 
-    func animateWeekdays() {
+               historyByDate[yesterday] = [
+                   HistoryItem(
+                       title: "RolePlays",
+                       subtitle: "You completed a roleplay session",
+                       topic: "Interview Practice",
+                       duration: "15 min",
+                       xp: "25 XP",
+                       iconName: "theatermasks.fill"
+                   )
+               ]
 
-        for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
+               historyByDate[today] = [
+                   HistoryItem(
+                       title: "2 Min Session",
+                       subtitle: "You completed a speaking session",
+                       topic: "Time Travel",
+                       duration: "2 min",
+                       xp: "15 XP",
+                       iconName: "mic.fill"
+                   ),
+                   HistoryItem(
+                       title: "1 to 1 Call",
+                       subtitle: "You completed a live call",
+                       topic: "Mock Interview",
+                       duration: "10 min",
+                       xp: "20 XP",
+                       iconName: "phone.fill"
+                   )
+               ]
+           }
 
-            guard index < weekdayData.count else { return }
+        // Sample DataSet
 
-            let dayStack = view as! UIStackView
-            let ringView = dayStack.arrangedSubviews[1] as! WeekdayRingView
+        func loadWeekdayData() {
 
-            let rawProgress = weekdayData[index].progress
-            let progress = min(max(rawProgress, 0), 1)  
+            weekdayData = Array(
+                repeating: WeekdayStreak(completed: 0, target: dailyTargetSessions),
+                count: 7
+            )
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1 * Double(index)) {
-                ringView.animate(progress: progress)
+            let calendar = Calendar.current
+            let todayIndex = mondayBasedWeekdayIndex(from: Date())
+            let yesterdayIndex = mondayBasedWeekdayIndex(from: joinDate)
+
+            // SAMPLE: yesterday progress
+            weekdayData[yesterdayIndex] = WeekdayStreak(
+                completed: 2,
+                target: dailyTargetSessions
+            )
+
+            // SAMPLE: today progress
+            weekdayData[todayIndex] = WeekdayStreak(
+                completed: 1,
+                target: dailyTargetSessions
+            )
+        }
+
+        func mondayBasedWeekdayIndex(from date: Date) -> Int {
+            let weekday = Calendar.current.component(.weekday, from: date)
+            return (weekday + 5) % 7
+        }
+
+        // Availability Rules
+        func isDayEnabled(index: Int) -> Bool {
+
+            let calendar = Calendar.current
+            let today = Date()
+
+            let dateForIndex = dateForWeekday(at: index)
+
+            if calendar.compare(dateForIndex, to: today, toGranularity: .day) == .orderedDescending {
+                return false // future day
+            }
+
+            if calendar.compare(dateForIndex, to: joinDate, toGranularity: .day) == .orderedAscending {
+                return false // before join date
+            }
+
+            return true
+        }
+
+        // Animations
+
+        func animateBigRing() {
+
+            let todayIndex = mondayBasedWeekdayIndex(from: Date())
+            let progress = weekdayData[todayIndex].progress
+
+            bigCircularRing.setProgress(progress)
+            percentLabel.text = "\(Int(progress * 100))%"
+        }
+
+        func animateWeekdays() {
+
+            for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
+
+                guard
+                    index < weekdayData.count,
+                    let dayStack = view as? UIStackView,
+                    let ringView = dayStack.arrangedSubviews[1] as? WeekdayRingView
+                else { continue }
+
+                guard isDayEnabled(index: index) else {
+                    ringView.animate(progress: 0)
+                    ringView.alpha = 0.3
+                    continue
+                }
+
+                let progress = weekdayData[index].progress
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1 * Double(index)) {
+                    ringView.animate(progress: progress)
+                }
             }
         }
-    }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showHistorySegue" {
-            if let dest = segue.destination as? HistoryViewController {
-                dest.items = self.historyItemsArray   // your real data
-            }
-        }
-    }
-    func loadWeekdayData() {
+        // Taps
 
-        // Read from SessionProgressManager
-        let manager = SessionProgressManager.shared
-        let completedCount = manager.completedSessions.count
-        let todayProgress = completedCount
-        let target = 3   // total sessions per day
+        func setupWeekdayRingTaps() {
 
-        // Prepare empty week
-        weekdayData = Array(
-            repeating: WeekdayStreak(completed: 0, target: target),
-            count: 7
-        )
+            for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
 
-        // Put progress only on TODAY
-        let todayIndex = Calendar.current.component(.weekday, from: Date()) - 1
+                guard
+                    let dayStack = view as? UIStackView,
+                    let ringView = dayStack.arrangedSubviews[1] as? WeekdayRingView
+                else { continue }
 
-        weekdayData[todayIndex] = WeekdayStreak(
-            completed: todayProgress,
-            target: target
-        )
-    }
-
-    func updateGoalLabel() {
-
-        let completedMinutes =
-            SessionProgressManager.shared.totalMinutesCompleted()
-
-        let completedHours = Double(completedMinutes) / 60
-        let goalHours = Double(dailyGoalMinutes) / 60
-
-        goalLabel.text =
-            String(format: "%.1fh / %.0fh goal", completedHours, goalHours)
-    }
-    func updateYesterdayComparisonLabel() {
-
-        let todayMinutes =
-            SessionProgressManager.shared.totalMinutesCompleted()
-
-        guard let yesterday =
-            StreakDataModel.shared.loadYesterdayProgress()
-        else {
-            comparisonLabel.text = "No data from yesterday"
-            return
-        }
-
-        let diffMinutes = todayMinutes - yesterday.minutesCompleted
-        let diffHours = Double(abs(diffMinutes)) / 60
-
-        if diffMinutes >= 0 {
-            comparisonLabel.text =
-                String(format: "+%.1fh from yesterday", diffHours)
-        } else {
-            comparisonLabel.text =
-                String(format: "-%.1fh from yesterday", diffHours)
-        }
-    }
-    func updateWeeklyInsights() {
-
-        let manager = SessionProgressManager.shared
-
-        var minutesPerDay: [Int: Int] = [:]
-
-        for session in manager.completedSessions {
-
-            let weekday =
-                Calendar.current.component(.weekday, from: Date())
-
-            minutesPerDay[weekday, default: 0] += session.durationInMinutes
-        }
-
-        // Total time this week
-        let totalMinutes = minutesPerDay.values.reduce(0, +)
-        let totalHours = Double(totalMinutes) / 60
-
-        totalWeekTimeLabel.text =
-            String(format: "This week: %.1fh", totalHours)
-
-        // Best day
-        if let best = minutesPerDay.max(by: { $0.value < $1.value }) {
-
-            let dayName = Calendar.current.weekdaySymbols[best.key - 1]
-            bestDayLabel.text = "Best day: \(dayName)"
-
-        } else {
-            bestDayLabel.text = "Best day: —"
-        }
-    }
-    func updateNavigationDateTitle(for date: Date = Date()) {
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy"
-
-        navigationItem.title = formatter.string(from: date)
-    }
-
-    func emphasizeTodayRingAndLabel() {
-
-        let todayIndex =
-            Calendar.current.component(.weekday, from: Date()) - 1
-        // Sunday = 0
-
-        for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
-
-            guard
-                let dayStack = view as? UIStackView,
-                let dayLabel = dayStack.arrangedSubviews.first as? UILabel,
-                let ringView = dayStack.arrangedSubviews[1] as? WeekdayRingView
-            else { continue }
-
-            let isToday = index == todayIndex
-
-            // Ring emphasis (size + thickness)
-            ringView.setEmphasis(isToday: isToday)
-
-            // Label emphasis (bold)
-            dayLabel.font = isToday
-                ? UIFont.systemFont(ofSize: dayLabel.font.pointSize, weight: .semibold)
-                : UIFont.systemFont(ofSize: dayLabel.font.pointSize, weight: .regular)
-        }
-    }
-    
-    func setupWeekdayRingTaps() {
-
-        for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
-
-            guard
-                let dayStack = view as? UIStackView,
-                let ringView = dayStack.arrangedSubviews[1] as? WeekdayRingView
-            else { continue }
-
-            ringView.onTap = { [weak self] in
-                self?.showProgressForDay(at: index)
                 ringView.onTap = { [weak self] in
-                    guard let self = self else { return }
+                    guard
+                        let self = self,
+                        self.isDayEnabled(index: index)
+                    else { return }
 
                     self.selectedWeekdayIndex = index
                     self.refreshWeekdayEmphasis()
                     self.showProgressForDay(at: index)
                 }
+            }
+        }
 
+        // Selection
+
+        func showProgressForDay(at index: Int) {
+
+            guard index < weekdayData.count else { return }
+
+            let progress = weekdayData[index].progress
+
+            bigCircularRing.setProgress(progress)
+            percentLabel.text = "\(Int(progress * 100))%"
+
+            updateNavigationDateTitle(for: dateForWeekday(at: index))
+        }
+
+        func dateForWeekday(at index: Int) -> Date {
+
+            let calendar = Calendar.current
+            let today = Date()
+            let todayIndex = mondayBasedWeekdayIndex(from: today)
+            let diff = index - todayIndex
+
+            return calendar.date(byAdding: .day, value: diff, to: today) ?? today
+        }
+
+        // Labels
+
+        func updateGoalLabel() {
+
+            let completedMinutes = 60 // sample
+            let completedHours = Double(completedMinutes) / 60
+            let goalHours = Double(dailyGoalMinutes) / 60
+
+            goalLabel.text =
+                String(format: "%.1fh / %.0fh goal", completedHours, goalHours)
+        }
+
+        func updateYesterdayComparisonLabel() {
+            comparisonLabel.text = "+0.5h from yesterday"
+        }
+
+        func updateWeeklyInsights() {
+            totalWeekTimeLabel.text = "This week: 1.5h"
+            bestDayLabel.text = "Best day: Yesterday"
+        }
+
+        func updateNavigationDateTitle(for date: Date = Date()) {
+
+            let formatter = DateFormatter()
+            formatter.dateFormat = "d MMM yyyy"
+            navigationItem.title = formatter.string(from: date)
+        }
+
+        // Emphasis
+
+        func emphasizeTodayRingAndLabel() {
+
+            let todayIndex = mondayBasedWeekdayIndex(from: Date())
+
+            for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
+
+                guard
+                    let dayStack = view as? UIStackView,
+                    let dayLabel = dayStack.arrangedSubviews.first as? UILabel,
+                    let ringView = dayStack.arrangedSubviews[1] as? WeekdayRingView
+                else { continue }
+
+                let enabled = isDayEnabled(index: index)
+                let isToday = index == todayIndex
+
+                ringView.setEmphasis(isToday: isToday && enabled)
+                ringView.alpha = enabled ? 1.0 : 0.3
+
+                dayLabel.alpha = enabled ? 1.0 : 0.3
+                dayLabel.font = isToday
+                    ? .systemFont(ofSize: dayLabel.font.pointSize, weight: .semibold)
+                    : .systemFont(ofSize: dayLabel.font.pointSize, weight: .regular)
+            }
+        }
+
+        func refreshWeekdayEmphasis() {
+
+            let todayIndex = mondayBasedWeekdayIndex(from: Date())
+
+            for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
+
+                guard
+                    let dayStack = view as? UIStackView,
+                    let dayLabel = dayStack.arrangedSubviews.first as? UILabel,
+                    let ringView = dayStack.arrangedSubviews[1] as? WeekdayRingView
+                else { continue }
+
+                let enabled = isDayEnabled(index: index)
+                let isToday = index == todayIndex
+                let isSelected = index == selectedWeekdayIndex
+
+                ringView.setEmphasis(
+                    isToday: isToday && enabled,
+                    isSelected: isSelected && enabled
+                )
+
+                ringView.alpha = enabled ? 1.0 : 0.3
+                dayLabel.alpha = enabled ? 1.0 : 0.3
+
+                dayLabel.font = (isToday || isSelected)
+                    ? .systemFont(ofSize: dayLabel.font.pointSize, weight: .semibold)
+                    : .systemFont(ofSize: dayLabel.font.pointSize, weight: .regular)
             }
         }
     }
-    func showProgressForDay(at index: Int) {
-
-        guard index < weekdayData.count else { return }
-
-        // Update BIG RING
-        let dayData = weekdayData[index]
-
-        if dayData.target > 0 {
-            let progress =
-                CGFloat(dayData.completed) / CGFloat(dayData.target)
-            let safeProgress = min(max(progress, 0), 1)
-
-            bigCircularRing.setProgress(safeProgress)
-            percentLabel.text = "\(Int(safeProgress * 100))%"
-        } else {
-            bigCircularRing.setProgress(0)
-            percentLabel.text = "0%"
-        }
-
-        // UPDATE NAVIGATION DATE
-        let selectedDate = dateForWeekday(at: index)
-        updateNavigationDateTitle(for: selectedDate)
-
-    }
-
-    func dateForWeekday(at index: Int) -> Date {
-
-        let calendar = Calendar.current
-        let today = Date()
-
-        let todayWeekday = calendar.component(.weekday, from: today) - 1
-        // Sunday = 0
-
-        let diff = index - todayWeekday
-
-        return calendar.date(byAdding: .day, value: diff, to: today) ?? today
-    }
-    
-    func refreshWeekdayEmphasis() {
-
-        let todayIndex = Calendar.current.component(.weekday, from: Date()) - 1
-
-        for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
-
-            guard
-                let dayStack = view as? UIStackView,
-                let dayLabel = dayStack.arrangedSubviews.first as? UILabel,
-                let ringView = dayStack.arrangedSubviews[1] as? WeekdayRingView
-            else { continue }
-
-            let isToday = index == todayIndex
-            let isSelected = index == selectedWeekdayIndex
-
-            // Ring emphasis
-            ringView.setEmphasis(isToday: isToday, isSelected: isSelected)
-
-            // Label bold
-            dayLabel.font = (isToday || isSelected)
-                ? UIFont.systemFont(ofSize: dayLabel.font.pointSize, weight: .semibold)
-                : UIFont.systemFont(ofSize: dayLabel.font.pointSize, weight: .regular)
-        }
-    }
-
-}

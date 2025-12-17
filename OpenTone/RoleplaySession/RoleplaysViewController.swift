@@ -28,7 +28,7 @@ class RoleplaysViewController: UIViewController {
         setupCollectionViewLayout()
     }
 
-    // MARK: - UI Setup
+    //  UI Setup
     func setupSearchBar() {
         searchBar.delegate = self
         searchBar.placeholder = "Search roleplays"
@@ -133,5 +133,10 @@ extension RoleplaysViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }
+    func roleplayCompleted() {
 
+        SessionProgressManager.shared.markCompleted(.roleplay)
+
+        navigationController?.popViewController(animated: true)
+    }
 }
