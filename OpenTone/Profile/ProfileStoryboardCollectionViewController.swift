@@ -252,37 +252,23 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         }
 
         let section = Section(rawValue: indexPath.section)
+   
+            switch section {
+            case .suggestedQuestions:
+                return collectionView.dequeueReusableSupplementaryView(
+                    ofKind: kind,
+                    withReuseIdentifier: SuggestedQuestionsHeaderView.reuseIdentifier,
+                    for: indexPath
+                )
 
-        switch section {
-        case .suggestedQuestions:
-            return collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: SuggestedQuestionsHeaderView.reuseIdentifier,
-                for: indexPath
-            )
-
-        default:
-            // This should NEVER be called if layout is correct
-            fatalError("Unexpected header request for section \(String(describing: section))")
-        }
+            default:
+            
+                fatalError("Unexpected header request for section \(String(describing: section))")
+            }
+        
+       
     }
 
-
-    
-//    @objc private func didTapStartCall() {
-//        isInCall = true
-//        isComingFromCall = false
-//
-//        title = "In Call"
-//        navigationItem.largeTitleDisplayMode = .never
-//
-//        setTabBar(hidden: true)
-//
-//        startCallTimer()
-//
-//        collectionView.reloadData()
-//        collectionView.collectionViewLayout.invalidateLayout()
-//    }
     
     @objc private func didTapStartCall() {
         setTabBar(hidden: true)
@@ -445,19 +431,26 @@ extension ProfileStoryboardCollectionViewController {
             case .suggestedQuestions:
                 let section = self.verticalSection(estimatedHeight: 110)
 
-                let headerSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .absolute(44)
-                )
+                // ✅ Only show header when user is IN CALL
+                if self.isInCall {
+                    let headerSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .absolute(44)
+                    )
 
-                let header = NSCollectionLayoutBoundarySupplementaryItem(
-                    layoutSize: headerSize,
-                    elementKind: UICollectionView.elementKindSectionHeader,
-                    alignment: .top
-                )
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(
+                        layoutSize: headerSize,
+                        elementKind: UICollectionView.elementKindSectionHeader,
+                        alignment: .top
+                    )
 
-                section.boundarySupplementaryItems = [header]
+                    section.boundarySupplementaryItems = [header]
+                } else {
+                    section.boundarySupplementaryItems = []
+                }
+
                 return section
+
 
 
 
