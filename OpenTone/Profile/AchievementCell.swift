@@ -1,6 +1,6 @@
 import UIKit
 
-final class AchievementCell: UICollectionViewCell {
+class AchievementCell: UICollectionViewCell {
 
     @IBOutlet private weak var containerView: UIView!
     @IBOutlet private weak var iconView: UIImageView!
