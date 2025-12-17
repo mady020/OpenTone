@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="PDo-xB-peT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="PDo-xB-peT">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
-        <capability name="Image references" minToolsVersion="12.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -376,10 +375,10 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="Q7J-JU-4ba">
-                                                    <rect key="frame" x="100" y="0.0" width="293" height="108"/>
+                                                    <rect key="frame" x="100" y="0.0" width="277" height="108"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zpj-bA-bfp">
-                                                            <rect key="frame" x="218" y="0.0" width="75" height="36"/>
+                                                            <rect key="frame" x="202" y="0.0" width="75" height="36"/>
                                                             <color key="backgroundColor" red="0.98431372549019602" green="0.97254901960784312" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <color key="tintColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <state key="normal" title="Button"/>
@@ -389,7 +388,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UDd-Kp-kl9">
-                                                            <rect key="frame" x="218" y="36" width="75" height="36"/>
+                                                            <rect key="frame" x="202" y="36" width="75" height="36"/>
                                                             <color key="backgroundColor" red="0.98431372549019602" green="0.97254901960784312" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <color key="tintColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <state key="normal" title="Button"/>
@@ -399,7 +398,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zGY-St-6we">
-                                                            <rect key="frame" x="218" y="72" width="75" height="36"/>
+                                                            <rect key="frame" x="202" y="72" width="75" height="36"/>
                                                             <color key="backgroundColor" red="0.98431372549019602" green="0.97254901960784312" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <color key="tintColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <state key="normal" title="Button"/>
@@ -414,7 +413,7 @@
                                             <constraints>
                                                 <constraint firstAttribute="bottom" secondItem="Q7J-JU-4ba" secondAttribute="bottom" id="N8t-q3-LWp"/>
                                                 <constraint firstItem="Q7J-JU-4ba" firstAttribute="leading" secondItem="kgo-WT-888" secondAttribute="leading" constant="100" id="fPg-ix-RtS"/>
-                                                <constraint firstAttribute="trailing" secondItem="Q7J-JU-4ba" secondAttribute="trailing" id="p4m-4G-8gK"/>
+                                                <constraint firstAttribute="trailing" secondItem="Q7J-JU-4ba" secondAttribute="trailing" constant="16" id="p4m-4G-8gK"/>
                                                 <constraint firstItem="Q7J-JU-4ba" firstAttribute="top" secondItem="kgo-WT-888" secondAttribute="top" id="vcu-WL-yub"/>
                                             </constraints>
                                         </tableViewCellContentView>
@@ -429,29 +428,37 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zIg-Tq-Sr7">
                                 <rect key="frame" x="0.0" y="625" width="393" height="100"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A0e-y0-j1j">
-                                        <rect key="frame" x="151.66666666666666" y="5" width="90" height="90"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="90" id="5oF-xW-qxl"/>
-                                            <constraint firstAttribute="width" constant="90" id="ZUH-0B-XM6"/>
-                                        </constraints>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled">
-                                            <imageReference key="image" image="mic" catalog="system" symbolScale="default"/>
-                                            <attributedString key="attributedTitle"/>
-                                            <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <color key="baseBackgroundColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </buttonConfiguration>
-                                        <connections>
-                                            <action selector="micTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="zcm-7c-iL5"/>
-                                        </connections>
-                                    </button>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="150" translatesAutoresizingMaskIntoConstraints="NO" id="BNO-KX-B2F">
+                                        <rect key="frame" x="16" y="16" width="361" height="68"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="auu-2r-R14">
+                                                <rect key="frame" x="0.0" y="0.0" width="105.66666666666667" height="68"/>
+                                                <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="mic" catalog="system"/>
+                                                <connections>
+                                                    <action selector="micTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="KNO-bZ-piU"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9r6-DC-1me">
+                                                <rect key="frame" x="255.66666666666671" y="0.0" width="105.33333333333334" height="68"/>
+                                                <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="arrow.clockwise" catalog="system"/>
+                                                <connections>
+                                                    <action selector="replayTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="TUY-nM-OaT"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstItem="A0e-y0-j1j" firstAttribute="centerY" secondItem="zIg-Tq-Sr7" secondAttribute="centerY" id="2jE-bn-giq"/>
-                                    <constraint firstItem="A0e-y0-j1j" firstAttribute="centerX" secondItem="zIg-Tq-Sr7" secondAttribute="centerX" id="9PB-fS-I5f"/>
+                                    <constraint firstAttribute="trailing" secondItem="BNO-KX-B2F" secondAttribute="trailing" constant="16" id="JW9-5J-yuX"/>
                                     <constraint firstAttribute="height" constant="100" id="KuT-aI-UUx"/>
+                                    <constraint firstItem="BNO-KX-B2F" firstAttribute="leading" secondItem="zIg-Tq-Sr7" secondAttribute="leading" constant="16" id="hGF-nE-R1y"/>
+                                    <constraint firstItem="BNO-KX-B2F" firstAttribute="top" secondItem="zIg-Tq-Sr7" secondAttribute="top" constant="16" id="uj5-pf-m0T"/>
+                                    <constraint firstAttribute="bottom" secondItem="BNO-KX-B2F" secondAttribute="bottom" constant="16" id="x82-Zl-4CB"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -468,7 +475,8 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Grocery Shopping" id="cIj-Cm-PdM">
-                        <barButtonItem key="rightBarButtonItem" title="End" id="hm1-wz-fzC">
+                        <barButtonItem key="rightBarButtonItem" image="xmark" catalog="system" id="hm1-wz-fzC">
+                            <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
                                 <action selector="endButtonTapped:" destination="Z8h-z1-9tc" id="p3s-5R-Zwm"/>
                                 <segue destination="6h4-oI-Bzs" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="k7x-uv-6YT"/>
@@ -476,7 +484,8 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="micButton" destination="A0e-y0-j1j" id="N8d-8b-KyG"/>
+                        <outlet property="micButton" destination="auu-2r-R14" id="fEa-We-Q4M"/>
+                        <outlet property="replayButton" destination="9r6-DC-1me" id="1N9-Lu-nSf"/>
                         <outlet property="tableView" destination="8zv-LH-wjs" id="RbB-n3-hq4"/>
                     </connections>
                 </viewController>
@@ -578,10 +587,12 @@
         </scene>
     </scenes>
     <resources>
+        <image name="arrow.clockwise" catalog="system" width="110" height="128"/>
         <image name="medal.fill" catalog="system" width="121" height="128"/>
         <image name="mic" catalog="system" width="110" height="128"/>
         <image name="theatermasks" catalog="system" width="128" height="87"/>
         <image name="theatermasks.fill" catalog="system" width="128" height="91"/>
+        <image name="xmark" catalog="system" width="128" height="113"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

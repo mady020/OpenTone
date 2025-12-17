@@ -32,9 +32,11 @@ class RoleplayChatViewController: UIViewController {
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
     
+
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
 
+    @IBOutlet var replayButton: UIButton!
     // MARK: - UI State
     private var messages: [ChatMessage] = []
     private var didLoadChat = false
@@ -57,6 +59,8 @@ class RoleplayChatViewController: UIViewController {
         tableView.separatorStyle = .none
 
         navigationItem.hidesBackButton = true
+        micButton.layer.cornerRadius = 24
+        
     }
 
     override func viewDidLayoutSubviews() {
@@ -72,6 +76,16 @@ class RoleplayChatViewController: UIViewController {
         super.viewDidAppear(animated)
         (tabBarController as? MainTabBarController)?.isRoleplayInProgress = true
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.tabBar.isHidden = true
+    }
+
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tabBarController?.tabBar.isHidden = false
+    }
 
     // MARK: - Load Step
     private func loadCurrentStep() {
@@ -84,7 +98,6 @@ class RoleplayChatViewController: UIViewController {
 
         let message = scenario.script[index]
 
-        // 1️⃣ NPC / App message
         messages.append(
             ChatMessage(
                 sender: .app,
@@ -93,7 +106,6 @@ class RoleplayChatViewController: UIViewController {
             )
         )
 
-        // 2️⃣ Suggestions
         if let options = message.replyOptions {
             messages.append(
                 ChatMessage(
@@ -107,7 +119,6 @@ class RoleplayChatViewController: UIViewController {
         reloadTableSafely()
     }
 
-    // MARK: - Mic Input
     @IBAction func micTapped(_ sender: UIButton) {
         simulateSpeechInput()
     }
@@ -127,7 +138,6 @@ class RoleplayChatViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    // MARK: - User Response Handling
     private func userResponded(_ text: String) {
 
         let index = session.currentLineIndex
@@ -172,11 +182,9 @@ class RoleplayChatViewController: UIViewController {
             }
 
         } else {
-            // MARK SESSION COMPLETED
             session.status = .completed
             session.endedAt = Date()
 
-            // UPDATE SESSION IN DATA MODEL
             RoleplaySessionDataModel.shared.updateSession(
                 session,
                 scenario: scenario
@@ -213,7 +221,6 @@ class RoleplayChatViewController: UIViewController {
                 )
             )
 
-            // Remove suggestions and advance
             if messages.last?.sender == .suggestions {
                 messages.removeLast()
             }
@@ -222,7 +229,6 @@ class RoleplayChatViewController: UIViewController {
         }
     }
 
-    // MARK: - Table Helpers
     private func reloadTableSafely() {
         tableView.reloadData()
         tableView.layoutIfNeeded()
@@ -240,23 +246,37 @@ class RoleplayChatViewController: UIViewController {
     }
 
 
-    // MARK: - End / Score
     @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
-//        triggerScoreScreenFlow()
-   
+        
+        RoleplaySessionDataModel.shared.cancelSession()
+
     }
 
 
+    
+    @IBAction func replayTapped(_ sender: UIButton) {
+        replayRoleplayFromStart()
+    }
 
-//    private func triggerScoreScreenFlow() {
-//        if let alert = presentedViewController as? UIAlertController {
-//            alert.dismiss(animated: true) {
-//                self.presentScoreScreen()
-//            }
-//        } else {
-//            presentScoreScreen()
-//        }
-//    }
+    
+    private func replayRoleplayFromStart() {
+
+        session.currentLineIndex = 0
+        session.status = .notStarted
+        session.endedAt = nil
+
+        messages.removeAll()
+        wrongAttempts = 0
+
+        tableView.reloadData()
+
+        loadCurrentStep()
+    }
+   
+
+
+
+
 
     private func presentScoreScreen() {
         let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
@@ -275,7 +295,6 @@ extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }
-    
 
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -310,6 +329,7 @@ extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate
             return cell
         }
     }
+    
+   
 
 }
-
