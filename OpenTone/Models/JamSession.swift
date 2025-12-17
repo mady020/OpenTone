@@ -1,50 +1,49 @@
 import Foundation
 
-struct JamSession: Identifiable, Codable, Equatable {
+struct JamSession: Identifiable, Equatable {
 
     static let availableTopics: [String] = [
         "The Future of Technology",
         "Climate Change and Its Impact",
         "The Role of Art in Society",
         "Exploring Space: The Next Frontier",
-        "The Evolution of Education",
+        "The Evolution of Education"
     ]
 
     let id: UUID
     let userId: UUID
 
-    let topic: String
+    // Topic data
+    var topic: String
+    var suggestions: [String]
+
+    // Session phase
     var phase: JamPhase
 
+    // Timer
+    var secondsLeft: Int
+
+    // Timestamps
     var startedPrepAt: Date?
     var startedSpeakingAt: Date?
     var endedAt: Date?
 
-    var transcript: String?
-    var feedback: SessionFeedback?
-
-    var suggestions : [String]
-
     init(
         userId: UUID,
-        phase: JamPhase,
-        startedPrepAt: Date? = nil,
-        startedSpeakingAt: Date? = nil,
-        endedAt: Date? = nil,
-        transcript: String? = nil,
-        feedback: SessionFeedback? = nil,
-        suggestions: [String] = []
+        topic: String,
+        suggestions: [String],
+        phase: JamPhase = .preparing,
+        secondsLeft: Int = 120
     ) {
         self.id = UUID()
         self.userId = userId
-        self.topic = Self.availableTopics.randomElement() ?? "General Topic"
-        self.phase = phase
-        self.startedPrepAt = startedPrepAt
-        self.startedSpeakingAt = startedSpeakingAt
-        self.endedAt = endedAt
-        self.transcript = transcript
-        self.feedback = feedback
+        self.topic = topic
         self.suggestions = suggestions
+        self.phase = phase
+        self.secondsLeft = secondsLeft
+        self.startedPrepAt = Date()
+        self.startedSpeakingAt = nil
+        self.endedAt = nil
     }
 
     static func == (lhs: JamSession, rhs: JamSession) -> Bool {
