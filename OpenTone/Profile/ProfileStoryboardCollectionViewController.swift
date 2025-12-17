@@ -183,7 +183,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 withReuseIdentifier: "ProfileActionsCell",
                 for: indexPath
             ) as! ProfileActionsCell
-
+        
+            
             if isInCall {
                 cell.configure(mode: .inCall, timerText: "00:00")
                 cell.logoutButton.addTarget(
@@ -339,8 +340,16 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         }
     }
 
+    func goToEndCallChoice(){
+        let storyboard = UIStoryboard(name: "CallStoryboard", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "EndCall") as! CallEndedViewController
+        
+        navigationController?.pushViewController(vc, animated: true)
+    }
     
     @objc private func didTapEndCall() {
+        
+        print("hello world")
         stopCallTimer()
 
         isInCall = false
@@ -350,9 +359,11 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         navigationItem.largeTitleDisplayMode = .automatic
 
         setTabBar(hidden: false)
-
         collectionView.reloadData()
         collectionView.collectionViewLayout.invalidateLayout()
+
+        
+        goToEndCallChoice()
     }
 
 
