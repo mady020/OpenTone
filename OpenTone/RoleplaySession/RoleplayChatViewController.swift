@@ -182,10 +182,21 @@ class RoleplayChatViewController: UIViewController {
                 scenario: scenario
             )
 
+            //  LOG TO STREAK / HISTORY (THIS WAS MISSING)
+            StreakDataModel.shared.logSession(
+                title: "Roleplay Session",
+                subtitle: "You completed a roleplay",
+                topic: scenario.title,
+                durationMinutes: scenario.estimatedTimeMinutes,
+                xp: 30,
+                iconName: "person.2.fill"
+            )
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.presentScoreScreen()
             }
         }
+
     }
 
 

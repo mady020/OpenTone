@@ -51,6 +51,32 @@ class CalendarViewController: UIViewController {
 
        func dateSelection(_ selection: UICalendarSelectionSingleDate,
                           didSelectDate dateComponents: DateComponents?) {
+           if let dc = dateComponents,
+              let date = Calendar.current.date(from: dc) {
+
+               let sessions =
+                   StreakDataModel.shared.sessions(for: date)
+
+               let items = sessions.map {
+                   HistoryItem(
+                       title: $0.title,
+                       subtitle: $0.subtitle,
+                       topic: $0.topic,
+                       duration: "\($0.durationMinutes) min",
+                       xp: "\($0.xp) XP",
+                       iconName: $0.iconName
+                   )
+               }
+
+               let vc = storyboard?.instantiateViewController(
+                   withIdentifier: "HistoryViewController"
+               ) as! HistoryViewController
+
+               vc.items = items
+               vc.selectedDate = date
+
+               navigationController?.pushViewController(vc, animated: true)
+           }
 
            selectedDate = dateComponents
 
