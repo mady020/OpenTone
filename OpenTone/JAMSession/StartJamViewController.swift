@@ -188,4 +188,12 @@ extension StartJamViewController: TimerManagerDelegate {
     func timerManagerDidFinish() {
         timerLabel.text = "00:00"
     }
+    
+    func timerDidFinish() {
+
+        SessionProgressManager.shared.markCompleted(.twoMinJam)
+
+        navigationController?.popViewController(animated: true)
+    }
+
 }
