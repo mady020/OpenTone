@@ -14,6 +14,8 @@ class StartJamViewController: UIViewController {
     @IBOutlet weak var topicTitleLabel: UILabel!
     @IBOutlet weak var hintButton: UIButton!
     @IBOutlet weak var bottomActionStackView: UIStackView!
+    @IBOutlet weak var waveImageView: UIImageView!
+
 
     private let timerManager = TimerManager()
     private var remainingSeconds: Int = 120
@@ -21,9 +23,21 @@ class StartJamViewController: UIViewController {
     private var didFinishSpeech = false
     private var isMicOn = false   // only logical state, no UI handling
 
+    private var waveAnimationImages: [UIImage] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
         timerManager.delegate = self
+
+        waveAnimationImages = [
+            UIImage(named: "wave_1"),
+            UIImage(named: "wave_2"),
+            UIImage(named: "wave_3"),
+            UIImage(named: "wave_4")
+        ].compactMap { $0 }
+
+        waveImageView.image = UIImage(named: "wv_default")
+        waveImageView.contentMode = .scaleAspectFit
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -54,20 +68,35 @@ class StartJamViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
+        waveImageView.stopAnimating()
+        waveImageView.animationImages = nil
+        waveImageView.image = UIImage(named: "wv_default")
+
         guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
         session.secondsLeft = remainingSeconds
         JamSessionDataModel.shared.updateActiveSession(session)
     }
 
-    // MARK: - Mic Logic (NO UI code)
+    
 
     @IBAction func micTapped(_ sender: UIButton) {
         isMicOn.toggle()
         // UI is handled in storyboard (selected state / images)
         // Use isMicOn later for audio / speech logic
+
+        if isMicOn {
+            waveImageView.animationImages = waveAnimationImages
+            waveImageView.animationDuration = 0.8
+            waveImageView.animationRepeatCount = 0
+            waveImageView.startAnimating()
+        } else {
+            waveImageView.stopAnimating()
+            waveImageView.animationImages = nil
+            waveImageView.image = UIImage(named: "wv_default")
+        }
     }
 
-    // MARK: - Hint Logic
+   
 
     @IBAction func hintTapped(_ sender: UIButton) {
         hintStackView == nil ? showHints() : removeHints()
