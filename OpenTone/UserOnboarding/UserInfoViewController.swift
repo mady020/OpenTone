@@ -20,8 +20,6 @@ final class UserinfoViewController: UIViewController {
         navigationItem.hidesBackButton = true
     }
 
-    // MARK: - UI Setup
-
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
@@ -54,10 +52,6 @@ final class UserinfoViewController: UIViewController {
         countryField.addTarget(self, action: #selector(openCountryPicker), for: .touchUpInside)
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
     }
-
-    // MARK: - Session Sync
-
-    /// Pre-fills UI from the current session user
     private func populateFromSession() {
         guard let user = SessionManager.shared.currentUser else { return }
         
@@ -66,8 +60,6 @@ final class UserinfoViewController: UIViewController {
             countryField.setTitle("\(country.flag) \(country.name)", for: .normal)
         }
     }
-
-    // MARK: - Actions
 
     @objc private func openCountryPicker() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
@@ -107,14 +99,10 @@ final class UserinfoViewController: UIViewController {
         
         user.bio = bio
         user.country = country
-
-        // Persist update to session
         SessionManager.shared.updateSessionUser(user)
 
         goToConfidenceChoice()
     }
-
-    // MARK: - Navigation
 
     private func goToConfidenceChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
@@ -125,8 +113,6 @@ final class UserinfoViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
 }
-
-// MARK: - UITextField Padding Helper
 
 private extension UITextField {
     func setLeftPaddingPoints(_ amount: CGFloat) {

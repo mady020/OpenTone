@@ -25,11 +25,7 @@ class LastTaskCell: UICollectionViewCell {
     
     func configure(title: String, imageURL: String) {
         titleLabel.text = title
-
-        // If imageURL is a system image name
         iconImageView.image = UIImage(systemName: imageURL)
-
-        // If later you move to remote images, this method stays the same
     }
 
 

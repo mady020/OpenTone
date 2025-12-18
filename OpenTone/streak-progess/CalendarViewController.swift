@@ -1,11 +1,7 @@
 import UIKit
 
 class CalendarViewController: UIViewController {
-    
-    // Outlets
     @IBOutlet weak var calendarContainer: UIView!
-    
-    // Properties
     private let calendarView = UICalendarView()
     private var selectedDate: DateComponents?
     private let USE_DUMMY_DATA = true
@@ -19,12 +15,8 @@ class CalendarViewController: UIViewController {
         calendarView.translatesAutoresizingMaskIntoConstraints = false
         calendarView.locale = Locale(identifier: "en_US")
         calendarView.fontDesign = .rounded
-        
-        // Connect Delegates
         calendarView.delegate = self
         calendarView.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
-        
-        // Set range: From 1 month ago until Today
         let calendar = Calendar.current
         let today = Date()
         if let startDate = calendar.date(byAdding: .month, value: -1, to: today) {
@@ -39,12 +31,9 @@ class CalendarViewController: UIViewController {
             calendarView.bottomAnchor.constraint(equalTo: calendarContainer.bottomAnchor)
         ])
     }
-    
-    // Shared Data Logic
     private func hasActivity(on date: Date) -> Bool {
         if USE_DUMMY_DATA {
             let calendar = Calendar.current
-            // Only Today, Yesterday, and "some" other days have dummy data
             return calendar.isDateInToday(date) || calendar.isDateInYesterday(date)
         } else {
             return !StreakDataModel.shared.sessions(for: date).isEmpty
@@ -75,16 +64,11 @@ class CalendarViewController: UIViewController {
         }
     }
 }
-
-//  UICalendarViewDelegate
 extension CalendarViewController: UICalendarViewDelegate {
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
-        // Return nil to remove all purple dots
         return nil
     }
 }
-
-// UICalendarSelectionSingleDateDelegate
 extension CalendarViewController: UICalendarSelectionSingleDateDelegate {
     
     func dateSelection(_ selection: UICalendarSelectionSingleDate, canSelectDate dateComponents: DateComponents?) -> Bool {

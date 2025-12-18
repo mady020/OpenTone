@@ -31,8 +31,6 @@ class HomeCollectionViewCell: UICollectionViewCell {
         imageView.image = nil
         textLabel.text = nil
     }
-
-    // MARK: - Configure
     func configure(with scenario: RoleplayScenario) {
         textLabel.text = scenario.title
         imageView.image = UIImage(named: scenario.imageURL)

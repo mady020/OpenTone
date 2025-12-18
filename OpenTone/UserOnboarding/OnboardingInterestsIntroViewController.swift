@@ -1,15 +1,11 @@
 import UIKit
 
 final class OnboardingInterestsViewController: UIViewController {
-
-    // MARK: - IBOutlets
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var requirementLabel: UILabel!
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var showAllButton: UIButton!
     @IBOutlet private weak var continueButton: UIButton!
-
-    // MARK: - Data
 
     private let popularItems: [InterestItem] = [
         InterestItem(title: "Technology", symbol: "cpu"),
@@ -19,8 +15,6 @@ final class OnboardingInterestsViewController: UIViewController {
         InterestItem(title: "Food", symbol: "fork.knife"),
         InterestItem(title: "Music", symbol: "music.note.list")
     ]
-
-    /// Shared interest selection (used across interest screens)
     private var selectedItems: Set<InterestItem> {
         get { InterestSelectionStore.shared.selected }
         set { InterestSelectionStore.shared.selected = newValue }
@@ -38,10 +32,6 @@ final class OnboardingInterestsViewController: UIViewController {
         updateContinueState()
         collectionView.reloadData()
     }
-
-
-
-    // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
 
@@ -63,8 +53,6 @@ final class OnboardingInterestsViewController: UIViewController {
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         continueButton.setTitleColor(.white, for: .normal)
     }
-
-    // MARK: - Collection View
     private func setupCollectionView() {
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
@@ -105,10 +93,6 @@ final class OnboardingInterestsViewController: UIViewController {
 
         collectionView.collectionViewLayout = layout
     }
-
-    // MARK: - Session Sync
-
-    // MARK: - State
     private func updateContinueState() {
         let enabled = selectedItems.count >= 3
 
@@ -121,8 +105,6 @@ final class OnboardingInterestsViewController: UIViewController {
             ? "You're all set! Continue now."
             : "Select at least 3 interests to continue"
     }
-
-    // MARK: - Actions
 
     @IBAction private func showAllTapped(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
@@ -138,15 +120,11 @@ final class OnboardingInterestsViewController: UIViewController {
             selectedItems.count >= 3,
             var user = SessionManager.shared.currentUser
         else { return }
-
-        // Persist interests into session
         user.interests = selectedItems
         SessionManager.shared.updateSessionUser(user)
 
         goToCommitmentChoice()
     }
-
-    // MARK: - Navigation
 
     private func goToCommitmentChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
@@ -157,8 +135,6 @@ final class OnboardingInterestsViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
 }
-
-// MARK: - Collection View DataSource & Delegate
 
 extension OnboardingInterestsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 

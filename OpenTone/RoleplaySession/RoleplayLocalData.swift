@@ -1,16 +1,8 @@
-//
-//  RoleplayLocalData.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 16/12/25.
-//
 
 import Foundation
 
 
 var scenarios: [RoleplayScenario] = [
-
-    // MARK: - Grocery Shopping (FULL SCRIPT)
     RoleplayScenario(
         title: "Grocery Shopping",
         description: "Practice asking for items, prices, and payment at a grocery store.",
@@ -131,7 +123,6 @@ var scenarios: [RoleplayScenario] = [
             )
         ]
     ),
-    // MARK: - Making Friends (FULL SCRIPT)
     RoleplayScenario(
         title: "Making Friends",
         description: "Practice starting conversations, finding common interests, and building friendships.",
@@ -253,7 +244,6 @@ var scenarios: [RoleplayScenario] = [
         ]
     )
 ,
-    // MARK: - Airport Check-in (FULL SCRIPT)
     RoleplayScenario(
         title: "Airport Check-in",
         description: "Practice check-in conversation at an airport counter.",
@@ -397,7 +387,6 @@ var scenarios: [RoleplayScenario] = [
         ]
     )
 ,
-    // MARK: - Ordering Food (FULL SCRIPT)
     RoleplayScenario(
         title: "Ordering Food",
         description: "Practice ordering food at a restaurant.",
@@ -508,7 +497,6 @@ var scenarios: [RoleplayScenario] = [
         ]
     )
 ,
-    // MARK: - Job Interview (FULL SCRIPT)
     RoleplayScenario(
         title: "Job Interview",
         description: "Practice answering common interview questions.",
@@ -607,7 +595,6 @@ var scenarios: [RoleplayScenario] = [
             )
         ]
     ),
-    // MARK: - Hotel Booking (FULL SCRIPT)
     RoleplayScenario(
         title: "Hotel Booking",
         description: "Practice booking a hotel room, asking about facilities, pricing, and check-in details.",

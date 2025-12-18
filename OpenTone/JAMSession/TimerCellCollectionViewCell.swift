@@ -1,9 +1,3 @@
-//
-//  TimerCellCollectionViewCell.swift
-//  OpenTone
-//
-//  Created by Student on 02/12/25.
-//
 
 import UIKit
 

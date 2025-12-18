@@ -2,8 +2,6 @@ import UIKit
 
 class RolePlayStartCollectionViewController: UICollectionViewController,
                                              UICollectionViewDelegateFlowLayout {
-
-    // MARK: - Passed Data
     var currentScenario: RoleplayScenario?
     var currentSession: RoleplaySession?
     
@@ -20,8 +18,6 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
         title = currentScenario?.title
         collectionView.collectionViewLayout = createLayout()
     }
-
-    // MARK: - Collection View Data Source
     override func collectionView(
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
@@ -35,8 +31,6 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
     ) -> UICollectionViewCell {
 
         switch indexPath.item {
-
-        // MARK: - Cell 0 : Description
         case 0:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "DescriptionCell",
@@ -52,8 +46,6 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
 
 
             return cell
-
-        // MARK: - Cell 1 : Script Preview + Key Phrases
         case 1:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "ScriptCell",
@@ -70,9 +62,6 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
             )
 
             return cell
-
-            // MARK: - Cell 2 : Start Button
-            // MARK: - Cell 2 : Start Button
             default:
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "ButtonCell",
@@ -113,15 +102,11 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
     }
 
 }
-
-// MARK: - Navigation
 extension RolePlayStartCollectionViewController {
 
     private  func startRoleplay() {
         
         guard let scenario = currentScenario else { return }
-
-        // Session starts HERE (correct place)
         guard let session = RoleplaySessionDataModel.shared.startSession(
             scenarioId: scenario.id
         ) else { return }
@@ -131,8 +116,6 @@ extension RolePlayStartCollectionViewController {
         performSegue(withIdentifier: "toRoleplayChat", sender: self)
     }
 }
-
-// MARK: - Layout
 extension RolePlayStartCollectionViewController {
 
     func createLayout() -> UICollectionViewCompositionalLayout {

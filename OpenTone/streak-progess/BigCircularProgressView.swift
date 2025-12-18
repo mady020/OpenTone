@@ -1,9 +1,3 @@
-//
-//  BigCircularProgressView.swift
-//  OpenTone
-//
-//  Created by Student on 10/12/25.
-//
 
 import UIKit
 
@@ -22,8 +16,6 @@ class BigCircularProgressView: UIView {
     }
 
     private func setupRing() {
-
-        // Remove only shape layers (SAFE)
         layer.sublayers?.forEach {
             if $0 is CAShapeLayer {
                 $0.removeFromSuperlayer()

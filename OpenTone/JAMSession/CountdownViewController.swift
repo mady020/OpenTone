@@ -1,9 +1,3 @@
-//
-//  CountdownViewController.swift
-//  OpenTone
-//
-//  Created by Student on 04/12/25.
-//
 
 import UIKit
 
@@ -15,8 +9,6 @@ class CountdownViewController: UIViewController {
     }
 
     var mode: CountdownMode = .preparation
-
-    // ⭐ ADDED: topic passed from Prepare screen
     var topicText: String?
 
     @IBOutlet weak var circleContainer: UIView!
@@ -36,8 +28,6 @@ class CountdownViewController: UIViewController {
 
         view.backgroundColor = .white
         bottomLabel.text = (mode == .preparation) ? "Preparation Time" : "Speech Time"
-
-        // READY IS ALWAYS VISIBLE INITIALLY
         countdownLabel.text = "Ready"
         countdownLabel.font = UIFont.systemFont(ofSize: 70, weight: .semibold)
         countdownLabel.alpha = 1
@@ -100,8 +90,6 @@ class CountdownViewController: UIViewController {
         ringLayer.strokeStart = 0.0
         ringLayer.strokeEnd = 0.5
     }
-
-    // MARK: - RIGHT HALF ANIMATION
     private func animateRightHalf() {
 
         let anim = CABasicAnimation(keyPath: "strokeEnd")
@@ -114,14 +102,10 @@ class CountdownViewController: UIViewController {
 
         ringLayer.strokeEnd = 1.0
         ringLayer.add(anim, forKey: "rightHalfReveal")
-
-        // Fade out READY after right half completes
         DispatchQueue.main.asyncAfter(deadline: .now() + rightAppearDuration + 0.2) {
             self.fadeOutReady()
         }
     }
-
-    // MARK: - READY FADE OUT
     private func fadeOutReady() {
 
         UIView.animate(withDuration: 0.6, delay: 0.0, options: [.curveEaseInOut], animations: {
@@ -130,8 +114,6 @@ class CountdownViewController: UIViewController {
             self.startCountdown()
         })
     }
-
-    // MARK: - COUNTDOWN (3 → 2 → 1 → Start)
     private func startCountdown() {
         animateNumber("3", fadeTo: 0.33, step: 0)
     }
@@ -180,8 +162,6 @@ class CountdownViewController: UIViewController {
             }
         }
     }
-
-    // MARK: - NAVIGATION (Fixed)
     private func goNext() {
 
         UIView.animate(withDuration: 0.35) {
@@ -213,8 +193,6 @@ class CountdownViewController: UIViewController {
                 guard let startVC =
                     self.storyboard?.instantiateViewController(withIdentifier: "StartJamViewController")
                         as? StartJamViewController else { return }
-
-                // ⭐ MAIN FIX – pass topic to StartJam
                 if let t = self.topicText, !t.isEmpty {
                     startVC.topicText = t
                 }

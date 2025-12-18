@@ -9,12 +9,7 @@ struct RoleplayMessage: Identifiable, Codable, Equatable {
 
     let id: UUID
     let speaker: RoleplaySpeaker
-
-    /// NPC line OR user selected reply
     let text: String
-
-    /// Only filled for NPC messages
-    /// These are the selectable user replies
     let replyOptions: [String]?
 
     init(

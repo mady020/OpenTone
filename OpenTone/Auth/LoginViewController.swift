@@ -15,15 +15,11 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         addPasswordToggle()
     }
 
-    // MARK: - Actions
+    
 
     @IBAction func signinButtonTapped(_ sender: Any) {
         handleLogin()
     }
-
-    // MARK: - Login Logic
-
-    /// Handles login/signup logic and starts a session
     private func handleLogin() {
         guard
             let email = emailField.text, !email.isEmpty,
@@ -31,27 +27,16 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         else {
             return
         }
-
-        // For now: local-only login
-        // Find existing user OR create a new one
         let user = resolveUser(email: email, password: password)
-
-        // Start session
         SessionManager.shared.login(user: user)
-
-        // Decide navigation
         routeAfterLogin()
     }
-
-    /// Finds an existing user or creates a new one
     private func resolveUser(email: String, password: String) -> User {
         if let existingUser = UserDataModel.shared
             .allUsers
             .first(where: { $0.email == email }) {
             return existingUser
         }
-
-        // New user signup (local)
         return User(
             name: "New User",
             email: email,
@@ -59,12 +44,8 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
             country: nil
         )
     }
-
-    /// Routes user to onboarding or dashboard
     private func routeAfterLogin() {
         guard let user = SessionManager.shared.currentUser else { return }
-
-        // Simple onboarding condition (adjust later)
         let needsOnboarding = user.confidenceLevel == nil
 
         if needsOnboarding {
@@ -73,10 +54,6 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
             goToDashboard()
         }
     }
-
-    // MARK: - Navigation
-
-    /// Navigates to the main dashboard
     private func goToDashboard() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let tabBarVC = storyboard.instantiateViewController(
@@ -89,8 +66,6 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         view.window?.rootViewController = tabBarVC
         view.window?.makeKeyAndVisible()
     }
-
-    /// Navigates to the first onboarding screen
     private func goToUserInfo() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let userInfoVC = storyboard.instantiateViewController(
@@ -104,8 +79,6 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         view.window?.rootViewController = nav
         view.window?.makeKeyAndVisible()
     }
-
-    // MARK: - UI Helpers
 
     private func addIconsToTextFields() {
         let emailIcon = UIImageView(image: UIImage(systemName: "envelope.fill"))

@@ -51,20 +51,6 @@ class CallSessionDataModel {
 
     
         let allUsers = UserDataModel.shared.allUsers
-
-//        let filtered = allUsers.filter { user in
-//
-//            guard user.id != currentUser.id else { return false }
-//
-//    
-//            let common = user.interests?.intersection(interests)
-//
-//            return !common.isEmpty
-//                && (gender == .any || user.gender == gender)
-//                && user.englishLevel == englishLevel
-//        }
-
-//        return filtered.map { $0.id }
         
         return [allUsers.first?.id ?? UUID()]
     }

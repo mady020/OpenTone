@@ -48,8 +48,6 @@ class CountryPickerViewController: UIViewController {
 
         searchField.backgroundColor = .white
         searchField.font = .systemFont(ofSize: 16)
-
-        // left padding
         let padding = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
         searchField.leftView = padding
         searchField.leftViewMode = .always

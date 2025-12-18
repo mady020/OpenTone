@@ -30,8 +30,6 @@ final class ConfidenceViewController: UIViewController {
         updateContinueState()
     }
 
-    // MARK: - UI Setup
-
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
 
@@ -79,12 +77,6 @@ final class ConfidenceViewController: UIViewController {
         collectionView.collectionViewLayout = layout
     }
 
-    // MARK: - Session Sync
-
-   
-
-    // MARK: - State Handling
-
     private func updateContinueState() {
         let enabled = selectedOption != nil
         continueButton.isEnabled = enabled
@@ -97,22 +89,16 @@ final class ConfidenceViewController: UIViewController {
             : "Select one to continue"
     }
 
-    // MARK: - Actions
-
     @IBAction private func continueTapped(_ sender: UIButton) {
         guard
             let option = selectedOption,
             var user = SessionManager.shared.currentUser
         else { return }
-
-        // Update session user
         user.confidenceLevel = option
         SessionManager.shared.updateSessionUser(user)
 
         goToInterestsChoice()
     }
-
-    // MARK: - Navigation
 
     private func goToInterestsChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
@@ -123,8 +109,6 @@ final class ConfidenceViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
 }
-
-// MARK: - Collection View
 
 extension ConfidenceViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
