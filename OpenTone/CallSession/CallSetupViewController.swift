@@ -35,6 +35,9 @@ class CallSetupViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.collectionViewLayout = createLayout()
         
+        collectionView.backgroundColor = AppColors.screenBackground
+        
+       
 
     }
     
@@ -242,7 +245,7 @@ extension CallSetupViewController: UICollectionViewDelegate {
             englishLevel: englishLevel
         )
 
-//        CallSessionDataModel.shared.startSession(session)
+        CallSessionDataModel.shared.startSession(session)
 
         print("""
         ✅ SESSION CREATED
@@ -257,38 +260,37 @@ extension CallSetupViewController: UICollectionViewDelegate {
     
     func findPeerAndNavigate() {
 
-//        guard let session = CallSessionDataModel.shared.getActiveSession() else { return }
-//
-//        guard let matches = CallSessionDataModel.shared.getMatches(
-//            interests: session.interests,
-//            gender: session.gender,
-//            englishLevel: session.englishLevel
-//        ),
-//        let matchID = matches.first,
-//        let user = UserDataModel.shared.getUser(by: matchID)
-//        else {
-//            print("❌ No peer found")
-//            return
-//        }
+        guard let session = CallSessionDataModel.shared.getActiveSession() else { return }
 
-//        matchedUser = user
-//        selectedSessionInterests = session.interests
-//
-//        performSegue(withIdentifier: "goToMatch", sender: self)
+        guard let matches = CallSessionDataModel.shared.getMatches(
+            interests: session.interests,
+            gender: session.gender,
+            englishLevel: session.englishLevel
+        ),
+        let matchID = matches.first,
+        let user = UserDataModel.shared.getUser(by: matchID)
+        else {
+            print("❌ No peer found")
+            return
+        }
+
+        matchedUser = user
+        selectedSessionInterests = session.interests
+
+        goToUserProfile()
+    }
+    
+    func goToUserProfile(){
+        let storyboard = UIStoryboard(name: "UserProfile", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "UserProfile") as! ProfileStoryboardCollectionViewController
+        vc.isComingFromCall = true
+        vc.titleText = "🎉 Peer Found!"
+        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationController?.pushViewController(vc, animated: true)
     }
 
 
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-        if segue.identifier == "goToMatch",
-           let vc = segue.destination as? CallMatchViewController {
-
-            vc.matchedUser = matchedUser
-            vc.sharedInterests = selectedSessionInterests
-        }
-    }
-
 
 
 

@@ -4,9 +4,11 @@ class FeedbackMistakeCell: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.layer.cornerRadius = 20
-        contentView.clipsToBounds = true
-        contentView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.12)
+        layer.cornerRadius = 24
+        clipsToBounds = true
+        layer.borderWidth = 1
+        layer.borderColor = AppColors.cardBorder.cgColor
+        layer.backgroundColor = AppColors.cardBackground.cgColor
     }
 }
 

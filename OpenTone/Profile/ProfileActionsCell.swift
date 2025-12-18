@@ -2,34 +2,106 @@ import UIKit
 
 final class ProfileActionsCell: UICollectionViewCell {
 
+    // MARK: - UI
+
     @IBOutlet private weak var containerView: UIView!
     @IBOutlet private weak var stackView: UIStackView!
 
     @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
+    @IBOutlet weak var timerLabel: UILabel!
 
+    // MARK: - State
+
+    enum Mode {
+        case normal        // Settings / Log Out
+        case postCall      // Start Call / Search Again
+        case inCall        // Timer + End Call
+        
+        
+    }
+    
+    func updateTimer(text: String) {
+        timerLabel.text = text
+    }
+
+
+    // MARK: - Lifecycle
 
     override func awakeFromNib() {
         super.awakeFromNib()
         setupUI()
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        // Reset reusable state
+        timerLabel.isHidden = true
+        settingsButton.isHidden = false
+
+        settingsButton.removeTarget(nil, action: nil, for: .allEvents)
+        logoutButton.removeTarget(nil, action: nil, for: .allEvents)
+    }
+
+    // MARK: - Setup
+
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = UIColor(hex: "#FBF8FF")
+        containerView.backgroundColor = AppColors.cardBackground
         containerView.layer.cornerRadius = 16
         containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        containerView.layer.borderColor = AppColors.cardBorder.cgColor
 
         stackView.axis = .vertical
         stackView.spacing = 12
+
+        timerLabel.isHidden = true
+        timerLabel.font = .monospacedDigitSystemFont(ofSize: 16, weight: .medium)
+        timerLabel.textAlignment = .center
+        timerLabel.textColor = AppColors.primary
 
         configureButton(settingsButton, title: "Settings", destructive: false)
         configureButton(logoutButton, title: "Log Out", destructive: true)
     }
 
-    private func configureButton(
+    // MARK: - Configuration
+
+    func configure(mode: Mode, timerText: String? = nil) {
+
+        // Always clear targets first (cell reuse safety)
+        settingsButton.removeTarget(nil, action: nil, for: .allEvents)
+        logoutButton.removeTarget(nil, action: nil, for: .allEvents)
+
+        switch mode {
+
+        case .normal:
+            timerLabel.isHidden = true
+            settingsButton.isHidden = false
+
+            configureButton(settingsButton, title: "Settings", destructive: false)
+            configureButton(logoutButton, title: "Log Out", destructive: true)
+
+        case .postCall:
+            timerLabel.isHidden = true
+            settingsButton.isHidden = false
+
+            configureButton(settingsButton, title: "Start Call", destructive: false)
+            configureButton(logoutButton, title: "Search Again", destructive: true)
+
+        case .inCall:
+            timerLabel.isHidden = false
+            timerLabel.text = timerText ?? "00:00"
+
+            settingsButton.isHidden = true
+            configureButton(logoutButton, title: "End Call", destructive: true)
+        }
+    }
+
+    // MARK: - Button Styling
+
+    func configureButton(
         _ button: UIButton,
         title: String,
         destructive: Bool
@@ -43,7 +115,7 @@ final class ProfileActionsCell: UICollectionViewCell {
             button.setTitleColor(.systemRed, for: .normal)
             button.layer.borderColor = UIColor.systemRed.cgColor
         } else {
-            let accent = UIColor(hex: "#5B3CC4")
+            let accent = AppColors.primary
             button.setTitleColor(accent, for: .normal)
             button.layer.borderColor = accent.cgColor
         }

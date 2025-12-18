@@ -34,6 +34,7 @@ class CountryPickerViewController: UIViewController {
         setupUI()
         setupTable()
         setupActions()
+        navigationItem.title = "Select your country"
     }
 
     private func setupUI() {
@@ -43,7 +44,7 @@ class CountryPickerViewController: UIViewController {
         searchField.clipsToBounds = true
 
         searchField.layer.borderWidth = 1
-        searchField.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        searchField.layer.borderColor = AppColors.cardBorder.cgColor
 
         searchField.backgroundColor = .white
         searchField.font = .systemFont(ofSize: 16)

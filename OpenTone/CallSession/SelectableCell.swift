@@ -14,7 +14,7 @@ class SelectableCell: UICollectionViewCell {
         titleLabel.text = title
 
         if isSelected {
-            contentView.backgroundColor = .systemPurple
+            contentView.backgroundColor = AppColors.primary
 
             titleLabel.textColor = .white
             contentView.layer.borderWidth = 0

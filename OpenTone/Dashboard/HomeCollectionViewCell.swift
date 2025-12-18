@@ -5,12 +5,11 @@ class HomeCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var textLabel: UILabel!
 
-    private let baseCardColor = UIColor(hex: "#FBF8FF")
 
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        backgroundColor = baseCardColor
+        backgroundColor = AppColors.cardBackground
         layer.cornerRadius = 30
         clipsToBounds = true
 
@@ -22,6 +21,9 @@ class HomeCollectionViewCell: UICollectionViewCell {
         textLabel.textColor = .white
         textLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         textLabel.numberOfLines = 2
+        
+        layer.borderWidth = 1
+        layer.borderColor = AppColors.cardBorder.cgColor
     }
 
     override func prepareForReuse() {

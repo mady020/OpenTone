@@ -1,6 +1,6 @@
 import UIKit
 
-final class AchievementCell: UICollectionViewCell {
+class AchievementCell: UICollectionViewCell {
 
     @IBOutlet private weak var containerView: UIView!
     @IBOutlet private weak var iconView: UIImageView!
@@ -16,16 +16,16 @@ final class AchievementCell: UICollectionViewCell {
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = UIColor(hex: "#FBF8FF")
+        containerView.backgroundColor = AppColors.cardBackground
         containerView.layer.cornerRadius = 16
         containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        containerView.layer.borderColor = AppColors.cardBorder.cgColor
 
         iconView.contentMode = .scaleAspectFit
-        iconView.tintColor = UIColor(hex: "#5B3CC4")
+        iconView.tintColor = AppColors.primary
 
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        titleLabel.textColor = UIColor(hex: "#333333")
+        titleLabel.textColor = AppColors.textPrimary
 
         subtitleLabel.font = .systemFont(ofSize: 13)
         subtitleLabel.textColor = .secondaryLabel

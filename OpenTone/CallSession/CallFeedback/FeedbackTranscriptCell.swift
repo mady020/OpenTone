@@ -8,8 +8,12 @@ class FeedbackTranscriptCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        contentView.layer.cornerRadius = 20
-        contentView.clipsToBounds = true
+    
+        layer.cornerRadius = 24
+        clipsToBounds = true
+        layer.borderWidth = 1
+        layer.borderColor = AppColors.cardBorder.cgColor
+        layer.backgroundColor = AppColors.cardBackground.cgColor
 
         transcriptLabel.isHidden = false
         transcriptLabel.numberOfLines = 0

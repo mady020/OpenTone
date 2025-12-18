@@ -40,9 +40,11 @@ class FeedbackMetricsCell: UICollectionViewCell {
         let cards = [speechView, fillerView, wpmView, pausesView]
 
         cards.forEach {
-            $0?.layer.cornerRadius = 30
             $0?.clipsToBounds = true
-            $0?.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.12)
+            $0?.layer.cornerRadius = 24
+            $0?.layer.borderWidth = 1
+            $0?.layer.borderColor = AppColors.cardBorder.cgColor
+            $0?.layer.backgroundColor = AppColors.cardBackground.cgColor
         }
     }
 
@@ -61,21 +63,23 @@ class FeedbackMetricsCell: UICollectionViewCell {
         speechTitleLabel.text = "Speech Length"
         speechValueLabel.text = speechValue
         speechProgressView.progress = speechProgress
-
+        speechProgressView.progressTintColor = AppColors.primary
+    
 
         fillerTitleLabel.text = "Filler Words"
         fillerValueLabel.text = fillerValue
         fillerProgressView.progress = fillerProgress
-
+        fillerProgressView.progressTintColor = AppColors.primary
   
         wpmTitleLabel.text = "Words Per Minute"
         wpmValueLabel.text = wpmValue
         wpmProgressView.progress = wpmProgress
+        wpmProgressView.progressTintColor = AppColors.primary
 
 
         pausesTitleLabel.text = "Pauses"
         pausesValueLabel.text = pausesValue
-        pausesProgressView.progress = pausesProgress
+        pausesProgressView.progressTintColor = AppColors.primary
     }
 }
 
