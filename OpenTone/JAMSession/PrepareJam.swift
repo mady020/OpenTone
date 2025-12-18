@@ -1,129 +1,127 @@
 
 import UIKit
 
-class PrepareJamViewController: UIViewController {
+final class PrepareJamViewController: UIViewController {
+
+    var forceTimerReset: Bool = false
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var bulbButton: UIButton!
-    private(set) var selectedTopic: String = "THE FUTURE OF REMOTE WORK AND CHALLAGNES"
 
-    private let allSuggestions: [String] = [
-        "Increased Flexibility",
-        "Global Collaboration",
-        "Work-Life Balance",
-        "Productivity Trends",
-        "Employee Wellbeing",
-        "Hybrid Work Challenges"
-    ]
+    private var selectedTopic: String = ""
+    private var allSuggestions: [String] = []
+
+    private var remainingSeconds: Int = 120
+    private var lastKnownSeconds: Int = 120
 
     private var visibleCount = 4
     private var visibleSuggestions: [String] {
-        return Array(allSuggestions.prefix(visibleCount))
+        Array(allSuggestions.prefix(visibleCount))
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.delegate = self
 
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
-        layout.minimumInteritemSpacing = 12
         layout.minimumLineSpacing = 15
+        layout.minimumInteritemSpacing = 12
         collectionView.collectionViewLayout = layout
-
-        if selectedTopic.isEmpty {
-            selectedTopic = "THE FUTURE OF REMOTE WORK"
-        }
-
-        bulbButton.isHidden = (visibleCount >= allSuggestions.count)
     }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
+
+        guard let session = JamSessionDataModel.shared.getActiveSession() else { return }
+
+        selectedTopic = session.topic
+        allSuggestions = session.suggestions
+
+        if forceTimerReset {
+            remainingSeconds = 120
+            forceTimerReset = false
+        } else {
+            remainingSeconds = session.secondsLeft
+        }
+
+        lastKnownSeconds = remainingSeconds
+
+        visibleCount = min(4, allSuggestions.count)
+        bulbButton.isHidden = visibleCount >= allSuggestions.count
+
+        collectionView.reloadData()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
 
+        guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
+        session.secondsLeft = lastKnownSeconds
+        JamSessionDataModel.shared.updateActiveSession(session)
+    }
 
     @IBAction func bulbTapped(_ sender: UIButton) {
-        guard visibleCount < allSuggestions.count else {
-            bulbButton.isHidden = true
-            return
-        }
+        guard visibleCount < allSuggestions.count else { return }
 
-        let startIndex = visibleCount
+        let start = visibleCount
         visibleCount = allSuggestions.count
 
-        var newIndexPaths: [IndexPath] = []
-        for i in startIndex..<visibleCount {
-            newIndexPaths.append(IndexPath(item: i, section: 2))
+        let indexPaths = (start..<visibleCount).map {
+            IndexPath(item: $0, section: 2)
         }
 
-        collectionView.performBatchUpdates({
-            collectionView.insertItems(at: newIndexPaths)
-        }, completion: nil)
+        collectionView.performBatchUpdates {
+            collectionView.insertItems(at: indexPaths)
+        }
 
         bulbButton.isHidden = true
     }
 
     @IBAction func startJamTapped(_ sender: UIButton) {
-        goToSpeechCountdown()
+        goToCountdown()
     }
-    private func goToSpeechCountdown() {
-        if selectedTopic.isEmpty {
-            if let topic = topicFromVisibleCell() { selectedTopic = topic }
-        }
 
-        guard let countdownVC = storyboard?.instantiateViewController(
+    private func goToCountdown() {
+
+        guard let vc = storyboard?.instantiateViewController(
             withIdentifier: "CountdownViewController"
-        ) as? CountdownViewController else {
-            return
-        }
-        countdownVC.mode = .speech
-        countdownVC.topicText = selectedTopic
+        ) as? CountdownViewController else { return }
 
-        navigationController?.pushViewController(countdownVC, animated: true)
-    }
-    func timerDidFinish() {
-        goToSpeechCountdown()
-    }
-    private func topicFromVisibleCell() -> String? {
-        let indexPath = IndexPath(item: 0, section: 1)
-        guard let cell = collectionView.cellForItem(at: indexPath) as? TopicCell else {
-            return nil
-        }
-        let t = cell.tileLabel.text?.trimmingCharacters(in: .whitespacesAndNewlines)
-        return (t?.isEmpty == false) ? t : nil
+        vc.isSpeechCountdown = true   // ✅ REQUIRED FIX
+
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
-
-extension PrepareJamViewController: TimerCellDelegate {
-}
-
 
 extension PrepareJamViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int { 3 }
 
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 { return 1 }     // timer
-        if section == 1 { return 1 }     // topic
-        return visibleSuggestions.count  // suggestions
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
+        if section == 0 { return 1 }
+        if section == 1 { return 1 }
+        return visibleSuggestions.count
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: "TimerCell",
+                withReuseIdentifier: TimerCellCollectionViewCell.reuseId,
                 for: indexPath
             ) as! TimerCellCollectionViewCell
 
             cell.delegate = self
+            cell.setupTimer(
+                secondsLeft: remainingSeconds,
+                reset: false
+            )
             return cell
         }
 
@@ -133,9 +131,6 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
                 for: indexPath
             ) as! TopicCell
 
-            if selectedTopic.isEmpty {
-                selectedTopic = "THE FUTURE OF REMOTE WORK"
-            }
             cell.tileLabel.text = selectedTopic
             return cell
         }
@@ -149,28 +144,33 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
         return cell
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
 
         let width = collectionView.bounds.width
-        if indexPath.section == 0 { return CGSize(width: width - 30, height: 260) }
-        if indexPath.section == 1 { return CGSize(width: width, height: 105) }
 
-        let leftRight: CGFloat = 15
-        let spacing: CGFloat = 12
-        let available = width - (leftRight * 2) - spacing
-        let itemWidth = available / 2
-        return CGSize(width: itemWidth, height: 50)
-    }
+        if indexPath.section == 0 {
+            return CGSize(width: width - 30, height: 260)
+        }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        minimumLineSpacingForSectionAt section: Int
-    ) -> CGFloat {
-        return 15
+        if indexPath.section == 1 {
+            return CGSize(width: width, height: 105)
+        }
+
+        let available = width - 30 - 12
+        return CGSize(width: available / 2, height: 50)
     }
 }
+
+extension PrepareJamViewController: TimerCellDelegate {
+
+    func timerDidUpdate(secondsLeft: Int) {
+        lastKnownSeconds = secondsLeft
+    }
+
+    func timerDidFinish() {
+        goToCountdown()
+    }
+}
+

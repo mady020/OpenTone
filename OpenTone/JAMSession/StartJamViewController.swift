@@ -5,161 +5,178 @@ class StartJamViewController: UIViewController {
 
     @IBOutlet weak var timerRingView: TimerRingView!
     @IBOutlet weak var timerLabel: UILabel!
-    @IBOutlet weak var waveView: UIView!
-
     @IBOutlet weak var topicTitleLabel: UILabel!
+    @IBOutlet weak var hintButton: UIButton!
+    @IBOutlet weak var bottomActionStackView: UIStackView!
 
-    @IBOutlet weak var bulbButton: UIButton!
-    @IBOutlet weak var cancelButton: UIButton!
-    @IBOutlet weak var micContainerView: UIView!
-    @IBOutlet weak var micImageView: UIImageView!
-    @IBOutlet weak var waveAnimationView: UIView!
-    var topicText: String = ""
-
-    private let timerManager = TimerManager()   // 2 minutes fixed (120 sec)
-    private var didStart = false
+    private let timerManager = TimerManager()
+    private var remainingSeconds: Int = 120
+    private var hintStackView: UIStackView?
+    private var didFinishSpeech = false
+    private var isMicOn = false   // only logical state, no UI handling
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.hidesBottomBarWhenPushed = true
-        
-        view.backgroundColor = .white
-
         timerManager.delegate = self
-        setupInitialUI()
-        setupWaveAnimation()
-        let tap = UITapGestureRecognizer(target: self, action: #selector(micTapped))
-        micContainerView.addGestureRecognizer(tap)
-
-        micImageView.tintColor = .black
-        micImageView.image = UIImage(systemName: "mic.slash.fill")
-        waveAnimationView.isHidden = true
     }
-
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
-        topicTitleLabel.text = topicText
-        topicTitleLabel.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-    }
 
+
+        guard let session = JamSessionDataModel.shared.getActiveSession() else { return }
+
+        topicTitleLabel.text = session.topic
+        remainingSeconds = session.secondsLeft
+        timerLabel.text = format(remainingSeconds)
+    }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
 
-            if !self.didStart {
-                self.didStart = true
-                self.timerRingView.resetRing()
-                self.timerRingView.animateRing(duration: 120)
-                self.timerManager.start()
-            }
-        }
+        timerManager.reset()
+        timerRingView.resetRing()
+
+        timerRingView.animateRing(
+            remainingSeconds: remainingSeconds,
+            totalSeconds: 120
+        )
+
+        timerManager.start(from: remainingSeconds)
+
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        micContainerView.layer.cornerRadius = micContainerView.bounds.width / 2
-        micContainerView.clipsToBounds = true
-    }
-    @objc func micTapped() {
-        if waveAnimationView.isHidden {
-            showWaveformState()
-        } else {
-            showMicOffState()
-        }
+        guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
+        session.secondsLeft = remainingSeconds
+        JamSessionDataModel.shared.updateActiveSession(session)
     }
 
-    func showWaveformState() {
-        micImageView.isHidden = true
-        waveAnimationView.isHidden = false
-        startWaveAnimation()
+    // MARK: - Mic Logic (NO UI code)
+
+    @IBAction func micTapped(_ sender: UIButton) {
+        isMicOn.toggle()
+        // UI is handled in storyboard (selected state / images)
+        // Use isMicOn later for audio / speech logic
+
     }
 
-    func showMicOffState() {
-        micImageView.isHidden = false
-        waveAnimationView.isHidden = true
-        stopWaveAnimation()
+    // MARK: - Hint Logic
+
+    @IBAction func hintTapped(_ sender: UIButton) {
+        hintStackView == nil ? showHints() : removeHints()
     }
 
-    func startWaveAnimation() {
-        waveAnimationView.layer.removeAllAnimations()
-        UIView.animate(withDuration: 1.2,
-                       delay: 0,
-                       options: [.repeat, .autoreverse],
-                       animations: {
-            self.waveAnimationView.transform = CGAffineTransform(scaleX: 1, y: 4)
-        })
+    private func showHints() {
+        removeHints()
+
+        let hints = JamSessionDataModel.shared.generateSpeakingHints()
+
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 10
+        stack.alignment = .leading
+
+        view.addSubview(stack)
+        view.bringSubviewToFront(stack)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stack.bottomAnchor.constraint(equalTo: bottomActionStackView.topAnchor, constant: -15),
+            stack.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8)
+        ])
+
+        hintStackView = stack
+        hints.forEach { stack.addArrangedSubview(createHintChip(text: $0)) }
     }
 
-    func stopWaveAnimation() {
-        waveAnimationView.layer.removeAllAnimations()
-        waveAnimationView.transform = .identity
+    private func createHintChip(text: String) -> UIView {
+
+        let chip = UIView()
+        chip.backgroundColor = UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 0.12)
+        chip.layer.cornerRadius = 22
+        chip.layer.borderWidth = 2
+        chip.layer.borderColor = UIColor(
+            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
+        ).cgColor
+
+        let label = UILabel()
+        label.text = text
+        label.textColor = .black
+        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.numberOfLines = 0
+
+        chip.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: chip.topAnchor, constant: 12),
+            label.bottomAnchor.constraint(equalTo: chip.bottomAnchor, constant: -12),
+            label.leadingAnchor.constraint(equalTo: chip.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: chip.trailingAnchor, constant: -16)
+        ])
+
+        return chip
     }
-    private func setupInitialUI() {
-        timerLabel.text = "02:00"
-        timerLabel.textColor = .black
+
+    private func removeHints() {
+        hintStackView?.removeFromSuperview()
+        hintStackView = nil
     }
 
-    private func setupWaveAnimation() {
-        waveView.subviews.forEach { $0.removeFromSuperview() }
-
-        let wave = UIView(frame: CGRect(
-            x: 0,
-            y: waveView.bounds.midY - 1,
-            width: waveView.bounds.width,
-            height: 2
-        ))
-
-        wave.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.6)
-        wave.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin]
-        waveView.addSubview(wave)
-
-        UIView.animate(withDuration: 1.2,
-                       delay: 0,
-                       options: [.repeat, .autoreverse],
-                       animations: {
-            wave.transform = CGAffineTransform(scaleX: 1, y: 5)
-        })
+    private func format(_ seconds: Int) -> String {
+        String(format: "%02d:%02d", seconds / 60, seconds % 60)
     }
-    @IBAction func cancelTapped(_ sender: UIButton) {
-        navigationController?.popViewController(animated: true)
-    }
-    @IBAction func beginSpeechTapped(_ sender: UIButton) {
 
-        guard let countdownVC = storyboard?.instantiateViewController(
-            withIdentifier: "CountdownViewController"
-        ) as? CountdownViewController else { return }
-
-        countdownVC.mode = .speech
-        navigationController?.pushViewController(countdownVC, animated: true)
-    }
+    //    @IBAction func cancelTapped(_ sender: UIButton) {
+    //
+    //        guard let vc = storyboard?
+    //            .instantiateViewController(
+    //                withIdentifier: "JamFeedbackCollectionViewController"
+    //            ) as? JamFeedbackCollectionViewController else { return }
+    //
+    //        navigationController?.pushViewController(vc, animated: true)
+    //    }
 }
+
 extension StartJamViewController: TimerManagerDelegate {
 
-    func timerManagerDidStartMainTimer() {
-        timerLabel.text = "02:00"
-    }
+    func timerManagerDidStartMainTimer() {}
 
     func timerManagerDidUpdateMainTimer(_ formattedTime: String) {
         timerLabel.text = formattedTime
+
+        let parts = formattedTime.split(separator: ":")
+        if parts.count == 2,
+           let min = Int(parts[0]),
+           let sec = Int(parts[1]) {
+            remainingSeconds = min * 60 + sec
+        }
     }
     
     func timerManagerDidFinish() {
+
+        guard !didFinishSpeech else { return }
+        didFinishSpeech = true
+
         timerLabel.text = "00:00"
-        StreakDataModel.shared.logSession(
-            title: "2 Min Session",
-            subtitle: "You completed a speaking session",
-            topic: topicText,          // REAL topic user spoke on
-            durationMinutes: 2,
-            xp: 15,
-            iconName: "mic.fill"
-        )
+
+        guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
+        session.phase = .completed
+        session.endedAt = Date()
+        JamSessionDataModel.shared.updateActiveSession(session)
+
+        //        guard let vc = storyboard?
+        //            .instantiateViewController(
+        //                withIdentifier: "JamFeedbackCollectionViewController"
+        //            ) as? JamFeedbackCollectionViewController else { return }
+        //
+        //        navigationController?.pushViewController(vc, animated: true)
+
     }
 
     
