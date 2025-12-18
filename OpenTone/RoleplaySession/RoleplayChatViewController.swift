@@ -29,8 +29,6 @@ extension RoleplayChatViewController: SuggestionCellDelegate {
 
 
 class RoleplayChatViewController: UIViewController {
-
-    // MARK: - Passed Data (FROM prepare segue)
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
 
@@ -43,12 +41,8 @@ class RoleplayChatViewController: UIViewController {
     @IBOutlet weak var micButton: UIButton!
 
     @IBOutlet var replayButton: UIButton!
-    // MARK: - UI State
     private var messages: [ChatMessage] = []
     private var didLoadChat = false
-     
-
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -197,8 +191,6 @@ class RoleplayChatViewController: UIViewController {
                 session,
                 scenario: scenario
             )
-
-            //  LOG TO STREAK / HISTORY (THIS WAS MISSING)
             StreakDataModel.shared.logSession(
                 title: "Roleplay Session",
                 subtitle: "You completed a roleplay",

@@ -1,9 +1,3 @@
-//
-//  StartJamViewController.swift
-//  OpenTone
-//
-//  Created by Student on 03/12/25.
-//
 
 import UIKit
 
@@ -17,13 +11,9 @@ class StartJamViewController: UIViewController {
 
     @IBOutlet weak var bulbButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
-
-    // MIC UI
     @IBOutlet weak var micContainerView: UIView!
     @IBOutlet weak var micImageView: UIImageView!
     @IBOutlet weak var waveAnimationView: UIView!
-
-    // TOPIC FROM PREVIOUS SCREEN
     var topicText: String = ""
 
     private let timerManager = TimerManager()   // 2 minutes fixed (120 sec)
@@ -39,8 +29,6 @@ class StartJamViewController: UIViewController {
         timerManager.delegate = self
         setupInitialUI()
         setupWaveAnimation()
-
-        // Mic toggle setup
         let tap = UITapGestureRecognizer(target: self, action: #selector(micTapped))
         micContainerView.addGestureRecognizer(tap)
 
@@ -53,8 +41,6 @@ class StartJamViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
-        
-        // ⭐ FIX: Topic text visible & styled
         topicTitleLabel.text = topicText
         topicTitleLabel.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
     }
@@ -62,19 +48,13 @@ class StartJamViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-
-        // ⭐ EXACT SAME LOGIC AS TIMER CELL
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
             if !self.didStart {
                 self.didStart = true
-
-                // Reset & animate ring
                 self.timerRingView.resetRing()
                 self.timerRingView.animateRing(duration: 120)
-
-                // Start timer countdown
                 self.timerManager.start()
             }
         }
@@ -87,9 +67,6 @@ class StartJamViewController: UIViewController {
         micContainerView.layer.cornerRadius = micContainerView.bounds.width / 2
         micContainerView.clipsToBounds = true
     }
-
-
-    // MARK: - MIC UI LOGIC
     @objc func micTapped() {
         if waveAnimationView.isHidden {
             showWaveformState()
@@ -124,9 +101,6 @@ class StartJamViewController: UIViewController {
         waveAnimationView.layer.removeAllAnimations()
         waveAnimationView.transform = .identity
     }
-
-
-    // MARK: - UI SETUP
     private func setupInitialUI() {
         timerLabel.text = "02:00"
         timerLabel.textColor = .black
@@ -153,15 +127,9 @@ class StartJamViewController: UIViewController {
             wave.transform = CGAffineTransform(scaleX: 1, y: 5)
         })
     }
-
-
-    // CANCEL BUTTON
     @IBAction func cancelTapped(_ sender: UIButton) {
         navigationController?.popViewController(animated: true)
     }
-
-
-    //  START SPEECH → GO TO COUNTDOWN
     @IBAction func beginSpeechTapped(_ sender: UIButton) {
 
         guard let countdownVC = storyboard?.instantiateViewController(
@@ -172,9 +140,6 @@ class StartJamViewController: UIViewController {
         navigationController?.pushViewController(countdownVC, animated: true)
     }
 }
-
-
-//  TIMER MANAGER DELEGATE
 extension StartJamViewController: TimerManagerDelegate {
 
     func timerManagerDidStartMainTimer() {
@@ -184,11 +149,9 @@ extension StartJamViewController: TimerManagerDelegate {
     func timerManagerDidUpdateMainTimer(_ formattedTime: String) {
         timerLabel.text = formattedTime
     }
- // session history record 
+    
     func timerManagerDidFinish() {
         timerLabel.text = "00:00"
-
-        //  LOG SESSION FOR HISTORY & PROGRESS
         StreakDataModel.shared.logSession(
             title: "2 Min Session",
             subtitle: "You completed a speaking session",

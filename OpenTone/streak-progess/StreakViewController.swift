@@ -1,9 +1,3 @@
-//
-//  StreakViewController.swift
-//  OpenTone
-//
-//  Created by Student on 10/12/25.
-//
 
 import UIKit
 
@@ -64,8 +58,6 @@ class StreakViewController: UIViewController {
     @IBOutlet weak var totalWeekTimeLabel: UILabel!
     @IBOutlet weak var bigCircularRing: BigCircularProgressView!
     @IBOutlet weak var weekdaysStackView: UIStackView!
-    
-    // Properties
     private let dailyGoalMinutes = 420
     private var hasAnimated = false
     private var weekdayData: [WeekdayStreak] = []
@@ -92,8 +84,6 @@ class StreakViewController: UIViewController {
         emphasizeTodayRingAndLabel()
         setupWeekdayRingTaps()
     }
-    
-    // Weekday Data
     func loadWeekdayData() {
         weekdayData = []
         for index in 0..<7 {
@@ -103,8 +93,6 @@ class StreakViewController: UIViewController {
             weekdayData.append(WeekdayStreak(completed: Int(progressValue * CGFloat(dailyGoalMinutes)), target: dailyGoalMinutes))
         }
     }
-    
-    // Helpers
     func mondayBasedWeekdayIndex(from date: Date) -> Int {
         let weekday = Calendar.current.component(.weekday, from: date)
         return (weekday + 5) % 7
@@ -126,8 +114,6 @@ class StreakViewController: UIViewController {
         if calendar.compare(date, to: joinDate, toGranularity: .day) == .orderedAscending { return false }
         return true
     }
-    
-    // Animations
     func animateBigRing() {
         let todayMinutes = StreakDataModel.shared.totalMinutes(for: Date())
         let progress = CGFloat(todayMinutes) / CGFloat(dailyGoalMinutes)
@@ -165,8 +151,6 @@ class StreakViewController: UIViewController {
             ringView.alpha = isDayEnabled(index: index) ? 1.0 : 0.3
         }
     }
-    
-    // Weekday Ring Taps
     func setupWeekdayRingTaps() {
         for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
             guard let dayStack = view as? UIStackView,
@@ -316,8 +300,6 @@ class StreakViewController: UIViewController {
         historyButton.alpha = 1.0
         historyButton.setTitleColor(.systemPurple, for: .normal)
     }
-    
-    //  Dummy Data
     func dummyMinutes(for date: Date) -> (today: Int, yesterday: Int) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())

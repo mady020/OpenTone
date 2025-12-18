@@ -1,9 +1,3 @@
-//
-//  TimerManager.swift
-//  OpenTone
-//
-//  Created by Student on 03/12/25.
-//
 
 import Foundation
 
@@ -28,8 +22,6 @@ final class TimerManager {
         self.secondsLeft = totalSeconds
     }
 
-    // MARK: - Public API
-
     func start() {
         guard !isRunning else { return }
         isRunning = true
@@ -42,8 +34,6 @@ final class TimerManager {
         secondsLeft = totalSeconds
         isRunning = false
     }
-
-    // MARK: - Private
 
     private func startMainTimer() {
         secondsLeft = totalSeconds

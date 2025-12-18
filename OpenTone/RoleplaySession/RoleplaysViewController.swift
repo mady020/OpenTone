@@ -7,15 +7,11 @@ class RoleplaysViewController: UIViewController {
 
     var selectedScenario: RoleplayScenario?
     var selectedSession: RoleplaySession?
-
-    // Data from your DataModel
     var roleplays: [RoleplayScenario] = []
     var filteredRoleplays: [RoleplayScenario] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Load scenarios
         roleplays = RoleplayScenarioDataModel.shared.getAll()
         filteredRoleplays = roleplays
 
@@ -29,8 +25,6 @@ class RoleplaysViewController: UIViewController {
         super.viewDidLayoutSubviews()
         setupCollectionViewLayout()
     }
-
-    //  UI Setup
     func setupSearchBar() {
         searchBar.delegate = self
         searchBar.placeholder = "Search roleplays"
@@ -70,9 +64,6 @@ class RoleplaysViewController: UIViewController {
     
     
 }
-
-
-// MARK: - CollectionView
 extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -114,9 +105,6 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
 
 
 }
-
-
-// MARK: - Search Bar
 extension RoleplaysViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {

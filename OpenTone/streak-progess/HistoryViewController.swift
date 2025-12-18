@@ -1,9 +1,3 @@
-//
-//  HistoryViewController.swift
-//  OpenTone
-//
-//  Created by Student on 10/12/25.
-//
 
 import UIKit
 
@@ -11,8 +5,6 @@ class HistoryViewController: UIViewController {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
-
-        // Injected from Streak screen
         var items: [HistoryItem] = []
         var selectedDate: Date = Date()
 
@@ -41,8 +33,6 @@ class HistoryViewController: UIViewController {
         }
     }
 
-    // TableView
-
     extension HistoryViewController: UITableViewDataSource, UITableViewDelegate {
 
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -65,8 +55,6 @@ class HistoryViewController: UIViewController {
             return cell
         }
     }
-
-    // Search
 
     extension HistoryViewController: UISearchBarDelegate {
 

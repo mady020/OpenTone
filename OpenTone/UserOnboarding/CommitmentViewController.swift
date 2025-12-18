@@ -7,14 +7,10 @@ struct CommitmentOption: Hashable {
 }
 
 final class CommitmentViewController: UIViewController {
-
-    // MARK: - IBOutlets
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var subtitleLabel: UILabel!
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var continueButton: UIButton!
-
-    // MARK: - Data
 
     private let options: [CommitmentOption] = [
         CommitmentOption(title: "5 minutes per day", subtitle: "Quick daily progress", number: 5),
@@ -27,10 +23,6 @@ final class CommitmentViewController: UIViewController {
         didSet { updateContinueState() }
     }
 
-
-
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -38,8 +30,6 @@ final class CommitmentViewController: UIViewController {
         preloadFromSession()
         updateContinueState()
     }
-
-    // MARK: - UI Setup
 
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
@@ -92,10 +82,6 @@ final class CommitmentViewController: UIViewController {
 
         collectionView.collectionViewLayout = layout
     }
-
-    // MARK: - Session Sync
-
-    /// Preselect commitment if user already has one
     private func preloadFromSession() {
         guard
             let user = SessionManager.shared.currentUser,
@@ -105,8 +91,6 @@ final class CommitmentViewController: UIViewController {
         selectedOption = options.first { $0.number == streak.commitment }
     }
 
-    // MARK: - State
-
     private func updateContinueState() {
         let enabled = selectedOption != nil
         continueButton.isEnabled = enabled
@@ -115,15 +99,11 @@ final class CommitmentViewController: UIViewController {
             : UIColor(hex: "#C9C7D6")
     }
 
-    // MARK: - Actions
-
     @IBAction private func continueTapped(_ sender: UIButton) {
         guard
             let selected = selectedOption,
             var user = SessionManager.shared.currentUser
         else { return }
-
-        // Persist commitment
         user.streak = Streak(
             commitment: selected.number,
             currentCount: 1,
@@ -131,14 +111,10 @@ final class CommitmentViewController: UIViewController {
         )
 
         SessionManager.shared.updateSessionUser(user)
-
-        // Clear onboarding-only state
         InterestSelectionStore.shared.selected.removeAll()
 
         goToDashboard()
     }
-
-    // MARK: - Navigation
 
     private func goToDashboard() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -159,8 +135,6 @@ final class CommitmentViewController: UIViewController {
         window.makeKeyAndVisible()
     }
 }
-
-// MARK: - Collection View
 
 extension CommitmentViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 

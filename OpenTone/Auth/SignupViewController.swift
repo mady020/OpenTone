@@ -15,8 +15,6 @@ final class SignupViewController: UIViewController {
         addPasswordToggle()
     }
 
-    // MARK: - Actions
-
     @IBAction func signupButtonTapped(_ sender: UIButton) {
         handleSignup()
     }
@@ -25,9 +23,6 @@ final class SignupViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    // MARK: - Signup Logic
-
-    /// Creates a new user, starts a session, and moves to onboarding
     private func handleSignup() {
         guard
             let name = nameField.text, !name.isEmpty,
@@ -36,8 +31,6 @@ final class SignupViewController: UIViewController {
         else {
             return
         }
-
-        // Create new user (local-only signup)
         let user = User(
             name: name,
             email: email,
@@ -45,17 +38,9 @@ final class SignupViewController: UIViewController {
             country: nil,
             avatar: "pp1"
         )
-
-        // Start session
         SessionManager.shared.login(user: user)
-
-        // Move to onboarding
         goToUserInfo()
     }
-
-    // MARK: - Navigation
-
-    /// Navigates to the first onboarding screen
     private func goToUserInfo() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let userInfoVC = storyboard.instantiateViewController(
@@ -69,8 +54,6 @@ final class SignupViewController: UIViewController {
         view.window?.rootViewController = nav
         view.window?.makeKeyAndVisible()
     }
-
-    // MARK: - UI Helpers
 
     private func addIconsToTextFields() {
         let nameIcon = UIImageView(image: UIImage(systemName: "person.fill"))

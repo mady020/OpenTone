@@ -1,9 +1,3 @@
-//
-//  UserMessageCell.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 02/12/25.
-//
 
 import UIKit
 
@@ -21,15 +15,11 @@ class UserMessageCell: UITableViewCell {
         super.awakeFromNib()
         
         bubbleView.layer.cornerRadius = 18
-//        bubbleView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.22)
         
         bubbleView.clipsToBounds = true
         
         
         bubbleView.translatesAutoresizingMaskIntoConstraints = false
-//
-
-//        
         bubbleView.layer.maskedCorners = [
             .layerMinXMinYCorner, // top-left
             .layerMaxXMinYCorner ,   // top-right

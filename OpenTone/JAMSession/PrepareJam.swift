@@ -1,9 +1,3 @@
-//
-//  PrepareJamViewController.swift
-//  OpenTone
-//
-//  Created by Student on 28/11/25.
-//
 
 import UIKit
 
@@ -11,8 +5,6 @@ class PrepareJamViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var bulbButton: UIButton!
-
-    // topic to pass forward (can be set from AI later)
     private(set) var selectedTopic: String = "THE FUTURE OF REMOTE WORK AND CHALLAGNES"
 
     private let allSuggestions: [String] = [
@@ -78,11 +70,7 @@ class PrepareJamViewController: UIViewController {
     @IBAction func startJamTapped(_ sender: UIButton) {
         goToSpeechCountdown()
     }
-
-    // NAVIGATION ENTRY FOR SPEECH COUNTDOWN
     private func goToSpeechCountdown() {
-
-        // Ensure topic is selected
         if selectedTopic.isEmpty {
             if let topic = topicFromVisibleCell() { selectedTopic = topic }
         }
@@ -92,22 +80,14 @@ class PrepareJamViewController: UIViewController {
         ) as? CountdownViewController else {
             return
         }
-
-        // Set mode to SPEECH ROUND
         countdownVC.mode = .speech
-        
-        //  passing topic for start screen
         countdownVC.topicText = selectedTopic
 
         navigationController?.pushViewController(countdownVC, animated: true)
     }
-
-    // For timer auto-start case
     func timerDidFinish() {
         goToSpeechCountdown()
     }
-
-    // Helper: read topic label
     private func topicFromVisibleCell() -> String? {
         let indexPath = IndexPath(item: 0, section: 1)
         guard let cell = collectionView.cellForItem(at: indexPath) as? TopicCell else {
@@ -119,8 +99,6 @@ class PrepareJamViewController: UIViewController {
 }
 
 extension PrepareJamViewController: TimerCellDelegate {
-    // We already have an implementation with the correct signature above,
-    // but we add the conformance here so `self` can be assigned to the cell's delegate.
 }
 
 

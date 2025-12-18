@@ -1,33 +1,18 @@
-//
-//  ViewController.swift
-//  OpenTone
-//
-//  Created by M S on 16/12/25.
-//
 
 
 import UIKit
 import AVFoundation
 
 final class AICallController: UIViewController {
-    
-
-    // MARK: - Audio
     private let audioEngine = AVAudioEngine()
     private var isMuted = false
-
-    // MARK: - Animation
     private var displayLink: CADisplayLink?
     private let ringLayer = CAShapeLayer()
-
-    // MARK: - State
     private var smoothedLevel: CGFloat = 0.12
     private let smoothingFactor: CGFloat = 0.15
 
     private let baseRadius: CGFloat = 90
     private let maxExpansion: CGFloat = 45
-
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -44,8 +29,6 @@ final class AICallController: UIViewController {
         displayLink?.invalidate()
         audioEngine.stop()
     }
-
-    // MARK: - Ring
     private func setupRing() {
         ringLayer.strokeColor = AppColors.primary.cgColor
         ringLayer.fillColor = UIColor.clear.cgColor
@@ -69,8 +52,6 @@ final class AICallController: UIViewController {
 
         ringLayer.path = path.cgPath
     }
-
-    // MARK: - Buttons
     private func setupButtons() {
         let muteButton = makeButton(
             symbol: "mic.fill",
@@ -105,8 +86,6 @@ final class AICallController: UIViewController {
 
         return button
     }
-
-    // MARK: - Audio Session
     private func setupAudioSession() {
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(
@@ -116,8 +95,6 @@ final class AICallController: UIViewController {
         )
         try? session.setActive(true)
     }
-
-    // MARK: - Audio Engine
     private func setupAudio() {
         let inputNode = audioEngine.inputNode
         let format = inputNode.inputFormat(forBus: 0)
@@ -152,8 +129,6 @@ final class AICallController: UIViewController {
                 (CGFloat(normalized) - self.smoothedLevel) * self.smoothingFactor
         }
     }
-
-    // MARK: - Animation Loop
     private func startDisplayLink() {
         displayLink = CADisplayLink(
             target: self,
@@ -166,8 +141,6 @@ final class AICallController: UIViewController {
         let radius = baseRadius + smoothedLevel * maxExpansion
         updateRing(radius: radius)
     }
-
-    // MARK: - Actions
     @objc private func toggleMute(_ sender: UIButton) {
         isMuted.toggle()
         let symbol = isMuted ? "mic.slash.fill" : "mic.fill"

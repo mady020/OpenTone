@@ -3,13 +3,9 @@ import UIKit
 final class InterestCard: UICollectionViewCell {
 
     static let reuseIdentifier = "InterestCard"
-
-    // MARK: - IBOutlets
     @IBOutlet private weak var containerView: UIView!
     @IBOutlet private weak var iconView: UIImageView!
     @IBOutlet private weak var titleLabel: UILabel!
-
-    // MARK: - Lifecycle
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -22,29 +18,18 @@ final class InterestCard: UICollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-
-        // Reset visual state
         containerView.transform = .identity
         containerView.layer.borderWidth = 1
     }
 
-    // MARK: - Setup
-
     private func setupUI() {
-        // Card container
         containerView.layer.cornerRadius = 18
         containerView.layer.masksToBounds = true
-
-        // Icon
         iconView.contentMode = .scaleAspectFit
-
-        // Title
         titleLabel.textAlignment = .center
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.numberOfLines = 1
     }
-
-    // MARK: - Configuration
 
     func configure(
         with item: InterestItem,

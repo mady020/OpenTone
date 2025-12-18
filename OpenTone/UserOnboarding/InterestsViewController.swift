@@ -6,8 +6,6 @@ final class InterestsViewController: UIViewController {
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var continueButton: UIButton!
 
-    // MARK: - Data
-
     private let allItems: [InterestItem] = [
         InterestItem(title: "Technology",   symbol: "cpu"),
         InterestItem(title: "Gaming",       symbol: "gamecontroller.fill"),
@@ -32,18 +30,12 @@ final class InterestsViewController: UIViewController {
     ]
 
     private var filteredItems: [InterestItem] = []
-
-    /// Shared selection state across interest screens
     private var selectedInterests: Set<InterestItem> {
         get { InterestSelectionStore.shared.selected }
         set { InterestSelectionStore.shared.selected = newValue }
     }
-
-    // MARK: - Colors
     
     private let borderColor       = AppColors.cardBorder
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,13 +50,9 @@ final class InterestsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        // Ensure selections are reflected when coming back
         updateContinueState()
         collectionView.reloadData()
     }
-
-    // MARK: - Setup
 
     private func setupSearchBar() {
         searchBar.searchBarStyle = .minimal
@@ -97,8 +85,6 @@ final class InterestsViewController: UIViewController {
         continueButton.tintColor = .white
     }
 
-    // MARK: - Layout
-
     private func makeLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { _, _ in
 
@@ -130,8 +116,6 @@ final class InterestsViewController: UIViewController {
         }
     }
 
-    // MARK: - State
-
     private func updateContinueState() {
         let enabled = selectedInterests.count >= 3
         continueButton.isHidden = !enabled
@@ -142,15 +126,11 @@ final class InterestsViewController: UIViewController {
             : UIColor(hex: "#C9C7D6")
     }
 
-    // MARK: - Actions
-
     @IBAction private func continueTapped() {
         guard
             selectedInterests.count >= 3,
             var user = SessionManager.shared.currentUser
         else { return }
-
-        // Persist final interests into session
         user.interests = selectedInterests
         SessionManager.shared.updateSessionUser(user)
 
@@ -166,8 +146,6 @@ final class InterestsViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
 }
-
-// MARK: - UICollectionViewDataSource
 
 extension InterestsViewController: UICollectionViewDataSource {
 
@@ -200,8 +178,6 @@ extension InterestsViewController: UICollectionViewDataSource {
     }
 }
 
-// MARK: - UICollectionViewDelegate
-
 extension InterestsViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -217,8 +193,6 @@ extension InterestsViewController: UICollectionViewDelegate {
         collectionView.reloadItems(at: [indexPath])
     }
 }
-
-// MARK: - UISearchBarDelegate
 
 extension InterestsViewController: UISearchBarDelegate {
 

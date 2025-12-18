@@ -1,15 +1,7 @@
-//
-//  HistoryItem.swift
-//  OpenTone
-//
-//  Created by Student on 11/12/25.
-//
 
 import Foundation
 
 struct HistoryItem {
-
-    // Basic display properties
     let title: String          // e.g. "2 Min Session"
     let subtitle: String       // e.g. "You completed 2 min session"
     let topic: String          // e.g. "Time Travel"

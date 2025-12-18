@@ -1,9 +1,3 @@
-//
-//  TopicCellCollectionViewCell.swift
-//  OpenTone
-//
-//  Created by Student on 29/11/25.
-//
 
 import UIKit
 

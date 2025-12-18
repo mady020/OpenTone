@@ -1,9 +1,3 @@
-//
-//  SuggestedQuestionsHeaderView.swift
-//  OpenTone
-//
-//  Created by M S on 16/12/25.
-//
 
 
 import UIKit
