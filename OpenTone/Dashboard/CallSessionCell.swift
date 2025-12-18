@@ -9,7 +9,7 @@ import UIKit
 
 class CallSessionCell: UICollectionViewCell {
     
-    private let baseCardColor  = UIColor(hex: "#FBF8FF")
+
     
     @IBOutlet var image: UIImageView!
     
@@ -17,11 +17,11 @@ class CallSessionCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        backgroundColor = baseCardColor
+        backgroundColor = AppColors.cardBackground
         layer.cornerRadius = 30
         clipsToBounds = true
         layer.borderWidth = 1
-        layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        layer.borderColor = AppColors.cardBorder.cgColor
     }
     
      func configure(imageURL: String, labelText: String){

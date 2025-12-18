@@ -10,13 +10,7 @@ import UIKit
 import AVFoundation
 
 final class AICallController: UIViewController {
-
-    // MARK: - Theme Colors
-    private let screenBackground  = UIColor(hex: "#F4F5F7")
-    private let baseCardColor     = UIColor(hex: "#FBF8FF")
-    private let selectedCardColor = UIColor(hex: "#5B3CC4")
-    private let normalTint        = UIColor(hex: "#333333")
-    private let cardBorderColor   = UIColor(hex: "#E6E3EE")
+    
 
     // MARK: - Audio
     private let audioEngine = AVAudioEngine()
@@ -37,7 +31,7 @@ final class AICallController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = screenBackground
+        view.backgroundColor = AppColors.screenBackground
 
         setupRing()
         setupButtons()
@@ -53,7 +47,7 @@ final class AICallController: UIViewController {
 
     // MARK: - Ring
     private func setupRing() {
-        ringLayer.strokeColor = selectedCardColor.cgColor
+        ringLayer.strokeColor = AppColors.primary.cgColor
         ringLayer.fillColor = UIColor.clear.cgColor
         ringLayer.lineWidth = 6
         ringLayer.lineCap = .round
@@ -101,12 +95,12 @@ final class AICallController: UIViewController {
         let button = UIButton(type: .system)
         button.frame = CGRect(x: 0, y: 0, width: 56, height: 56)
         button.layer.cornerRadius = 28
-        button.backgroundColor = baseCardColor
-        button.layer.borderColor = cardBorderColor.cgColor
+        button.backgroundColor = AppColors.cardBackground
+        button.layer.borderColor = AppColors.cardBorder.cgColor
         button.layer.borderWidth = 1
 
         button.setImage(UIImage(systemName: symbol), for: .normal)
-        button.tintColor = normalTint
+        button.tintColor = AppColors.textPrimary
         button.addTarget(self, action: action, for: .touchUpInside)
 
         return button

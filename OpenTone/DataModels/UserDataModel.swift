@@ -1,165 +1,208 @@
 import Foundation
 
-@MainActor
-class UserDataModel {
+/// Handles persistence and mutation of User data.
+/// This class is responsible ONLY for storing, loading,
+/// and updating User objects. It does NOT manage login/session state.
+final class UserDataModel {
 
+    /// Shared singleton instance
     static let shared = UserDataModel()
 
-    private let documentsDirectory = FileManager.default.urls(
-        for: .documentDirectory,
-        in: .userDomainMask
-    ).first!
+    /// App documents directory
+    private let documentsDirectory: URL
 
+    /// File URL for persisting the current user
     private let archiveURL: URL
 
-
+    /// User loaded from disk (if any)
     private var currentUser: User?
-    var allUsers: [User] = []
+
+    /// In-memory list of users (used for local/sample data)
+    private(set) var allUsers: [User] = []
+
+    /// Private initializer to enforce singleton
     private init() {
-        archiveURL =
-            documentsDirectory
+        self.documentsDirectory = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first!
+
+        self.archiveURL = documentsDirectory
             .appendingPathComponent("currentUser")
             .appendingPathExtension("json")
 
-         loadUser()
-        allUsers = loadSampleUser()
+        loadCurrentUserFromDisk()
+        loadSampleUsersIfNeeded()
     }
 
+    // MARK: - Current User Access
 
+    /// Returns the currently persisted user, if available
     func getCurrentUser() -> User? {
-        return currentUser
-    }
-    
-    func getUser(by id: UUID) -> User? {
-        return allUsers.first(where: { $0.id == id })
+        currentUser
     }
 
-
-    func saveCurrentUser(_ user: User) {
+    /// Sets and persists a user as the current user
+    func setCurrentUser(_ user: User) {
         currentUser = user
-        saveUser()
+        persistCurrentUser()
     }
 
-    func updateUser(_ updatedUser: User) {
+    /// Updates the current user if the IDs match
+    func updateCurrentUser(_ updatedUser: User) {
         guard currentUser?.id == updatedUser.id else { return }
         currentUser = updatedUser
-        saveUser()
+        persistCurrentUser()
     }
 
-  
-    func deleteUser(by id: UUID) {
-        if currentUser?.id == id {
-            currentUser = nil
-            saveUser()
-        }
+    /// Deletes the current user if the ID matches
+    func deleteCurrentUser(by id: UUID) {
+        guard currentUser?.id == id else { return }
+        currentUser = nil
+        deletePersistedUser()
     }
 
-    
+    // MARK: - User Lookup
+
+    /// Returns a user from the local user list by ID
+    func getUser(by id: UUID) -> User? {
+        allUsers.first { $0.id == id }
+    }
+
+    // MARK: - User Mutations
+
+    /// Updates the lastSeen timestamp of the current user
     func updateLastSeen() {
         guard var user = currentUser else { return }
         user.lastSeen = Date()
-        saveCurrentUser(user)
+        setCurrentUser(user)
     }
 
-
+    /// Adds a call record ID to the current user
     func addCallRecordID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.callRecordIDs.append(id)
-        saveCurrentUser(user)
+        setCurrentUser(user)
     }
 
-
+    /// Adds a roleplay ID to the current user
     func addRoleplayID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.roleplayIDs.append(id)
-        saveCurrentUser(user)
+        setCurrentUser(user)
     }
 
-
+    /// Adds a jam session ID to the current user
     func addJamSessionID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.jamSessionIDs.append(id)
-        saveCurrentUser(user)
+        setCurrentUser(user)
     }
 
-  
+    /// Adds a friend ID to the current user
     func addFriendID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.friendsIDs.append(id)
-        saveCurrentUser(user)
+        setCurrentUser(user)
     }
 
-   
-    func getFriendIndex(from id: UUID) -> Int? {
-        guard let user = currentUser else { return nil }
-        return user.friendsIDs.firstIndex(of: id)
-    }
-
-  
-    func deleteFriendID(_ id: UUID) {
+    /// Removes a friend ID from the current user
+    func removeFriendID(_ id: UUID) {
         guard var user = currentUser else { return }
-        guard let index = getFriendIndex(from: id) else { return }
-        user.friendsIDs.remove(at: index)
-        saveCurrentUser(user)
+        user.friendsIDs.removeAll { $0 == id }
+        setCurrentUser(user)
     }
 
-  
-    private func loadUser() {
-        if let data = try? Data(contentsOf: archiveURL) {
-            let decoder = JSONDecoder()
-            currentUser = try? decoder.decode(User.self, from: data)
-        }
+    // MARK: - Persistence
 
-      
-        if currentUser == nil {
-            currentUser = loadSampleUser().last
-            saveUser()
-        }
+    /// Loads the persisted user from disk
+    private func loadCurrentUserFromDisk() {
+        guard let data = try? Data(contentsOf: archiveURL) else { return }
+        let decoder = JSONDecoder()
+        currentUser = try? decoder.decode(User.self, from: data)
     }
 
-    private func saveUser() {
+    /// Persists the current user to disk
+    private func persistCurrentUser() {
         let encoder = JSONEncoder()
-        if let data = try? encoder.encode(currentUser) {
-            try? data.write(to: archiveURL)
+        guard let data = try? encoder.encode(currentUser) else { return }
+        try? data.write(to: archiveURL, options: [.atomic])
+    }
+
+    /// Deletes the persisted user file
+    private func deletePersistedUser() {
+        try? FileManager.default.removeItem(at: archiveURL)
+    }
+
+    // MARK: - Sample Data
+
+    /// Loads sample users into memory for local development
+    private func loadSampleUsersIfNeeded() {
+        guard allUsers.isEmpty else { return }
+        allUsers = loadSampleUsers()
+
+        // If no persisted user exists, assign a default sample user
+        if currentUser == nil {
+            currentUser = allUsers.last
+            persistCurrentUser()
         }
     }
 
- 
-    private func loadSampleUser() -> [User] {
-        return [User(
-            name: "Madhav Sharma",
-            email: "madhav@opentone.com",
-            password: "madhav123",
-            country: Country(name: "India", code: "🇮🇳"),
-            age: 20,
-            gender: .male,
-            bio: "Learning to communicate every day and loving the progress.",
-            englishLevel: .beginner,
-            currentPlan: .free,
-            avatar: "pp1",
-            streak: nil,
-            lastSeen: nil,
-            callRecordIDs: [],
-            roleplayIDs: [],
-            jamSessionIDs: [],
-            friends: []
-        ) , User(
-            name: "Harshdeep Singh",
-            email: "harsh@opentone.com",
-            password: "harsh123",
-            country: Country(name: "India", code: "🇮🇳"),
-            age: 19,
-            gender: .male,
-            bio: "On a journey to improve my Communication Skills",
-            englishLevel: .beginner,
-            currentPlan: .free,
-            avatar: "pp2",
-            streak: nil,
-            lastSeen: nil,
-            callRecordIDs: [],
-            roleplayIDs: [],
-            jamSessionIDs: [],
-            friends: []
-        )]
+    /// Creates sample users matching the User model
+    private func loadSampleUsers() -> [User] {
+        return [
+
+            User(
+                name: "Madhav Sharma",
+                email: "madhav@opentone.com",
+                password: "madhav123",
+                country: Country(name: "India", code: "🇮🇳"),
+                age: 20,
+                gender: .male,
+                bio: "Learning to communicate every day and loving the progress.",
+                englishLevel: .beginner,
+                confidenceLevel: ConfidenceOption(title: "Very Nervous", emoji: "🥺"),
+                interests: [
+                    InterestItem(title: "Public Speaking", symbol: "🎤"),
+                    InterestItem(title: "Travel", symbol: "✈️")
+                ],
+                currentPlan: .free,
+                avatar: "pp1",
+                streak: nil,
+                lastSeen: Date().addingTimeInterval(-120), // offline
+                callRecordIDs: [],
+                roleplayIDs: [],
+                jamSessionIDs: [],
+                friends: [],
+                goal: 10
+            ),
+
+            User(
+                name: "Harshdeep Singh",
+                email: "harsh@opentone.com",
+                password: "harsh123",
+                country: Country(name: "India", code: "🇮🇳"),
+                age: 19,
+                gender: .male,
+                bio: "On a journey to improve my Communication Skills",
+                englishLevel: .beginner,
+                interests: [
+                    InterestItem(title: "Casual Conversation", symbol: "💬"),
+                    InterestItem(title: "Interview Practice", symbol: "🧑‍💼")
+                ],
+                currentPlan: .free,
+                avatar: "pp2",
+                streak: nil,
+                lastSeen: Date(), // online
+                callRecordIDs: [],
+                roleplayIDs: [],
+                jamSessionIDs: [],
+                friends: [],
+                goal: 15
+            )
+
+        ]
     }
+
 }
+

@@ -10,7 +10,6 @@ final class OnboardingInterestsViewController: UIViewController {
     @IBOutlet private weak var continueButton: UIButton!
 
     // MARK: - Data
-    var user: User?
 
     private let popularItems: [InterestItem] = [
         InterestItem(title: "Technology", symbol: "cpu"),
@@ -21,20 +20,12 @@ final class OnboardingInterestsViewController: UIViewController {
         InterestItem(title: "Music", symbol: "music.note.list")
     ]
 
+    /// Shared interest selection (used across interest screens)
     private var selectedItems: Set<InterestItem> {
         get { InterestSelectionStore.shared.selected }
         set { InterestSelectionStore.shared.selected = newValue }
     }
 
-    // MARK: - Colors
-    private let bgSoft = UIColor(hex: "#F4F5F7")
-    private let baseCard = UIColor(hex: "#FBF8FF")
-    private let selectedCard = UIColor(hex: "#5B3CC4")
-    private let baseTint = UIColor(hex: "#333333")
-    private let selectedTint = UIColor.white
-    private let borderColor = UIColor(hex: "#E6E3EE")
-
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -42,9 +33,17 @@ final class OnboardingInterestsViewController: UIViewController {
         updateContinueState()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateContinueState()
+        collectionView.reloadData()
+    }
+
+
+
     // MARK: - UI Setup
     private func setupUI() {
-        view.backgroundColor = bgSoft
+        view.backgroundColor = AppColors.screenBackground
 
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = UIColor(hex: "#2E2E2E")
@@ -56,7 +55,8 @@ final class OnboardingInterestsViewController: UIViewController {
         showAllButton.clipsToBounds = true
         showAllButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         showAllButton.setTitleColor(.white, for: .normal)
-        showAllButton.backgroundColor = UIColor(hex: "#5B3CC4")
+        showAllButton.backgroundColor = AppColors.primary
+
 
         continueButton.layer.cornerRadius = 27
         continueButton.clipsToBounds = true
@@ -106,13 +106,15 @@ final class OnboardingInterestsViewController: UIViewController {
         collectionView.collectionViewLayout = layout
     }
 
+    // MARK: - Session Sync
+
     // MARK: - State
     private func updateContinueState() {
         let enabled = selectedItems.count >= 3
 
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled
-            ? UIColor(hex: "#5B3CC4")
+            ? AppColors.primary
             : UIColor(hex: "#C9C7D6")
 
         requirementLabel.text = enabled
@@ -121,34 +123,43 @@ final class OnboardingInterestsViewController: UIViewController {
     }
 
     // MARK: - Actions
+
     @IBAction private func showAllTapped(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "InterestsScreen"
-        ) as! InterestsViewController
+        )
 
-        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 
     @IBAction private func continueTapped(_ sender: UIButton) {
-        guard selectedItems.count >= 3 else { return }
-        user?.interests = selectedItems
+        guard
+            selectedItems.count >= 3,
+            var user = SessionManager.shared.currentUser
+        else { return }
+
+        // Persist interests into session
+        user.interests = selectedItems
+        SessionManager.shared.updateSessionUser(user)
+
         goToCommitmentChoice()
     }
+
+    // MARK: - Navigation
 
     private func goToCommitmentChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "CommitmentScreen"
-        ) as! CommitmentViewController
+        )
 
-        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 // MARK: - Collection View DataSource & Delegate
+
 extension OnboardingInterestsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -170,9 +181,9 @@ extension OnboardingInterestsViewController: UICollectionViewDataSource, UIColle
 
         cell.configure(
             with: item,
-            backgroundColor: isSelected ? selectedCard : baseCard,
-            tintColor: isSelected ? selectedTint : baseTint,
-            borderColor: borderColor,
+            backgroundColor: isSelected ? AppColors.primary : AppColors.cardBackground,
+            tintColor: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
+            borderColor: AppColors.cardBorder,
             selected: isSelected
         )
 

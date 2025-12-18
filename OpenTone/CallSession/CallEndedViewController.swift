@@ -2,12 +2,8 @@ import UIKit
 
 class CallEndedViewController: UIViewController {
     
-    private let screenBackground  = UIColor(hex: "#F4F5F7")
-    private let baseCardColor     = UIColor(hex: "#FBF8FF")
-    private let selectedCardColor = UIColor(hex: "#5B3CC4")
-    private let normalTint        = UIColor(hex: "#333333")
-    private let selectedTint      = UIColor.white
-    private let cardBorderColor   = UIColor(hex: "#E6E3EE")
+
+    private let cardBorderColor   = AppColors.cardBorder
 
     @IBOutlet weak var cardView: UIView!
     @IBOutlet weak var iconImageView: UIImageView!
@@ -35,10 +31,10 @@ extension CallEndedViewController {
         cardView.layer.cornerRadius = 24
         cardView.addShadow()
         cardView.layer.borderWidth = 1
-        cardView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        
+        cardView.layer.borderColor = AppColors.cardBorder.cgColor
+        cardView.layer.backgroundColor =  AppColors.cardBackground.cgColor
         iconImageView.image = UIImage(systemName: "hand.wave.fill")
-        iconImageView.tintColor = selectedCardColor
+        iconImageView.tintColor = AppColors.primary
         titleLabel.text = "Call Ended"
         titleLabel.font = UIFont.systemFont(ofSize: 22, weight: .semibold)
         titleLabel.textAlignment = .center
@@ -53,7 +49,7 @@ extension CallEndedViewController {
 
     func styleButton(_ button: UIButton) {
         button.layer.cornerRadius = 18
-        button.backgroundColor = selectedCardColor
+        button.backgroundColor = AppColors.primary
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
     }

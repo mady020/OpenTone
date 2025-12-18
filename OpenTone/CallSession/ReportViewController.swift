@@ -35,16 +35,16 @@ class ReportViewController: UIViewController {
         
         otherReasonTextField.layer.cornerRadius = 22
         otherReasonTextField.layer.borderWidth = 1
-        otherReasonTextField.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        otherReasonTextField.backgroundColor = UIColor(hex: "#FBF8FF")
+        otherReasonTextField.layer.borderColor = AppColors.cardBorder.cgColor
+        otherReasonTextField.backgroundColor = AppColors.cardBackground
 
         styleReasonButtons()
 
    
         submitButton.layer.cornerRadius = 22
         submitButton.layer.borderWidth = 1
-        submitButton.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        submitButton.backgroundColor = UIColor(hex: "#5B3CC4")
+        submitButton.layer.borderColor = AppColors.cardBorder.cgColor
+        submitButton.backgroundColor = AppColors.primary
         submitButton.setTitleColor(.white, for: .normal)
     }
 
@@ -59,8 +59,8 @@ class ReportViewController: UIViewController {
         buttons.forEach { button in
             button?.layer.cornerRadius = 30
             button?.layer.borderWidth = 1
-            button?.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-            button?.backgroundColor = UIColor(hex: "#FBF8FF")
+            button?.layer.borderColor = AppColors.cardBorder.cgColor
+            button?.backgroundColor = AppColors.cardBackground
         }
     }
 

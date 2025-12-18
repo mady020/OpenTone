@@ -13,13 +13,13 @@ final class InterestCell: UICollectionViewCell {
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = UIColor(hex: "#FBF8FF")
+        containerView.backgroundColor = AppColors.cardBackground
         containerView.layer.cornerRadius = 20
         containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        containerView.layer.borderColor = AppColors.cardBorder.cgColor
 
         titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        titleLabel.textColor = UIColor(hex: "#333333")
+        titleLabel.textColor = AppColors.textPrimary
         titleLabel.textAlignment = .center
     }
 
@@ -27,13 +27,13 @@ final class InterestCell: UICollectionViewCell {
         titleLabel.text = title
 
         if selected {
-            containerView.backgroundColor = UIColor(hex: "#5B3CC4")
+            containerView.backgroundColor = AppColors.primary
             titleLabel.textColor = .white
             containerView.layer.borderColor = UIColor.clear.cgColor
         } else {
-            containerView.backgroundColor = UIColor(hex: "#FBF8FF")
-            titleLabel.textColor = UIColor(hex: "#333333")
-            containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+            containerView.backgroundColor = AppColors.cardBackground
+            titleLabel.textColor = AppColors.textPrimary
+            containerView.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
 }

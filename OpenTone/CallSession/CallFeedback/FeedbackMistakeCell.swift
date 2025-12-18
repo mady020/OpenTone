@@ -7,8 +7,8 @@ class FeedbackMistakeCell: UICollectionViewCell {
         layer.cornerRadius = 24
         clipsToBounds = true
         layer.borderWidth = 1
-        layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
-        layer.backgroundColor = UIColor(hex: "#FBF8FF").cgColor
+        layer.borderColor = AppColors.cardBorder.cgColor
+        layer.backgroundColor = AppColors.cardBackground.cgColor
     }
 }
 

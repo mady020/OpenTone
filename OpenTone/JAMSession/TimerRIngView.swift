@@ -4,9 +4,6 @@ import UIKit
 class TimerRingView: UIView {
 
     private let backgroundLayer = CAShapeLayer()
-    
-    private let baseCardColor     = UIColor(hex: "#FBF8FF")
-    private let selectedCardColor = UIColor(hex: "#5B3CC4")
     private let progressLayer = CAShapeLayer()
 
     private let ringWidth: CGFloat = 22
@@ -50,9 +47,7 @@ class TimerRingView: UIView {
         backgroundLayer.lineCap = .round
 
         progressLayer.path = path.cgPath
-        progressLayer.strokeColor = UIColor(
-            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
-        ).cgColor
+        progressLayer.strokeColor = AppColors.primary.cgColor
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round
