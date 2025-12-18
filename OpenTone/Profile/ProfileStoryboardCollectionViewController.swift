@@ -103,7 +103,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         case .stats:
             return 1
         case .achievements:
-            return achievements.count
+            return 0
         case .actions:
             return sessionUser != nil ? 1 : 0
         default:
@@ -413,7 +413,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
 
         SessionManager.shared.logout()
 
-        let storyboard = UIStoryboard(name: "Auth", bundle: nil)
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyboard.instantiateInitialViewController()!
 
         guard let window = view.window else { return }
