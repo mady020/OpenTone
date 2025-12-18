@@ -23,34 +23,40 @@ class StreakViewController: UIViewController {
     @IBOutlet weak var goalLabel: UILabel!
     @IBOutlet weak var percentLabel: UILabel!
     
+    @IBOutlet weak var historyButton: UIButton!
+    
     @IBAction func historyButtonTapped(_ sender: UIButton) {
-        
         guard let selectedIndex = selectedWeekdayIndex else { return }
-        
         let selectedDate = dateForWeekday(at: selectedIndex)
         
-        let sessions =
-        StreakDataModel.shared.sessions(for: selectedDate)
-        
-        let items = sessions.map {
-            HistoryItem(
-                title: $0.title,
-                subtitle: $0.subtitle,
-                topic: $0.topic,
-                duration: "\($0.durationMinutes) min",
-                xp: "\($0.xp) XP",
-                iconName: $0.iconName
-            )
+        let sessions: [HistoryItem]
+        if USE_DUMMY_DATA {
+            sessions = dummyHistory(for: selectedDate)
+        } else {
+            let realSessions = StreakDataModel.shared.sessions(for: selectedDate)
+            sessions = realSessions.map {
+                HistoryItem(
+                    title: $0.title,
+                    subtitle: $0.subtitle,
+                    topic: $0.topic,
+                    duration: "\($0.durationMinutes) min",
+                    xp: "\($0.xp) XP",
+                    iconName: $0.iconName
+                )
+            }
         }
         
-        let vc = storyboard?.instantiateViewController(
-            withIdentifier: "HistoryViewController"
-        ) as! HistoryViewController
+        guard !sessions.isEmpty else {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.warning)
+            return
+        }
         
-        vc.items = items
-        vc.selectedDate = selectedDate
-        
-        navigationController?.pushViewController(vc, animated: true)
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "HistoryViewController") as? HistoryViewController {
+            vc.items = sessions
+            vc.selectedDate = selectedDate
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     
@@ -60,20 +66,13 @@ class StreakViewController: UIViewController {
     @IBOutlet weak var weekdaysStackView: UIStackView!
     
     // Properties
-    private let dailyGoalMinutes = 420   // 7 hours
+    private let dailyGoalMinutes = 420
     private var hasAnimated = false
     private var weekdayData: [WeekdayStreak] = []
     private var selectedWeekdayIndex: Int?
+    private let USE_DUMMY_DATA = true
     
-    private var historyByDate: [Date: [HistoryItem]] = [:]
-    
-    
-    // USER JOINED YESTERDAY
-    private let joinDate: Date = Calendar.current.date(
-        byAdding: .day,
-        value: -1,
-        to: Date()
-    )!
+    private let joinDate: Date = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -84,6 +83,7 @@ class StreakViewController: UIViewController {
         let todayIndex = mondayBasedWeekdayIndex(from: Date())
         selectedWeekdayIndex = todayIndex
         
+        updateHistoryButtonState()
         animateWeekdays()
         animateBigRing()
         updateGoalLabel()
@@ -104,6 +104,7 @@ class StreakViewController: UIViewController {
         }
     }
     
+    // Helpers
     func mondayBasedWeekdayIndex(from date: Date) -> Int {
         let weekday = Calendar.current.component(.weekday, from: date)
         return (weekday + 5) % 7
@@ -135,10 +136,6 @@ class StreakViewController: UIViewController {
     }
     
     func animateWeekdays() {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
-        
         for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
             guard index < weekdayData.count,
                   let dayStack = view as? UIStackView,
@@ -146,16 +143,25 @@ class StreakViewController: UIViewController {
             else { continue }
             
             let date = dateForWeekday(at: index)
-            let todayMinutes = StreakDataModel.shared.totalMinutes(for: date)
-            let yesterdayMinutes = Calendar.current.isDate(date, inSameDayAs: yesterday) ? StreakDataModel.shared.totalMinutes(for: yesterday) : 0
+            var todayMinutes = 0
+            var yesterdayMinutes = 0
+            
+            if USE_DUMMY_DATA {
+                let dummy = dummyMinutes(for: date)
+                todayMinutes = dummy.today
+                yesterdayMinutes = dummy.yesterday
+            } else {
+                todayMinutes = StreakDataModel.shared.totalMinutes(for: date)
+                let yesterdayDate = Calendar.current.date(byAdding: .day, value: -1, to: date)!
+                yesterdayMinutes = StreakDataModel.shared.totalMinutes(for: yesterdayDate)
+            }
             
             let todayProgress = CGFloat(todayMinutes) / CGFloat(dailyGoalMinutes)
             let yesterdayProgress = CGFloat(yesterdayMinutes) / CGFloat(dailyGoalMinutes)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1 * Double(index)) {
-                ringView.animate(progress: todayProgress, yesterdayProgress: yesterdayProgress)
+                ringView.animate(progress: min(todayProgress, 1), yesterdayProgress: min(yesterdayProgress, 1))
             }
-            
             ringView.alpha = isDayEnabled(index: index) ? 1.0 : 0.3
         }
     }
@@ -179,40 +185,40 @@ class StreakViewController: UIViewController {
     func showProgressForDay(at index: Int) {
         guard index < weekdayData.count else { return }
         let date = dateForWeekday(at: index)
-        let todayMinutes = StreakDataModel.shared.totalMinutes(for: date)
+        var todayMinutes = 0
+        var previousMinutes = 0
         
-        // Previous day for comparison
-        let calendar = Calendar.current
-        let previousDate = calendar.date(byAdding: .day, value: -1, to: date)!
-        let previousMinutes = StreakDataModel.shared.totalMinutes(for: previousDate)
+        if USE_DUMMY_DATA {
+            let dummy = dummyMinutes(for: date)
+            todayMinutes = dummy.today
+            previousMinutes = dummy.yesterday
+        } else {
+            todayMinutes = StreakDataModel.shared.totalMinutes(for: date)
+            let previousDate = Calendar.current.date(byAdding: .day, value: -1, to: date)!
+            previousMinutes = StreakDataModel.shared.totalMinutes(for: previousDate)
+        }
         
-        // Update big ring
         let progress = CGFloat(todayMinutes) / CGFloat(dailyGoalMinutes)
         bigCircularRing.setProgress(min(progress, 1))
         percentLabel.text = "\(Int(progress * 100))%"
         
-        // Update goal label
         let completedHours = Double(todayMinutes) / 60
         let goalHours = Double(dailyGoalMinutes) / 60
         goalLabel.text = String(format: "%.1fh / %.0fh goal", completedHours, goalHours)
         
-        // Update comparison label
         let diffMinutes = todayMinutes - previousMinutes
         let diffHours = Double(abs(diffMinutes)) / 60
         if diffMinutes == 0 {
             comparisonLabel.text = "Same as yesterday"
-        } else if diffMinutes > 0 {
-            comparisonLabel.text = String(format: "+%.1fh from yesterday", diffHours)
         } else {
-            comparisonLabel.text = String(format: "-%.1fh from yesterday", diffHours)
+            comparisonLabel.text = String(format: "%@%.1fh from yesterday", diffMinutes > 0 ? "+" : "-", diffHours)
         }
         
-        // Update weekly insights dynamically
         updateWeeklyInsights(for: date)
         updateNavigationDateTitle(for: date)
+        updateHistoryButtonState()
     }
     
-    // Labels
     func updateGoalLabel() {
         let todayMinutes = StreakDataModel.shared.totalMinutes(for: Date())
         let completedHours = Double(todayMinutes) / 60
@@ -222,24 +228,20 @@ class StreakViewController: UIViewController {
     
     func updateWeeklyInsights(for selectedDate: Date? = nil) {
         let calendar = Calendar.current
-        let today = Date()
-        let referenceDate = selectedDate ?? today
+        let referenceDate = selectedDate ?? Date()
         var totalsByDay: [Date: Int] = [:]
         
         for i in 0..<7 {
             if let day = calendar.date(byAdding: .day, value: -i, to: referenceDate) {
-                totalsByDay[calendar.startOfDay(for: day)] = StreakDataModel.shared.totalMinutes(for: day)
+                let startOfDay = calendar.startOfDay(for: day)
+                totalsByDay[startOfDay] = USE_DUMMY_DATA ? dummyMinutes(for: day).today : StreakDataModel.shared.totalMinutes(for: day)
             }
         }
         
-        // Total week hours
         let totalWeekMinutes = totalsByDay.values.reduce(0, +)
-        let totalWeekHours = Double(totalWeekMinutes) / 60
-        totalWeekTimeLabel.text = String(format: "This week: %.1fh", totalWeekHours)
+        totalWeekTimeLabel.text = String(format: "This week: %.1fh", Double(totalWeekMinutes) / 60)
         
-        // Best day of the week
-        if let bestDay = totalsByDay.max(by: { $0.value < $1.value })?.key,
-           totalsByDay[bestDay]! > 0 {
+        if let bestDay = totalsByDay.max(by: { $0.value < $1.value })?.key, totalsByDay[bestDay]! > 0 {
             let formatter = DateFormatter()
             formatter.dateFormat = "EEEE"
             bestDayLabel.text = "Best day: \(formatter.string(from: bestDay))"
@@ -254,7 +256,6 @@ class StreakViewController: UIViewController {
         navigationItem.title = formatter.string(from: date)
     }
     
-    // Emphasis
     func emphasizeTodayRingAndLabel() {
         let todayIndex = mondayBasedWeekdayIndex(from: Date())
         for (index, view) in weekdaysStackView.arrangedSubviews.enumerated() {
@@ -268,11 +269,8 @@ class StreakViewController: UIViewController {
             
             ringView.setEmphasis(isToday: isToday && enabled)
             ringView.alpha = enabled ? 1.0 : 0.3
-            
             dayLabel.alpha = enabled ? 1.0 : 0.3
-            dayLabel.font = isToday
-            ? .systemFont(ofSize: dayLabel.font.pointSize, weight: .semibold)
-            : .systemFont(ofSize: dayLabel.font.pointSize, weight: .regular)
+            dayLabel.font = .systemFont(ofSize: dayLabel.font.pointSize, weight: isToday ? .semibold : .regular)
         }
     }
     
@@ -291,9 +289,68 @@ class StreakViewController: UIViewController {
             ringView.setEmphasis(isToday: isToday && enabled, isSelected: isSelected && enabled)
             ringView.alpha = enabled ? 1.0 : 0.3
             dayLabel.alpha = enabled ? 1.0 : 0.3
-            dayLabel.font = (isToday || isSelected)
-            ? .systemFont(ofSize: dayLabel.font.pointSize, weight: .semibold)
-            : .systemFont(ofSize: dayLabel.font.pointSize, weight: .regular)
+            dayLabel.font = .systemFont(ofSize: dayLabel.font.pointSize, weight: (isToday || isSelected) ? .semibold : .regular)
         }
     }
+    
+    private func updateHistoryButtonState() {
+        guard let selectedIndex = selectedWeekdayIndex else {
+            applyHistoryDisabledStyle()
+            return
+        }
+        
+        let selectedDate = dateForWeekday(at: selectedIndex)
+        let hasSessions = USE_DUMMY_DATA || !StreakDataModel.shared.sessions(for: selectedDate).isEmpty
+        
+        hasSessions ? applyHistoryEnabledStyle() : applyHistoryDisabledStyle()
+    }
+    
+    private func applyHistoryDisabledStyle() {
+        historyButton.isEnabled = false
+        historyButton.alpha = 0.45
+        historyButton.setTitleColor(.systemGray3, for: .normal)
+    }
+    
+    private func applyHistoryEnabledStyle() {
+        historyButton.isEnabled = true
+        historyButton.alpha = 1.0
+        historyButton.setTitleColor(.systemPurple, for: .normal)
+    }
+    
+    //  Dummy Data
+    func dummyMinutes(for date: Date) -> (today: Int, yesterday: Int) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        
+        if !isDayEnabled(index: mondayBasedWeekdayIndex(from: date)) { return (0, 0) }
+        
+        if calendar.isDate(date, inSameDayAs: today) {
+            return (180, 240)
+        } else if calendar.isDate(date, inSameDayAs: yesterday) {
+            return (240, 120)
+        } else {
+            return (Int.random(in: 60...360), Int.random(in: 60...360))
+        }
+    }
+    
+    private func dummyHistory(for date: Date) -> [HistoryItem] {
+        if !isDayEnabled(index: mondayBasedWeekdayIndex(from: date)) { return [] }
+        let calendar = Calendar.current
+        
+        if calendar.isDateInToday(date) {
+            return [
+                HistoryItem(title: "Jam Session", subtitle: "5 min session", topic: "Mindfulness", duration: "20 min", xp: "15 XP", iconName: "mic.fill"),
+                HistoryItem(title: "Role-Play", subtitle: "3 min session", topic: "Knowledge", duration: "30 min", xp: "20 XP", iconName: "theatermasks.fill"),
+                HistoryItem(title: "Jam Session", subtitle: "4 min session", topic: "Global Warming", duration: "40 min", xp: "30 XP", iconName: "mic.fill")
+            ]
+        } else if calendar.isDateInYesterday(date) {
+            return [
+                HistoryItem(title: "Jam Session", subtitle: "10 min session", topic: "Mindfulness", duration: "25 min", xp: "18 XP", iconName: "mic.fill"),
+                HistoryItem(title: "Role-Play", subtitle: "15 min session", topic: "Knowledge", duration: "15 min", xp: "10 XP", iconName: "theatermasks.fill")
+            ]
+        }
+        return [HistoryItem(title: "Role-Play", subtitle: "5 min session", topic: "Making Friends", duration: "10 min", xp: "5 XP", iconName: "theatermasks.fill")]
+    }
 }
+

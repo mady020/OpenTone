@@ -47,7 +47,9 @@ class BigCircularProgressView: UIView {
         backgroundLayer.fillColor = UIColor.clear.cgColor
 
         progressLayer.path = path.cgPath
-        progressLayer.strokeColor = UIColor.systemPurple.cgColor
+        progressLayer.strokeColor = UIColor(
+            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
+        ).cgColor
         progressLayer.lineWidth = 10
         progressLayer.lineCap = .round
         progressLayer.fillColor = UIColor.clear.cgColor
