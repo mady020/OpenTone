@@ -1,13 +1,13 @@
 import UIKit
 
-class InterestsViewController: UIViewController {
-
-    var user: User?
+final class InterestsViewController: UIViewController {
 
     @IBOutlet private weak var searchBar: UISearchBar!
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var continueButton: UIButton!
-    
+
+    // MARK: - Data
+
     private let allItems: [InterestItem] = [
         InterestItem(title: "Technology",   symbol: "cpu"),
         InterestItem(title: "Gaming",       symbol: "gamecontroller.fill"),
@@ -33,16 +33,21 @@ class InterestsViewController: UIViewController {
 
     private var filteredItems: [InterestItem] = []
 
+    /// Shared selection state across interest screens
     private var selectedInterests: Set<InterestItem> {
         get { InterestSelectionStore.shared.selected }
         set { InterestSelectionStore.shared.selected = newValue }
     }
+
+    // MARK: - Colors
 
     private let baseCardColor     = UIColor(hex: "#FBF8FF")
     private let selectedCardColor = UIColor(hex: "#5B3CC4")
     private let normalTint        = UIColor(hex: "#333333")
     private let selectedTint      = UIColor.white
     private let borderColor       = UIColor(hex: "#E6E3EE")
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,7 +60,16 @@ class InterestsViewController: UIViewController {
         updateContinueState()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        // Ensure selections are reflected when coming back
+        updateContinueState()
+        collectionView.reloadData()
+    }
+
     // MARK: - Setup
+
     private func setupSearchBar() {
         searchBar.searchBarStyle = .minimal
         searchBar.placeholder = "Search Interests"
@@ -88,6 +102,7 @@ class InterestsViewController: UIViewController {
     }
 
     // MARK: - Layout
+
     private func makeLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { _, _ in
 
@@ -120,6 +135,7 @@ class InterestsViewController: UIViewController {
     }
 
     // MARK: - State
+
     private func updateContinueState() {
         let enabled = selectedInterests.count >= 3
         continueButton.isHidden = !enabled
@@ -130,9 +146,17 @@ class InterestsViewController: UIViewController {
     }
 
     // MARK: - Actions
+
     @IBAction private func continueTapped() {
-        guard selectedInterests.count >= 3 else { return }
-        user?.interests = selectedInterests
+        guard
+            selectedInterests.count >= 3,
+            var user = SessionManager.shared.currentUser
+        else { return }
+
+        // Persist final interests into session
+        user.interests = selectedInterests
+        SessionManager.shared.updateSessionUser(user)
+
         goToCommitment()
     }
 
@@ -140,14 +164,14 @@ class InterestsViewController: UIViewController {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "CommitmentScreen"
-        ) as! CommitmentViewController
+        )
 
-        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 // MARK: - UICollectionViewDataSource
+
 extension InterestsViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -180,6 +204,7 @@ extension InterestsViewController: UICollectionViewDataSource {
 }
 
 // MARK: - UICollectionViewDelegate
+
 extension InterestsViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -197,6 +222,7 @@ extension InterestsViewController: UICollectionViewDelegate {
 }
 
 // MARK: - UISearchBarDelegate
+
 extension InterestsViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -215,6 +241,7 @@ extension InterestsViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
     }
 }
+
 
 extension UIColor {
     convenience init(hex: String) {

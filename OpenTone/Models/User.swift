@@ -34,6 +34,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
         gender: Gender? = nil,
         bio: String? = nil,
         englishLevel: EnglishLevel? = nil,
+        confidenceLevel: ConfidenceOption? = nil,
         interests: Set<InterestItem>? = nil,
         currentPlan: UserPlan? = nil,
         avatar: String? = nil,
@@ -54,6 +55,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
         self.gender = gender
         self.bio = bio
         self.englishLevel = .beginner
+        self.confidenceLevel = confidenceLevel
         self.interests = interests
         self.currentPlan = currentPlan
         self.avatar = avatar

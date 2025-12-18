@@ -12,8 +12,6 @@ final class ConfidenceViewController: UIViewController {
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var continueButton: UIButton!
 
-    var user: User?
-
     private let options: [ConfidenceOption] = [
         ConfidenceOption(title: "Very Confident", emoji: "💪"),
         ConfidenceOption(title: "Somewhat Confident", emoji: "🙂"),
@@ -38,6 +36,8 @@ final class ConfidenceViewController: UIViewController {
         setupCollectionView()
         updateContinueState()
     }
+
+    // MARK: - UI Setup
 
     private func setupUI() {
         view.backgroundColor = bgSoft
@@ -86,6 +86,12 @@ final class ConfidenceViewController: UIViewController {
         collectionView.collectionViewLayout = layout
     }
 
+    // MARK: - Session Sync
+
+   
+
+    // MARK: - State Handling
+
     private func updateContinueState() {
         let enabled = selectedOption != nil
         continueButton.isEnabled = enabled
@@ -98,22 +104,34 @@ final class ConfidenceViewController: UIViewController {
             : "Select one to continue"
     }
 
+    // MARK: - Actions
+
     @IBAction private func continueTapped(_ sender: UIButton) {
-        guard let option = selectedOption else { return }
-        user?.confidenceLevel = option
+        guard
+            let option = selectedOption,
+            var user = SessionManager.shared.currentUser
+        else { return }
+
+        // Update session user
+        user.confidenceLevel = option
+        SessionManager.shared.updateSessionUser(user)
+
         goToInterestsChoice()
     }
+
+    // MARK: - Navigation
 
     private func goToInterestsChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "InterestsIntro"
-        ) as! OnboardingInterestsViewController
+        )
 
-        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 }
+
+// MARK: - Collection View
 
 extension ConfidenceViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 

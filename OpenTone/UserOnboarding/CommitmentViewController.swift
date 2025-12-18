@@ -15,7 +15,6 @@ final class CommitmentViewController: UIViewController {
     @IBOutlet private weak var continueButton: UIButton!
 
     // MARK: - Data
-    var user: User?
 
     private let options: [CommitmentOption] = [
         CommitmentOption(title: "5 minutes per day", subtitle: "Quick daily progress", number: 5),
@@ -36,12 +35,17 @@ final class CommitmentViewController: UIViewController {
     private let selectedTint = UIColor.white
     private let borderColor = UIColor(hex: "#E6E3EE")
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupCollectionView()
+        preloadFromSession()
         updateContinueState()
     }
+
+    // MARK: - UI Setup
 
     private func setupUI() {
         view.backgroundColor = bgSoft
@@ -95,6 +99,19 @@ final class CommitmentViewController: UIViewController {
         collectionView.collectionViewLayout = layout
     }
 
+    // MARK: - Session Sync
+
+    /// Preselect commitment if user already has one
+    private func preloadFromSession() {
+        guard
+            let user = SessionManager.shared.currentUser,
+            let streak = user.streak
+        else { return }
+
+        selectedOption = options.first { $0.number == streak.commitment }
+    }
+
+    // MARK: - State
 
     private func updateContinueState() {
         let enabled = selectedOption != nil
@@ -104,32 +121,52 @@ final class CommitmentViewController: UIViewController {
             : UIColor(hex: "#C9C7D6")
     }
 
+    // MARK: - Actions
+
     @IBAction private func continueTapped(_ sender: UIButton) {
-        guard let selected = selectedOption else { return }
-        user?.streak = Streak(commitment: selected.number, currentCount: 1, longestCount: 0)
+        guard
+            let selected = selectedOption,
+            var user = SessionManager.shared.currentUser
+        else { return }
+
+        // Persist commitment
+        user.streak = Streak(
+            commitment: selected.number,
+            currentCount: 1,
+            longestCount: 0
+        )
+
+        SessionManager.shared.updateSessionUser(user)
+
+        // Clear onboarding-only state
+        InterestSelectionStore.shared.selected.removeAll()
+
         goToDashboard()
     }
 
+    // MARK: - Navigation
+
     private func goToDashboard() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyboard.instantiateViewController(
+        let tabBarVC = storyboard.instantiateViewController(
             withIdentifier: "MainTabBarController"
-        ) as! MainTabBarController
+        )
 
-        vc.user = user
         guard let window = view.window else { return }
 
-            let transition = CATransition()
-            transition.duration = 0.35
-            transition.type = .push
-            transition.subtype = .fromRight
-            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        let transition = CATransition()
+        transition.duration = 0.35
+        transition.type = .push
+        transition.subtype = .fromRight
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
 
-            window.layer.add(transition, forKey: kCATransition)
-            window.rootViewController = vc
-            window.makeKeyAndVisible()
+        window.layer.add(transition, forKey: kCATransition)
+        window.rootViewController = tabBarVC
+        window.makeKeyAndVisible()
     }
 }
+
+// MARK: - Collection View
 
 extension CommitmentViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 

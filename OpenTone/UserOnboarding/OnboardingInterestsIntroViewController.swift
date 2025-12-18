@@ -10,7 +10,6 @@ final class OnboardingInterestsViewController: UIViewController {
     @IBOutlet private weak var continueButton: UIButton!
 
     // MARK: - Data
-    var user: User?
 
     private let popularItems: [InterestItem] = [
         InterestItem(title: "Technology", symbol: "cpu"),
@@ -21,6 +20,7 @@ final class OnboardingInterestsViewController: UIViewController {
         InterestItem(title: "Music", symbol: "music.note.list")
     ]
 
+    /// Shared interest selection (used across interest screens)
     private var selectedItems: Set<InterestItem> {
         get { InterestSelectionStore.shared.selected }
         set { InterestSelectionStore.shared.selected = newValue }
@@ -34,13 +34,20 @@ final class OnboardingInterestsViewController: UIViewController {
     private let selectedTint = UIColor.white
     private let borderColor = UIColor(hex: "#E6E3EE")
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupCollectionView()
         updateContinueState()
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateContinueState()
+        collectionView.reloadData()
+    }
+
+
 
     // MARK: - UI Setup
     private func setupUI() {
@@ -106,6 +113,8 @@ final class OnboardingInterestsViewController: UIViewController {
         collectionView.collectionViewLayout = layout
     }
 
+    // MARK: - Session Sync
+
     // MARK: - State
     private func updateContinueState() {
         let enabled = selectedItems.count >= 3
@@ -121,34 +130,43 @@ final class OnboardingInterestsViewController: UIViewController {
     }
 
     // MARK: - Actions
+
     @IBAction private func showAllTapped(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "InterestsScreen"
-        ) as! InterestsViewController
+        )
 
-        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 
     @IBAction private func continueTapped(_ sender: UIButton) {
-        guard selectedItems.count >= 3 else { return }
-        user?.interests = selectedItems
+        guard
+            selectedItems.count >= 3,
+            var user = SessionManager.shared.currentUser
+        else { return }
+
+        // Persist interests into session
+        user.interests = selectedItems
+        SessionManager.shared.updateSessionUser(user)
+
         goToCommitmentChoice()
     }
+
+    // MARK: - Navigation
 
     private func goToCommitmentChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "CommitmentScreen"
-        ) as! CommitmentViewController
+        )
 
-        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 // MARK: - Collection View DataSource & Delegate
+
 extension OnboardingInterestsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

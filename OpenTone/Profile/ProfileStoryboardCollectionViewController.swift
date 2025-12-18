@@ -1,13 +1,15 @@
 import UIKit
 
 final class ProfileStoryboardCollectionViewController: UICollectionViewController {
+    
+    private var sessionUser: User? {
+        SessionManager.shared.currentUser
+    }
 
-    private let isLoggedIn: Bool = true
     
     private var callTimer: Timer?
     private var callStartDate: Date?
-    
-    var user: User?
+
 
     
     var titleText = "Profile"
@@ -84,7 +86,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             case .profile:
                 return 1
             case .interests:
-                return user?.interests?.count ?? 0
+                return sessionUser?.interests?.count ?? 0
             case .stats:
                 return 1
             case .actions:
@@ -97,13 +99,13 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         case .profile:
             return 1
         case .interests:
-            return user?.interests?.count ?? 0
+            return sessionUser?.interests?.count ?? 0
         case .stats:
             return 1
         case .achievements:
             return achievements.count
         case .actions:
-            return isLoggedIn ? 1 : 0
+            return sessionUser != nil ? 1 : 0
         default:
             return 0
         }
@@ -129,13 +131,14 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             
             
             cell.configure(
-                name: user?.name ?? "",
-                country: "\(user?.country?.flag ?? "") \(user?.country?.name ?? "")",
-                level: user?.englishLevel?.rawValue.capitalized ?? "",
-                bio: user?.bio ?? "",
-                streakText: "🔥 \(user?.streak?.currentCount ?? 0) day streak",
-                avatar: UIImage(named: user?.avatar ?? "pp1")
+                name: sessionUser?.name ?? "",
+                country: "\(sessionUser?.country?.flag ?? "") \(sessionUser?.country?.name ?? "")",
+                level: sessionUser?.englishLevel?.rawValue.capitalized ?? "",
+                bio: sessionUser?.bio ?? "",
+                streakText: "🔥 \(sessionUser?.streak?.currentCount ?? 0) day streak",
+                avatar: UIImage(named: sessionUser?.avatar ?? "pp1")
             )
+
             return cell
 
         case .interests:
@@ -145,7 +148,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             ) as! InterestCell
 
     
-            let interests: [InterestItem] = Array(user?.interests ?? [])
+            let interests: [InterestItem] = Array(sessionUser?.interests ?? [])
 
            
             cell.configure(title:  interests[indexPath.item] .title)
@@ -157,7 +160,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 for: indexPath
             ) as! StatsCell
 
-            cell.configure(calls: user?.callRecordIDs.count ?? 0, roleplays: user?.roleplayIDs.count ?? 0, jams: user?.jamSessionIDs.count ?? 0)
+            cell.configure(calls: sessionUser?.callRecordIDs.count ?? 0, roleplays: sessionUser?.roleplayIDs.count ?? 0, jams: sessionUser?.jamSessionIDs.count ?? 0)
             return cell
 
         case .achievements:
@@ -250,7 +253,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     ) -> UICollectionReusableView {
 
         guard kind == UICollectionView.elementKindSectionHeader else {
-            fatalError("Unsupported supplementary kind")
+            return UICollectionReusableView()
         }
 
         let section = Section(rawValue: indexPath.section)
@@ -264,8 +267,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 )
 
             default:
-            
-                fatalError("Unexpected header request for section \(String(describing: section))")
+                return UICollectionReusableView()
+
             }
         
        
@@ -294,8 +297,10 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 options: [.transitionCrossDissolve],
                 animations: {
                     self.collectionView.reloadData()
+                    self.collectionView.collectionViewLayout.invalidateLayout()
                 }
             )
+
         }
     }
 
@@ -356,11 +361,11 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             stopCallTimer()
         }
     }
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        // 🔒 After CallSetup, large titles must NEVER appear
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.largeTitleDisplayMode = .never
     }
@@ -400,10 +405,23 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     @objc private func didTapSettings() {
         print("Settings tapped")
     }
-
+    
     @objc private func didTapLogout() {
-        print("Logout tapped")
+        stopCallTimer()
+        isInCall = false
+        isComingFromCall = false
+
+        SessionManager.shared.logout()
+
+        let storyboard = UIStoryboard(name: "Auth", bundle: nil)
+        let vc = storyboard.instantiateInitialViewController()!
+
+        guard let window = view.window else { return }
+        window.rootViewController = vc
+        window.makeKeyAndVisible()
     }
+
+
 }
 
 

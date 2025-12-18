@@ -1,16 +1,4 @@
-//
-//  LastTaskCell.swift
-//  OpenTone
-//
-//  Created by Harshdeep Singh on 11/12/25.
-//
-
-
 import UIKit
-
-
-
-
 
 class LastTaskCell: UICollectionViewCell {
     
@@ -35,6 +23,16 @@ class LastTaskCell: UICollectionViewCell {
     @IBAction func continueTapped(_ sender: UIButton) {
         onContinueTapped?()
     }
+    
+    func configure(title: String, imageURL: String) {
+        titleLabel.text = title
+
+        // If imageURL is a system image name
+        iconImageView.image = UIImage(systemName: imageURL)
+
+        // If later you move to remote images, this method stays the same
+    }
+
 
    
 }

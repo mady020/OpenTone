@@ -12,12 +12,17 @@ enum DashboardSection: Int, CaseIterable {
 
 class HomeCollectionViewController: UICollectionViewController {
     
+    
+    private var hasUnfinishedLastTask: Bool {
+        guard let task = lastTask else { return false }
+        return task.isCompleted == false
+    }
+
 
     var lastTask: Activity?
     var currentProgress: Int?
     var commitment : Int?
     
-    var isNewUser = false
     
     // MARK: - Colors
     private let screenBackground  = UIColor(hex: "#F4F5F7")
@@ -34,6 +39,7 @@ class HomeCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        syncFromSession()
         recommendedScenarios = RoleplayScenarioDataModel.shared.getAll()
 
         collectionView.register(
@@ -45,6 +51,27 @@ class HomeCollectionViewController: UICollectionViewController {
         collectionView.collectionViewLayout = createLayout()
         collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
     }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        syncFromSession()
+        collectionView.setCollectionViewLayout(createLayout(), animated: false)
+        collectionView.reloadData()
+    }
+
+    
+    private func syncFromSession() {
+        guard let user = SessionManager.shared.currentUser else { return }
+
+        commitment = user.streak?.commitment ?? 0
+        currentProgress = user.streak?.currentCount ?? 0
+        lastTask = SessionManager.shared.lastUnfinishedActivity
+    }
+
+
+
 
     
     override func collectionView(
@@ -61,12 +88,16 @@ class HomeCollectionViewController: UICollectionViewController {
         
         switch DashboardSection(rawValue: indexPath.section)! {
         case .progress:
-        return header
+            return UICollectionReusableView()
            
         case .completeTask:
-            if(!isNewUser){
+            if hasUnfinishedLastTask {
                 header.titleLabel.text = "Complete your task"
+                return header
+            } else {
+                return UICollectionReusableView()
             }
+
             
         case .callSession:
             header.titleLabel.text = "Start call session with"
@@ -85,10 +116,7 @@ class HomeCollectionViewController: UICollectionViewController {
         case .progress:
             return 1
         case .completeTask:
-            if (isNewUser){
-                return 0
-            }
-            return 1
+            return hasUnfinishedLastTask ? 1 : 0
         case .callSession:
             return 2
         case .recommended:
@@ -110,26 +138,36 @@ class HomeCollectionViewController: UICollectionViewController {
             cell.backgroundColor = baseCardColor
             cell.overallProgressButton.backgroundColor = selectedCardColor
             cell.progressRingView.backgroundColor = baseCardColor
-            cell.progressLabel.text = "Practice \((commitment ?? 0) - (currentProgress ?? 0)) more minutes to complete today’s goal"
+            let remaining = max(0, (commitment ?? 0) - (currentProgress ?? 0))
+            cell.progressLabel.text =
+                "Practice \(remaining) more minutes to complete today’s goal"
         
             cell.progressRingView.setProgress(
-                value: CGFloat(currentProgress ?? 0) ,
-                max: CGFloat(commitment ?? 0))
+                value: CGFloat(currentProgress ?? 0),
+                max: CGFloat(max(commitment ?? 1, 1))
+            )
+
             
             return cell
 
         case .completeTask:
-           
-                let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: "LastTaskCell",
-                    for: indexPath
-                ) as! LastTaskCell
-                
-            
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "LastTaskCell",
+                for: indexPath
+            ) as! LastTaskCell
+
+            if let task = lastTask {
+                cell.configure(
+                    title: task.title,
+                    imageURL: task.imageURL
+                )
+            }
+
             cell.backgroundColor = baseCardColor
             cell.continueButton.backgroundColor = selectedCardColor
-                
-                return cell
+
+            return cell
+
             
 
 
@@ -176,11 +214,10 @@ extension HomeCollectionViewController {
                 return self.horizontalcompleteTaskSection()
 
             case .completeTask:
-                if(self.isNewUser){
-                    return self.nothingLayout()
-                }
-                return self.fullWidthSection()
-
+                return self.hasUnfinishedLastTask
+                    ? self.fullWidthSection()
+                    : self.nothingLayout()
+                
             case .callSession:
                 return self.twoItemFixedSection()
 
@@ -425,7 +462,6 @@ extension HomeCollectionViewController {
             ) as! RolePlayStartCollectionViewController
 
             vc.currentScenario = scenario
-
             navigationController?.pushViewController(vc, animated: true)
 
         }

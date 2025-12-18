@@ -1,13 +1,13 @@
 import UIKit
 import Foundation
 
-class LoginViewController: UIViewController, UITextFieldDelegate {
-    
+final class LoginViewController: UIViewController, UITextFieldDelegate {
+
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
-    
+
     private var isPasswordVisible = false
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         passwordField.isSecureTextEntry = true
@@ -15,44 +15,97 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         addPasswordToggle()
     }
 
+    // MARK: - Actions
+
     @IBAction func signinButtonTapped(_ sender: Any) {
-//        goToUserInfo()
-        goToDashboard()
+        handleLogin()
     }
-    
+
+    // MARK: - Login Logic
+
+    /// Handles login/signup logic and starts a session
+    private func handleLogin() {
+        guard
+            let email = emailField.text, !email.isEmpty,
+            let password = passwordField.text, !password.isEmpty
+        else {
+            return
+        }
+
+        // For now: local-only login
+        // Find existing user OR create a new one
+        let user = resolveUser(email: email, password: password)
+
+        // Start session
+        SessionManager.shared.login(user: user)
+
+        // Decide navigation
+        routeAfterLogin()
+    }
+
+    /// Finds an existing user or creates a new one
+    private func resolveUser(email: String, password: String) -> User {
+        if let existingUser = UserDataModel.shared
+            .allUsers
+            .first(where: { $0.email == email }) {
+            return existingUser
+        }
+
+        // New user signup (local)
+        return User(
+            name: "New User",
+            email: email,
+            password: password,
+            country: nil
+        )
+    }
+
+    /// Routes user to onboarding or dashboard
+    private func routeAfterLogin() {
+        guard let user = SessionManager.shared.currentUser else { return }
+
+        // Simple onboarding condition (adjust later)
+        let needsOnboarding = user.confidenceLevel == nil
+
+        if needsOnboarding {
+            goToUserInfo()
+        } else {
+            goToDashboard()
+        }
+    }
+
+    // MARK: - Navigation
+
+    /// Navigates to the main dashboard
     private func goToDashboard() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let tabBarVC = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
+        let tabBarVC = storyboard.instantiateViewController(
+            withIdentifier: "MainTabBarController"
+        )
+
         tabBarVC.modalPresentationStyle = .fullScreen
         tabBarVC.modalTransitionStyle = .crossDissolve
-        self.view.window?.rootViewController = tabBarVC
-        self.view.window?.makeKeyAndVisible()
-    }
-    
-    private func goToUserInfo(){
-        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let introVC = storyboard.instantiateViewController(withIdentifier: "UserInfoScreen")
 
-        let nav = UINavigationController(rootViewController: introVC)
+        view.window?.rootViewController = tabBarVC
+        view.window?.makeKeyAndVisible()
+    }
+
+    /// Navigates to the first onboarding screen
+    private func goToUserInfo() {
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let userInfoVC = storyboard.instantiateViewController(
+            withIdentifier: "UserInfoScreen"
+        )
+
+        let nav = UINavigationController(rootViewController: userInfoVC)
         nav.modalPresentationStyle = .fullScreen
         nav.modalTransitionStyle = .crossDissolve
 
-        self.view.window?.rootViewController = nav
-        self.view.window?.makeKeyAndVisible()
+        view.window?.rootViewController = nav
+        view.window?.makeKeyAndVisible()
     }
 
-    
-    private func goToConfidenceChoice() {
-        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-        let introVC = storyboard.instantiateViewController(withIdentifier: "ConfidenceScreen")
-
-        let nav = UINavigationController(rootViewController: introVC)
-        nav.modalPresentationStyle = .fullScreen
-        nav.modalTransitionStyle = .crossDissolve
-
-        self.view.window?.rootViewController = nav
-        self.view.window?.makeKeyAndVisible()
-    }
+    // MARK: - UI Helpers
 
     private func addIconsToTextFields() {
         let emailIcon = UIImageView(image: UIImage(systemName: "envelope.fill"))
@@ -71,7 +124,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         passwordField.leftView = lockContainer
         passwordField.leftViewMode = .always
     }
-    
+
     private func addPasswordToggle() {
         let eyeIcon = UIImageView(image: UIImage(systemName: "eye.slash.fill"))
         eyeIcon.tintColor = .secondaryLabel
@@ -81,20 +134,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         eyeIcon.frame = CGRect(x: 8, y: 8, width: 20, height: 20)
         container.addSubview(eyeIcon)
 
-        let tap = UITapGestureRecognizer(target: self, action: #selector(togglePasswordVisibility))
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(togglePasswordVisibility)
+        )
         container.addGestureRecognizer(tap)
 
         passwordField.rightView = container
         passwordField.rightViewMode = .always
     }
 
-    
     @objc private func togglePasswordVisibility() {
         isPasswordVisible.toggle()
         passwordField.isSecureTextEntry = !isPasswordVisible
 
-        if let imageView = (passwordField.rightView)?.subviews.first as? UIImageView {
-            imageView.image = UIImage(systemName: isPasswordVisible ? "eye.fill" : "eye.slash.fill")
+        if let imageView = passwordField.rightView?.subviews.first as? UIImageView {
+            imageView.image = UIImage(
+                systemName: isPasswordVisible ? "eye.fill" : "eye.slash.fill"
+            )
         }
     }
 }
