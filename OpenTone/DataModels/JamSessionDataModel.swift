@@ -11,7 +11,7 @@ class JamSessionDataModel {
 
     func startJamSession(
         phase: JamPhase = .preparing,
-        initialSeconds: Int = 120
+        initialSeconds: Int = 10
     ) -> JamSession? {
 
         guard let user = UserDataModel.shared.getCurrentUser() else {
@@ -44,7 +44,7 @@ class JamSessionDataModel {
     func continueActiveSession() -> JamSession? {
         guard var session = activeSession else { return nil }
 
-        session.secondsLeft = min(session.secondsLeft + 3, 120)
+        session.secondsLeft = min(session.secondsLeft + 3, 10)
         activeSession = session
         return session
     }
@@ -55,7 +55,7 @@ class JamSessionDataModel {
         let newTopic = generateRandomTopic()
         session.topic = newTopic
         session.suggestions = generateSuggestions(for: newTopic)
-        session.secondsLeft = 120
+        session.secondsLeft = 10
         session.startedPrepAt = Date()
 
         activeSession = session

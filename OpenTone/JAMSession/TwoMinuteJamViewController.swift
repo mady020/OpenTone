@@ -7,7 +7,7 @@
 import UIKit
 
 final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDelegate {
-
+    
     @IBOutlet weak var unleashButton: UIButton!
 
     private weak var pendingTabController: UIViewController?
@@ -16,34 +16,36 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = false
         tabBarController?.delegate = self
-        configureNavigationBar()
+//        configureNavigationBar()
+    }
+    override func viewDidLoad() {
     }
 
-    private func configureNavigationBar() {
+//    private func configureNavigationBar() {
+//
+//        guard JamSessionDataModel.shared.hasActiveSession() else {
+//            navigationItem.rightBarButtonItem = nil
+//            return
+//        }
+//
+//        let backButton = UIBarButtonItem(
+//            title: "Back",
+//            style: .plain,
+//            target: self,
+//            action: #selector(backTapped)
+//        )
+//
+//        backButton.tintColor = UIColor(
+//            red: 0.42, green: 0.05, blue: 0.68, alpha: 1.0
+//        )
+//
+//        navigationItem.rightBarButtonItem = backButton
+//    }
 
-        guard JamSessionDataModel.shared.hasActiveSession() else {
-            navigationItem.rightBarButtonItem = nil
-            return
-        }
-
-        let backButton = UIBarButtonItem(
-            title: "Back",
-            style: .plain,
-            target: self,
-            action: #selector(backTapped)
-        )
-
-        backButton.tintColor = UIColor(
-            red: 0.42, green: 0.05, blue: 0.68, alpha: 1.0
-        )
-
-        navigationItem.rightBarButtonItem = backButton
-    }
-
-    @objc private func backTapped() {
-        JamSessionDataModel.shared.continueSession()
-        navigateToPrepare(resetTimer: true)
-    }
+//    @objc private func backTapped() {
+//        JamSessionDataModel.shared.continueSession()
+//        navigateToPrepare(resetTimer: true)
+//    }
 
     @IBAction func unleashTapped(_ sender: UIButton) {
 
