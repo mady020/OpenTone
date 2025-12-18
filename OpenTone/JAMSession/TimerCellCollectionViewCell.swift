@@ -15,9 +15,9 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
 
     weak var delegate: TimerCellDelegate?
 
-    private let timerManager = TimerManager()
+    private let timerManager = TimerManager(totalSeconds: 10)
     private var didConfigure = false
-    private var currentSeconds = 120
+    private var currentSeconds = 10
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -37,19 +37,19 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
         guard !didConfigure else { return }
         didConfigure = true
 
-        currentSeconds = reset ? 120 : secondsLeft
+        currentSeconds = reset ? 10 : secondsLeft
 
         timerRingView.resetRing()
         timerRingView.animateRing(
             remainingSeconds: currentSeconds,
-            totalSeconds: 120
+            totalSeconds: 10
         )
 
         timerManager.start(from: currentSeconds)
     }
 
     private func resetUI() {
-        timerLabel.text = "02:00"
+        timerLabel.text = "00:10"
         timerLabel.isHidden = false
     }
 }

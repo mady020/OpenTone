@@ -67,7 +67,7 @@ class TimerRingView: UIView {
         progressLayer.strokeEnd = 1.0
     }
 
-    func animateRing(remainingSeconds: Int, totalSeconds: Int = 120) {
+    func animateRing(remainingSeconds: Int, totalSeconds: Int = 10) {
 
         if progressLayer.path == nil {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in

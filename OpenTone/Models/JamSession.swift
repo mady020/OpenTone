@@ -29,7 +29,7 @@ struct JamSession: Identifiable, Equatable {
         topic: String,
         suggestions: [String],
         phase: JamPhase = .preparing,
-        secondsLeft: Int = 120
+        secondsLeft: Int = 10
     ) {
         self.id = UUID()
         self.userId = userId

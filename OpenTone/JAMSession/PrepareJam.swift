@@ -7,16 +7,55 @@ final class PrepareJamViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var bulbButton: UIButton!
-
+    
+    @IBOutlet var closeButton: UIButton!
+    
+    @IBAction func closeButtonTapped(_ sender: UIButton) {
+        
+        showSessionAlert()
+    }
+    
     private var selectedTopic: String = ""
     private var allSuggestions: [String] = []
 
-    private var remainingSeconds: Int = 120
-    private var lastKnownSeconds: Int = 120
+    private var remainingSeconds: Int = 10
+    private var lastKnownSeconds: Int = 10
 
     private var visibleCount = 4
     private var visibleSuggestions: [String] {
         Array(allSuggestions.prefix(visibleCount))
+    }
+    
+    private func navigateToPrepare(resetTimer: Bool) {
+
+        guard let prepareVC = storyboard?
+            .instantiateViewController(withIdentifier: "PrepareJamViewController")
+                as? PrepareJamViewController else { return }
+
+        prepareVC.forceTimerReset = resetTimer
+        navigationController?.pushViewController(prepareVC, animated: true)
+    }
+    
+    private func showSessionAlert() {
+
+        let alert = UIAlertController(
+            title: "Session Running",
+            message: "Continue with current session or exit?",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Continue", style: .default) { _ in
+            JamSessionDataModel.shared.continueSession()
+        })
+        alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
+            JamSessionDataModel.shared.cancelJamSession()
+        })
+        alert.addAction(UIAlertAction(title: "Exit", style: .destructive) { _ in
+            JamSessionDataModel.shared.cancelJamSession()
+//            self.startNewSession()
+        })
+
+        present(alert, animated: true)
     }
 
     override func viewDidLoad() {
@@ -30,6 +69,8 @@ final class PrepareJamViewController: UIViewController {
         layout.minimumLineSpacing = 15
         layout.minimumInteritemSpacing = 12
         collectionView.collectionViewLayout = layout
+        
+        navigationItem.hidesBackButton = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -42,7 +83,7 @@ final class PrepareJamViewController: UIViewController {
         allSuggestions = session.suggestions
 
         if forceTimerReset {
-            remainingSeconds = 120
+            remainingSeconds = 10
             forceTimerReset = false
         } else {
             remainingSeconds = session.secondsLeft

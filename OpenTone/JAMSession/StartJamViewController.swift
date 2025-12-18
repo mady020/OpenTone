@@ -7,10 +7,14 @@ class StartJamViewController: UIViewController {
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var topicTitleLabel: UILabel!
     @IBOutlet weak var hintButton: UIButton!
+    
+    @IBAction func closeButtonTapped(_ sender: UIButton) {
+        showSessionAlert()
+    }
     @IBOutlet weak var bottomActionStackView: UIStackView!
 
-    private let timerManager = TimerManager()
-    private var remainingSeconds: Int = 120
+    private let timerManager = TimerManager(totalSeconds: 10)
+    private var remainingSeconds: Int = 10
     private var hintStackView: UIStackView?
     private var didFinishSpeech = false
     private var isMicOn = false   // only logical state, no UI handling
@@ -18,19 +22,17 @@ class StartJamViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         timerManager.delegate = self
+        navigationItem.hidesBackButton = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
 
-
-        guard let session = JamSessionDataModel.shared.getActiveSession() else { return }
-
-        topicTitleLabel.text = session.topic
-        remainingSeconds = session.secondsLeft
+        remainingSeconds = 10
         timerLabel.text = format(remainingSeconds)
     }
+
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -40,7 +42,7 @@ class StartJamViewController: UIViewController {
 
         timerRingView.animateRing(
             remainingSeconds: remainingSeconds,
-            totalSeconds: 120
+            totalSeconds: 10
         )
 
         timerManager.start(from: remainingSeconds)
@@ -56,6 +58,28 @@ class StartJamViewController: UIViewController {
     }
 
     // MARK: - Mic Logic (NO UI code)
+    
+    
+    private func showSessionAlert() {
+
+        let alert = UIAlertController(
+            title: "Session Running",
+            message: "Continue with current session or exit?",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Continue", style: .default) { _ in
+            JamSessionDataModel.shared.continueSession()
+        })
+        alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
+            JamSessionDataModel.shared.cancelJamSession()
+        })
+        alert.addAction(UIAlertAction(title: "Exit", style: .destructive) { _ in
+            JamSessionDataModel.shared.cancelJamSession()
+        })
+
+        present(alert, animated: true)
+    }
 
     @IBAction func micTapped(_ sender: UIButton) {
         isMicOn.toggle()
@@ -169,13 +193,12 @@ extension StartJamViewController: TimerManagerDelegate {
         session.phase = .completed
         session.endedAt = Date()
         JamSessionDataModel.shared.updateActiveSession(session)
-
-        //        guard let vc = storyboard?
-        //            .instantiateViewController(
-        //                withIdentifier: "JamFeedbackCollectionViewController"
-        //            ) as? JamFeedbackCollectionViewController else { return }
-        //
-        //        navigationController?.pushViewController(vc, animated: true)
+        
+        let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "Feedback")
+        vc.navigationItem.hidesBackButton = true
+        tabBarController?.tabBar.isHidden = false
+        navigationController?.pushViewController(vc, animated: true)
 
     }
 

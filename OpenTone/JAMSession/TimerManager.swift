@@ -17,7 +17,7 @@ final class TimerManager {
 
     private var isRunning = false
 
-    init(totalSeconds: Int = 120) {
+    init(totalSeconds: Int) {
         self.totalSeconds = totalSeconds
         self.secondsLeft = totalSeconds
     }
