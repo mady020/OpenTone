@@ -28,11 +28,11 @@ final class TimerManager {
         self.secondsLeft = totalSeconds
     }
 
-    // MARK: - Public API
-
-    func start() {
+    func start(from seconds: Int) {
         guard !isRunning else { return }
+        secondsLeft = max(0, seconds)
         isRunning = true
+        delegate?.timerManagerDidStartMainTimer()
         startMainTimer()
     }
 
@@ -43,11 +43,8 @@ final class TimerManager {
         isRunning = false
     }
 
-    // MARK: - Private
-
     private func startMainTimer() {
-        secondsLeft = totalSeconds
-        delegate?.timerManagerDidStartMainTimer()
+        mainTimer?.invalidate()
 
         mainTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
             guard let self = self else { return }
@@ -56,6 +53,7 @@ final class TimerManager {
 
             if self.secondsLeft <= 0 {
                 timer.invalidate()
+                self.isRunning = false
                 self.delegate?.timerManagerDidFinish()
             } else {
                 self.delegate?.timerManagerDidUpdateMainTimer(self.format(self.secondsLeft))
@@ -64,6 +62,7 @@ final class TimerManager {
     }
 
     private func format(_ secs: Int) -> String {
-        return String(format: "%02d:%02d", secs / 60, secs % 60)
+        String(format: "%02d:%02d", secs / 60, secs % 60)
     }
 }
+

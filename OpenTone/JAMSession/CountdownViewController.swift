@@ -4,14 +4,12 @@
 //
 //  Created by Student on 04/12/25.
 //
-//
-//  CountdownViewController.swift
-//  OpenTone
-//
 
 import UIKit
 
 final class CountdownViewController: UIViewController {
+
+    var isSpeechCountdown: Bool = false
 
     @IBOutlet weak var circleContainer: UIView!
     @IBOutlet weak var countdownLabel: UILabel!
@@ -21,9 +19,9 @@ final class CountdownViewController: UIViewController {
     private let trackLayer = CAShapeLayer()
     private var didSetup = false
 
-    private let rightRevealDuration: CFTimeInterval = 0.35
-    private let fadeDuration: CFTimeInterval = 0.5
-    private let stepDelay: Double = 1.0
+    private let rightRevealDuration: CFTimeInterval = 0.37
+    private let fadeDuration: CFTimeInterval = 0.50
+    private let stepDelay: Double = 1.02
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,15 +39,19 @@ final class CountdownViewController: UIViewController {
 
         if !didSetup {
             setupRing()
+            setInitialLeftHalf()
             didSetup = true
         }
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
         tabBarController?.tabBar.isHidden = true
         animateRightHalf()
     }
+
+    // MARK: - Ring Setup
 
     private func setupRing() {
 
@@ -59,10 +61,8 @@ final class CountdownViewController: UIViewController {
             - thickness / 2
 
         let path = UIBezierPath(
-            arcCenter: CGPoint(
-                x: circleContainer.bounds.midX,
-                y: circleContainer.bounds.midY
-            ),
+            arcCenter: CGPoint(x: circleContainer.bounds.midX,
+                               y: circleContainer.bounds.midY),
             radius: radius,
             startAngle: -.pi / 2,
             endAngle: 1.5 * .pi,
@@ -71,7 +71,10 @@ final class CountdownViewController: UIViewController {
 
         trackLayer.path = path.cgPath
         trackLayer.strokeColor = UIColor(
-            red: 0.9, green: 0.8, blue: 1, alpha: 1
+            red: 242/255,
+            green: 238/255,
+            blue: 255/255,
+            alpha: 1
         ).cgColor
         trackLayer.lineWidth = thickness
         trackLayer.fillColor = UIColor.clear.cgColor
@@ -79,17 +82,25 @@ final class CountdownViewController: UIViewController {
 
         ringLayer.path = path.cgPath
         ringLayer.strokeColor = UIColor(
-            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
+            red: 86/255,
+            green: 61/255,
+            blue: 189/255,
+            alpha: 1
         ).cgColor
         ringLayer.lineWidth = thickness
         ringLayer.fillColor = UIColor.clear.cgColor
         ringLayer.lineCap = .round
-        ringLayer.strokeStart = 0
-        ringLayer.strokeEnd = 0.5
 
         circleContainer.layer.addSublayer(trackLayer)
         circleContainer.layer.addSublayer(ringLayer)
     }
+
+    private func setInitialLeftHalf() {
+        ringLayer.strokeStart = 0.0
+        ringLayer.strokeEnd = 0.5
+    }
+
+    // MARK: - Countdown Animation
 
     private func animateRightHalf() {
 
@@ -97,10 +108,11 @@ final class CountdownViewController: UIViewController {
         anim.fromValue = 0.5
         anim.toValue = 1.0
         anim.duration = rightRevealDuration
+        anim.timingFunction = CAMediaTimingFunction(name: .easeOut)
         anim.fillMode = .forwards
         anim.isRemovedOnCompletion = false
 
-        ringLayer.strokeEnd = 1
+        ringLayer.strokeEnd = 1.0
         ringLayer.add(anim, forKey: "rightReveal")
 
         DispatchQueue.main.asyncAfter(
@@ -111,63 +123,87 @@ final class CountdownViewController: UIViewController {
     }
 
     private func fadeOutReady() {
-        UIView.animate(withDuration: 0.4, animations: {
+        UIView.animate(withDuration: 0.6, delay: 0, options: [.curveEaseInOut]) {
             self.countdownLabel.alpha = 0
-        }) { _ in
-            self.animateNumber("3", step: 0)
+        } completion: { _ in
+            self.startCountdown()
         }
     }
 
-    private func animateNumber(_ text: String, step: Int) {
+    private func startCountdown() {
+        animateNumber("3", fadeTo: 0.33, step: 0)
+    }
 
-        countdownLabel.text = text
+    private func animateNumber(_ number: String, fadeTo: CGFloat, step: Int) {
+
+        countdownLabel.text = number
         countdownLabel.font =
-            text == "Start"
+            number == "Start"
             ? .systemFont(ofSize: 70, weight: .semibold)
             : .systemFont(ofSize: 95, weight: .bold)
 
         countdownLabel.alpha = 0
-        UIView.animate(withDuration: 0.25) {
+        UIView.animate(withDuration: 0.32) {
             self.countdownLabel.alpha = 1
         }
 
-        if text == "Start" {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        if number == "Start" {
+
+            ringLayer.strokeStart = 1.0
+            ringLayer.strokeEnd = 1.0
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.27) {
                 self.goToStartScreen()
             }
             return
         }
 
+        let fade = CABasicAnimation(keyPath: "strokeStart")
+        fade.fromValue = ringLayer.presentation()?.strokeStart ?? ringLayer.strokeStart
+        fade.toValue = fadeTo
+        fade.duration = fadeDuration
+        fade.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        fade.fillMode = .forwards
+        fade.isRemovedOnCompletion = false
+
+        ringLayer.strokeStart = fadeTo
+        ringLayer.add(fade, forKey: "fadeLeft")
+
         DispatchQueue.main.asyncAfter(deadline: .now() + stepDelay) {
             switch step {
-            case 0: self.animateNumber("2", step: 1)
-            case 1: self.animateNumber("1", step: 2)
-            default: self.animateNumber("Start", step: 3)
+            case 0: self.animateNumber("2", fadeTo: 0.66, step: 1)
+            case 1: self.animateNumber("1", fadeTo: 1.0, step: 2)
+            default: self.animateNumber("Start", fadeTo: 1.0, step: 3)
             }
         }
     }
 
+    // MARK: - Navigation (ORIGINAL LOGIC PRESERVED)
+
     private func goToStartScreen() {
 
-        UIView.animate(withDuration: 0.3) {
-            self.countdownLabel.alpha = 0
-            self.ringLayer.opacity = 0
-            self.trackLayer.opacity = 0
-        }
+        guard isSpeechCountdown else { return }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        DispatchQueue.main.async {
 
-            guard let nav = self.navigationController,
-                  let root = nav.viewControllers.first,
-                  let prepareVC = self.storyboard?.instantiateViewController(
-                    withIdentifier: "PrepareJamViewController"
-                  ) as? PrepareJamViewController,
-                  let startVC = self.storyboard?.instantiateViewController(
-                    withIdentifier: "StartJamViewController"
-                  ) as? StartJamViewController
-            else { return }
+            UIView.animate(withDuration: 0.35) {
+                self.countdownLabel.alpha = 0
+                self.ringLayer.opacity = 0
+                self.trackLayer.opacity = 0
+            }
 
-            nav.setViewControllers([root, prepareVC, startVC], animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+
+                guard let startVC = self.storyboard?
+                    .instantiateViewController(
+                        withIdentifier: "StartJamViewController"
+                    ) as? StartJamViewController else { return }
+
+                self.navigationController?.pushViewController(
+                    startVC,
+                    animated: true
+                )
+            }
         }
     }
 }

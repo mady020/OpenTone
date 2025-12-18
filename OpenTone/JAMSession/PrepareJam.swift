@@ -7,13 +7,18 @@
 
 import UIKit
 
-class PrepareJamViewController: UIViewController {
+final class PrepareJamViewController: UIViewController {
+
+    var forceTimerReset: Bool = false
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var bulbButton: UIButton!
 
     private var selectedTopic: String = ""
     private var allSuggestions: [String] = []
+
+    private var remainingSeconds: Int = 120
+    private var lastKnownSeconds: Int = 120
 
     private var visibleCount = 4
     private var visibleSuggestions: [String] {
@@ -23,13 +28,13 @@ class PrepareJamViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.delegate = self
 
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
-        layout.minimumInteritemSpacing = 12
         layout.minimumLineSpacing = 15
+        layout.minimumInteritemSpacing = 12
         collectionView.collectionViewLayout = layout
     }
 
@@ -41,24 +46,38 @@ class PrepareJamViewController: UIViewController {
 
         selectedTopic = session.topic
         allSuggestions = session.suggestions
-        visibleCount = min(4, allSuggestions.count)
 
+        if forceTimerReset {
+            remainingSeconds = 120
+            forceTimerReset = false
+        } else {
+            remainingSeconds = session.secondsLeft
+        }
+
+        lastKnownSeconds = remainingSeconds
+
+        visibleCount = min(4, allSuggestions.count)
         bulbButton.isHidden = visibleCount >= allSuggestions.count
+
         collectionView.reloadData()
     }
 
-    @IBAction func bulbTapped(_ sender: UIButton) {
-        guard visibleCount < allSuggestions.count else {
-            bulbButton.isHidden = true
-            return
-        }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
 
-        let startIndex = visibleCount
+        guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
+        session.secondsLeft = lastKnownSeconds
+        JamSessionDataModel.shared.updateActiveSession(session)
+    }
+
+    @IBAction func bulbTapped(_ sender: UIButton) {
+        guard visibleCount < allSuggestions.count else { return }
+
+        let start = visibleCount
         visibleCount = allSuggestions.count
 
-        var indexPaths: [IndexPath] = []
-        for i in startIndex..<visibleCount {
-            indexPaths.append(IndexPath(item: i, section: 2))
+        let indexPaths = (start..<visibleCount).map {
+            IndexPath(item: $0, section: 2)
         }
 
         collectionView.performBatchUpdates {
@@ -69,19 +88,18 @@ class PrepareJamViewController: UIViewController {
     }
 
     @IBAction func startJamTapped(_ sender: UIButton) {
-        guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
-        session.phase = .speaking
-        session.startedSpeakingAt = Date()
-        JamSessionDataModel.shared.updateActiveSession(session)
-        goToStartJam()
+        goToCountdown()
     }
 
-    private func goToStartJam() {
-        guard let startVC = storyboard?.instantiateViewController(
-            withIdentifier: "StartJamViewController"
-        ) as? StartJamViewController else { return }
+    private func goToCountdown() {
 
-        navigationController?.pushViewController(startVC, animated: true)
+        guard let vc = storyboard?.instantiateViewController(
+            withIdentifier: "CountdownViewController"
+        ) as? CountdownViewController else { return }
+
+        vc.isSpeechCountdown = true   // ✅ REQUIRED FIX
+
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -89,22 +107,28 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
 
     func numberOfSections(in collectionView: UICollectionView) -> Int { 3 }
 
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
         if section == 0 { return 1 }
         if section == 1 { return 1 }
         return visibleSuggestions.count
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
         if indexPath.section == 0 {
-            return collectionView.dequeueReusableCell(
-                withReuseIdentifier: "TimerCell",
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: TimerCellCollectionViewCell.reuseId,
                 for: indexPath
+            ) as! TimerCellCollectionViewCell
+
+            cell.delegate = self
+            cell.setupTimer(
+                secondsLeft: remainingSeconds,
+                reset: false
             )
+            return cell
         }
 
         if indexPath.section == 1 {
@@ -112,6 +136,7 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
                 withReuseIdentifier: "TopicCell",
                 for: indexPath
             ) as! TopicCell
+
             cell.tileLabel.text = selectedTopic
             return cell
         }
@@ -125,11 +150,9 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
         return cell
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
 
         let width = collectionView.bounds.width
 
@@ -145,3 +168,15 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
         return CGSize(width: available / 2, height: 50)
     }
 }
+
+extension PrepareJamViewController: TimerCellDelegate {
+
+    func timerDidUpdate(secondsLeft: Int) {
+        lastKnownSeconds = secondsLeft
+    }
+
+    func timerDidFinish() {
+        goToCountdown()
+    }
+}
+

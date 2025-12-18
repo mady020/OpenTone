@@ -1,12 +1,8 @@
-//
 import UIKit
 
 class TimerRingView: UIView {
 
     private let backgroundLayer = CAShapeLayer()
-    
-    private let baseCardColor     = UIColor(hex: "#FBF8FF")
-    private let selectedCardColor = UIColor(hex: "#5B3CC4")
     private let progressLayer = CAShapeLayer()
 
     private let ringWidth: CGFloat = 22
@@ -40,7 +36,7 @@ class TimerRingView: UIView {
             endAngle: 1.5 * .pi,
             clockwise: true
         )
-        
+
         backgroundLayer.path = path.cgPath
         backgroundLayer.strokeColor = UIColor(
             red: 0.90, green: 0.80, blue: 1.0, alpha: 1
@@ -51,40 +47,47 @@ class TimerRingView: UIView {
 
         progressLayer.path = path.cgPath
         progressLayer.strokeColor = UIColor(
-            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
+            red: 86/255,
+            green: 61/255,
+            blue: 189/255,
+            alpha: 1
         ).cgColor
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round
     }
-    
+
+    // REQUIRED for existing ProgressCell and other callers
     func setProgress(value: CGFloat, max: CGFloat) {
         progressLayer.strokeEnd = value / max
     }
-
-
 
     func resetRing() {
         progressLayer.removeAllAnimations()
         progressLayer.strokeEnd = 1.0
     }
 
-    func animateRing(duration: TimeInterval) {
+    func animateRing(remainingSeconds: Int, totalSeconds: Int = 120) {
 
         if progressLayer.path == nil {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in
-                self?.animateRing(duration: duration)
+                self?.animateRing(
+                    remainingSeconds: remainingSeconds,
+                    totalSeconds: totalSeconds
+                )
             }
             return
         }
 
         progressLayer.removeAllAnimations()
-        progressLayer.strokeEnd = 1.0
+
+        let startProgress = CGFloat(remainingSeconds) / CGFloat(totalSeconds)
+        progressLayer.strokeEnd = startProgress
 
         let animation = CABasicAnimation(keyPath: "strokeEnd")
-        animation.fromValue = 1
+        animation.fromValue = startProgress
         animation.toValue = 0
-        animation.duration = duration
+        animation.duration = TimeInterval(remainingSeconds)
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false
 

@@ -13,17 +13,13 @@ struct JamSession: Identifiable, Equatable {
     let id: UUID
     let userId: UUID
 
-    // Topic data
     var topic: String
     var suggestions: [String]
 
-    // Session phase
     var phase: JamPhase
 
-    // Timer
     var secondsLeft: Int
 
-    // Timestamps
     var startedPrepAt: Date?
     var startedSpeakingAt: Date?
     var endedAt: Date?

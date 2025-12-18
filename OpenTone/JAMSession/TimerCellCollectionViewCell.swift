@@ -4,11 +4,11 @@
 //
 //  Created by Student on 02/12/25.
 //
-
 import UIKit
 
 protocol TimerCellDelegate: AnyObject {
     func timerDidFinish()
+    func timerDidUpdate(secondsLeft: Int)
 }
 
 final class TimerCellCollectionViewCell: UICollectionViewCell {
@@ -21,43 +21,36 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
     weak var delegate: TimerCellDelegate?
 
     private let timerManager = TimerManager()
-    private var didStart = false
+    private var didConfigure = false
+    private var currentSeconds = 120
 
     override func awakeFromNib() {
         super.awakeFromNib()
         timerManager.delegate = self
-        setupUI()
+        resetUI()
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
-
         timerManager.reset()
-        didStart = false
         timerRingView.resetRing()
+        didConfigure = false
         resetUI()
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    func setupTimer(secondsLeft: Int, reset: Bool) {
+        guard !didConfigure else { return }
+        didConfigure = true
 
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+        currentSeconds = reset ? 120 : secondsLeft
 
-            if !self.didStart, self.timerRingView.bounds.width > 20 {
-                self.didStart = true
+        timerRingView.resetRing()
+        timerRingView.animateRing(
+            remainingSeconds: currentSeconds,
+            totalSeconds: 120
+        )
 
-                self.timerRingView.resetRing()
-                self.timerRingView.animateRing(duration: 120)
-
-                self.timerManager.start()
-            }
-        }
-    }
-
-    private func setupUI() {
-        resetUI()
-        timerLabel.textColor = .black
+        timerManager.start(from: currentSeconds)
     }
 
     private func resetUI() {
@@ -68,12 +61,18 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
 
 extension TimerCellCollectionViewCell: TimerManagerDelegate {
 
-    func timerManagerDidStartMainTimer() {
-        timerLabel.text = "02:00"
-    }
+    func timerManagerDidStartMainTimer() {}
 
     func timerManagerDidUpdateMainTimer(_ formattedTime: String) {
         timerLabel.text = formattedTime
+
+        let parts = formattedTime.split(separator: ":")
+        if parts.count == 2,
+           let m = Int(parts[0]),
+           let s = Int(parts[1]) {
+            currentSeconds = m * 60 + s
+            delegate?.timerDidUpdate(secondsLeft: currentSeconds)
+        }
     }
 
     func timerManagerDidFinish() {
@@ -81,3 +80,4 @@ extension TimerCellCollectionViewCell: TimerManagerDelegate {
         delegate?.timerDidFinish()
     }
 }
+
