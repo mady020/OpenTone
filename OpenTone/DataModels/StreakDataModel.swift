@@ -20,8 +20,6 @@ class StreakDataModel {
         loadStreak()
         loadSessions()
     }
-
-    // MARK: - Streak Management
     func getStreak() -> Streak? {
         return streak
     }
@@ -75,8 +73,6 @@ class StreakDataModel {
             try? data.write(to: streakURL)
         }
     }
-
-    // MARK: - Sessions Management
     private func loadSessions() {
         guard let data = try? Data(contentsOf: sessionsURL),
               let decoded = try? JSONDecoder().decode([CompletedSession].self, from: data)
@@ -112,8 +108,6 @@ class StreakDataModel {
 
         sessions.append(session)
         saveSessions()
-
-        // Update streak for today
         updateStreakForToday()
     }
 
@@ -144,8 +138,6 @@ class StreakDataModel {
 
         return (totalWeek, bestDay)
     }
-
-    // MARK: - Streak Today
     func updateStreakForToday() {
         let today = Calendar.current.startOfDay(for: Date())
 

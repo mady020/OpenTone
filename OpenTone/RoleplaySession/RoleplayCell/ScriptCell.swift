@@ -14,8 +14,6 @@ class ScriptCell: UICollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-
-        // Card styling
         containerView.layer.cornerRadius = 20
         containerView.backgroundColor = .systemGray6
     }
@@ -28,7 +26,6 @@ class ScriptCell: UICollectionViewCell {
        
         premiumText: String
     ) {
-        // Assign fixed texts
       
         guidedDescriptionLabel.text = guidedText
 
@@ -36,7 +33,6 @@ class ScriptCell: UICollectionViewCell {
 
         keyphrases.font = UIFont.systemFont(ofSize: 15)
         keyphrases.numberOfLines = 0
-//        keyphrases.textColor = .label
         keyphrases.text? = ""
 
         for phrase in keyPhrases {

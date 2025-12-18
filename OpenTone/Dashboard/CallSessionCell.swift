@@ -1,10 +1,3 @@
-//
-//  CallSessionCell.swift
-//  OpenTone
-//
-//  Created by M S on 10/12/25.
-//
-
 import UIKit
 
 class CallSessionCell: UICollectionViewCell {

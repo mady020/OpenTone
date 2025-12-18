@@ -450,8 +450,6 @@ extension ProfileStoryboardCollectionViewController {
                 return section
             case .suggestedQuestions:
                 let section = self.verticalSection(estimatedHeight: 110)
-
-                // ✅ Only show header when user is IN CALL
                 if self.isInCall {
                     let headerSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),

@@ -2,16 +2,12 @@ import UIKit
 
 final class ProfileActionsCell: UICollectionViewCell {
 
-    // MARK: - UI
-
     @IBOutlet private weak var containerView: UIView!
     @IBOutlet private weak var stackView: UIStackView!
 
     @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
     @IBOutlet weak var timerLabel: UILabel!
-
-    // MARK: - State
 
     enum Mode {
         case normal        // Settings / Log Out
@@ -25,9 +21,6 @@ final class ProfileActionsCell: UICollectionViewCell {
         timerLabel.text = text
     }
 
-
-    // MARK: - Lifecycle
-
     override func awakeFromNib() {
         super.awakeFromNib()
         setupUI()
@@ -35,16 +28,12 @@ final class ProfileActionsCell: UICollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-
-        // Reset reusable state
         timerLabel.isHidden = true
         settingsButton.isHidden = false
 
         settingsButton.removeTarget(nil, action: nil, for: .allEvents)
         logoutButton.removeTarget(nil, action: nil, for: .allEvents)
     }
-
-    // MARK: - Setup
 
     private func setupUI() {
         contentView.backgroundColor = .clear
@@ -66,11 +55,7 @@ final class ProfileActionsCell: UICollectionViewCell {
         configureButton(logoutButton, title: "Log Out", destructive: true)
     }
 
-    // MARK: - Configuration
-
     func configure(mode: Mode, timerText: String? = nil) {
-
-        // Always clear targets first (cell reuse safety)
         settingsButton.removeTarget(nil, action: nil, for: .allEvents)
         logoutButton.removeTarget(nil, action: nil, for: .allEvents)
 
@@ -98,8 +83,6 @@ final class ProfileActionsCell: UICollectionViewCell {
             configureButton(logoutButton, title: "End Call", destructive: true)
         }
     }
-
-    // MARK: - Button Styling
 
     func configureButton(
         _ button: UIButton,
