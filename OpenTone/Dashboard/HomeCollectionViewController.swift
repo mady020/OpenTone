@@ -24,14 +24,6 @@ class HomeCollectionViewController: UICollectionViewController {
     var commitment : Int?
     
     
-    // MARK: - Colors
-    private let screenBackground  = UIColor(hex: "#F4F5F7")
-    private let baseCardColor     = UIColor(hex: "#FBF8FF")
-    private let selectedCardColor = UIColor(hex: "#5B3CC4")
-    private let normalTint        = UIColor(hex: "#333333")
-    private let selectedTint      = UIColor.white
-    private let cardBorderColor   = UIColor(hex: "#E6E3EE")
-    
 
     var recommendedScenarios: [RoleplayScenario] = []
 
@@ -49,7 +41,7 @@ class HomeCollectionViewController: UICollectionViewController {
         )
 
         collectionView.collectionViewLayout = createLayout()
-        collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
+        collectionView.backgroundColor = AppColors.screenBackground
     }
     
     
@@ -135,9 +127,9 @@ class HomeCollectionViewController: UICollectionViewController {
                 for: indexPath
             ) as! ProgressCell
 
-            cell.backgroundColor = baseCardColor
-            cell.overallProgressButton.backgroundColor = selectedCardColor
-            cell.progressRingView.backgroundColor = baseCardColor
+            cell.backgroundColor = AppColors.cardBackground
+            cell.overallProgressButton.backgroundColor = AppColors.primary
+            cell.progressRingView.backgroundColor = AppColors.cardBackground
             let remaining = max(0, (commitment ?? 0) - (currentProgress ?? 0))
             cell.progressLabel.text =
                 "Practice \(remaining) more minutes to complete today’s goal"
@@ -163,8 +155,8 @@ class HomeCollectionViewController: UICollectionViewController {
                 )
             }
 
-            cell.backgroundColor = baseCardColor
-            cell.continueButton.backgroundColor = selectedCardColor
+            cell.backgroundColor = AppColors.cardBackground
+            cell.continueButton.backgroundColor = AppColors.primary
 
             return cell
 

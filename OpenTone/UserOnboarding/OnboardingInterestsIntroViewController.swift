@@ -26,14 +26,6 @@ final class OnboardingInterestsViewController: UIViewController {
         set { InterestSelectionStore.shared.selected = newValue }
     }
 
-    // MARK: - Colors
-    private let bgSoft = UIColor(hex: "#F4F5F7")
-    private let baseCard = UIColor(hex: "#FBF8FF")
-    private let selectedCard = UIColor(hex: "#5B3CC4")
-    private let baseTint = UIColor(hex: "#333333")
-    private let selectedTint = UIColor.white
-    private let borderColor = UIColor(hex: "#E6E3EE")
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -51,7 +43,7 @@ final class OnboardingInterestsViewController: UIViewController {
 
     // MARK: - UI Setup
     private func setupUI() {
-        view.backgroundColor = bgSoft
+        view.backgroundColor = AppColors.screenBackground
 
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = UIColor(hex: "#2E2E2E")
@@ -63,7 +55,8 @@ final class OnboardingInterestsViewController: UIViewController {
         showAllButton.clipsToBounds = true
         showAllButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         showAllButton.setTitleColor(.white, for: .normal)
-        showAllButton.backgroundColor = UIColor(hex: "#5B3CC4")
+        showAllButton.backgroundColor = AppColors.primary
+
 
         continueButton.layer.cornerRadius = 27
         continueButton.clipsToBounds = true
@@ -121,7 +114,7 @@ final class OnboardingInterestsViewController: UIViewController {
 
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled
-            ? UIColor(hex: "#5B3CC4")
+            ? AppColors.primary
             : UIColor(hex: "#C9C7D6")
 
         requirementLabel.text = enabled
@@ -188,9 +181,9 @@ extension OnboardingInterestsViewController: UICollectionViewDataSource, UIColle
 
         cell.configure(
             with: item,
-            backgroundColor: isSelected ? selectedCard : baseCard,
-            tintColor: isSelected ? selectedTint : baseTint,
-            borderColor: borderColor,
+            backgroundColor: isSelected ? AppColors.primary : AppColors.cardBackground,
+            tintColor: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
+            borderColor: AppColors.cardBorder,
             selected: isSelected
         )
 

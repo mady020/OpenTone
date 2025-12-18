@@ -23,13 +23,6 @@ final class ConfidenceViewController: UIViewController {
         didSet { updateContinueState() }
     }
 
-    private let bgSoft = UIColor(hex: "#F4F5F7")
-    private let baseCard = UIColor(hex: "#FBF8FF")
-    private let selectedCard = UIColor(hex: "#5B3CC4")
-    private let baseTint = UIColor(hex: "#333333")
-    private let selectedTint = UIColor.white
-    private let borderColor = UIColor(hex: "#E6E3EE")
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -40,7 +33,7 @@ final class ConfidenceViewController: UIViewController {
     // MARK: - UI Setup
 
     private func setupUI() {
-        view.backgroundColor = bgSoft
+        view.backgroundColor = AppColors.screenBackground
 
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = UIColor(hex: "#2E2E2E")
@@ -96,7 +89,7 @@ final class ConfidenceViewController: UIViewController {
         let enabled = selectedOption != nil
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled
-            ? UIColor(hex: "#5B3CC4")
+            ? AppColors.primary
             : UIColor(hex: "#C9C7D6")
 
         subtitleLabel.text = enabled
@@ -154,9 +147,9 @@ extension ConfidenceViewController: UICollectionViewDataSource, UICollectionView
 
         cell.configure(
             option: option,
-            backgroundColor: isSelected ? selectedCard : baseCard,
-            textColor: isSelected ? selectedTint : baseTint,
-            borderColor: borderColor
+            backgroundColor: isSelected ? AppColors.primary : AppColors.cardBackground,
+            textColor: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
+            borderColor: AppColors.cardBorder
         )
 
         return cell

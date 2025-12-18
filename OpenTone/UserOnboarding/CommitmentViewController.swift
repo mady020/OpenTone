@@ -27,13 +27,7 @@ final class CommitmentViewController: UIViewController {
         didSet { updateContinueState() }
     }
 
-    // MARK: - Colors
-    private let bgSoft = UIColor(hex: "#F4F5F7")
-    private let baseCard = UIColor(hex: "#FBF8FF")
-    private let selectedCard = UIColor(hex: "#5B3CC4")
-    private let baseTint = UIColor(hex: "#333333")
-    private let selectedTint = UIColor.white
-    private let borderColor = UIColor(hex: "#E6E3EE")
+
 
     // MARK: - Lifecycle
 
@@ -48,7 +42,7 @@ final class CommitmentViewController: UIViewController {
     // MARK: - UI Setup
 
     private func setupUI() {
-        view.backgroundColor = bgSoft
+        view.backgroundColor = AppColors.screenBackground
 
         titleLabel.text = "Daily practice commitment"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
@@ -117,7 +111,7 @@ final class CommitmentViewController: UIViewController {
         let enabled = selectedOption != nil
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled
-            ? selectedCard
+            ? AppColors.primary
             : UIColor(hex: "#C9C7D6")
     }
 
@@ -189,9 +183,9 @@ extension CommitmentViewController: UICollectionViewDataSource, UICollectionView
 
         cell.configure(
             with: option,
-            backgroundColor: isSelected ? selectedCard : baseCard,
-            tintColor: isSelected ? selectedTint : baseTint,
-            borderColor: borderColor
+            backgroundColor: isSelected ? AppColors.primary : AppColors.cardBackground,
+            tintColor: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
+            borderColor: AppColors.cardBorder
         )
 
         return cell

@@ -35,7 +35,7 @@ class CallSetupViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.collectionViewLayout = createLayout()
         
-        collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
+        collectionView.backgroundColor = AppColors.screenBackground
         
        
 

@@ -40,12 +40,8 @@ final class InterestsViewController: UIViewController {
     }
 
     // MARK: - Colors
-
-    private let baseCardColor     = UIColor(hex: "#FBF8FF")
-    private let selectedCardColor = UIColor(hex: "#5B3CC4")
-    private let normalTint        = UIColor(hex: "#333333")
-    private let selectedTint      = UIColor.white
-    private let borderColor       = UIColor(hex: "#E6E3EE")
+    
+    private let borderColor       = AppColors.cardBorder
 
     // MARK: - Lifecycle
 
@@ -77,7 +73,7 @@ final class InterestsViewController: UIViewController {
 
         let tf = searchBar.searchTextField
         tf.backgroundColor = UIColor(hex: "#F7F5FB")
-        tf.textColor = normalTint
+        tf.textColor = AppColors.textPrimary
         tf.layer.cornerRadius = 18
         tf.layer.masksToBounds = true
     }
@@ -141,7 +137,8 @@ final class InterestsViewController: UIViewController {
         continueButton.isHidden = !enabled
         continueButton.isUserInteractionEnabled = enabled
         continueButton.backgroundColor = enabled
-            ? UIColor(hex: "#5B3CC4")
+            ?AppColors.primary
+
             : UIColor(hex: "#C9C7D6")
     }
 
@@ -193,8 +190,8 @@ extension InterestsViewController: UICollectionViewDataSource {
 
         cell.configure(
             with: item,
-            backgroundColor: isSelected ? selectedCardColor : baseCardColor,
-            tintColor: isSelected ? selectedTint : normalTint,
+            backgroundColor: isSelected ? AppColors.primary : AppColors.cardBackground,
+            tintColor: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
             borderColor: borderColor,
             selected: isSelected
         )

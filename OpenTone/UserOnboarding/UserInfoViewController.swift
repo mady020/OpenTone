@@ -23,15 +23,14 @@ final class UserinfoViewController: UIViewController {
     // MARK: - UI Setup
 
     private func setupUI() {
-        view.backgroundColor = UIColor(hex: "#F4F5F7")
-
+        view.backgroundColor = AppColors.screenBackground
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = UIColor(hex: "#2E2E2E")
 
         nameField.backgroundColor = .white
         nameField.layer.cornerRadius = 14
         nameField.layer.borderWidth = 1
-        nameField.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        nameField.layer.borderColor = AppColors.cardBorder.cgColor
         nameField.font = .systemFont(ofSize: 18)
         nameField.setLeftPaddingPoints(16)
 
@@ -39,9 +38,9 @@ final class UserinfoViewController: UIViewController {
         countryField.backgroundColor = .white
         countryField.layer.cornerRadius = 14
         countryField.layer.borderWidth = 1
-        countryField.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        countryField.layer.borderColor = AppColors.cardBorder.cgColor
         countryField.titleLabel?.font = .systemFont(ofSize: 18)
-        countryField.setTitleColor(UIColor(hex: "#333333"), for: .normal)
+        countryField.setTitleColor(AppColors.textPrimary, for: .normal)
         countryField.contentHorizontalAlignment = .left
         countryField.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
 
@@ -93,7 +92,7 @@ final class UserinfoViewController: UIViewController {
 
         continueButton.isUserInteractionEnabled = valid
         continueButton.backgroundColor = valid
-            ? UIColor(hex: "#5B3CC4")
+            ? AppColors.primary
             : UIColor(hex: "#C9C7D6")
 
         continueButton.setTitleColor(.white, for: .normal)

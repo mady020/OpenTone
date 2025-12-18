@@ -3,7 +3,6 @@ class SelectableCell: UICollectionViewCell {
 
     @IBOutlet weak var titleLabel: UILabel!
 
-    private let selectedCardColor = UIColor(hex: "#5B3CC4")
     override func awakeFromNib() {
         super.awakeFromNib()
         contentView.layer.cornerRadius = 18
@@ -15,7 +14,7 @@ class SelectableCell: UICollectionViewCell {
         titleLabel.text = title
 
         if isSelected {
-            contentView.backgroundColor = selectedCardColor
+            contentView.backgroundColor = AppColors.primary
 
             titleLabel.textColor = .white
             contentView.layer.borderWidth = 0

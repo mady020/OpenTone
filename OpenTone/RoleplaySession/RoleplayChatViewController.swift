@@ -33,9 +33,7 @@ class RoleplayChatViewController: UIViewController {
     // MARK: - Passed Data (FROM prepare segue)
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
-    
-    private let baseCardColor = UIColor(hex: "#FBF8FF")
-    private let cardBorderColor = UIColor(hex: "#E6E3EE")
+
     private var currentWrongStreak = 0
     private var totalWrongAttempts = 0
 
@@ -69,13 +67,13 @@ class RoleplayChatViewController: UIViewController {
         navigationItem.hidesBackButton = true
         
         micButton.layer.cornerRadius = 28
-        micButton.backgroundColor = baseCardColor
-        micButton.layer.borderColor = cardBorderColor.cgColor
+        micButton.backgroundColor = AppColors.cardBackground
+        micButton.layer.borderColor = AppColors.cardBorder.cgColor
         micButton.layer.borderWidth = 1
         
         replayButton.layer.cornerRadius = 28
-        replayButton.backgroundColor = baseCardColor
-        replayButton.layer.borderColor = cardBorderColor.cgColor
+        replayButton.backgroundColor = AppColors.cardBackground
+        replayButton.layer.borderColor = AppColors.cardBorder.cgColor
         replayButton.layer.borderWidth = 1
         
     }

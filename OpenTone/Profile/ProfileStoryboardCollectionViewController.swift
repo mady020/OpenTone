@@ -43,7 +43,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         super.viewDidLoad()
 
         title = titleText
-        collectionView.backgroundColor = UIColor(hex: "#F4F5F7")
+        collectionView.backgroundColor = AppColors.screenBackground
         collectionView.collectionViewLayout = createLayout()
         
         collectionView.register(
