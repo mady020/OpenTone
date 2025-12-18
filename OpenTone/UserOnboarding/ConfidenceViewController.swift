@@ -12,8 +12,6 @@ final class ConfidenceViewController: UIViewController {
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var continueButton: UIButton!
 
-    var user: User?
-
     private let options: [ConfidenceOption] = [
         ConfidenceOption(title: "Very Confident", emoji: "💪"),
         ConfidenceOption(title: "Somewhat Confident", emoji: "🙂"),
@@ -25,13 +23,6 @@ final class ConfidenceViewController: UIViewController {
         didSet { updateContinueState() }
     }
 
-    private let bgSoft = UIColor(hex: "#F4F5F7")
-    private let baseCard = UIColor(hex: "#FBF8FF")
-    private let selectedCard = UIColor(hex: "#5B3CC4")
-    private let baseTint = UIColor(hex: "#333333")
-    private let selectedTint = UIColor.white
-    private let borderColor = UIColor(hex: "#E6E3EE")
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -39,8 +30,10 @@ final class ConfidenceViewController: UIViewController {
         updateContinueState()
     }
 
+    // MARK: - UI Setup
+
     private func setupUI() {
-        view.backgroundColor = bgSoft
+        view.backgroundColor = AppColors.screenBackground
 
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = UIColor(hex: "#2E2E2E")
@@ -86,11 +79,17 @@ final class ConfidenceViewController: UIViewController {
         collectionView.collectionViewLayout = layout
     }
 
+    // MARK: - Session Sync
+
+   
+
+    // MARK: - State Handling
+
     private func updateContinueState() {
         let enabled = selectedOption != nil
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled
-            ? UIColor(hex: "#5B3CC4")
+            ? AppColors.primary
             : UIColor(hex: "#C9C7D6")
 
         subtitleLabel.text = enabled
@@ -98,22 +97,34 @@ final class ConfidenceViewController: UIViewController {
             : "Select one to continue"
     }
 
+    // MARK: - Actions
+
     @IBAction private func continueTapped(_ sender: UIButton) {
-        guard let option = selectedOption else { return }
-        user?.confidenceLevel = option
+        guard
+            let option = selectedOption,
+            var user = SessionManager.shared.currentUser
+        else { return }
+
+        // Update session user
+        user.confidenceLevel = option
+        SessionManager.shared.updateSessionUser(user)
+
         goToInterestsChoice()
     }
+
+    // MARK: - Navigation
 
     private func goToInterestsChoice() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let vc = storyboard.instantiateViewController(
             withIdentifier: "InterestsIntro"
-        ) as! OnboardingInterestsViewController
+        )
 
-        vc.user = user
         navigationController?.pushViewController(vc, animated: true)
     }
 }
+
+// MARK: - Collection View
 
 extension ConfidenceViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
@@ -136,9 +147,9 @@ extension ConfidenceViewController: UICollectionViewDataSource, UICollectionView
 
         cell.configure(
             option: option,
-            backgroundColor: isSelected ? selectedCard : baseCard,
-            textColor: isSelected ? selectedTint : baseTint,
-            borderColor: borderColor
+            backgroundColor: isSelected ? AppColors.primary : AppColors.cardBackground,
+            textColor: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
+            borderColor: AppColors.cardBorder
         )
 
         return cell

@@ -15,16 +15,16 @@ final class SuggestionCallCell: UICollectionViewCell {
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = UIColor(hex: "#FBF8FF")
+        containerView.backgroundColor = AppColors.cardBackground
         containerView.layer.cornerRadius = 16
         containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor(hex: "#E6E3EE").cgColor
+        containerView.layer.borderColor = AppColors.cardBorder.cgColor
 
         imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = UIColor(hex: "#5B3CC4")
+        imageView.tintColor = AppColors.primary
 
         labelView.font = .systemFont(ofSize: 16, weight: .semibold)
-        labelView.textColor = UIColor(hex: "#333333")
+        labelView.textColor = AppColors.textPrimary
     }
 
     func configure(
