@@ -22,6 +22,8 @@ final class CountdownViewController: UIViewController {
 
         view.backgroundColor = .white
         bottomLabel.text = "Speech Time"
+        
+        navigationItem.hidesBackButton = true
 
 
         countdownLabel.text = "Ready"
