@@ -100,7 +100,7 @@
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WgD-Td-3o3">
                                 <rect key="frame" x="20" y="484.66666666666669" width="362" height="182.33333333333331"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="bOQ-d4-EGA">
-                                    <rect key="frame" x="0.0" y="0.0" width="362" height="182"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="362" height="182.33333333333331"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="v8F-dm-uQH">
@@ -252,8 +252,8 @@
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="umL-6p-HeK" userLabel="TimerRingView" customClass="TimerRingView" customModule="OpenTone" customModuleProvider="target">
                                                     <rect key="frame" x="-15" y="10" width="230" height="230"/>
                                                     <subviews>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:10" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Imj-zK-9EW">
-                                                            <rect key="frame" x="63" y="92.333333333333329" width="104" height="45.666666666666671"/>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:30" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Imj-zK-9EW">
+                                                            <rect key="frame" x="60.333333333333336" y="92.333333333333329" width="109.66666666666666" height="45.666666666666671"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -493,8 +493,8 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fOQ-fk-J1l" userLabel="TimerRingView" customClass="TimerRingView" customModule="OpenTone" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="18" width="230" height="230"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:10" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7u9-tv-TLS">
-                                                <rect key="frame" x="63" y="92.333333333333343" width="104" height="45.666666666666657"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:30" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7u9-tv-TLS">
+                                                <rect key="frame" x="60.33333333333335" y="92.333333333333343" width="109.66666666666669" height="45.666666666666657"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>

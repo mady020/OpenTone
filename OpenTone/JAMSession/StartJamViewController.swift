@@ -13,8 +13,8 @@ class StartJamViewController: UIViewController {
     }
     @IBOutlet weak var bottomActionStackView: UIStackView!
 
-    private let timerManager = TimerManager(totalSeconds: 10)
-    private var remainingSeconds: Int = 10
+    private let timerManager = TimerManager(totalSeconds: 30)
+    private var remainingSeconds: Int = 30
     private var hintStackView: UIStackView?
     private var didFinishSpeech = false
     private var isMicOn = false   // only logical state, no UI handling
@@ -29,7 +29,7 @@ class StartJamViewController: UIViewController {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
 
-        remainingSeconds = 10
+        remainingSeconds = 30
         timerLabel.text = format(remainingSeconds)
     }
 
@@ -42,7 +42,7 @@ class StartJamViewController: UIViewController {
 
         timerRingView.animateRing(
             remainingSeconds: remainingSeconds,
-            totalSeconds: 10
+            totalSeconds: 30
         )
 
         timerManager.start(from: remainingSeconds)
