@@ -1,15 +1,9 @@
 
 import UIKit
 
-class CountdownViewController: UIViewController {
+final class CountdownViewController: UIViewController {
 
-    enum CountdownMode {
-        case preparation
-        case speech
-    }
-
-    var mode: CountdownMode = .preparation
-    var topicText: String?
+    var isSpeechCountdown: Bool = false
 
     @IBOutlet weak var circleContainer: UIView!
     @IBOutlet weak var countdownLabel: UILabel!
@@ -19,7 +13,7 @@ class CountdownViewController: UIViewController {
     private let trackLayer = CAShapeLayer()
     private var didSetup = false
 
-    private let rightAppearDuration: CFTimeInterval = 0.37
+    private let rightRevealDuration: CFTimeInterval = 0.37
     private let fadeDuration: CFTimeInterval = 0.50
     private let stepDelay: Double = 1.02
 
@@ -27,18 +21,19 @@ class CountdownViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .white
-        bottomLabel.text = (mode == .preparation) ? "Preparation Time" : "Speech Time"
+        bottomLabel.text = "Speech Time"
+
+
         countdownLabel.text = "Ready"
-        countdownLabel.font = UIFont.systemFont(ofSize: 70, weight: .semibold)
+        countdownLabel.font = .systemFont(ofSize: 70, weight: .semibold)
         countdownLabel.alpha = 1
-        countdownLabel.transform = .identity
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         if !didSetup {
-            setupLayers()
+            setupRing()
             setInitialLeftHalf()
             didSetup = true
         }
@@ -46,73 +41,88 @@ class CountdownViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        animateRightHalf()
+
         tabBarController?.tabBar.isHidden = true
+        animateRightHalf()
     }
 
-    private func setupLayers() {
+    // MARK: - Ring Setup
+
+    private func setupRing() {
 
         let thickness: CGFloat = 26
-        let path = makeCirclePath()
+        let radius =
+            min(circleContainer.bounds.width, circleContainer.bounds.height) / 2
+            - thickness / 2
 
-        trackLayer.path = path.cgPath
-        trackLayer.strokeColor = UIColor(red: 0.90, green: 0.80, blue: 1.0, alpha: 1).cgColor
-        trackLayer.lineWidth = thickness
-        trackLayer.fillColor = UIColor.clear.cgColor
-        trackLayer.lineCap = .round
-        trackLayer.frame = circleContainer.bounds
-
-        ringLayer.path = path.cgPath
-        ringLayer.strokeColor = UIColor(red: 0.42, green: 0.05, blue: 0.68, alpha: 1).cgColor
-        ringLayer.lineWidth = thickness
-        ringLayer.fillColor = UIColor.clear.cgColor
-        ringLayer.lineCap = .round
-        ringLayer.frame = circleContainer.bounds
-
-        circleContainer.layer.addSublayer(trackLayer)
-        circleContainer.layer.addSublayer(ringLayer)
-    }
-
-    private func makeCirclePath() -> UIBezierPath {
-        let thickness: CGFloat = 26
-        let radius = min(circleContainer.bounds.width, circleContainer.bounds.height) / 2 - thickness / 2
-
-        return UIBezierPath(
-            arcCenter: CGPoint(x: circleContainer.bounds.midX, y: circleContainer.bounds.midY),
+        let path = UIBezierPath(
+            arcCenter: CGPoint(x: circleContainer.bounds.midX,
+                               y: circleContainer.bounds.midY),
             radius: radius,
             startAngle: -.pi / 2,
             endAngle: 1.5 * .pi,
             clockwise: true
         )
+
+        trackLayer.path = path.cgPath
+        trackLayer.strokeColor = UIColor(
+            red: 242/255,
+            green: 238/255,
+            blue: 255/255,
+            alpha: 1
+        ).cgColor
+        trackLayer.lineWidth = thickness
+        trackLayer.fillColor = UIColor.clear.cgColor
+        trackLayer.lineCap = .round
+
+        ringLayer.path = path.cgPath
+        ringLayer.strokeColor = UIColor(
+            red: 86/255,
+            green: 61/255,
+            blue: 189/255,
+            alpha: 1
+        ).cgColor
+        ringLayer.lineWidth = thickness
+        ringLayer.fillColor = UIColor.clear.cgColor
+        ringLayer.lineCap = .round
+
+        circleContainer.layer.addSublayer(trackLayer)
+        circleContainer.layer.addSublayer(ringLayer)
     }
 
     private func setInitialLeftHalf() {
         ringLayer.strokeStart = 0.0
         ringLayer.strokeEnd = 0.5
     }
+
+    // MARK: - Countdown Animation
+
     private func animateRightHalf() {
 
         let anim = CABasicAnimation(keyPath: "strokeEnd")
         anim.fromValue = 0.5
-        anim.toValue   = 1.0
-        anim.duration  = rightAppearDuration
+        anim.toValue = 1.0
+        anim.duration = rightRevealDuration
         anim.timingFunction = CAMediaTimingFunction(name: .easeOut)
         anim.fillMode = .forwards
         anim.isRemovedOnCompletion = false
 
         ringLayer.strokeEnd = 1.0
-        ringLayer.add(anim, forKey: "rightHalfReveal")
-        DispatchQueue.main.asyncAfter(deadline: .now() + rightAppearDuration + 0.2) {
+        ringLayer.add(anim, forKey: "rightReveal")
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + rightRevealDuration + 0.2
+        ) {
             self.fadeOutReady()
         }
     }
-    private func fadeOutReady() {
 
-        UIView.animate(withDuration: 0.6, delay: 0.0, options: [.curveEaseInOut], animations: {
+    private func fadeOutReady() {
+        UIView.animate(withDuration: 0.6, delay: 0, options: [.curveEaseInOut]) {
             self.countdownLabel.alpha = 0
-        }, completion: { _ in
+        } completion: { _ in
             self.startCountdown()
-        })
+        }
     }
     private func startCountdown() {
         animateNumber("3", fadeTo: 0.33, step: 0)
@@ -122,12 +132,11 @@ class CountdownViewController: UIViewController {
 
         countdownLabel.text = number
         countdownLabel.font =
-            (number == "Start")
-            ? UIFont.systemFont(ofSize: 70, weight: .semibold)
-            : UIFont.systemFont(ofSize: 95, weight: .bold)
+            number == "Start"
+            ? .systemFont(ofSize: 70, weight: .semibold)
+            : .systemFont(ofSize: 95, weight: .bold)
 
         countdownLabel.alpha = 0
-
         UIView.animate(withDuration: 0.32) {
             self.countdownLabel.alpha = 1
         }
@@ -138,21 +147,21 @@ class CountdownViewController: UIViewController {
             ringLayer.strokeEnd = 1.0
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.27) {
-                self.goNext()
+                self.goToStartScreen()
             }
             return
         }
 
         let fade = CABasicAnimation(keyPath: "strokeStart")
         fade.fromValue = ringLayer.presentation()?.strokeStart ?? ringLayer.strokeStart
-        fade.toValue   = fadeTo
-        fade.duration  = fadeDuration
+        fade.toValue = fadeTo
+        fade.duration = fadeDuration
         fade.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         fade.fillMode = .forwards
         fade.isRemovedOnCompletion = false
 
         ringLayer.strokeStart = fadeTo
-        ringLayer.add(fade, forKey: "fadeLeftHalf")
+        ringLayer.add(fade, forKey: "fadeLeft")
 
         DispatchQueue.main.asyncAfter(deadline: .now() + stepDelay) {
             switch step {
@@ -162,42 +171,30 @@ class CountdownViewController: UIViewController {
             }
         }
     }
-    private func goNext() {
 
-        UIView.animate(withDuration: 0.35) {
-            self.countdownLabel.alpha = 0
-            self.ringLayer.opacity = 0
-            self.trackLayer.opacity = 0
-        }
+    private func goToStartScreen() {
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
+        guard isSpeechCountdown else { return }
 
-            guard let nav = self.navigationController else { return }
-            let root = nav.viewControllers.first!
+        DispatchQueue.main.async {
 
-            switch self.mode {
+            UIView.animate(withDuration: 0.35) {
+                self.countdownLabel.alpha = 0
+                self.ringLayer.opacity = 0
+                self.trackLayer.opacity = 0
+            }
 
-            case .preparation:
-                guard let prepareVC =
-                    self.storyboard?.instantiateViewController(withIdentifier: "PrepareJamViewController")
-                        as? PrepareJamViewController else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
 
+                guard let startVC = self.storyboard?
+                    .instantiateViewController(
+                        withIdentifier: "StartJamViewController"
+                    ) as? StartJamViewController else { return }
                 
-                nav.setViewControllers([root, prepareVC], animated: true)
-
-            case .speech:
-                guard let prepareVC =
-                    self.storyboard?.instantiateViewController(withIdentifier: "PrepareJamViewController")
-                        as? PrepareJamViewController else { return }
-
-                guard let startVC =
-                    self.storyboard?.instantiateViewController(withIdentifier: "StartJamViewController")
-                        as? StartJamViewController else { return }
-                if let t = self.topicText, !t.isEmpty {
-                    startVC.topicText = t
-                }
-
-                nav.setViewControllers([root, prepareVC, startVC], animated: true)
+                self.navigationController?.pushViewController(
+                    startVC,
+                    animated: true
+                )
             }
         }
     }

@@ -36,7 +36,7 @@ class TimerRingView: UIView {
             endAngle: 1.5 * .pi,
             clockwise: true
         )
-        
+
         backgroundLayer.path = path.cgPath
         backgroundLayer.strokeColor = UIColor(
             red: 0.90, green: 0.80, blue: 1.0, alpha: 1
@@ -46,39 +46,48 @@ class TimerRingView: UIView {
         backgroundLayer.lineCap = .round
 
         progressLayer.path = path.cgPath
-        progressLayer.strokeColor = AppColors.primary.cgColor
+        progressLayer.strokeColor = UIColor(
+            red: 86/255,
+            green: 61/255,
+            blue: 189/255,
+            alpha: 1
+        ).cgColor
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round
     }
-    
+
+    // REQUIRED for existing ProgressCell and other callers
     func setProgress(value: CGFloat, max: CGFloat) {
         progressLayer.strokeEnd = value / max
     }
-
-
 
     func resetRing() {
         progressLayer.removeAllAnimations()
         progressLayer.strokeEnd = 1.0
     }
 
-    func animateRing(duration: TimeInterval) {
+    func animateRing(remainingSeconds: Int, totalSeconds: Int = 120) {
 
         if progressLayer.path == nil {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in
-                self?.animateRing(duration: duration)
+                self?.animateRing(
+                    remainingSeconds: remainingSeconds,
+                    totalSeconds: totalSeconds
+                )
             }
             return
         }
 
         progressLayer.removeAllAnimations()
-        progressLayer.strokeEnd = 1.0
+
+        let startProgress = CGFloat(remainingSeconds) / CGFloat(totalSeconds)
+        progressLayer.strokeEnd = startProgress
 
         let animation = CABasicAnimation(keyPath: "strokeEnd")
-        animation.fromValue = 1
+        animation.fromValue = startProgress
         animation.toValue = 0
-        animation.duration = duration
+        animation.duration = TimeInterval(remainingSeconds)
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false
 
