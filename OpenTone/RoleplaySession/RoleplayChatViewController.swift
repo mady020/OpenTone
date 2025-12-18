@@ -35,6 +35,8 @@ class RoleplayChatViewController: UIViewController {
     private var currentWrongStreak = 0
     private var totalWrongAttempts = 0
 
+    private var isProcessingResponse = false
+
     
 
     @IBOutlet weak var tableView: UITableView!
@@ -70,6 +72,14 @@ class RoleplayChatViewController: UIViewController {
         replayButton.layer.borderColor = AppColors.cardBorder.cgColor
         replayButton.layer.borderWidth = 1
         
+        AudioManager.shared.onFinalTranscription = { [weak self] text in
+            print("🎤 USER SAID:", text)
+            self?.userResponded(text)
+            self?.updateMicUI(isRecording: false)
+        }
+
+
+        
     }
 
     override func viewDidLayoutSubviews() {
@@ -87,10 +97,17 @@ class RoleplayChatViewController: UIViewController {
     }
 
     
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
+        if AudioManager.shared.isRecording {
+            AudioManager.shared.stopRecording()
+        }
+
         tabBarController?.tabBar.isHidden = false
     }
+
 
     private func loadCurrentStep() {
 
@@ -123,55 +140,84 @@ class RoleplayChatViewController: UIViewController {
         reloadTableSafely()
     }
 
+    
+    private func updateMicUI(isRecording: Bool) {
+        micButton.backgroundColor = isRecording
+            ? UIColor.systemRed
+            : AppColors.cardBackground
+    }
+
+    
     @IBAction func micTapped(_ sender: UIButton) {
-        simulateSpeechInput()
+        if AudioManager.shared.isRecording {
+            AudioManager.shared.stopRecording()
+            updateMicUI(isRecording: false)
+        } else {
+            AudioManager.shared.startRecording()
+            updateMicUI(isRecording: true)
+        }
     }
 
-    private func simulateSpeechInput() {
-        let alert = UIAlertController(
-            title: "Mic Input",
-            message: "Type what user said",
-            preferredStyle: .alert
-        )
-        alert.addTextField()
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-            if let text = alert.textFields?.first?.text, !text.isEmpty {
-                self.userResponded(text)
-            }
-        })
-        present(alert, animated: true)
+
+
+    private func normalize(_ text: String) -> String {
+        text
+            .lowercased()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(
+                of: "[^a-z ]",
+                with: "",
+                options: .regularExpression
+            )
     }
 
+
+
+    
     private func userResponded(_ text: String) {
+
+        guard !isProcessingResponse else { return }
+        isProcessingResponse = true
+
+        // Remove suggestions
+        if messages.last?.sender == .suggestions {
+            messages.removeLast()
+        }
+
+        // Append user message ONCE
+        messages.append(
+            ChatMessage(
+                sender: .user,
+                text: text,
+                suggestions: nil
+            )
+        )
+
+        reloadTableSafely()
 
         let index = session.currentLineIndex
         let expected = scenario.script[index].replyOptions ?? []
-        let normalized = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedInput = normalize(text)
 
-        if expected.map({ $0.lowercased() }).contains(normalized) {
+        let isCorrect = expected.contains { option in
+            let normalizedOption = normalize(option)
 
-            currentWrongStreak = 0
+            let inputWords = Set(normalizedInput.split(separator: " "))
+            let optionWords = Set(normalizedOption.split(separator: " "))
 
-            if messages.last?.sender == .suggestions {
-                messages.removeLast()
-            }
-
-            messages.append(
-                ChatMessage(
-                    sender: .user,
-                    text: text,
-                    suggestions: nil
-                )
-            )
-
-            advanceSession()
-
-        } else {
-            handleWrongAttempt(expected: expected)
+            return inputWords.intersection(optionWords).count >= 2
         }
 
-        reloadTableSafely()
+        if isCorrect {
+            currentWrongStreak = 0
+            advanceSession()
+        } else {
+            handleWrongAttempt(expected: expected)
+            isProcessingResponse = false
+        }
     }
+
+
 
     private func advanceSession() {
 
@@ -181,6 +227,7 @@ class RoleplayChatViewController: UIViewController {
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.loadCurrentStep()
+                self.isProcessingResponse = false
             }
 
         } else {
@@ -213,35 +260,23 @@ class RoleplayChatViewController: UIViewController {
         currentWrongStreak += 1
         totalWrongAttempts += 1
 
-        if currentWrongStreak < 3 {
-
-            messages.append(
-                ChatMessage(
-                    sender: .app,
-                    text: "Not quite 🤏\nTry one of the options below!",
-                    suggestions: nil
-                )
+        messages.append(
+            ChatMessage(
+                sender: .app,
+                text: "Not quite 🤏\nTry one of the options below!",
+                suggestions: nil
             )
+        )
 
-        } else {
-
-            currentWrongStreak = 0
-
-            let correct = expected.first ?? ""
-            messages.append(
-                ChatMessage(
-                    sender: .app,
-                    text: "Correct phrasing:\n\"\(correct)\" 👍",
-                    suggestions: nil
-                )
+        messages.append(
+            ChatMessage(
+                sender: .suggestions,
+                text: "",
+                suggestions: expected
             )
+        )
 
-            if messages.last?.sender == .suggestions {
-                messages.removeLast()
-            }
-
-            advanceSession()
-        }
+        reloadTableSafely()
     }
 
 
