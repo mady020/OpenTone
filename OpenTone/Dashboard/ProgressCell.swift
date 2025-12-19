@@ -7,6 +7,7 @@ class ProgressCell: UICollectionViewCell {
     
     @IBAction func overallProgressButton(_ sender: UIButton) {
     }
+
     
     @IBOutlet var progressRingView: TimerRingView!
     override func awakeFromNib() {

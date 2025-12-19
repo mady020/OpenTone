@@ -66,6 +66,14 @@ class HomeCollectionViewController: UICollectionViewController {
 
 
     
+    @objc private func openStreak() {
+        let storyboard = UIStoryboard(name: "streak-progess", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "Streak")
+      
+            present(vc, animated: true)
+    }
+
+    
     override func collectionView(
         _ collectionView: UICollectionView,
         viewForSupplementaryElementOfKind kind: String,
@@ -129,11 +137,16 @@ class HomeCollectionViewController: UICollectionViewController {
 
             cell.backgroundColor = AppColors.cardBackground
             cell.overallProgressButton.backgroundColor = AppColors.primary
+            cell.overallProgressButton.addTarget(
+                self,
+                action: #selector(openStreak),
+                for: .touchUpInside
+            )
             cell.progressRingView.backgroundColor = AppColors.cardBackground
             let remaining = max(0, (commitment ?? 0) - (currentProgress ?? 0))
             cell.progressLabel.text =
                 "Practice \(remaining) more minutes to complete today’s goal"
-        
+    
             cell.progressRingView.setProgress(
                 value: CGFloat(currentProgress ?? 0),
                 max: CGFloat(max(commitment ?? 1, 1))

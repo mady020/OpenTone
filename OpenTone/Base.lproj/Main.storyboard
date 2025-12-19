@@ -48,17 +48,6 @@
             </objects>
             <point key="canvasLocation" x="3224" y="293"/>
         </scene>
-        <!--streak-progess-->
-        <scene sceneID="3fS-aC-51i">
-            <objects>
-                <viewControllerPlaceholder storyboardName="streak-progess" id="rOp-ep-qN9" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="YgX-09-M5j"/>
-                    <navigationItem key="navigationItem" id="Szf-q5-n52"/>
-                </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="SmS-vb-DrZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2675" y="522"/>
-        </scene>
         <!--Main Tab Bar Controller-->
         <scene sceneID="fPz-wB-Etc">
             <objects>
@@ -77,7 +66,6 @@
                         <segue destination="C4q-Jr-j4w" kind="relationship" relationship="viewControllers" id="TDp-cn-XGk"/>
                         <segue destination="ni1-KM-TT0" kind="relationship" relationship="viewControllers" id="fAY-5M-Y7Z"/>
                         <segue destination="7JK-2B-rMt" kind="relationship" relationship="viewControllers" id="Idc-hh-Wtu"/>
-                        <segue destination="rOp-ep-qN9" kind="relationship" relationship="viewControllers" id="oGd-6N-a17"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Fww-wh-AE8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
