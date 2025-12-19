@@ -31,6 +31,7 @@ final class SignupViewController: UIViewController {
         else {
             return
         }
+
         let user = User(
             name: name,
             email: email,
@@ -38,9 +39,36 @@ final class SignupViewController: UIViewController {
             country: nil,
             avatar: "pp1"
         )
-        SessionManager.shared.login(user: user)
+
+        let success = UserDataModel.shared.registerUser(user)
+        guard success else {
+            showUserExistsAlert()
+            return
+        }
+
         goToUserInfo()
     }
+
+    private func showUserExistsAlert() {
+        let alert = UIAlertController(
+            title: "User Already Exists",
+            message: "An account with this email already exists.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(
+            UIAlertAction(title: "Login", style: .default) { [weak self] _ in
+                self?.navigationController?.popViewController(animated: true)
+            }
+        )
+
+        alert.addAction(
+            UIAlertAction(title: "Cancel", style: .cancel)
+        )
+
+        present(alert, animated: true)
+    }
+
     private func goToUserInfo() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let userInfoVC = storyboard.instantiateViewController(
@@ -54,6 +82,7 @@ final class SignupViewController: UIViewController {
         view.window?.rootViewController = nav
         view.window?.makeKeyAndVisible()
     }
+
 
     private func addIconsToTextFields() {
         let nameIcon = UIImageView(image: UIImage(systemName: "person.fill"))
@@ -111,3 +140,4 @@ final class SignupViewController: UIViewController {
         }
     }
 }
+

@@ -1,7 +1,6 @@
 import UIKit
-import Foundation
 
-final class LoginViewController: UIViewController, UITextFieldDelegate {
+final class LoginViewController: UIViewController {
 
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
@@ -15,11 +14,10 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         addPasswordToggle()
     }
 
-    
-
     @IBAction func signinButtonTapped(_ sender: Any) {
         handleLogin()
     }
+
     private func handleLogin() {
         guard
             let email = emailField.text, !email.isEmpty,
@@ -27,33 +25,29 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         else {
             return
         }
-        let user = resolveUser(email: email, password: password)
+
+        guard let user = UserDataModel.shared.authenticate(
+            email: email,
+            password: password
+        ) else {
+            // show "Invalid email or password"
+            return
+        }
+
         SessionManager.shared.login(user: user)
         routeAfterLogin()
     }
-    private func resolveUser(email: String, password: String) -> User {
-        if let existingUser = UserDataModel.shared
-            .allUsers
-            .first(where: { $0.email == email }) {
-            return existingUser
-        }
-        return User(
-            name: "New User",
-            email: email,
-            password: password,
-            country: nil
-        )
-    }
+
     private func routeAfterLogin() {
         guard let user = SessionManager.shared.currentUser else { return }
-        let needsOnboarding = user.confidenceLevel == nil
 
-        if needsOnboarding {
+        if user.confidenceLevel == nil {
             goToUserInfo()
         } else {
             goToDashboard()
         }
     }
+
     private func goToDashboard() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let tabBarVC = storyboard.instantiateViewController(
@@ -66,6 +60,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         view.window?.rootViewController = tabBarVC
         view.window?.makeKeyAndVisible()
     }
+
     private func goToUserInfo() {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let userInfoVC = storyboard.instantiateViewController(

@@ -17,7 +17,7 @@ final class AudioManager {
 
     private init() {}
 
-    // MARK: - Permissions
+
 
     func requestPermissions(completion: @escaping (Bool) -> Void) {
 
@@ -37,7 +37,7 @@ final class AudioManager {
         }
     }
 
-    // MARK: - Recording
+
 
     func startRecording() {
 
