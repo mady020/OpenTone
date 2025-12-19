@@ -1,97 +1,176 @@
 import Foundation
+
 final class UserDataModel {
+
     static let shared = UserDataModel()
+
+
     private let documentsDirectory: URL
-    private let archiveURL: URL
-    private var currentUser: User?
+    private let usersArchiveURL: URL
+    private let currentUserArchiveURL: URL
+
+
     private(set) var allUsers: [User] = []
+    private var currentUser: User?
+
+
     private init() {
         self.documentsDirectory = FileManager.default.urls(
             for: .documentDirectory,
             in: .userDomainMask
         ).first!
 
-        self.archiveURL = documentsDirectory
+        self.usersArchiveURL = documentsDirectory
+            .appendingPathComponent("allUsers")
+            .appendingPathExtension("json")
+
+        self.currentUserArchiveURL = documentsDirectory
             .appendingPathComponent("currentUser")
             .appendingPathExtension("json")
 
+        loadAllUsersFromDisk()
         loadCurrentUserFromDisk()
         loadSampleUsersIfNeeded()
     }
+
+
     func getCurrentUser() -> User? {
         currentUser
     }
+
     func setCurrentUser(_ user: User) {
+        upsertUser(user)
         currentUser = user
         persistCurrentUser()
     }
+
     func updateCurrentUser(_ updatedUser: User) {
         guard currentUser?.id == updatedUser.id else { return }
+        upsertUser(updatedUser)
         currentUser = updatedUser
         persistCurrentUser()
     }
-    func deleteCurrentUser(by id: UUID) {
-        guard currentUser?.id == id else { return }
+
+    func deleteCurrentUser() {
         currentUser = nil
-        deletePersistedUser()
+        deletePersistedCurrentUser()
     }
+
+
+    func registerUser(_ user: User) -> Bool {
+        guard !allUsers.contains(where: { $0.email == user.email }) else {
+            return false
+        }
+
+        allUsers.append(user)
+        persistAllUsers()
+        setCurrentUser(user)
+        return true
+    }
+
+    func authenticate(email: String, password: String) -> User? {
+        allUsers.first {
+            $0.email == email && $0.password == password
+        }
+    }
+
     func getUser(by id: UUID) -> User? {
         allUsers.first { $0.id == id }
     }
+
+
     func updateLastSeen() {
         guard var user = currentUser else { return }
         user.lastSeen = Date()
-        setCurrentUser(user)
+        updateCurrentUser(user)
     }
+
     func addCallRecordID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.callRecordIDs.append(id)
-        setCurrentUser(user)
+        updateCurrentUser(user)
     }
+
     func addRoleplayID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.roleplayIDs.append(id)
-        setCurrentUser(user)
+        updateCurrentUser(user)
     }
+
     func addJamSessionID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.jamSessionIDs.append(id)
-        setCurrentUser(user)
+        updateCurrentUser(user)
     }
+
     func addFriendID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.friendsIDs.append(id)
-        setCurrentUser(user)
+        updateCurrentUser(user)
     }
+
     func removeFriendID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.friendsIDs.removeAll { $0 == id }
-        setCurrentUser(user)
+        updateCurrentUser(user)
     }
-    private func loadCurrentUserFromDisk() {
-        guard let data = try? Data(contentsOf: archiveURL) else { return }
-        let decoder = JSONDecoder()
-        currentUser = try? decoder.decode(User.self, from: data)
+
+
+
+    private func upsertUser(_ user: User) {
+        if let index = allUsers.firstIndex(where: { $0.id == user.id }) {
+            allUsers[index] = user
+        } else {
+            allUsers.append(user)
+        }
+        persistAllUsers()
     }
+
+
+    private func persistAllUsers() {
+        let encoder = JSONEncoder()
+        guard let data = try? encoder.encode(allUsers) else { return }
+        try? data.write(to: usersArchiveURL, options: [.atomic])
+    }
+
     private func persistCurrentUser() {
         let encoder = JSONEncoder()
         guard let data = try? encoder.encode(currentUser) else { return }
-        try? data.write(to: archiveURL, options: [.atomic])
+        try? data.write(to: currentUserArchiveURL, options: [.atomic])
     }
-    private func deletePersistedUser() {
-        try? FileManager.default.removeItem(at: archiveURL)
+
+    private func loadAllUsersFromDisk() {
+        guard let data = try? Data(contentsOf: usersArchiveURL) else { return }
+        let decoder = JSONDecoder()
+        allUsers = (try? decoder.decode([User].self, from: data)) ?? []
     }
+
+    private func loadCurrentUserFromDisk() {
+        guard let data = try? Data(contentsOf: currentUserArchiveURL) else { return }
+        let decoder = JSONDecoder()
+        currentUser = try? decoder.decode(User.self, from: data)
+    }
+
+    private func deletePersistedCurrentUser() {
+        try? FileManager.default.removeItem(at: currentUserArchiveURL)
+    }
+
+
+
     private func loadSampleUsersIfNeeded() {
         guard allUsers.isEmpty else { return }
+
         allUsers = loadSampleUsers()
+        persistAllUsers()
+
         if currentUser == nil {
             currentUser = allUsers.last
             persistCurrentUser()
         }
     }
-    private func loadSampleUsers() -> [User] {
-        return [
 
+    private func loadSampleUsers() -> [User] {
+        [
             User(
                 name: "Madhav Sharma",
                 email: "madhav@opentone.com",
@@ -109,14 +188,13 @@ final class UserDataModel {
                 currentPlan: .free,
                 avatar: "pp1",
                 streak: nil,
-                lastSeen: Date().addingTimeInterval(-120), // offline
+                lastSeen: Date().addingTimeInterval(-120),
                 callRecordIDs: [],
                 roleplayIDs: [],
                 jamSessionIDs: [],
                 friends: [],
                 goal: 10
             ),
-
             User(
                 name: "Harshdeep Singh",
                 email: "harsh@opentone.com",
@@ -133,16 +211,14 @@ final class UserDataModel {
                 currentPlan: .free,
                 avatar: "pp2",
                 streak: nil,
-                lastSeen: Date(), // online
+                lastSeen: Date(),
                 callRecordIDs: [],
                 roleplayIDs: [],
                 jamSessionIDs: [],
                 friends: [],
                 goal: 15
             )
-
         ]
     }
-
 }
 

@@ -48,7 +48,6 @@ final class CountdownViewController: UIViewController {
         animateRightHalf()
     }
 
-    // MARK: - Ring Setup
 
     private func setupRing() {
 
@@ -97,7 +96,7 @@ final class CountdownViewController: UIViewController {
         ringLayer.strokeEnd = 0.5
     }
 
-    // MARK: - Countdown Animation
+
 
     private func animateRightHalf() {
 

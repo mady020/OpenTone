@@ -57,7 +57,6 @@ class StartJamViewController: UIViewController {
         JamSessionDataModel.shared.updateActiveSession(session)
     }
 
-    // MARK: - Mic Logic (NO UI code)
     
     
     private func showSessionAlert() {
@@ -88,7 +87,7 @@ class StartJamViewController: UIViewController {
 
     }
 
-    // MARK: - Hint Logic
+
 
     @IBAction func hintTapped(_ sender: UIButton) {
         hintStackView == nil ? showHints() : removeHints()

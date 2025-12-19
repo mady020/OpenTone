@@ -4,8 +4,6 @@ import AVFAudio
 import Speech
 
 final class AICallController: UIViewController {
-
-    // MARK: - Audio Visualisation
     private let audioEngine = AVAudioEngine()
     private var displayLink: CADisplayLink?
     private let ringLayer = CAShapeLayer()
@@ -19,27 +17,24 @@ final class AICallController: UIViewController {
     private var isListening = false
     private var tapInstalled = false
 
-    // MARK: - Speech / Voice
+
     private let speechSynthesizer = AVSpeechSynthesizer()
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
 
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
 
-    // Conversation history to send to backend for context
-    // Store alternating "User: ..." and "Assistant: ..." lines
     private var conversationHistory: [String] = []
 
     private let backendURLString = "http://localhost:3000/chat"
 
-    // MARK: - End-of-speech detection
+
     private var lastPartialText: String = ""
     private var lastPartialUpdate: Date = .distantPast
     private var silenceTimer: Timer?
     private let silenceThreshold: TimeInterval = 1.2 // seconds
-    private let minUtteranceLength: Int = 3 // minimal characters before forcing final
+    private let minUtteranceLength: Int = 3 
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -90,7 +85,6 @@ final class AICallController: UIViewController {
         teardownAudio()
     }
 
-    // MARK: - Permissions
     private func requestPermissionsAndStart() {
         print("🛂 Requesting permissions...")
         SFSpeechRecognizer.requestAuthorization { [weak self] status in
@@ -126,7 +120,6 @@ final class AICallController: UIViewController {
         }
     }
 
-    // MARK: - Audio Session
     private func setupAudioSession() {
         let session = AVAudioSession.sharedInstance()
         do {
@@ -145,7 +138,6 @@ final class AICallController: UIViewController {
         audioEngine.reset()
     }
 
-    // MARK: - Ring
     private func setupRing() {
         ringLayer.strokeColor = AppColors.primary.cgColor
         ringLayer.fillColor = UIColor.clear.cgColor
@@ -166,7 +158,6 @@ final class AICallController: UIViewController {
         ).cgPath
     }
 
-    // MARK: - Display Link
     private func startDisplayLink() {
         displayLink = CADisplayLink(target: self, selector: #selector(updateAnimation))
         displayLink?.add(to: .main, forMode: .common)
@@ -177,7 +168,6 @@ final class AICallController: UIViewController {
         updateRing(radius: baseRadius + smoothedLevel * maxExpansion)
     }
 
-    // MARK: - Listening
     private func startListening() {
         guard !isListening else { return }
         guard let recognizer = speechRecognizer, recognizer.isAvailable else {
@@ -273,7 +263,6 @@ final class AICallController: UIViewController {
         }
     }
 
-    // MARK: - Silence detection
     private func startSilenceTimer() {
         invalidateSilenceTimer()
         lastPartialUpdate = Date()
@@ -299,7 +288,6 @@ final class AICallController: UIViewController {
         }
     }
 
-    // MARK: - Audio Level
     private func processAudio(_ buffer: AVAudioPCMBuffer) {
         guard !isMuted, let data = buffer.floatChannelData?[0] else { return }
         let count = Int(buffer.frameLength)
@@ -316,7 +304,6 @@ final class AICallController: UIViewController {
         }
     }
 
-    // MARK: - Transcript Handling
     private func handleFinalTranscript(_ text: String) {
         stopListening()
 
@@ -340,7 +327,6 @@ final class AICallController: UIViewController {
         }
     }
 
-    // MARK: - Networking
     private func sendToBackend(userText: String, history: [String], completion: @escaping (String?) -> Void) {
         print("📡 Sending to backend:", userText)
         print("🧾 History lines:", history.count)
@@ -403,7 +389,6 @@ final class AICallController: UIViewController {
         }.resume()
     }
 
-    // MARK: - AI Speech
     private func speakAI(_ text: String) {
         guard !isMuted else {
             print("🔇 Muted, skipping speech")
@@ -422,7 +407,6 @@ final class AICallController: UIViewController {
         speechSynthesizer.speak(u)
     }
 
-    // MARK: - Actions
     @objc private func toggleMute(_ sender: UIButton) {
         isMuted.toggle()
         print(isMuted ? "🔇 Muted" : "🎤 Unmuted")
@@ -443,7 +427,6 @@ final class AICallController: UIViewController {
     }
 }
 
-// MARK: - Speech Delegate
 extension AICallController: AVSpeechSynthesizerDelegate {
     func speechSynthesizer(_ s: AVSpeechSynthesizer, didFinish _: AVSpeechUtterance) {
         print("✅ AI finished speaking")
