@@ -17,6 +17,11 @@ final class LoginViewController: UIViewController {
     @IBAction func signinButtonTapped(_ sender: Any) {
         handleLogin()
     }
+    
+    @IBAction func googleButtonTapped(_ sender: Any) {
+        print("Google login tapped")
+        // TODO: Implement Google login logic
+    }
 
     private func handleLogin() {
         guard
