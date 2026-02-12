@@ -38,19 +38,53 @@ class CountryPickerViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppColors.screenBackground
 
-        searchField.layer.cornerRadius = 14
-        searchField.clipsToBounds = true
-
-        searchField.layer.borderWidth = 1
-        searchField.layer.borderColor = AppColors.cardBorder.cgColor
-
-        searchField.backgroundColor = .white
-        searchField.font = .systemFont(ofSize: 16)
+        UIHelper.styleTextField(searchField)
+        UIHelper.styleLabels(in: view)
+        
+        // Custom left padding for search icon space
         let padding = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
         searchField.leftView = padding
         searchField.leftViewMode = .always
+        
+        tableView.backgroundColor = .clear
+        tableView.separatorColor = AppColors.cardBorder
+        
+        // Navigation Bar Title Styling (In case it's used)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = AppColors.screenBackground
+        appearance.titleTextAttributes = [.foregroundColor: AppColors.textPrimary]
+        appearance.largeTitleTextAttributes = [.foregroundColor: AppColors.textPrimary]
+        
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
+        
+        // Manual Layout Styling for Professional Spacing
+        // Find the "Select your country" label and adjust constraints
+        view.subviews.forEach { subview in
+            if let label = subview as? UILabel, label.text?.lowercased().contains("select") == true {
+                // Found the title label
+                label.font = .systemFont(ofSize: 20, weight: .bold) // Ensure professional font
+                
+                // Adjust Top Constraint
+                if let topConstraint = view.constraints.first(where: {
+                    ($0.firstItem === label && $0.firstAttribute == .top) ||
+                    ($0.secondItem === label && $0.secondAttribute == .top)
+                }) {
+                    topConstraint.constant = 24 // More breathing room at top
+                }
+                
+                // Adjust Bottom Spacing (Top of search field)
+                if let searchTop = view.constraints.first(where: {
+                    ($0.firstItem === searchField && $0.firstAttribute == .top)
+                }) {
+                    searchTop.constant = 20 // More space between title and search
+                }
+            }
+        }
     }
 
 
@@ -87,7 +121,15 @@ extension CountryPickerViewController: UITableViewDataSource, UITableViewDelegat
 
         let country = filtered[indexPath.row]
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        cell.backgroundColor = .clear
         cell.textLabel?.text = "\(country.flag) \(country.name)"
+        cell.textLabel?.textColor = AppColors.textPrimary
+        cell.detailTextLabel?.textColor = UIColor.secondaryLabel
+        
+        let selectedBackground = UIView()
+        selectedBackground.backgroundColor = AppColors.primary.withAlphaComponent(0.1)
+        cell.selectedBackgroundView = selectedBackground
+        
         return cell
     }
 

@@ -58,12 +58,27 @@ final class InterestsViewController: UIViewController {
         searchBar.searchBarStyle = .minimal
         searchBar.placeholder = "Search Interests"
         searchBar.delegate = self
-
-        let tf = searchBar.searchTextField
-        tf.backgroundColor = UIColor(hex: "#F7F5FB")
-        tf.textColor = AppColors.textPrimary
-        tf.layer.cornerRadius = 18
-        tf.layer.masksToBounds = true
+        
+        // Style the search field
+        if let tf = searchBar.value(forKey: "searchField") as? UITextField {
+            tf.backgroundColor = AppColors.cardBackground
+            tf.textColor = AppColors.textPrimary
+            tf.layer.cornerRadius = 18
+            tf.layer.masksToBounds = true
+            
+            // Placeholder color
+            let placeholderColor = UIColor.secondaryLabel
+            let validText = tf.placeholder ?? ""
+            tf.attributedPlaceholder = NSAttributedString(
+                string: validText,
+                attributes: [NSAttributedString.Key.foregroundColor: placeholderColor]
+            )
+            
+            // Icon color
+            if let leftView = tf.leftView as? UIImageView {
+                leftView.tintColor = UIColor.secondaryLabel
+            }
+        }
     }
 
     private func setupCollectionView() {
@@ -123,7 +138,7 @@ final class InterestsViewController: UIViewController {
         continueButton.backgroundColor = enabled
             ?AppColors.primary
 
-            : UIColor(hex: "#C9C7D6")
+            : UIColor.systemGray4
     }
 
     @IBAction private func continueTapped() {

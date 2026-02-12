@@ -13,8 +13,44 @@ final class SignupViewController: UIViewController {
         passwordField.isSecureTextEntry = true
         addIconsToTextFields()
         addPasswordToggle()
+        setupUI()
     }
 
+    private func setupUI() {
+        UIHelper.styleViewController(self)
+        UIHelper.styleTextField(nameField)
+        UIHelper.styleTextField(emailField)
+        UIHelper.styleTextField(passwordField)
+        UIHelper.styleLabels(in: view)
+        
+        findButtons(in: view).forEach { button in
+            let actions = button.actions(forTarget: self, forControlEvent: .touchUpInside) ?? []
+            let title = button.title(for: .normal)?.lowercased() ?? 
+                        button.configuration?.title?.lowercased() ?? ""
+            
+            if actions.contains("signupButtonTapped:") {
+                UIHelper.stylePrimaryButton(button)
+            } else if actions.contains("googleButtonTapped:") || title.contains("google") {
+                UIHelper.styleGoogleButton(button)
+            } else if title.contains("apple") {
+                UIHelper.styleAppleButton(button)
+            } else if actions.contains("signinButtonTapped:") || title.contains("sign in") {
+                UIHelper.styleSecondaryButton(button)
+            }
+        }
+    }
+    
+    private func findButtons(in view: UIView) -> [UIButton] {
+        var buttons: [UIButton] = []
+        for subview in view.subviews {
+            if let button = subview as? UIButton {
+                buttons.append(button)
+            }
+            buttons.append(contentsOf: findButtons(in: subview))
+        }
+        return buttons
+    }
+    
     @IBAction func signupButtonTapped(_ sender: UIButton) {
         handleSignup()
     }
@@ -23,7 +59,7 @@ final class SignupViewController: UIViewController {
         print("Google signup tapped")
         // TODO: Implement Google signup logic
     }
-
+    
     @IBAction func signinButtonTapped(_ sender: UIButton) {
         navigationController?.popViewController(animated: true)
     }

@@ -32,17 +32,18 @@ final class ConfidenceViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
-
+        
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = UIColor(hex: "#2E2E2E")
-
+        titleLabel.textColor = AppColors.textPrimary
+        
         subtitleLabel.font = .systemFont(ofSize: 15)
-        subtitleLabel.textColor = UIColor(hex: "#6B6B6B")
-
+        subtitleLabel.textColor = UIColor.secondaryLabel
+        
         continueButton.layer.cornerRadius = 27
         continueButton.clipsToBounds = true
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.setTitleColor(.white, for: .normal)
+        
+        UIHelper.styleLabels(in: view)
     }
 
     private func setupCollectionView() {
@@ -82,7 +83,7 @@ final class ConfidenceViewController: UIViewController {
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled
             ? AppColors.primary
-            : UIColor(hex: "#C9C7D6")
+            : UIColor.systemGray4
 
         subtitleLabel.text = enabled
             ? "You're all set!"
