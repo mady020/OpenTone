@@ -19,6 +19,11 @@ final class SignupViewController: UIViewController {
         handleSignup()
     }
 
+    @IBAction func googleButtonTapped(_ sender: Any) {
+        print("Google signup tapped")
+        // TODO: Implement Google signup logic
+    }
+
     @IBAction func signinButtonTapped(_ sender: UIButton) {
         navigationController?.popViewController(animated: true)
     }
