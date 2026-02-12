@@ -2,6 +2,7 @@ import UIKit
 
 final class UserinfoViewController: UIViewController {
 
+    @IBOutlet var spacer: UIView?
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var nameField: UITextField!
     @IBOutlet private weak var countryField: UIButton!
@@ -22,19 +23,17 @@ final class UserinfoViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
+        
+        // Label styling will be handled by styleLabels or manual AppColors if specific
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = UIColor(hex: "#2E2E2E")
-
-        nameField.backgroundColor = .white
-        nameField.layer.cornerRadius = 14
-        nameField.layer.borderWidth = 1
-        nameField.layer.borderColor = AppColors.cardBorder.cgColor
-        nameField.font = .systemFont(ofSize: 18)
-        nameField.setLeftPaddingPoints(16)
-
-        countryField.setTitle("Select country", for: .normal)
-        countryField.backgroundColor = .white
-        countryField.layer.cornerRadius = 14
+        titleLabel.textColor = AppColors.textPrimary
+        
+        UIHelper.styleTextField(nameField)
+        nameField.setLeftPaddingPoints(16) // Keep padding if needed, though styleTextField might handle some
+        
+        // Country Field (Button that looks like a field)
+        countryField.backgroundColor = AppColors.cardBackground
+        countryField.layer.cornerRadius = 12
         countryField.layer.borderWidth = 1
         countryField.layer.borderColor = AppColors.cardBorder.cgColor
         countryField.titleLabel?.font = .systemFont(ofSize: 18)
@@ -42,9 +41,29 @@ final class UserinfoViewController: UIViewController {
         countryField.contentHorizontalAlignment = .left
         countryField.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
 
+        // Continue Button
+        // Use UIHelper but we might need to handle the disabled state manually or let UIHelper handle the shape
+        // UIHelper.stylePrimaryButton(continueButton) sets background to Primary.
+        // But this button changes color based on state.
+        // Let's set the base shape/style here and let updateContinueState handle color.
         continueButton.layer.cornerRadius = 27
         continueButton.clipsToBounds = true
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        
+        // Apply recursive label styling for other labels
+        UIHelper.styleLabels(in: view)
+        
+        // Spacer styling (Handle unconnected outlet)
+        spacer?.backgroundColor = AppColors.screenBackground
+        
+        // Fallback: Find generic UIViews (likely the spacer) that are not our main controls
+        // and ensure they adapt to the screen background.
+        view.subviews.forEach { subview in
+            // Check if it's a plain UIView (not a Label, Button, Field, etc.)
+            if type(of: subview) == UIView.self {
+                subview.backgroundColor = AppColors.screenBackground
+            }
+        }
     }
 
     private func setupActions() {

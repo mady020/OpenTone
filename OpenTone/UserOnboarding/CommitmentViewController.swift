@@ -33,19 +33,20 @@ final class CommitmentViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
-
+        
         titleLabel.text = "Daily practice commitment"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = UIColor(hex: "#2E2E2E")
-
+        titleLabel.textColor = AppColors.textPrimary
+        
         subtitleLabel.text = "Choose one option to continue"
         subtitleLabel.font = .systemFont(ofSize: 15)
-        subtitleLabel.textColor = UIColor(hex: "#6B6B6B")
-
+        subtitleLabel.textColor = UIColor.secondaryLabel
+        
         continueButton.layer.cornerRadius = 18
-        continueButton.setTitle("Continue", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.setTitleColor(.white, for: .normal)
+        // Color handled in updateContinueState
+        
+        UIHelper.styleLabels(in: view)
     }
 
     private func setupCollectionView() {
@@ -96,7 +97,7 @@ final class CommitmentViewController: UIViewController {
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled
             ? AppColors.primary
-            : UIColor(hex: "#C9C7D6")
+            : UIColor.systemGray4
     }
 
     @IBAction private func continueTapped(_ sender: UIButton) {

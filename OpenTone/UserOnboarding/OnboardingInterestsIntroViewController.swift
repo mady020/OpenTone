@@ -36,22 +36,24 @@ final class OnboardingInterestsViewController: UIViewController {
         view.backgroundColor = AppColors.screenBackground
 
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = UIColor(hex: "#2E2E2E")
+        titleLabel.textColor = AppColors.textPrimary
 
         requirementLabel.font = .systemFont(ofSize: 15)
-        requirementLabel.textColor = UIColor(hex: "#6B6B6B")
+        requirementLabel.textColor = UIColor.secondaryLabel
 
-        showAllButton.layer.cornerRadius = 27
-        showAllButton.clipsToBounds = true
-        showAllButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        showAllButton.setTitleColor(.white, for: .normal)
-        showAllButton.backgroundColor = AppColors.primary
-
-
+        // Show All Button
+        UIHelper.stylePrimaryButton(showAllButton)
+        // Ensure consistent corner radius if needed, UIHelper uses 25 (pill)
+        // This view controller used 27. Let's stick to UIHelper's standard or override if needed.
+        // User liked rounded buttons. UIHelper.stylePrimaryButton does pill shape.
+        
+        // Continue Button
         continueButton.layer.cornerRadius = 27
         continueButton.clipsToBounds = true
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.setTitleColor(.white, for: .normal)
+        // Color handled in updateContinueState
+        
+        UIHelper.styleLabels(in: view)
     }
     private func setupCollectionView() {
         collectionView.backgroundColor = .clear

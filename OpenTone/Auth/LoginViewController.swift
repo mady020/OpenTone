@@ -12,6 +12,46 @@ final class LoginViewController: UIViewController {
         passwordField.isSecureTextEntry = true
         addIconsToTextFields()
         addPasswordToggle()
+        setupUI()
+    }
+
+    private func setupUI() {
+        UIHelper.styleViewController(self)
+        UIHelper.styleTextField(emailField)
+        UIHelper.styleTextField(passwordField)
+        UIHelper.styleLabels(in: view)
+        
+        // Apply styling to buttons found in view hierarchy
+        findButtons(in: view).forEach { button in
+            // Identify buttons by connection actions or title text
+            let actions = button.actions(forTarget: self, forControlEvent: .touchUpInside) ?? []
+            let title = button.title(for: .normal)?.lowercased() ?? 
+                        button.configuration?.title?.lowercased() ?? ""
+            
+            if actions.contains("signinButtonTapped:") {
+                UIHelper.stylePrimaryButton(button)
+            } else if actions.contains("googleButtonTapped:") || title.contains("google") {
+                UIHelper.styleGoogleButton(button)
+            } else if title.contains("apple") {
+                UIHelper.styleAppleButton(button)
+            } else if title.contains("forgot") {
+                UIHelper.styleSecondaryButton(button)
+            } else {
+                // Default fallback if any other buttons appear
+                UIHelper.styleSecondaryButton(button)
+            }
+        }
+    }
+    
+    private func findButtons(in view: UIView) -> [UIButton] {
+        var buttons: [UIButton] = []
+        for subview in view.subviews {
+            if let button = subview as? UIButton {
+                buttons.append(button)
+            }
+            buttons.append(contentsOf: findButtons(in: subview))
+        }
+        return buttons
     }
 
     @IBAction func signinButtonTapped(_ sender: Any) {
