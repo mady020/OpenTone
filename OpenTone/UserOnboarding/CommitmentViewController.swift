@@ -42,10 +42,7 @@ final class CommitmentViewController: UIViewController {
         subtitleLabel.font = .systemFont(ofSize: 15)
         subtitleLabel.textColor = UIColor.secondaryLabel
         
-        continueButton.layer.cornerRadius = 18
-        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        // Color handled in updateContinueState
-        
+        UIHelper.stylePrimaryButton(continueButton)
         UIHelper.styleLabels(in: view)
     }
 
@@ -94,10 +91,7 @@ final class CommitmentViewController: UIViewController {
 
     private func updateContinueState() {
         let enabled = selectedOption != nil
-        continueButton.isEnabled = enabled
-        continueButton.backgroundColor = enabled
-            ? AppColors.primary
-            : UIColor.systemGray4
+        UIHelper.setButtonState(continueButton, enabled: enabled)
     }
 
     @IBAction private func continueTapped(_ sender: UIButton) {

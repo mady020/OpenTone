@@ -47,11 +47,7 @@ final class OnboardingInterestsViewController: UIViewController {
         // This view controller used 27. Let's stick to UIHelper's standard or override if needed.
         // User liked rounded buttons. UIHelper.stylePrimaryButton does pill shape.
         
-        // Continue Button
-        continueButton.layer.cornerRadius = 27
-        continueButton.clipsToBounds = true
-        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        // Color handled in updateContinueState
+        UIHelper.stylePrimaryButton(continueButton)
         
         UIHelper.styleLabels(in: view)
     }
@@ -98,10 +94,7 @@ final class OnboardingInterestsViewController: UIViewController {
     private func updateContinueState() {
         let enabled = selectedItems.count >= 3
 
-        continueButton.isEnabled = enabled
-        continueButton.backgroundColor = enabled
-            ? AppColors.primary
-            : UIColor(hex: "#C9C7D6")
+        UIHelper.setButtonState(continueButton, enabled: enabled)
 
         requirementLabel.text = enabled
             ? "You're all set! Continue now."

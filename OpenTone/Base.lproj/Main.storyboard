@@ -255,7 +255,7 @@
                             <constraint firstItem="mBa-Y2-Xh0" firstAttribute="trailing" secondItem="YNK-xV-CZX" secondAttribute="trailing" constant="32" id="P7L-Cq-NAQ"/>
                             <constraint firstItem="S8F-xi-btQ" firstAttribute="leading" secondItem="mBa-Y2-Xh0" secondAttribute="leading" constant="32" id="SdQ-Be-RBi"/>
                             <constraint firstItem="4xX-km-dmS" firstAttribute="centerX" secondItem="mBa-Y2-Xh0" secondAttribute="centerX" id="ZoC-er-5oc"/>
-                            <constraint firstItem="vAA-bM-noc" firstAttribute="top" secondItem="4xX-km-dmS" secondAttribute="bottom" constant="48" id="bFS-30-C5M"/>
+                            <constraint firstItem="vAA-bM-noc" firstAttribute="top" secondItem="4xX-km-dmS" secondAttribute="bottom" constant="20" id="bFS-30-C5M"/>
                             <constraint firstItem="7IM-3C-iym" firstAttribute="top" secondItem="vAA-bM-noc" secondAttribute="bottom" constant="20" id="ehR-SF-7Lp"/>
                             <constraint firstItem="vAA-bM-noc" firstAttribute="centerX" secondItem="4xX-km-dmS" secondAttribute="centerX" id="mU8-fS-Z6V"/>
                             <constraint firstItem="7IM-3C-iym" firstAttribute="leading" secondItem="mBa-Y2-Xh0" secondAttribute="leading" constant="32" id="sLZ-DU-gYQ"/>
@@ -471,7 +471,7 @@
                             <constraint firstItem="STr-RQ-V5g" firstAttribute="leading" secondItem="4gR-ua-4fQ" secondAttribute="leading" constant="32" id="Coi-4B-swe"/>
                             <constraint firstItem="XwF-zF-mWa" firstAttribute="centerX" secondItem="49u-y9-qhE" secondAttribute="centerX" id="DuN-hT-j8a"/>
                             <constraint firstItem="XwF-zF-mWa" firstAttribute="top" secondItem="PSN-Uo-BhE" secondAttribute="bottom" constant="40" id="MzD-SW-Eng"/>
-                            <constraint firstItem="x7L-KK-njG" firstAttribute="top" secondItem="LfE-19-B57" secondAttribute="bottom" constant="48" id="QFT-M0-Co7"/>
+                            <constraint firstItem="x7L-KK-njG" firstAttribute="top" secondItem="LfE-19-B57" secondAttribute="bottom" constant="20" id="QFT-M0-Co7"/>
                             <constraint firstItem="4gR-ua-4fQ" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="STr-RQ-V5g" secondAttribute="bottom" constant="80" id="ZB8-CC-YZr"/>
                             <constraint firstItem="x7L-KK-njG" firstAttribute="centerX" secondItem="LfE-19-B57" secondAttribute="centerX" id="Zdy-Xb-5dM"/>
                             <constraint firstItem="STr-RQ-V5g" firstAttribute="top" secondItem="x7L-KK-njG" secondAttribute="bottom" constant="20" id="fJ9-r6-gTt"/>
@@ -571,7 +571,7 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="s5a-7f-s2I" firstAttribute="top" secondItem="ZmD-dE-fJ1" secondAttribute="top" constant="24" id="5F2-xO-Z74"/>
-                            <constraint firstItem="ht1-xT-Sl3" firstAttribute="top" secondItem="s5a-7f-s2I" secondAttribute="bottom" constant="48" id="E4Q-Tb-VRc"/>
+                            <constraint firstItem="ht1-xT-Sl3" firstAttribute="top" secondItem="s5a-7f-s2I" secondAttribute="bottom" constant="20" id="E4Q-Tb-VRc"/>
                             <constraint firstItem="idS-He-aio" firstAttribute="top" secondItem="ht1-xT-Sl3" secondAttribute="bottom" constant="20" id="TXT-eF-zCH"/>
                             <constraint firstItem="idS-He-aio" firstAttribute="leading" secondItem="ZmD-dE-fJ1" secondAttribute="leading" constant="32" id="TzG-dc-kmI"/>
                             <constraint firstItem="ySp-Ji-sZr" firstAttribute="top" secondItem="idS-He-aio" secondAttribute="bottom" constant="40" id="ZKV-Qz-mh9"/>

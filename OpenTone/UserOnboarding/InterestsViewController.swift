@@ -95,9 +95,7 @@ final class InterestsViewController: UIViewController {
     }
 
     private func setupContinueButton() {
-        continueButton.layer.cornerRadius = 18
-        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.tintColor = .white
+        UIHelper.stylePrimaryButton(continueButton)
     }
 
     private func makeLayout() -> UICollectionViewLayout {
@@ -134,11 +132,7 @@ final class InterestsViewController: UIViewController {
     private func updateContinueState() {
         let enabled = selectedInterests.count >= 3
         continueButton.isHidden = !enabled
-        continueButton.isUserInteractionEnabled = enabled
-        continueButton.backgroundColor = enabled
-            ?AppColors.primary
-
-            : UIColor.systemGray4
+        UIHelper.setButtonState(continueButton, enabled: enabled)
     }
 
     @IBAction private func continueTapped() {

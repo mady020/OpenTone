@@ -8,12 +8,15 @@ final class SignupViewController: UIViewController {
 
     private var isPasswordVisible = false
 
+    private var signupButton: UIButton?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         passwordField.isSecureTextEntry = true
         addIconsToTextFields()
         addPasswordToggle()
         setupUI()
+        setupValidation()
     }
 
     private func setupUI() {
@@ -30,6 +33,7 @@ final class SignupViewController: UIViewController {
             
             if actions.contains("signupButtonTapped:") {
                 UIHelper.stylePrimaryButton(button)
+                self.signupButton = button
             } else if actions.contains("googleButtonTapped:") || title.contains("google") {
                 UIHelper.styleGoogleButton(button)
             } else if title.contains("apple") {
@@ -38,13 +42,70 @@ final class SignupViewController: UIViewController {
                 UIHelper.styleSecondaryButton(button)
             }
         }
+        
+        // Initial state
+        validateInputs()
+    }
+    
+    private func setupValidation() {
+        nameField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        emailField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        passwordField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+    }
+    
+    @objc private func textDidChange(_ sender: UITextField) {
+        validateInputs()
+    }
+    
+    private func validateInputs() {
+        var isValid = true
+        
+        // Name Validation
+        if let error = AuthValidator.validateName(nameField.text) {
+            // Only show error if user has started typing
+            if let text = nameField.text, !text.isEmpty {
+                 UIHelper.showError(message: error, on: nameField, in: view, nextView: emailField)
+            }
+            isValid = false
+        } else {
+            UIHelper.clearError(on: nameField)
+        }
+        
+        // Email Validation
+        if let error = AuthValidator.validateEmail(emailField.text) {
+             if let text = emailField.text, !text.isEmpty {
+                 // Push password field down
+                 UIHelper.showError(message: error, on: emailField, in: view, nextView: passwordField)
+             }
+             isValid = false
+        } else {
+             UIHelper.clearError(on: emailField)
+        }
+        
+        // Password Validation
+        if let error = AuthValidator.validatePassword(passwordField.text) {
+             if let text = passwordField.text, !text.isEmpty {
+                 // Push button down (if constraint exists to signupButton)
+                 // Note: we need to find the specific button instance.
+                 // We stored `signupButton` in `viewDidLoad`.
+                 UIHelper.showError(message: error, on: passwordField, in: view, nextView: signupButton)
+             }
+             isValid = false
+        } else {
+             UIHelper.clearError(on: passwordField)
+        }
+        
+        // Update Button State
+        if let button = signupButton {
+            UIHelper.setButtonState(button, enabled: isValid)
+        }
     }
     
     private func findButtons(in view: UIView) -> [UIButton] {
         var buttons: [UIButton] = []
         for subview in view.subviews {
             if let button = subview as? UIButton {
-                buttons.append(button)
+                 buttons.append(button)
             }
             buttons.append(contentsOf: findButtons(in: subview))
         }
@@ -65,10 +126,14 @@ final class SignupViewController: UIViewController {
     }
 
     private func handleSignup() {
+        // Double check validation
         guard
-            let name = nameField.text, !name.isEmpty,
-            let email = emailField.text, !email.isEmpty,
-            let password = passwordField.text, !password.isEmpty
+            AuthValidator.validateName(nameField.text) == nil,
+            AuthValidator.validateEmail(emailField.text) == nil,
+            AuthValidator.validatePassword(passwordField.text) == nil,
+            let name = nameField.text,
+            let email = emailField.text,
+            let password = passwordField.text
         else {
             return
         }

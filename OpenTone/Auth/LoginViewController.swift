@@ -7,12 +7,15 @@ final class LoginViewController: UIViewController {
 
     private var isPasswordVisible = false
 
+    private var loginButton: UIButton?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         passwordField.isSecureTextEntry = true
         addIconsToTextFields()
         addPasswordToggle()
         setupUI()
+        setupValidation()
     }
 
     private func setupUI() {
@@ -30,6 +33,7 @@ final class LoginViewController: UIViewController {
             
             if actions.contains("signinButtonTapped:") {
                 UIHelper.stylePrimaryButton(button)
+                self.loginButton = button
             } else if actions.contains("googleButtonTapped:") || title.contains("google") {
                 UIHelper.styleGoogleButton(button)
             } else if title.contains("apple") {
@@ -40,6 +44,47 @@ final class LoginViewController: UIViewController {
                 // Default fallback if any other buttons appear
                 UIHelper.styleSecondaryButton(button)
             }
+        }
+        
+        validateInputs()
+    }
+    
+    private func setupValidation() {
+        emailField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        passwordField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+    }
+    
+    @objc private func textDidChange(_ sender: UITextField) {
+        validateInputs()
+    }
+    
+    private func validateInputs() {
+        var isValid = true
+        
+        // Email Validation
+        if let error = AuthValidator.validateEmail(emailField.text) {
+             if let text = emailField.text, !text.isEmpty {
+                 UIHelper.showError(message: error, on: emailField, in: view, nextView: passwordField)
+             }
+             isValid = false
+        } else {
+             UIHelper.clearError(on: emailField)
+        }
+        
+        // Password Validation
+        if let error = AuthValidator.validatePassword(passwordField.text) {
+             if let text = passwordField.text, !text.isEmpty {
+                 // Push login button
+                 UIHelper.showError(message: error, on: passwordField, in: view, nextView: loginButton)
+             }
+             isValid = false
+        } else {
+             UIHelper.clearError(on: passwordField)
+        }
+        
+        // Update Button State
+        if let button = loginButton {
+            UIHelper.setButtonState(button, enabled: isValid)
         }
     }
     
@@ -64,7 +109,10 @@ final class LoginViewController: UIViewController {
     }
 
     private func handleLogin() {
+        // Double check validation
         guard
+            AuthValidator.validateEmail(emailField.text) == nil,
+            AuthValidator.validatePassword(passwordField.text) == nil,
             let email = emailField.text, !email.isEmpty,
             let password = passwordField.text, !password.isEmpty
         else {
@@ -76,6 +124,9 @@ final class LoginViewController: UIViewController {
             password: password
         ) else {
             // show "Invalid email or password"
+            let alert = UIAlertController(title: "Login Failed", message: "Invalid email or password", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
             return
         }
 

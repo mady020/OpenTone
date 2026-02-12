@@ -39,9 +39,7 @@ final class ConfidenceViewController: UIViewController {
         subtitleLabel.font = .systemFont(ofSize: 15)
         subtitleLabel.textColor = UIColor.secondaryLabel
         
-        continueButton.layer.cornerRadius = 27
-        continueButton.clipsToBounds = true
-        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        UIHelper.stylePrimaryButton(continueButton)
         
         UIHelper.styleLabels(in: view)
     }
@@ -80,10 +78,7 @@ final class ConfidenceViewController: UIViewController {
 
     private func updateContinueState() {
         let enabled = selectedOption != nil
-        continueButton.isEnabled = enabled
-        continueButton.backgroundColor = enabled
-            ? AppColors.primary
-            : UIColor.systemGray4
+        UIHelper.setButtonState(continueButton, enabled: enabled)
 
         subtitleLabel.text = enabled
             ? "You're all set!"

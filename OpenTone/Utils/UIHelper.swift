@@ -9,18 +9,7 @@ enum UIHelper {
     // MARK: - Text Field Styling
     // MARK: - Text Field Styling
     static func styleTextField(_ textField: UITextField) {
-        textField.layer.cornerRadius = 12
-        textField.layer.masksToBounds = true
-        textField.layer.borderWidth = 1.0
-        
-        // Use dynamic colors for borders to look good in both modes
-        // Light: Gray 4, Dark: Gray 2 (lighter)
-        textField.layer.borderColor = UIColor { traitCollection in
-            return traitCollection.userInterfaceStyle == .dark ? UIColor.systemGray2 : UIColor.systemGray4
-        }.cgColor
-        
-        // Background: Secondary System Background adapts automatically
-        textField.backgroundColor = UIColor.secondarySystemBackground
+        styleInputView(textField)
         
         textField.textColor = UIColor.label
         
@@ -30,6 +19,35 @@ enum UIHelper {
                 attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel]
             )
         }
+    }
+    
+    /// Styles a button to look like a text field (used for pickers/selectors)
+    static func styleSelectorButton(_ button: UIButton) {
+        styleInputView(button)
+        button.setTitleColor(UIColor.label, for: .normal)
+        button.contentHorizontalAlignment = .left
+        
+        if #available(iOS 15.0, *) {
+            var config = button.configuration ?? UIButton.Configuration.plain()
+            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+            button.configuration = config
+        } else {
+            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        }
+    }
+    
+    private static func styleInputView(_ view: UIView) {
+        view.layer.cornerRadius = 12
+        view.layer.masksToBounds = true
+        view.layer.borderWidth = 1.0
+        
+        // Use dynamic colors for borders to look good in both modes
+        view.layer.borderColor = UIColor { traitCollection in
+            return traitCollection.userInterfaceStyle == .dark ? UIColor.systemGray2 : UIColor.systemGray4
+        }.cgColor
+        
+        // Background: Secondary System Background adapts automatically
+        view.backgroundColor = UIColor.secondarySystemBackground
     }
     
     // MARK: - Button Styling
@@ -135,21 +153,141 @@ enum UIHelper {
         }
     }
     
+    // MARK: - Button State Management
+    
+    /// Centralized method to set button enabled/disabled state with consistent visual feedback
+    /// - Parameters:
+    ///   - button: The button to update
+    ///   - enabled: Whether the button should be enabled
+    static func setButtonState(_ button: UIButton, enabled: Bool) {
+        button.isEnabled = enabled
+        button.alpha = enabled ? 1.0 : 0.5
+    }
+    
     static func styleViewController(_ viewController: UIViewController) {
         viewController.view.backgroundColor = UIColor.systemBackground
+    }
+    
+    // MARK: - Validation Styling
+    
+    // MARK: - Validation Styling
+    
+    // Custom Label to store original constraint for restoration
+    class ErrorLabel: UILabel {
+        weak var impactedConstraint: NSLayoutConstraint?
+        var originalConstant: CGFloat = 0
+    }
+    
+    static func showError(message: String, on textField: UITextField, in view: UIView, nextView: UIView? = nil) {
+        // 1. Change Border Color
+        textField.layer.borderColor = UIColor.systemRed.cgColor
+        
+        let tag = textField.hashValue // Simple unique ID binding
+        
+        // 2. Check if error exists
+        if let existingLabel = view.viewWithTag(tag) as? ErrorLabel {
+            existingLabel.text = message
+            existingLabel.isHidden = false
+            return
+        }
+        
+        // 3. Create new label
+        let label = ErrorLabel()
+        label.tag = tag
+        label.textColor = .systemRed
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.numberOfLines = 0
+        label.text = message
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        // 4. Add to view hierarchy (using textField's superview)
+        guard let superview = textField.superview else { return }
+        superview.addSubview(label)
+        
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 4),
+            label.leadingAnchor.constraint(equalTo: textField.leadingAnchor, constant: 4),
+            label.trailingAnchor.constraint(equalTo: textField.trailingAnchor)
+        ])
+        
+        // 5. Adjust Spacing of Next View if provided
+        if let nextView = nextView {
+            // Search for constraint in both superview and the main view (passed as 'view' parameter)
+            let viewsToSearch = [superview, view].compactMap { $0 }
+            
+            var foundConstraint: NSLayoutConstraint?
+            for searchView in viewsToSearch {
+                if let constraint = searchView.constraints.first(where: {
+                    ($0.firstItem === nextView && $0.firstAttribute == .top && $0.secondItem === textField && $0.secondAttribute == .bottom) ||
+                    ($0.secondItem === nextView && $0.secondAttribute == .top && $0.firstItem === textField && $0.firstAttribute == .bottom)
+                }) {
+                    foundConstraint = constraint
+                    break
+                }
+            }
+            
+            if let constraint = foundConstraint {
+                // Store original
+                label.impactedConstraint = constraint
+                label.originalConstant = constraint.constant
+                
+                // Increase spacing to accommodate error label (approx 30pt for text + padding)
+                constraint.constant += 30
+                
+                // Animate layout changes
+                UIView.animate(withDuration: 0.2) {
+                    view.layoutIfNeeded()
+                }
+            }
+        }
+        
+        // Optional: Animate
+        label.alpha = 0
+        UIView.animate(withDuration: 0.2) {
+            label.alpha = 1
+        }
+    }
+    
+    static func clearError(on textField: UITextField) {
+        // 1. Reset Border
+        textField.layer.borderColor = UIColor { trait in
+            return trait.userInterfaceStyle == .dark ? UIColor.systemGray2 : UIColor.systemGray4
+        }.cgColor
+        
+        // 2. Remove Label & Restore Spacing
+        let tag = textField.hashValue
+        if let superview = textField.superview, let label = superview.viewWithTag(tag) as? ErrorLabel {
+            
+            // Restore Constraint
+            if let constraint = label.impactedConstraint {
+                constraint.constant = label.originalConstant
+                UIView.animate(withDuration: 0.2) {
+                    superview.layoutIfNeeded()
+                }
+            }
+            
+            UIView.animate(withDuration: 0.1, animations: {
+                label.alpha = 0
+            }) { _ in
+                label.removeFromSuperview()
+            }
+        }
     }
     
     // MARK: - Label Styling
     static func styleLabels(in view: UIView) {
         for subview in view.subviews {
             if let label = subview as? UILabel {
+                // Ignore error labels (red)
+                if label.textColor == .systemRed { continue }
+                
                 // Check text to determine style
                 let text = label.text?.lowercased() ?? ""
                 
                 if text.contains("opentone") {
                     label.textColor = AppColors.primary
-                } else if text.contains("welcome") || 
-                          text.contains("create") || 
+                } else if text.contains("welcome") ||
+                          text.contains("create") ||
                           text.contains("reset") ||
                           text.contains("select") {
                     // Title Headers

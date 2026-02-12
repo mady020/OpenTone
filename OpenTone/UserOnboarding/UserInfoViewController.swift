@@ -32,23 +32,11 @@ final class UserinfoViewController: UIViewController {
         nameField.setLeftPaddingPoints(16) // Keep padding if needed, though styleTextField might handle some
         
         // Country Field (Button that looks like a field)
-        countryField.backgroundColor = AppColors.cardBackground
-        countryField.layer.cornerRadius = 12
-        countryField.layer.borderWidth = 1
-        countryField.layer.borderColor = AppColors.cardBorder.cgColor
-        countryField.titleLabel?.font = .systemFont(ofSize: 18)
-        countryField.setTitleColor(AppColors.textPrimary, for: .normal)
-        countryField.contentHorizontalAlignment = .left
-        countryField.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
+        UIHelper.styleSelectorButton(countryField)
+        countryField.setTitle("Select country", for: .normal)
 
         // Continue Button
-        // Use UIHelper but we might need to handle the disabled state manually or let UIHelper handle the shape
-        // UIHelper.stylePrimaryButton(continueButton) sets background to Primary.
-        // But this button changes color based on state.
-        // Let's set the base shape/style here and let updateContinueState handle color.
-        continueButton.layer.cornerRadius = 27
-        continueButton.clipsToBounds = true
-        continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        UIHelper.stylePrimaryButton(continueButton)
         
         // Apply recursive label styling for other labels
         UIHelper.styleLabels(in: view)
@@ -100,13 +88,7 @@ final class UserinfoViewController: UIViewController {
 
     private func updateContinueState() {
         let valid = !(nameField.text ?? "").isEmpty && selectedCountry != nil
-
-        continueButton.isUserInteractionEnabled = valid
-        continueButton.backgroundColor = valid
-            ? AppColors.primary
-            : UIColor(hex: "#C9C7D6")
-
-        continueButton.setTitleColor(.white, for: .normal)
+        UIHelper.setButtonState(continueButton, enabled: valid)
     }
 
     @objc private func continueTapped() {
