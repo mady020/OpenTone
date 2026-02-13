@@ -13,10 +13,7 @@ final class InterestCell: UICollectionViewCell {
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = AppColors.cardBackground
-        containerView.layer.cornerRadius = 20
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        UIHelper.styleCardView(containerView)
 
         titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
         titleLabel.textColor = AppColors.textPrimary

@@ -161,11 +161,26 @@ enum UIHelper {
     ///   - enabled: Whether the button should be enabled
     static func setButtonState(_ button: UIButton, enabled: Bool) {
         button.isEnabled = enabled
-        button.alpha = enabled ? 1.0 : 0.5
+        button.alpha = enabled ? 1.0 : 0.7
     }
     
     static func styleViewController(_ viewController: UIViewController) {
         viewController.view.backgroundColor = UIColor.systemBackground
+    }
+    
+    // MARK: - Card Styling
+    static func styleCardView(_ view: UIView) {
+        view.backgroundColor = AppColors.cardBackground
+        view.layer.cornerRadius = 20
+        view.layer.borderWidth = 1
+        view.layer.borderColor = AppColors.cardBorder.cgColor
+        
+        // Shadow
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOffset = CGSize(width: 0, height: 4) // Slightly more depth
+        view.layer.shadowRadius = 12
+        view.layer.shadowOpacity = 0.08
+        view.layer.masksToBounds = false
     }
     
     // MARK: - Validation Styling

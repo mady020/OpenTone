@@ -27,22 +27,21 @@ final class ProfileCell: UICollectionViewCell {
     private func setupUI() {
             contentView.backgroundColor = .clear
 
-            containerView.backgroundColor = AppColors.cardBackground
-            containerView.layer.cornerRadius = 16
-            containerView.layer.borderWidth = 1
-            containerView.layer.borderColor = AppColors.cardBorder.cgColor
+            UIHelper.styleCardView(containerView)
 
             avatarImageView.layer.cornerRadius = 32
             avatarImageView.clipsToBounds = true
             avatarImageView.contentMode = .scaleAspectFill
+            avatarImageView.layer.borderWidth = 2
+            avatarImageView.layer.borderColor = AppColors.primary.cgColor
 
-            nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+            nameLabel.font = .systemFont(ofSize: 22, weight: .bold)
             nameLabel.textColor = AppColors.textPrimary
 
             countryLabel.font = .systemFont(ofSize: 14)
             countryLabel.textColor = .secondaryLabel
 
-            levelLabel.font = .systemFont(ofSize: 14, weight: .medium)
+            levelLabel.font = .systemFont(ofSize: 15, weight: .medium)
             levelLabel.textColor = AppColors.primary
 
             bioLabel.font = .systemFont(ofSize: 14)

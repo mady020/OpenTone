@@ -30,7 +30,7 @@ class CallSetupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        confirmButton.layer.cornerRadius = 25
+        UIHelper.stylePrimaryButton(confirmButton)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.collectionViewLayout = createLayout()
@@ -195,6 +195,8 @@ extension CallSetupViewController: UICollectionViewDataSource {
         case .gender: header.titleLabel.text = "Gender"
         case .english: header.titleLabel.text = "English Level"
         }
+        
+        header.titleLabel.textColor = AppColors.textPrimary
 
         return header
     }

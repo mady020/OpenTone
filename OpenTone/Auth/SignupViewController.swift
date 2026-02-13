@@ -185,8 +185,12 @@ final class SignupViewController: UIViewController {
         nav.modalPresentationStyle = .fullScreen
         nav.modalTransitionStyle = .crossDissolve
 
-        view.window?.rootViewController = nav
-        view.window?.makeKeyAndVisible()
+        if let window = view.window {
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                window.rootViewController = nav
+            }, completion: nil)
+            window.makeKeyAndVisible()
+        }
     }
 
 
