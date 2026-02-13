@@ -33,19 +33,11 @@ class ReportViewController: UIViewController {
         titleLabel.text = "You are Leaving call Early!"
         subtitleLabel.text = "Still want to end? Please tell us why"
         
-        otherReasonTextField.layer.cornerRadius = 22
-        otherReasonTextField.layer.borderWidth = 1
-        otherReasonTextField.layer.borderColor = AppColors.cardBorder.cgColor
-        otherReasonTextField.backgroundColor = AppColors.cardBackground
+        UIHelper.styleTextField(otherReasonTextField)
 
         styleReasonButtons()
-
-   
-        submitButton.layer.cornerRadius = 22
-        submitButton.layer.borderWidth = 1
-        submitButton.layer.borderColor = AppColors.cardBorder.cgColor
-        submitButton.backgroundColor = AppColors.primary
-        submitButton.setTitleColor(.white, for: .normal)
+        
+        UIHelper.stylePrimaryButton(submitButton)
     }
 
     func styleReasonButtons() {
@@ -57,10 +49,12 @@ class ReportViewController: UIViewController {
         ]
 
         buttons.forEach { button in
-            button?.layer.cornerRadius = 30
-            button?.layer.borderWidth = 1
-            button?.layer.borderColor = AppColors.cardBorder.cgColor
-            button?.backgroundColor = AppColors.cardBackground
+            guard let button = button else { return }
+            button.layer.cornerRadius = 20
+            button.layer.borderWidth = 1
+            button.layer.borderColor = AppColors.cardBorder.cgColor
+            button.backgroundColor = AppColors.cardBackground
+            button.setTitleColor(AppColors.textPrimary, for: .normal)
         }
     }
 

@@ -38,10 +38,7 @@ final class ProfileActionsCell: UICollectionViewCell {
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = AppColors.cardBackground
-        containerView.layer.cornerRadius = 16
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        UIHelper.styleCardView(containerView)
 
         stackView.axis = .vertical
         stackView.spacing = 12
@@ -91,7 +88,7 @@ final class ProfileActionsCell: UICollectionViewCell {
     ) {
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 14
         button.layer.borderWidth = 1
 
         if destructive {

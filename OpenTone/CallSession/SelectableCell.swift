@@ -5,24 +5,25 @@ class SelectableCell: UICollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        contentView.layer.cornerRadius = 18
+        contentView.layer.cornerRadius = 16
         contentView.layer.borderWidth = 1
+        contentView.layer.masksToBounds = true
     }
 
     func configure(title: String, isSelected: Bool) {
 
         titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
 
         if isSelected {
             contentView.backgroundColor = AppColors.primary
-
-            titleLabel.textColor = .white
+            titleLabel.textColor = AppColors.textOnPrimary
             contentView.layer.borderWidth = 0
         } else {
-            contentView.backgroundColor = .white
-            titleLabel.textColor = .darkGray
+            contentView.backgroundColor = AppColors.cardBackground
+            titleLabel.textColor = AppColors.textPrimary
             contentView.layer.borderWidth = 1
-            contentView.layer.borderColor = UIColor.gray.cgColor
+            contentView.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
 }

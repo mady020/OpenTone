@@ -25,10 +25,7 @@ final class StatsCell: UICollectionViewCell {
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        containerView.backgroundColor = AppColors.cardBackground
-        containerView.layer.cornerRadius = 16
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        UIHelper.styleCardView(containerView)
 
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
@@ -45,7 +42,7 @@ final class StatsCell: UICollectionViewCell {
     }
 
     private func styleValueLabel(_ label: UILabel) {
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = .systemFont(ofSize: 20, weight: .bold)
         label.textColor = AppColors.textPrimary
         label.textAlignment = .center
     }
