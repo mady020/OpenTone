@@ -185,66 +185,113 @@ enum UIHelper {
         let tag = textField.hashValue // Simple unique ID binding
         
         // 2. Check if error exists
+        // If inside StackView, check arrangedSubviews or subviews
         if let existingLabel = view.viewWithTag(tag) as? ErrorLabel {
             existingLabel.text = message
             existingLabel.isHidden = false
             return
         }
         
-        // 3. Create new label
-        let label = ErrorLabel()
-        label.tag = tag
-        label.textColor = .systemRed
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.numberOfLines = 0
-        label.text = message
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        // 4. Add to view hierarchy (using textField's superview)
-        guard let superview = textField.superview else { return }
-        superview.addSubview(label)
-        
-        NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 4),
-            label.leadingAnchor.constraint(equalTo: textField.leadingAnchor, constant: 4),
-            label.trailingAnchor.constraint(equalTo: textField.trailingAnchor)
-        ])
-        
-        // 5. Adjust Spacing of Next View if provided
-        if let nextView = nextView {
-            // Search for constraint in both superview and the main view (passed as 'view' parameter)
-            let viewsToSearch = [superview, view].compactMap { $0 }
+        // Check if textField is in a StackView
+        if let stackView = textField.superview as? UIStackView {
+            // Stack View Logic
             
-            var foundConstraint: NSLayoutConstraint?
-            for searchView in viewsToSearch {
-                if let constraint = searchView.constraints.first(where: {
-                    ($0.firstItem === nextView && $0.firstAttribute == .top && $0.secondItem === textField && $0.secondAttribute == .bottom) ||
-                    ($0.secondItem === nextView && $0.secondAttribute == .top && $0.firstItem === textField && $0.firstAttribute == .bottom)
-                }) {
-                    foundConstraint = constraint
-                    break
+            // Check if we already have an error label in the stack info
+            if let existingLabel = stackView.viewWithTag(tag) as? ErrorLabel {
+                existingLabel.text = message
+                
+                // Animate showing
+                if existingLabel.isHidden {
+                    UIView.animate(withDuration: 0.3) {
+                        existingLabel.isHidden = false
+                        stackView.layoutIfNeeded()
+                    }
+                }
+                return
+            }
+            
+            // Create new label
+            let label = ErrorLabel()
+            label.tag = tag
+            label.textColor = .systemRed
+            label.font = .systemFont(ofSize: 12, weight: .regular)
+            label.numberOfLines = 0
+            label.text = message
+            
+            // Initial state for animation
+            label.isHidden = true
+            label.alpha = 0
+            
+            // Insert into StackView
+            // Find index of textField
+            if let index = stackView.arrangedSubviews.firstIndex(of: textField) {
+                stackView.insertArrangedSubview(label, at: index + 1)
+                
+                // Animate
+                UIView.animate(withDuration: 0.3) {
+                    label.isHidden = false
+                    label.alpha = 1
+                    stackView.layoutIfNeeded()
                 }
             }
             
-            if let constraint = foundConstraint {
-                // Store original
-                label.impactedConstraint = constraint
-                label.originalConstant = constraint.constant
+        } else {
+            // 3. Standard Layout Logic (Non-StackView)
+            
+            let label = ErrorLabel()
+            label.tag = tag
+            label.textColor = .systemRed
+            label.font = .systemFont(ofSize: 12, weight: .regular)
+            label.numberOfLines = 0
+            label.text = message
+            label.translatesAutoresizingMaskIntoConstraints = false
+            
+            // 4. Add to view hierarchy (using textField's superview)
+            guard let superview = textField.superview else { return }
+            superview.addSubview(label)
+            
+            NSLayoutConstraint.activate([
+                label.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 4),
+                label.leadingAnchor.constraint(equalTo: textField.leadingAnchor, constant: 4),
+                label.trailingAnchor.constraint(equalTo: textField.trailingAnchor)
+            ])
+            
+            // 5. Adjust Spacing of Next View if provided
+            if let nextView = nextView {
+                // Search for constraint in both superview and the main view (passed as 'view' parameter)
+                let viewsToSearch = [superview, view].compactMap { $0 }
                 
-                // Increase spacing to accommodate error label (approx 30pt for text + padding)
-                constraint.constant += 30
+                var foundConstraint: NSLayoutConstraint?
+                for searchView in viewsToSearch {
+                    if let constraint = searchView.constraints.first(where: {
+                        ($0.firstItem === nextView && $0.firstAttribute == .top && $0.secondItem === textField && $0.secondAttribute == .bottom) ||
+                        ($0.secondItem === nextView && $0.secondAttribute == .top && $0.firstItem === textField && $0.firstAttribute == .bottom)
+                    }) {
+                        foundConstraint = constraint
+                        break
+                    }
+                }
                 
-                // Animate layout changes
-                UIView.animate(withDuration: 0.2) {
-                    view.layoutIfNeeded()
+                if let constraint = foundConstraint {
+                    // Store original
+                    label.impactedConstraint = constraint
+                    label.originalConstant = constraint.constant
+                    
+                    // Increase spacing to accommodate error label (approx 30pt for text + padding)
+                    constraint.constant += 30
+                    
+                    // Animate layout changes
+                    UIView.animate(withDuration: 0.2) {
+                        view.layoutIfNeeded()
+                    }
                 }
             }
-        }
-        
-        // Optional: Animate
-        label.alpha = 0
-        UIView.animate(withDuration: 0.2) {
-            label.alpha = 1
+            
+            // Optional: Animate
+            label.alpha = 0
+            UIView.animate(withDuration: 0.2) {
+                label.alpha = 1
+            }
         }
     }
     
@@ -254,22 +301,40 @@ enum UIHelper {
             return trait.userInterfaceStyle == .dark ? UIColor.systemGray2 : UIColor.systemGray4
         }.cgColor
         
-        // 2. Remove Label & Restore Spacing
         let tag = textField.hashValue
-        if let superview = textField.superview, let label = superview.viewWithTag(tag) as? ErrorLabel {
-            
-            // Restore Constraint
-            if let constraint = label.impactedConstraint {
-                constraint.constant = label.originalConstant
-                UIView.animate(withDuration: 0.2) {
-                    superview.layoutIfNeeded()
+        
+        // 2. Handle StackView or Standard Layout
+        if let stackView = textField.superview as? UIStackView {
+            // Stack View Logic
+            if let label = stackView.viewWithTag(tag) as? ErrorLabel {
+                
+                UIView.animate(withDuration: 0.3, animations: {
+                    label.isHidden = true
+                    label.alpha = 0
+                    stackView.layoutIfNeeded()
+                }) { _ in
+                    stackView.removeArrangedSubview(label)
+                    label.removeFromSuperview()
                 }
             }
             
-            UIView.animate(withDuration: 0.1, animations: {
-                label.alpha = 0
-            }) { _ in
-                label.removeFromSuperview()
+        } else {
+            // Standard Layout Logic
+            if let superview = textField.superview, let label = superview.viewWithTag(tag) as? ErrorLabel {
+                
+                // Restore Constraint
+                if let constraint = label.impactedConstraint {
+                    constraint.constant = label.originalConstant
+                    UIView.animate(withDuration: 0.2) {
+                        superview.layoutIfNeeded()
+                    }
+                }
+                
+                UIView.animate(withDuration: 0.1, animations: {
+                    label.alpha = 0
+                }) { _ in
+                    label.removeFromSuperview()
+                }
             }
         }
     }
