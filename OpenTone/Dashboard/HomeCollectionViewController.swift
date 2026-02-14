@@ -3,6 +3,7 @@ import UIKit
 
 enum DashboardSection: Int, CaseIterable {
     case progress
+    case continueJam
     case completeTask
     case callSession
     case recommended
@@ -22,6 +23,7 @@ class HomeCollectionViewController: UICollectionViewController {
     var lastTask: Activity?
     var currentProgress: Int?
     var commitment : Int?
+    var savedJamSession: JamSession?
     
     
 
@@ -38,6 +40,11 @@ class HomeCollectionViewController: UICollectionViewController {
             DashboardHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: "DashboardHeader"
+        )
+
+        collectionView.register(
+            ContinueJamCell.self,
+            forCellWithReuseIdentifier: ContinueJamCell.reuseID
         )
 
         collectionView.collectionViewLayout = createLayout()
@@ -60,6 +67,9 @@ class HomeCollectionViewController: UICollectionViewController {
         commitment = user.streak?.commitment ?? 0
         currentProgress = user.streak?.currentCount ?? 0
         lastTask = SessionManager.shared.lastUnfinishedActivity
+
+        // Load saved JAM session (if any) for the continue card
+        savedJamSession = JamSessionDataModel.shared.getSavedSession()
     }
 
 
@@ -71,6 +81,51 @@ class HomeCollectionViewController: UICollectionViewController {
         let vc = storyboard.instantiateViewController(withIdentifier: "Streak")
       
             present(vc, animated: true)
+    }
+
+    // MARK: - Resume Saved JAM
+
+    private func resumeSavedJamSession() {
+        // Load the saved session as active
+        JamSessionDataModel.shared.resumeSavedSession()
+
+        // Switch to the JAM tab
+        guard let tabBar = tabBarController else { return }
+
+        // Find the JAM tab index (the one whose root VC is TwoMinuteJamViewController)
+        var jamTabIndex: Int?
+        if let viewControllers = tabBar.viewControllers {
+            for (index, vc) in viewControllers.enumerated() {
+                let rootVC: UIViewController?
+                if let nav = vc as? UINavigationController {
+                    rootVC = nav.viewControllers.first
+                } else {
+                    rootVC = vc
+                }
+                if rootVC is TwoMinuteJamViewController {
+                    jamTabIndex = index
+                    break
+                }
+            }
+        }
+
+        guard let targetIndex = jamTabIndex else { return }
+
+        // Switch tab
+        tabBar.selectedIndex = targetIndex
+
+        // Push PrepareJam from the JAM tab's navigation controller
+        if let jamNav = tabBar.viewControllers?[targetIndex] as? UINavigationController {
+            jamNav.popToRootViewController(animated: false)
+
+            let storyboard = UIStoryboard(name: "JamSessionStoryBoard", bundle: nil)
+            if let prepareVC = storyboard.instantiateViewController(
+                withIdentifier: "PrepareJamViewController"
+            ) as? PrepareJamViewController {
+                prepareVC.forceTimerReset = false
+                jamNav.pushViewController(prepareVC, animated: true)
+            }
+        }
     }
 
     
@@ -89,6 +144,14 @@ class HomeCollectionViewController: UICollectionViewController {
         switch DashboardSection(rawValue: indexPath.section)! {
         case .progress:
             return UICollectionReusableView()
+
+        case .continueJam:
+            if savedJamSession != nil {
+                header.titleLabel.text = "Continue your JAM"
+                return header
+            } else {
+                return UICollectionReusableView()
+            }
            
         case .completeTask:
             if hasUnfinishedLastTask {
@@ -115,6 +178,8 @@ class HomeCollectionViewController: UICollectionViewController {
         switch DashboardSection(rawValue: section)! {
         case .progress:
             return 1
+        case .continueJam:
+            return savedJamSession != nil ? 1 : 0
         case .completeTask:
             return hasUnfinishedLastTask ? 1 : 0
         case .callSession:
@@ -153,6 +218,26 @@ class HomeCollectionViewController: UICollectionViewController {
             )
 
             
+            return cell
+
+        case .continueJam:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: ContinueJamCell.reuseID,
+                for: indexPath
+            ) as! ContinueJamCell
+
+            if let session = savedJamSession {
+                cell.configure(
+                    topic: session.topic,
+                    secondsLeft: session.secondsLeft,
+                    phase: session.phase
+                )
+            }
+
+            cell.onContinueTapped = { [weak self] in
+                self?.resumeSavedJamSession()
+            }
+
             return cell
 
         case .completeTask:
@@ -217,6 +302,11 @@ extension HomeCollectionViewController {
             switch sectionType {
             case .progress:
                 return self.horizontalcompleteTaskSection()
+
+            case .continueJam:
+                return self.savedJamSession != nil
+                    ? self.fullWidthSection()
+                    : self.nothingLayout()
 
             case .completeTask:
                 return self.hasUnfinishedLastTask
@@ -420,6 +510,9 @@ extension HomeCollectionViewController {
         switch section {
         case .progress:
             print("Progress Clicked")
+
+        case .continueJam:
+            resumeSavedJamSession()
 
         case .completeTask:
 

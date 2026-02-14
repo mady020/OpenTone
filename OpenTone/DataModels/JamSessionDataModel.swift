@@ -165,6 +165,15 @@ class JamSessionDataModel {
         FileManager.default.fileExists(atPath: savedSessionURL.path)
     }
 
+    /// Peek at the saved session without making it active.
+    func getSavedSession() -> JamSession? {
+        guard let data = try? Data(contentsOf: savedSessionURL),
+              let session = try? decoder.decode(JamSession.self, from: data) else {
+            return nil
+        }
+        return session
+    }
+
     /// Resume a previously saved session, making it active again.
     @discardableResult
     func resumeSavedSession() -> JamSession? {

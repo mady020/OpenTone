@@ -16,12 +16,6 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = false
         tabBarController?.delegate = self
-
-        // Check for a saved session the user can resume
-        if JamSessionDataModel.shared.hasSavedSession()
-            && !JamSessionDataModel.shared.hasActiveSession() {
-            showResumePrompt()
-        }
     }
 
     override func viewDidLoad() {
@@ -94,27 +88,6 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
                 ? UIColor.separator.cgColor
                 : UIColor.clear.cgColor
         }
-    }
-
-    // MARK: - Resume Saved Session
-
-    private func showResumePrompt() {
-        let alert = UIAlertController(
-            title: "Saved Session Found",
-            message: "You have a saved JAM session. Would you like to resume it?",
-            preferredStyle: .alert
-        )
-
-        alert.addAction(UIAlertAction(title: "Resume", style: .default) { _ in
-            JamSessionDataModel.shared.resumeSavedSession()
-            self.navigateToPrepare(resetTimer: false)
-        })
-
-        alert.addAction(UIAlertAction(title: "Discard", style: .destructive) { _ in
-            JamSessionDataModel.shared.deleteSavedSession()
-        })
-
-        present(alert, animated: true)
     }
 
     // MARK: - Actions
