@@ -54,9 +54,11 @@ enum UIHelper {
     
     // Primary Action (e.g. Sign In, Sign Up) - Purple
     static func stylePrimaryButton(_ button: UIButton) {
+        button.alpha = 1.0  // Ensure button is not transparent
+        button.isOpaque = true  // Ensure button renders correctly
         styleButton(button,
                     backgroundColor: AppColors.primary,
-                    textColor: AppColors.textOnPrimary,
+                    textColor: UIColor.white,
                     borderColor: nil)
     }
     
@@ -111,39 +113,56 @@ enum UIHelper {
     
     // Private Helper to handle Configuration vs Legacy
     private static func styleButton(_ button: UIButton, backgroundColor: UIColor, textColor: UIColor, borderColor: UIColor?) {
-        button.layer.cornerRadius = 25 // Pill shape implies height/2. 50 height -> 25 radius.
+        button.layer.cornerRadius = 25
+        button.clipsToBounds = false
         
-        // Shadow (legacy layer works for shadow usually, but clipsToBounds must be off)
-        // If using Configuration with filled style, masksToBounds might be true.
-        // For pill shape, we can set cornerRadius on layer.
+        // Ensure button has proper appearance
+        button.alpha = 1.0
+        button.isOpaque = false
         
-        if var config = button.configuration {
-            config.baseBackgroundColor = backgroundColor
-            config.baseForegroundColor = textColor
-            config.background.cornerRadius = 25
-            
-            if let borderColor = borderColor {
-                config.background.strokeColor = borderColor
-                config.background.strokeWidth = 1.0
-            } else {
-                config.background.strokeWidth = 0.0
-            }
-            
-            button.configuration = config
+        // Get or create configuration
+        var config = button.configuration ?? UIButton.Configuration.filled()
+        
+        config.baseBackgroundColor = backgroundColor
+        config.baseForegroundColor = textColor
+        config.background.cornerRadius = 25
+        config.titleAlignment = .center
+        
+        // Ensure text is properly styled in configuration
+        var titleAttr = AttributeContainer()
+        titleAttr.foregroundColor = textColor
+        config.attributedTitle = AttributedString(config.title ?? "", attributes: titleAttr)
+        
+        if let borderColor = borderColor {
+            config.background.strokeColor = borderColor
+            config.background.strokeWidth = 1.0
         } else {
-            // Legacy Fallback
-            button.backgroundColor = backgroundColor
-            button.setTitleColor(textColor, for: .normal)
-            button.layer.cornerRadius = 25
-            if let borderColor = borderColor {
-                button.layer.borderColor = borderColor.cgColor
-                button.layer.borderWidth = 1.0
-            } else {
-                button.layer.borderWidth = 0.0
-            }
+            config.background.strokeWidth = 0.0
         }
         
-        // Add shadow for depth if needed (only for filled buttons)
+        // Apply the configuration
+        button.configuration = config
+        
+        // Force explicit color settings on all possible text rendering paths
+        button.tintColor = textColor
+        button.setTitleColor(textColor, for: .normal)
+        button.setTitleColor(textColor, for: .highlighted)
+        button.setTitleColor(textColor, for: .disabled)
+        button.setTitleColor(textColor, for: .focused)
+        button.setTitleColor(textColor, for: .application)
+        button.setTitleColor(textColor, for: .reserved)
+        button.setTitleColor(textColor, for: .selected)
+        
+        // Update title label appearance
+        button.titleLabel?.textColor = textColor
+        button.titleLabel?.font = button.titleLabel?.font ?? .systemFont(ofSize: 17)
+        
+        // Force configuration update
+        if #available(iOS 15.1, *) {
+            button.setNeedsUpdateConfiguration()
+        }
+        
+        // Add shadow for depth if needed
         if backgroundColor != .clear {
             button.layer.shadowColor = UIColor.black.cgColor
             button.layer.shadowOffset = CGSize(width: 0, height: 2)
@@ -175,9 +194,9 @@ enum UIHelper {
         view.layer.borderWidth = 1
         view.layer.borderColor = AppColors.cardBorder.cgColor
         
-        // Shadow
+        // Shadow configuration
         view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0, height: 4) // Slightly more depth
+        view.layer.shadowOffset = CGSize(width: 0, height: 4)
         view.layer.shadowRadius = 12
         view.layer.shadowOpacity = 0.08
         view.layer.masksToBounds = false

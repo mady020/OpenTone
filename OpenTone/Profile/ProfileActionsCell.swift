@@ -90,6 +90,11 @@ final class ProfileActionsCell: UICollectionViewCell {
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 14
         button.layer.borderWidth = 1
+        button.layer.masksToBounds = false
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 1)
+        button.layer.shadowRadius = 3
+        button.layer.shadowOpacity = 0.08
 
         if destructive {
             button.setTitleColor(.systemRed, for: .normal)

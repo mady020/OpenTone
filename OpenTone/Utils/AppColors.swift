@@ -9,12 +9,14 @@ struct AppColors {
         return trait.userInterfaceStyle == .dark ? .secondarySystemGroupedBackground : UIColor(hex: "#FFFFFF")
     }
     
+    // Primary button color - consistent purple across both modes
     static let primary = UIColor(hex: "#5B3CC4") // Brand color
     
     static let textPrimary = UIColor { trait in
         return trait.userInterfaceStyle == .dark ? .label : UIColor(hex: "#1A1A1A")
     }
     
+    // Text on primary (buttons, etc) - always white for contrast
     static let textOnPrimary = UIColor.white
     
     static let cardBorder = UIColor { trait in

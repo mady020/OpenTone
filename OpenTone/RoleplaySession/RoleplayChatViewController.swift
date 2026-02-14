@@ -29,22 +29,21 @@ extension RoleplayChatViewController: SuggestionCellDelegate {
 
 
 class RoleplayChatViewController: UIViewController {
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var micButton: UIButton!
+    @IBOutlet weak var replayButton: UIButton!
+    
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
+    
+    private var messages: [ChatMessage] = []
+    private var didLoadChat = false
 
     private var currentWrongStreak = 0
     private var totalWrongAttempts = 0
 
     private var isProcessingResponse = false
 
-    
-
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var micButton: UIButton!
-
-    @IBOutlet var replayButton: UIButton!
-    private var messages: [ChatMessage] = []
-    private var didLoadChat = false
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -53,33 +52,45 @@ class RoleplayChatViewController: UIViewController {
         }
 
         title = scenario.title
+        setupUI()
+        setupTableView()
+        setupButtons()
 
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 120
-        tableView.separatorStyle = .none
-
-        navigationItem.hidesBackButton = true
-        
-        micButton.layer.cornerRadius = 28
-        micButton.backgroundColor = AppColors.cardBackground
-        micButton.layer.borderColor = AppColors.cardBorder.cgColor
-        micButton.layer.borderWidth = 1
-        
-        replayButton.layer.cornerRadius = 28
-        replayButton.backgroundColor = AppColors.cardBackground
-        replayButton.layer.borderColor = AppColors.cardBorder.cgColor
-        replayButton.layer.borderWidth = 1
-        
         AudioManager.shared.onFinalTranscription = { [weak self] text in
             print("🎤 USER SAID:", text)
             self?.userResponded(text)
             self?.updateMicUI(isRecording: false)
         }
-
-
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = AppColors.screenBackground
+        navigationItem.hidesBackButton = true
+    }
+    
+    private func setupTableView() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.backgroundColor = AppColors.screenBackground
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 120
+        tableView.separatorStyle = .none
+    }
+    
+    private func setupButtons() {
+        // Mic button
+        micButton.layer.cornerRadius = 28
+        micButton.backgroundColor = AppColors.cardBackground
+        micButton.layer.borderColor = AppColors.cardBorder.cgColor
+        micButton.layer.borderWidth = 1
+        micButton.tintColor = AppColors.primary
         
+        // Replay button
+        replayButton.layer.cornerRadius = 28
+        replayButton.backgroundColor = AppColors.cardBackground
+        replayButton.layer.borderColor = AppColors.cardBorder.cgColor
+        replayButton.layer.borderWidth = 1
+        replayButton.tintColor = AppColors.primary
     }
 
     override func viewDidLayoutSubviews() {

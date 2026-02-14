@@ -3,13 +3,41 @@ import UIKit
 struct Country: Hashable, Codable {
     let name: String
     let code: String
+    let flag: String
 
-    var flag: String {
-        code.uppercased()
+    init(name: String, code: String) {
+        self.name = name
+        self.code = code
+        // Compute flag from code at initialization
+        self.flag = code.uppercased()
             .unicodeScalars
             .compactMap { UnicodeScalar(127397 + $0.value) }
             .map { String($0) }
             .joined()
+    }
+
+    // Manual Codable conformance to handle initialization
+    enum CodingKeys: String, CodingKey {
+        case name, code, flag
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.code = try container.decode(String.self, forKey: .code)
+        // Recompute flag from code to ensure consistency
+        self.flag = self.code.uppercased()
+            .unicodeScalars
+            .compactMap { UnicodeScalar(127397 + $0.value) }
+            .map { String($0) }
+            .joined()
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(code, forKey: .code)
+        try container.encode(flag, forKey: .flag)
     }
 }
 
