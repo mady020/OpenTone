@@ -11,7 +11,8 @@ class ButtonCell: UICollectionViewCell {
         super.awakeFromNib()
 
         startButton.layer.cornerRadius = 28
-        startButton.setTitleColor(.white, for: .normal)
+        startButton.backgroundColor = AppColors.primary
+        startButton.setTitleColor(AppColors.textOnPrimary, for: .normal)
         startButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
     }
 

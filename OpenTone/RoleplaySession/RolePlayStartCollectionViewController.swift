@@ -16,6 +16,8 @@ class RolePlayStartCollectionViewController: UICollectionViewController,
         }
 
         title = currentScenario?.title
+        view.backgroundColor = AppColors.screenBackground
+        collectionView.backgroundColor = AppColors.screenBackground
         collectionView.collectionViewLayout = createLayout()
     }
     override func collectionView(

@@ -89,6 +89,12 @@ class StreakDataModel {
         }
     }
 
+    /// Append a pre-built session (used by SampleDataSeeder)
+    func addSession(_ session: CompletedSession) {
+        sessions.append(session)
+        saveSessions()
+    }
+
     func logSession(title: String,
                     subtitle: String,
                     topic: String,

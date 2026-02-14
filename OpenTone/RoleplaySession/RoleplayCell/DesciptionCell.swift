@@ -9,7 +9,11 @@ class DescriptionCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         containerView.layer.cornerRadius = 20
-        containerView.backgroundColor = .systemGray6
+        containerView.backgroundColor = AppColors.cardBackground
+        containerView.layer.borderWidth = 1
+        containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        descriptionLabel.textColor = AppColors.textPrimary
+        timeLabel.textColor = .secondaryLabel
     }
 
     func configure(description: String, time: String) {

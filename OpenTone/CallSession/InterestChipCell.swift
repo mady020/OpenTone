@@ -12,7 +12,8 @@ class InterestChipCell: UICollectionViewCell {
     func setupUI() {
         contentView.layer.cornerRadius = 14
         contentView.layer.masksToBounds = true
-        contentView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.1)
+        contentView.backgroundColor = AppColors.primary.withAlphaComponent(0.1)
+        titleLabel.textColor = AppColors.textPrimary
         titleLabel.numberOfLines = 1
         titleLabel.lineBreakMode = .byTruncatingTail
         titleLabel.setContentHuggingPriority(.required, for: .horizontal)

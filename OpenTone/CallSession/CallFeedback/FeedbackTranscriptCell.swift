@@ -15,8 +15,13 @@ class FeedbackTranscriptCell: UICollectionViewCell {
         layer.borderColor = AppColors.cardBorder.cgColor
         layer.backgroundColor = AppColors.cardBackground.cgColor
 
+        titleLabel.textColor = AppColors.textPrimary
+        titleLabel.font = .systemFont(ofSize: 18, weight: .bold)
+
         transcriptLabel.isHidden = false
         transcriptLabel.numberOfLines = 0
+        transcriptLabel.textColor = AppColors.textPrimary
+        transcriptLabel.font = .systemFont(ofSize: 14)
 
         transcriptLabel.text =
         """

@@ -15,7 +15,11 @@ class ScriptCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         containerView.layer.cornerRadius = 20
-        containerView.backgroundColor = .systemGray6
+        containerView.backgroundColor = AppColors.cardBackground
+        containerView.layer.borderWidth = 1
+        containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        guidedDescriptionLabel.textColor = AppColors.textPrimary
+        keyphrases.textColor = AppColors.textPrimary
     }
 
     func configure(

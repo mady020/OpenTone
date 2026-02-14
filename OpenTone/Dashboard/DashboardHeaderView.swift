@@ -5,9 +5,7 @@ class DashboardHeaderView: UICollectionReusableView {
     let titleLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = UIFont.boldSystemFont(ofSize: 22)
-        lbl.textColor = UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? .white : .black
-        }
+        lbl.textColor = AppColors.textPrimary
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()

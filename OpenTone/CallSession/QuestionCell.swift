@@ -11,7 +11,7 @@ class QuestionCell: UICollectionViewCell {
         questionLabel.numberOfLines = 0
         questionLabel.textAlignment = .left
         questionLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        questionLabel.textColor = .black
+        questionLabel.textColor = AppColors.textPrimary
     }
 
     override func layoutSubviews() {

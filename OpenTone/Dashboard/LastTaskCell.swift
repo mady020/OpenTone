@@ -12,11 +12,19 @@ class LastTaskCell: UICollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        backgroundColor = AppColors.cardBackground
         layer.cornerRadius = 30
         clipsToBounds = true
         continueButton.clipsToBounds = true
         layer.borderWidth = 1
         layer.borderColor = AppColors.cardBorder.cgColor
+
+        typeLabel.textColor = AppColors.primary
+        titleLabel.textColor = AppColors.textPrimary
+        iconImageView.tintColor = AppColors.primary
+        continueButton.backgroundColor = AppColors.primary
+        continueButton.setTitleColor(AppColors.textOnPrimary, for: .normal)
+        continueButton.layer.cornerRadius = 14
     }
 
     @IBAction func continueTapped(_ sender: UIButton) {

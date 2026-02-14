@@ -17,6 +17,8 @@ class SuggestionCell: UITableViewCell {
     }
     override func awakeFromNib() {
         super.awakeFromNib()
+        backgroundColor = .clear
+        selectionStyle = .none
         setupButtons()
     }
 
@@ -35,6 +37,10 @@ class SuggestionCell: UITableViewCell {
             button.titleLabel?.numberOfLines = 0
             button.titleLabel?.textAlignment = .center
             button.layer.cornerRadius = 16
+            button.backgroundColor = AppColors.primary.withAlphaComponent(0.1)
+            button.setTitleColor(AppColors.primary, for: .normal)
+            button.layer.borderWidth = 1
+            button.layer.borderColor = AppColors.primary.cgColor
             button.removeTarget(nil, action: nil, for: .allEvents)
             button.addTarget(
                 self,
