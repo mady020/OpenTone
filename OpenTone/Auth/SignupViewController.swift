@@ -117,10 +117,26 @@ final class SignupViewController: UIViewController {
     }
 
     @IBAction func googleButtonTapped(_ sender: Any) {
-        print("Google signup tapped")
-        // TODO: Implement Google signup logic
+        handleQuickSignIn()
     }
-    
+
+    @IBAction func appleButtonTapped(_ sender: Any) {
+        handleQuickSignIn()
+    }
+
+    private func handleQuickSignIn() {
+        // Get the first sample user who has complete onboarding data
+        guard let sampleUser = UserDataModel.shared.getSampleUserForQuickSignIn() else {
+            let alert = UIAlertController(title: "Error", message: "Could not load sample user", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+
+        SessionManager.shared.login(user: sampleUser)
+        goToDashboard()
+    }
+
     @IBAction func signinButtonTapped(_ sender: UIButton) {
         navigationController?.popViewController(animated: true)
     }
@@ -192,6 +208,24 @@ final class SignupViewController: UIViewController {
             window.makeKeyAndVisible()
         }
     }
+
+    private func goToDashboard() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let tabBarVC = storyboard.instantiateViewController(
+            withIdentifier: "MainTabBarController"
+        )
+
+        tabBarVC.modalPresentationStyle = .fullScreen
+        tabBarVC.modalTransitionStyle = .crossDissolve
+
+        if let window = view.window {
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                window.rootViewController = tabBarVC
+            }, completion: nil)
+            window.makeKeyAndVisible()
+        }
+    }
+
 
 
     private func addIconsToTextFields() {

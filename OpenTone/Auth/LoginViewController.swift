@@ -104,8 +104,26 @@ final class LoginViewController: UIViewController {
     }
     
     @IBAction func googleButtonTapped(_ sender: Any) {
-        print("Google login tapped")
-        // TODO: Implement Google login logic
+        handleQuickSignIn()
+    }
+
+    @IBAction func appleButtonTapped(_ sender: Any) {
+        handleQuickSignIn()
+    }
+
+    
+    
+    private func handleQuickSignIn() {
+        // Get the first sample user who has complete onboarding data
+        guard let sampleUser = UserDataModel.shared.getSampleUserForQuickSignIn() else {
+            let alert = UIAlertController(title: "Error", message: "Could not load sample user", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+
+        SessionManager.shared.login(user: sampleUser)
+        goToDashboard()
     }
 
     private func handleLogin() {
