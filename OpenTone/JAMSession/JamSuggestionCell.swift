@@ -16,14 +16,13 @@ class JamSuggestionCell: UICollectionViewCell {
             alpha: 1
         )
 
-        let backgroundLight = UIColor(
-            red: 242/255,
-            green: 238/255,
-            blue: 255/255,
-            alpha: 1
-        )
+        let chipBackground = UIColor { trait in
+            return trait.userInterfaceStyle == .dark
+                ? UIColor(red: 86/255, green: 61/255, blue: 189/255, alpha: 0.20)
+                : UIColor(red: 242/255, green: 238/255, blue: 255/255, alpha: 1)
+        }
 
-        backgroundColor = backgroundLight
+        backgroundColor = chipBackground
 
         layer.cornerRadius = 25
         layer.borderWidth = 2
@@ -31,7 +30,7 @@ class JamSuggestionCell: UICollectionViewCell {
         layer.masksToBounds = true
 
         suggestedLabel.textAlignment = .center
-        suggestedLabel.textColor = .black
+        suggestedLabel.textColor = UIColor.label
         suggestedLabel.numberOfLines = 1
         suggestedLabel.adjustsFontSizeToFitWidth = true
         suggestedLabel.minimumScaleFactor = 0.60

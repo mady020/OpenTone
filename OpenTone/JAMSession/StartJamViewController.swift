@@ -5,89 +5,156 @@ class StartJamViewController: UIViewController {
 
     @IBOutlet weak var timerRingView: TimerRingView!
     @IBOutlet weak var timerLabel: UILabel!
+    @IBOutlet weak var topicHeaderLabel: UILabel!
     @IBOutlet weak var topicTitleLabel: UILabel!
     @IBOutlet weak var hintButton: UIButton!
-    
-    @IBAction func closeButtonTapped(_ sender: UIButton) {
-        showSessionAlert()
-    }
     @IBOutlet weak var bottomActionStackView: UIStackView!
 
     private let timerManager = TimerManager(totalSeconds: 30)
     private var remainingSeconds: Int = 30
     private var hintStackView: UIStackView?
     private var didFinishSpeech = false
-    private var isMicOn = false   // only logical state, no UI handling
+    private var isMicOn = false
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         timerManager.delegate = self
         navigationItem.hidesBackButton = true
+
+        // Custom back button that triggers exit alert
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(backButtonTapped)
+        )
+        backButton.tintColor = AppColors.primary
+        navigationItem.leftBarButtonItem = backButton
+
+        // Load topic from active session
+        if let session = JamSessionDataModel.shared.getActiveSession() {
+            topicTitleLabel.text = session.topic
+            remainingSeconds = 30  // Speaking always gets full 30 seconds
+        }
+
+        // Mark the speaking phase in the data model
+        JamSessionDataModel.shared.beginSpeakingPhase()
+
+        applyDarkModeStyles()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            applyDarkModeStyles()
+        }
+    }
+
+    private func applyDarkModeStyles() {
+        view.backgroundColor = AppColors.screenBackground
+        timerRingView.superview?.backgroundColor = AppColors.screenBackground
+        timerRingView.backgroundColor = AppColors.screenBackground
+        topicTitleLabel.textColor = AppColors.textPrimary
+        topicHeaderLabel?.textColor = AppColors.primary
+        timerLabel.textColor = AppColors.textPrimary
+
+        let isDark = traitCollection.userInterfaceStyle == .dark
+        let buttonBg = isDark
+            ? UIColor.tertiarySystemGroupedBackground
+            : UIColor(red: 0.949, green: 0.933, blue: 1.0, alpha: 1.0)
+
+        for case let button as UIButton in bottomActionStackView.arrangedSubviews {
+            if var config = button.configuration {
+                config.background.backgroundColor = buttonBg
+                button.configuration = config
+            }
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
-
-        remainingSeconds = 30
         timerLabel.text = format(remainingSeconds)
     }
-
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         timerManager.reset()
         timerRingView.resetRing()
-
         timerRingView.animateRing(
             remainingSeconds: remainingSeconds,
             totalSeconds: 30
         )
-
         timerManager.start(from: remainingSeconds)
-
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        timerManager.reset()
 
         guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
         session.secondsLeft = remainingSeconds
         JamSessionDataModel.shared.updateActiveSession(session)
     }
 
-    
-    
-    private func showSessionAlert() {
+    // MARK: - Navigation
+
+    @objc private func backButtonTapped() {
+        showExitAlert()
+    }
+
+    @IBAction func closeButtonTapped(_ sender: UIButton) {
+        showExitAlert()
+    }
+
+    private func showExitAlert() {
+        timerManager.reset()
 
         let alert = UIAlertController(
-            title: "Session Running",
-            message: "Continue with current session or exit?",
+            title: "Exit Session",
+            message: "Would you like to save this session for later or exit without saving?",
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "Continue", style: .default) { _ in
-            JamSessionDataModel.shared.continueSession()
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            // Resume the timer
+            self.timerManager.start(from: self.remainingSeconds)
+            self.timerRingView.animateRing(
+                remainingSeconds: self.remainingSeconds,
+                totalSeconds: 30
+            )
         })
-        alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
-            JamSessionDataModel.shared.cancelJamSession()
+
+        alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { _ in
+            if var session = JamSessionDataModel.shared.getActiveSession() {
+                session.secondsLeft = self.remainingSeconds
+                JamSessionDataModel.shared.updateActiveSession(session)
+            }
+            JamSessionDataModel.shared.saveSessionForLater()
+            self.navigateBackToRoot()
         })
+
         alert.addAction(UIAlertAction(title: "Exit", style: .destructive) { _ in
             JamSessionDataModel.shared.cancelJamSession()
+            self.navigateBackToRoot()
         })
 
         present(alert, animated: true)
     }
 
-    @IBAction func micTapped(_ sender: UIButton) {
-        isMicOn.toggle()
-        // UI is handled in storyboard (selected state / images)
-        // Use isMicOn later for audio / speech logic
-
+    private func navigateBackToRoot() {
+        tabBarController?.tabBar.isHidden = false
+        navigationController?.popToRootViewController(animated: true)
     }
 
+    // MARK: - Actions
 
+    @IBAction func micTapped(_ sender: UIButton) {
+        isMicOn.toggle()
+    }
 
     @IBAction func hintTapped(_ sender: UIButton) {
         hintStackView == nil ? showHints() : removeHints()
@@ -118,18 +185,18 @@ class StartJamViewController: UIViewController {
     }
 
     private func createHintChip(text: String) -> UIView {
-
+        let isDark = traitCollection.userInterfaceStyle == .dark
         let chip = UIView()
-        chip.backgroundColor = UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 0.12)
+        chip.backgroundColor = isDark
+            ? UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 0.20)
+            : UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 0.12)
         chip.layer.cornerRadius = 22
         chip.layer.borderWidth = 2
-        chip.layer.borderColor = UIColor(
-            red: 0.42, green: 0.05, blue: 0.68, alpha: 1
-        ).cgColor
+        chip.layer.borderColor = AppColors.primary.cgColor
 
         let label = UILabel()
         label.text = text
-        label.textColor = .black
+        label.textColor = AppColors.textPrimary
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.numberOfLines = 0
 
@@ -154,17 +221,9 @@ class StartJamViewController: UIViewController {
     private func format(_ seconds: Int) -> String {
         String(format: "%02d:%02d", seconds / 60, seconds % 60)
     }
-
-    //    @IBAction func cancelTapped(_ sender: UIButton) {
-    //
-    //        guard let vc = storyboard?
-    //            .instantiateViewController(
-    //                withIdentifier: "JamFeedbackCollectionViewController"
-    //            ) as? JamFeedbackCollectionViewController else { return }
-    //
-    //        navigationController?.pushViewController(vc, animated: true)
-    //    }
 }
+
+// MARK: - TimerManagerDelegate
 
 extension StartJamViewController: TimerManagerDelegate {
 
@@ -180,9 +239,8 @@ extension StartJamViewController: TimerManagerDelegate {
             remainingSeconds = min * 60 + sec
         }
     }
-    
-    func timerManagerDidFinish() {
 
+    func timerManagerDidFinish() {
         guard !didFinishSpeech else { return }
         didFinishSpeech = true
 
@@ -192,15 +250,11 @@ extension StartJamViewController: TimerManagerDelegate {
         session.phase = .completed
         session.endedAt = Date()
         JamSessionDataModel.shared.updateActiveSession(session)
-        
+
         let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "Feedback")
         vc.navigationItem.hidesBackButton = true
         tabBarController?.tabBar.isHidden = false
         navigationController?.pushViewController(vc, animated: true)
-
     }
-
-    
-
 }

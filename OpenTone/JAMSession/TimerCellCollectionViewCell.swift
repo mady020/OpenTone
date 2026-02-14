@@ -23,6 +23,13 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
         timerManager.delegate = self
         resetUI()
+
+        // Dynamic background for dark/light mode
+        backgroundColor = UIColor.clear
+        contentView.backgroundColor = UIColor.clear
+        timerRingView.backgroundColor = UIColor.clear
+        timerRingView.superview?.backgroundColor = UIColor.clear
+        timerLabel.textColor = UIColor.label
     }
 
     override func prepareForReuse() {

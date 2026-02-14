@@ -37,6 +37,16 @@ final class TimerManager {
         isRunning = false
     }
 
+    func pause() {
+        mainTimer?.invalidate()
+        mainTimer = nil
+        isRunning = false
+    }
+
+    var currentSeconds: Int {
+        secondsLeft
+    }
+
     private func startMainTimer() {
         mainTimer?.invalidate()
 

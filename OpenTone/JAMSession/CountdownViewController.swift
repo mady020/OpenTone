@@ -20,15 +20,30 @@ final class CountdownViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .white
+        view.backgroundColor = AppColors.screenBackground
         bottomLabel.text = "Speech Time"
+        bottomLabel.textColor = AppColors.textPrimary
         
         navigationItem.hidesBackButton = true
 
+        // Custom back button to cancel countdown
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(backButtonTapped)
+        )
+        backButton.tintColor = AppColors.primary
+        navigationItem.leftBarButtonItem = backButton
 
         countdownLabel.text = "Ready"
         countdownLabel.font = .systemFont(ofSize: 70, weight: .semibold)
+        countdownLabel.textColor = AppColors.textPrimary
         countdownLabel.alpha = 1
+    }
+
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
     }
 
     override func viewDidLayoutSubviews() {
@@ -39,6 +54,20 @@ final class CountdownViewController: UIViewController {
             setInitialLeftHalf()
             didSetup = true
         }
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateRingColors()
+        }
+    }
+
+    private func updateRingColors() {
+        let isDark = traitCollection.userInterfaceStyle == .dark
+        trackLayer.strokeColor = isDark
+            ? UIColor.systemGray4.cgColor
+            : UIColor(red: 242/255, green: 238/255, blue: 255/255, alpha: 1).cgColor
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -66,12 +95,10 @@ final class CountdownViewController: UIViewController {
         )
 
         trackLayer.path = path.cgPath
-        trackLayer.strokeColor = UIColor(
-            red: 242/255,
-            green: 238/255,
-            blue: 255/255,
-            alpha: 1
-        ).cgColor
+        let isDark = traitCollection.userInterfaceStyle == .dark
+        trackLayer.strokeColor = isDark
+            ? UIColor.systemGray4.cgColor
+            : UIColor(red: 242/255, green: 238/255, blue: 255/255, alpha: 1).cgColor
         trackLayer.lineWidth = thickness
         trackLayer.fillColor = UIColor.clear.cgColor
         trackLayer.lineCap = .round

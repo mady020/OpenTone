@@ -26,36 +26,36 @@ final class PrepareJamViewController: UIViewController {
         Array(allSuggestions.prefix(visibleCount))
     }
     
-    private func navigateToPrepare(resetTimer: Bool) {
-
-        guard let prepareVC = storyboard?
-            .instantiateViewController(withIdentifier: "PrepareJamViewController")
-                as? PrepareJamViewController else { return }
-
-        prepareVC.forceTimerReset = resetTimer
-        navigationController?.pushViewController(prepareVC, animated: true)
-    }
-    
     private func showSessionAlert() {
 
         let alert = UIAlertController(
-            title: "Session Running",
-            message: "Continue with current session or exit?",
+            title: "Exit Session",
+            message: "Would you like to save this session for later or exit without saving?",
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "Continue", style: .default) { _ in
-            JamSessionDataModel.shared.continueSession()
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { _ in
+            // Persist timer state before saving
+            if var session = JamSessionDataModel.shared.getActiveSession() {
+                session.secondsLeft = self.lastKnownSeconds
+                JamSessionDataModel.shared.updateActiveSession(session)
+            }
+            JamSessionDataModel.shared.saveSessionForLater()
+            self.navigateBackToRoot()
         })
-        alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
-            JamSessionDataModel.shared.cancelJamSession()
-        })
+
         alert.addAction(UIAlertAction(title: "Exit", style: .destructive) { _ in
             JamSessionDataModel.shared.cancelJamSession()
-//            self.startNewSession()
+            self.navigateBackToRoot()
         })
 
         present(alert, animated: true)
+    }
+
+    private func navigateBackToRoot() {
+        navigationController?.popToRootViewController(animated: true)
     }
 
     override func viewDidLoad() {
@@ -71,6 +71,46 @@ final class PrepareJamViewController: UIViewController {
         collectionView.collectionViewLayout = layout
         
         navigationItem.hidesBackButton = true
+
+        // Custom back button that triggers exit alert
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(backButtonTapped)
+        )
+        backButton.tintColor = AppColors.primary
+        navigationItem.leftBarButtonItem = backButton
+
+        applyDarkModeStyles()
+    }
+
+    @objc private func backButtonTapped() {
+        showSessionAlert()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            applyDarkModeStyles()
+        }
+    }
+
+    private func applyDarkModeStyles() {
+        view.backgroundColor = AppColors.screenBackground
+        collectionView.backgroundColor = AppColors.screenBackground
+
+        let isDark = traitCollection.userInterfaceStyle == .dark
+        let buttonBg = isDark
+            ? UIColor.tertiarySystemGroupedBackground
+            : UIColor(red: 0.949, green: 0.933, blue: 1.0, alpha: 1.0)
+
+        // Style the bulb and close icon buttons
+        for button in [bulbButton, closeButton] {
+            guard let btn = button, var config = btn.configuration else { continue }
+            config.background.backgroundColor = buttonBg
+            btn.configuration = config
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {

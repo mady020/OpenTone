@@ -1,6 +1,6 @@
 import Foundation
 
-struct JamSession: Identifiable, Equatable {
+struct JamSession: Identifiable, Equatable, Codable {
 
     static let availableTopics: [String] = [
         "The Future of Technology",
@@ -44,5 +44,12 @@ struct JamSession: Identifiable, Equatable {
 
     static func == (lhs: JamSession, rhs: JamSession) -> Bool {
         lhs.id == rhs.id
+    }
+
+    // MARK: - Codable
+
+    private enum CodingKeys: String, CodingKey {
+        case id, userId, topic, suggestions, phase, secondsLeft
+        case startedPrepAt, startedSpeakingAt, endedAt
     }
 }

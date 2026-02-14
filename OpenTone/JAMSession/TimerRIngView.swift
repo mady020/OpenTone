@@ -37,10 +37,12 @@ class TimerRingView: UIView {
             clockwise: true
         )
 
+        let isDark = traitCollection.userInterfaceStyle == .dark
+
         backgroundLayer.path = path.cgPath
-        backgroundLayer.strokeColor = UIColor(
-            red: 0.90, green: 0.80, blue: 1.0, alpha: 1
-        ).cgColor
+        backgroundLayer.strokeColor = isDark
+            ? UIColor.systemGray4.cgColor
+            : UIColor(red: 0.90, green: 0.80, blue: 1.0, alpha: 1).cgColor
         backgroundLayer.fillColor = UIColor.clear.cgColor
         backgroundLayer.lineWidth = ringWidth
         backgroundLayer.lineCap = .round
@@ -55,6 +57,16 @@ class TimerRingView: UIView {
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            let isDark = traitCollection.userInterfaceStyle == .dark
+            backgroundLayer.strokeColor = isDark
+                ? UIColor.systemGray4.cgColor
+                : UIColor(red: 0.90, green: 0.80, blue: 1.0, alpha: 1).cgColor
+        }
     }
 
     // REQUIRED for existing ProgressCell and other callers

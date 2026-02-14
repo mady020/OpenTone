@@ -58,7 +58,7 @@
                                     <constraint firstAttribute="height" constant="150" id="8B0-Hk-rdW"/>
                                     <constraint firstAttribute="width" constant="150" id="rXH-W9-iw0"/>
                                 </constraints>
-                                <blurEffect style="systemUltraThinMaterialLight"/>
+                                <blurEffect style="systemUltraThinMaterial"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                         <integer key="value" value="75"/>
@@ -198,7 +198,7 @@
                             </visualEffectView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
-                        <color key="backgroundColor" red="0.95686274509803915" green="0.96078431372549022" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="9cm-kU-hKu" firstAttribute="top" secondItem="Rzk-px-HNm" secondAttribute="bottom" constant="20" id="7TK-EK-OdZ"/>
                             <constraint firstItem="Rzk-px-HNm" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="9gS-8e-9Kd"/>
@@ -273,7 +273,7 @@
                                                 <constraint firstItem="umL-6p-HeK" firstAttribute="top" secondItem="qPc-Ws-hon" secondAttribute="top" constant="10" id="vXw-cm-b2u"/>
                                             </constraints>
                                         </collectionViewCellContentView>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <size key="customSize" width="200" height="200"/>
                                         <connections>
                                             <outlet property="timerLabel" destination="Imj-zK-9EW" id="YZ0-zz-x6o"/>
@@ -500,7 +500,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="230" id="GYK-20-aeM"/>
                                             <constraint firstAttribute="width" secondItem="fOQ-fk-J1l" secondAttribute="height" multiplier="1:1" id="LYO-Hf-E01"/>
@@ -509,7 +509,7 @@
                                         </constraints>
                                     </view>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="fOQ-fk-J1l" firstAttribute="centerX" secondItem="xA4-LH-rcD" secondAttribute="centerX" id="54C-3N-N39"/>
                                     <constraint firstAttribute="width" constant="230" id="A29-C2-ony"/>
@@ -601,7 +601,7 @@
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="hHk-P6-EeJ"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="WTQ-BH-tiv" firstAttribute="top" secondItem="xA4-LH-rcD" secondAttribute="bottom" constant="50" id="0Mz-QP-Hm6"/>
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="r0t-ai-1mI" secondAttribute="trailing" constant="20" id="IGJ-UF-H67"/>
@@ -625,6 +625,7 @@
                         <outlet property="hintButton" destination="vCE-4t-50n" id="ZLP-M9-aUK"/>
                         <outlet property="timerLabel" destination="7u9-tv-TLS" id="0vY-pq-Tmj"/>
                         <outlet property="timerRingView" destination="fOQ-fk-J1l" id="57A-FP-O1d"/>
+                        <outlet property="topicHeaderLabel" destination="WTQ-BH-tiv" id="hdr-tp-lbl"/>
                         <outlet property="topicTitleLabel" destination="r0t-ai-1mI" id="FCf-tp-Czk"/>
                     </connections>
                 </viewController>
@@ -666,7 +667,7 @@
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ILv-PB-sf3"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="qOt-A9-MIM" firstAttribute="centerX" secondItem="Tuo-0C-R2i" secondAttribute="centerX" id="04Q-Mt-PO6"/>
                             <constraint firstItem="qOt-A9-MIM" firstAttribute="centerY" secondItem="Tuo-0C-R2i" secondAttribute="centerY" constant="-50" id="EYz-9l-b4H"/>

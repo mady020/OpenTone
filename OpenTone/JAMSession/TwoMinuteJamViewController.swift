@@ -16,36 +16,108 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = false
         tabBarController?.delegate = self
-//        configureNavigationBar()
+
+        // Check for a saved session the user can resume
+        if JamSessionDataModel.shared.hasSavedSession()
+            && !JamSessionDataModel.shared.hasActiveSession() {
+            showResumePrompt()
+        }
     }
+
     override func viewDidLoad() {
+        super.viewDidLoad()
+        applyDarkModeStyles()
     }
 
-//    private func configureNavigationBar() {
-//
-//        guard JamSessionDataModel.shared.hasActiveSession() else {
-//            navigationItem.rightBarButtonItem = nil
-//            return
-//        }
-//
-//        let backButton = UIBarButtonItem(
-//            title: "Back",
-//            style: .plain,
-//            target: self,
-//            action: #selector(backTapped)
-//        )
-//
-//        backButton.tintColor = UIColor(
-//            red: 0.42, green: 0.05, blue: 0.68, alpha: 1.0
-//        )
-//
-//        navigationItem.rightBarButtonItem = backButton
-//    }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            applyDarkModeStyles()
+        }
+    }
 
-//    @objc private func backTapped() {
-//        JamSessionDataModel.shared.continueSession()
-//        navigateToPrepare(resetTimer: true)
-//    }
+    private func applyDarkModeStyles() {
+        // Main screen background
+        view.backgroundColor = AppColors.screenBackground
+
+        // Style all subviews recursively
+        styleSubviews(view)
+    }
+
+    private func styleSubviews(_ parentView: UIView) {
+        for subview in parentView.subviews {
+            if let visualEffectView = subview as? UIVisualEffectView {
+                styleVisualEffectView(visualEffectView)
+            } else if let label = subview as? UILabel {
+                // Labels with nil textColor in storyboard default to .label, but
+                // ensure they use our dynamic color for consistency
+                if label.textColor == .black || label.textColor == UIColor.label {
+                    label.textColor = AppColors.textPrimary
+                }
+            }
+            // Recurse into child views
+            styleSubviews(subview)
+        }
+    }
+
+    private func styleVisualEffectView(_ effectView: UIVisualEffectView) {
+        let isDark = traitCollection.userInterfaceStyle == .dark
+
+        // Update blur effect to match current mode
+        effectView.effect = UIBlurEffect(
+            style: isDark ? .systemUltraThinMaterialDark : .systemUltraThinMaterialLight
+        )
+
+        // Update the content view and any nested visual effect views
+        let lightPurpleBg = UIColor(red: 0.984, green: 0.972, blue: 1.0, alpha: 1.0)
+        for sub in effectView.contentView.subviews {
+            if let nested = sub as? UIVisualEffectView {
+                nested.effect = UIBlurEffect(style: isDark ? .dark : .regular)
+                nested.contentView.backgroundColor = isDark
+                    ? UIColor.secondarySystemGroupedBackground
+                    : lightPurpleBg
+            }
+        }
+
+        // Style the effect view's own content background
+        effectView.contentView.backgroundColor = isDark
+            ? UIColor.secondarySystemGroupedBackground
+            : lightPurpleBg
+
+        // If it has rounded corners (the "How It Works" card), add card styling
+        if effectView.layer.cornerRadius >= 20 {
+            effectView.backgroundColor = isDark
+                ? UIColor.secondarySystemGroupedBackground
+                : lightPurpleBg
+            effectView.layer.borderWidth = isDark ? 1 : 0
+            effectView.layer.borderColor = isDark
+                ? UIColor.separator.cgColor
+                : UIColor.clear.cgColor
+        }
+    }
+
+    // MARK: - Resume Saved Session
+
+    private func showResumePrompt() {
+        let alert = UIAlertController(
+            title: "Saved Session Found",
+            message: "You have a saved JAM session. Would you like to resume it?",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Resume", style: .default) { _ in
+            JamSessionDataModel.shared.resumeSavedSession()
+            self.navigateToPrepare(resetTimer: false)
+        })
+
+        alert.addAction(UIAlertAction(title: "Discard", style: .destructive) { _ in
+            JamSessionDataModel.shared.deleteSavedSession()
+        })
+
+        present(alert, animated: true)
+    }
+
+    // MARK: - Actions
 
     @IBAction func unleashTapped(_ sender: UIButton) {
 
@@ -66,8 +138,7 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         )
 
         alert.addAction(UIAlertAction(title: "Continue", style: .default) { _ in
-            JamSessionDataModel.shared.continueSession()
-            self.navigateToPrepare(resetTimer: true)
+            self.navigateToPrepare(resetTimer: false)
         })
 
         alert.addAction(UIAlertAction(title: "New Topic", style: .destructive) { _ in
@@ -93,6 +164,8 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         navigationController?.pushViewController(prepareVC, animated: true)
     }
 
+    // MARK: - Tab Bar Guard
+
     func tabBarController(_ tabBarController: UITabBarController,
                           shouldSelect viewController: UIViewController) -> Bool {
 
@@ -109,21 +182,32 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
 
         let alert = UIAlertController(
             title: "Session Running",
-            message: "A session is going on. Do you want to end the session without completing?",
+            message: "Do you want to save this session for later or exit?",
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "No", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
 
-        alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
+        alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { _ in
+            JamSessionDataModel.shared.saveSessionForLater()
+            self.switchToPendingTab()
+        })
+
+        alert.addAction(UIAlertAction(title: "Exit", style: .destructive) { _ in
             JamSessionDataModel.shared.cancelJamSession()
-
-            if let targetVC = self.pendingTabController {
-                self.tabBarController?.selectedViewController = targetVC
-                self.pendingTabController = nil
-            }
+            self.switchToPendingTab()
         })
 
         present(alert, animated: true)
+    }
+
+    private func switchToPendingTab() {
+        // Pop back to root in case we're deep in the nav stack
+        navigationController?.popToRootViewController(animated: false)
+
+        if let targetVC = pendingTabController {
+            tabBarController?.selectedViewController = targetVC
+            pendingTabController = nil
+        }
     }
 }
