@@ -24,7 +24,7 @@ class HorizontalScrollCell: UITableViewCell {
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "HorizontalScrollCell", for: indexPath)
-        cell.backgroundColor = .systemBlue
+        cell.backgroundColor = AppColors.primary
         return cell
     }
     

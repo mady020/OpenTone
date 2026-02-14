@@ -18,6 +18,7 @@ class RoleplaysViewController: UIViewController {
         setupSearchBar()
         setupCollectionView()
         
+        view.backgroundColor = AppColors.screenBackground
         collectionView.backgroundColor = AppColors.screenBackground
     }
 

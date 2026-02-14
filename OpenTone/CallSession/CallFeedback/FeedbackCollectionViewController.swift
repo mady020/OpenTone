@@ -4,6 +4,8 @@ class FeedbackCollectionViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = AppColors.screenBackground
+        collectionView.backgroundColor = AppColors.screenBackground
         collectionView.collectionViewLayout = createLayout()
     }
 

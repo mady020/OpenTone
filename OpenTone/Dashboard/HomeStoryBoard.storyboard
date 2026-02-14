@@ -58,62 +58,6 @@
                                     <outlet property="textLabel" destination="KRp-qz-NT9" id="gux-Vq-FSX"/>
                                 </connections>
                             </collectionViewCell>
-                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ProgressCell" id="PsW-26-diE" customClass="ProgressCell" customModule="OpenTone" customModuleProvider="target">
-                                <rect key="frame" x="39" y="138" width="315" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Gbo-1a-xxD">
-                                    <rect key="frame" x="0.0" y="0.0" width="315" height="128"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Zqf-TY-NPt">
-                                            <rect key="frame" x="16" y="16" width="283" height="96"/>
-                                            <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="BgK-au-uHY">
-                                                    <rect key="frame" x="0.0" y="0.0" width="137.66666666666666" height="96"/>
-                                                    <subviews>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5 more tasks to complete today’s goal" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7TQ-gR-TEN">
-                                                            <rect key="frame" x="0.0" y="0.0" width="137.66666666666666" height="38"/>
-                                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9GL-ca-rWx">
-                                                            <rect key="frame" x="0.0" y="46" width="137.66666666666666" height="50"/>
-                                                            <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="height" constant="50" id="rmj-HA-FYM"/>
-                                                            </constraints>
-                                                            <state key="normal" title="Button"/>
-                                                            <buttonConfiguration key="configuration" style="plain" title="See overall progress">
-                                                                <fontDescription key="titleFontDescription" type="system" pointSize="16"/>
-                                                                <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                            </buttonConfiguration>
-                                                            <connections>
-                                                                <action selector="overallProgressButton:" destination="PsW-26-diE" eventType="touchUpInside" id="9m1-BT-kEo"/>
-                                                            </connections>
-                                                        </button>
-                                                    </subviews>
-                                                </stackView>
-                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BOO-qn-0J5" customClass="TimerRingView" customModule="OpenTone" customModuleProvider="target">
-                                                    <rect key="frame" x="145.66666666666663" y="0.0" width="137.33333333333337" height="96"/>
-                                                </view>
-                                            </subviews>
-                                        </stackView>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="Zqf-TY-NPt" firstAttribute="leading" secondItem="Gbo-1a-xxD" secondAttribute="leading" constant="16" id="RnD-rx-nKh"/>
-                                        <constraint firstAttribute="bottom" secondItem="Zqf-TY-NPt" secondAttribute="bottom" constant="16" id="SGZ-Ex-Djr"/>
-                                        <constraint firstItem="Zqf-TY-NPt" firstAttribute="top" secondItem="Gbo-1a-xxD" secondAttribute="top" constant="16" id="dBD-dt-aQT"/>
-                                        <constraint firstAttribute="trailing" secondItem="Zqf-TY-NPt" secondAttribute="trailing" constant="16" id="nJP-ap-CnZ"/>
-                                    </constraints>
-                                </collectionViewCellContentView>
-                                <size key="customSize" width="315" height="128"/>
-                                <connections>
-                                    <outlet property="overallProgressButton" destination="9GL-ca-rWx" id="5To-HV-8ZE"/>
-                                    <outlet property="progressLabel" destination="7TQ-gR-TEN" id="qtX-CY-GyD"/>
-                                    <outlet property="progressRingView" destination="BOO-qn-0J5" id="ydm-G7-yjS"/>
-                                </connections>
-                            </collectionViewCell>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LastTaskCell" id="dOm-Gs-fkS" customClass="LastTaskCell" customModule="OpenTone" customModuleProvider="target">
                                 <rect key="frame" x="66.666666666666671" y="276" width="260" height="109"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>

@@ -134,6 +134,7 @@ final class SignupViewController: UIViewController {
         }
 
         SessionManager.shared.login(user: sampleUser)
+        SampleDataSeeder.shared.seedIfNeeded()
         goToDashboard()
     }
 

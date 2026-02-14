@@ -43,6 +43,11 @@ class HomeCollectionViewController: UICollectionViewController {
         )
 
         collectionView.register(
+            ProgressCell.self,
+            forCellWithReuseIdentifier: ProgressCell.reuseID
+        )
+
+        collectionView.register(
             ContinueJamCell.self,
             forCellWithReuseIdentifier: ContinueJamCell.reuseID
         )
@@ -72,10 +77,37 @@ class HomeCollectionViewController: UICollectionViewController {
         savedJamSession = JamSessionDataModel.shared.getSavedSession()
     }
 
+    /// Build the data struct that drives the redesigned progress card.
+    private func buildProgressData() -> ProgressCellData {
+        let streak = StreakDataModel.shared.getStreak()
+        let streakDays = streak?.currentCount ?? 0
+        let dailyGoal = max(streak?.commitment ?? 10, 1)   // fallback 10 min
+        let todayMinutes = StreakDataModel.shared.totalMinutes(for: Date())
 
+        // Build Mon → Sun weekly minutes
+        var weeklyMinutes: [Int] = []
+        let calendar = Calendar.current
+        let todayWeekdayIndex = mondayBasedWeekdayIndex()
 
+        for i in 0..<7 {
+            let diff = i - todayWeekdayIndex
+            let date = calendar.date(byAdding: .day, value: diff, to: Date()) ?? Date()
+            weeklyMinutes.append(StreakDataModel.shared.totalMinutes(for: date))
+        }
 
-    
+        return ProgressCellData(
+            streakDays: streakDays,
+            todayMinutes: todayMinutes,
+            dailyGoalMinutes: dailyGoal,
+            weeklyMinutes: weeklyMinutes
+        )
+    }
+
+    private func mondayBasedWeekdayIndex() -> Int {
+        let weekday = Calendar.current.component(.weekday, from: Date())
+        return (weekday + 5) % 7
+    }
+
     @objc private func openStreak() {
         let storyboard = UIStoryboard(name: "streak-progess", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "Streak")
@@ -196,29 +228,18 @@ class HomeCollectionViewController: UICollectionViewController {
 
         case .progress:
             let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: "ProgressCell",
+                withReuseIdentifier: ProgressCell.reuseID,
                 for: indexPath
             ) as! ProgressCell
 
-            cell.backgroundColor = AppColors.cardBackground
-            cell.overallProgressButton.backgroundColor = AppColors.primary
-            cell.overallProgressButton.addTarget(
-                self,
-                action: #selector(openStreak),
-                for: .touchUpInside
-            )
-            cell.progressRingView.backgroundColor = AppColors.cardBackground
-            let remaining = max(0, (commitment ?? 0) - (currentProgress ?? 0))
-            cell.progressLabel.text =
-                "Practice \(remaining) more minutes to complete today’s goal"
-    
-            cell.progressRingView.setProgress(
-                value: CGFloat(currentProgress ?? 0),
-                max: CGFloat(max(commitment ?? 1, 1))
-            )
+            cell.configure(with: buildProgressData())
+            cell.onSeeProgressTapped = { [weak self] in
+                self?.openStreak()
+            }
 
             
             return cell
+
 
         case .continueJam:
             let cell = collectionView.dequeueReusableCell(
@@ -301,7 +322,7 @@ extension HomeCollectionViewController {
 
             switch sectionType {
             case .progress:
-                return self.horizontalcompleteTaskSection()
+                return self.progressCardSection()
 
             case .continueJam:
                 return self.savedJamSession != nil
@@ -322,6 +343,24 @@ extension HomeCollectionViewController {
         }
     }
 
+
+    func progressCardSection() -> NSCollectionLayoutSection {
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .estimated(230)
+            )
+        )
+
+        let group = NSCollectionLayoutGroup.vertical(
+            layoutSize: item.layoutSize,
+            subitems: [item]
+        )
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16)
+        return section
+    }
 
     func horizontalcompleteTaskSection() -> NSCollectionLayoutSection {
 

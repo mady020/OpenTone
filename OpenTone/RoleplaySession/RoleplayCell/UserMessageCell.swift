@@ -14,6 +14,10 @@ class UserMessageCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
+        backgroundColor = .clear
+        selectionStyle = .none
+        
+        bubbleView.backgroundColor = AppColors.primary
         bubbleView.layer.cornerRadius = 18
         
         bubbleView.clipsToBounds = true
@@ -26,6 +30,9 @@ class UserMessageCell: UITableViewCell {
             .layerMinXMaxYCorner
             
         ]
+        
+        messageLabel.textColor = AppColors.textOnPrimary
+        messageLabel.numberOfLines = 0
         
         
     }

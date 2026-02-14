@@ -61,24 +61,32 @@ class FeedbackMetricsCell: UICollectionViewCell {
     ) {
 
         speechTitleLabel.text = "Speech Length"
+        speechTitleLabel.textColor = .secondaryLabel
         speechValueLabel.text = speechValue
+        speechValueLabel.textColor = AppColors.textPrimary
         speechProgressView.progress = speechProgress
         speechProgressView.progressTintColor = AppColors.primary
     
 
         fillerTitleLabel.text = "Filler Words"
+        fillerTitleLabel.textColor = .secondaryLabel
         fillerValueLabel.text = fillerValue
+        fillerValueLabel.textColor = AppColors.textPrimary
         fillerProgressView.progress = fillerProgress
         fillerProgressView.progressTintColor = AppColors.primary
   
         wpmTitleLabel.text = "Words Per Minute"
+        wpmTitleLabel.textColor = .secondaryLabel
         wpmValueLabel.text = wpmValue
+        wpmValueLabel.textColor = AppColors.textPrimary
         wpmProgressView.progress = wpmProgress
         wpmProgressView.progressTintColor = AppColors.primary
 
 
         pausesTitleLabel.text = "Pauses"
+        pausesTitleLabel.textColor = .secondaryLabel
         pausesValueLabel.text = pausesValue
+        pausesValueLabel.textColor = AppColors.textPrimary
         pausesProgressView.progressTintColor = AppColors.primary
     }
 }

@@ -15,6 +15,10 @@ class CallSessionCell: UICollectionViewCell {
         clipsToBounds = true
         layer.borderWidth = 1
         layer.borderColor = AppColors.cardBorder.cgColor
+
+        buttonLabel.textColor = AppColors.textPrimary
+        buttonLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        image.tintColor = AppColors.primary
     }
     
      func configure(imageURL: String, labelText: String){

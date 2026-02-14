@@ -5,74 +5,81 @@ class HistoryViewController: UIViewController {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
-        var items: [HistoryItem] = []
-        var selectedDate: Date = Date()
+    var items: [HistoryItem] = []
+    var selectedDate: Date = Date()
 
-        private var filteredItems: [HistoryItem] = []
+    private var filteredItems: [HistoryItem] = []
 
-        override func viewDidLoad() {
-            super.viewDidLoad()
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-            tableView.dataSource = self
-            tableView.delegate = self
-            tableView.rowHeight = UITableView.automaticDimension
-            tableView.estimatedRowHeight = 100
+        view.backgroundColor = AppColors.screenBackground
+        tableView.backgroundColor = AppColors.screenBackground
 
-            searchBar.delegate = self
-            searchBar.placeholder = "Search your activity"
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 100
+        tableView.separatorStyle = .none
 
-            filteredItems = items
-            tableView.reloadData()
-            updateTitle()
-        }
+        searchBar.delegate = self
+        searchBar.placeholder = "Search your activity"
+        searchBar.barTintColor = AppColors.screenBackground
+        searchBar.tintColor = AppColors.primary
 
-        private func updateTitle() {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "d MMM yyyy"
-            navigationItem.title = formatter.string(from: selectedDate)
-        }
+        filteredItems = items
+        tableView.reloadData()
+        updateTitle()
     }
 
-    extension HistoryViewController: UITableViewDataSource, UITableViewDelegate {
+    private func updateTitle() {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy"
+        navigationItem.title = formatter.string(from: selectedDate)
+    }
+}
 
-        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            filteredItems.count
-        }
+extension HistoryViewController: UITableViewDataSource, UITableViewDelegate {
 
-        func tableView(
-            _ tableView: UITableView,
-            cellForRowAt indexPath: IndexPath
-        ) -> UITableViewCell {
-
-            let item = filteredItems[indexPath.row]
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: "HistoryCell",
-                for: indexPath
-            ) as! HistoryTableViewCell
-
-            cell.configure(with: item)
-            cell.selectionStyle = .none
-            return cell
-        }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        filteredItems.count
     }
 
-    extension HistoryViewController: UISearchBarDelegate {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
 
-        func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-            let text = searchText.lowercased()
+        let item = filteredItems[indexPath.row]
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "HistoryCell",
+            for: indexPath
+        ) as! HistoryTableViewCell
 
-            filteredItems = text.isEmpty
-                ? items
-                : items.filter {
-                    $0.title.lowercased().contains(text) ||
-                    $0.subtitle.lowercased().contains(text) ||
-                    $0.topic.lowercased().contains(text)
-                }
-
-            tableView.reloadData()
-        }
-
-        func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-            searchBar.resignFirstResponder()
-        }
+        cell.configure(with: item)
+        cell.selectionStyle = .none
+        cell.backgroundColor = .clear
+        return cell
     }
+}
+
+extension HistoryViewController: UISearchBarDelegate {
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let text = searchText.lowercased()
+
+        filteredItems = text.isEmpty
+            ? items
+            : items.filter {
+                $0.title.lowercased().contains(text) ||
+                $0.subtitle.lowercased().contains(text) ||
+                $0.topic.lowercased().contains(text)
+            }
+
+        tableView.reloadData()
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+}

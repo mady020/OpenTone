@@ -3,10 +3,10 @@ import UIKit
 class WeekdayRingView: UIView {
     var onTap: (() -> Void)?
     private var isConfigured = false
-    
+
     private let bgLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
-    private let brandPurple = UIColor(red: 0.42, green: 0.05, blue: 0.68, alpha: 1).cgColor
+
     override func layoutSubviews() {
         super.layoutSubviews()
         if !isConfigured {
@@ -15,6 +15,7 @@ class WeekdayRingView: UIView {
             isConfigured = true
         }
     }
+
     private func setupLayers() {
         layer.sublayers?.removeAll()
 
@@ -22,18 +23,21 @@ class WeekdayRingView: UIView {
         let center = CGPoint(x: bounds.midX, y: bounds.midY)
 
         let circularPath = UIBezierPath(
-            arcCenter: center,
-            radius: radius,
-            startAngle: -.pi / 2,
-            endAngle: 1.5 * .pi,
-            clockwise: true
+            arcCenter: center, radius: radius,
+            startAngle: -.pi / 2, endAngle: 1.5 * .pi, clockwise: true
         ).cgPath
+
+        let isDark = traitCollection.userInterfaceStyle == .dark
+
         bgLayer.path = circularPath
-        bgLayer.strokeColor = UIColor.systemGray4.cgColor
+        bgLayer.strokeColor = isDark
+            ? UIColor.systemGray5.cgColor
+            : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
         bgLayer.lineWidth = 4
         bgLayer.fillColor = UIColor.clear.cgColor
+
         progressLayer.path = circularPath
-        progressLayer.strokeColor = brandPurple
+        progressLayer.strokeColor = AppColors.primary.cgColor
         progressLayer.lineWidth = 4
         progressLayer.lineCap = .round
         progressLayer.fillColor = UIColor.clear.cgColor
@@ -48,6 +52,18 @@ class WeekdayRingView: UIView {
         addGestureRecognizer(tapGesture)
         isUserInteractionEnabled = true
     }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            let isDark = traitCollection.userInterfaceStyle == .dark
+            bgLayer.strokeColor = isDark
+                ? UIColor.systemGray5.cgColor
+                : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
+            progressLayer.strokeColor = AppColors.primary.cgColor
+        }
+    }
+
     func animate(progress: CGFloat, yesterdayProgress: CGFloat = 0) {
         let safeProgress = min(max(progress, 0), 1)
         progressLayer.removeAllAnimations()
@@ -59,12 +75,13 @@ class WeekdayRingView: UIView {
         animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false
-        
         progressLayer.add(animation, forKey: "todayProgress")
     }
+
     func setProgress(_ progress: CGFloat) {
         progressLayer.strokeEnd = min(max(progress, 0), 1)
     }
+
     func setEmphasis(isToday: Bool = false, isSelected: Bool = false) {
         let isActive = isToday || isSelected
         let scale: CGFloat = isActive ? 1.12 : 1.0
@@ -78,12 +95,13 @@ class WeekdayRingView: UIView {
         progressLayer.lineWidth = lineWidth
 
         bgLayer.strokeColor = isActive
-            ? UIColor.systemPurple.withAlphaComponent(0.2).cgColor
-            : UIColor.systemGray4.cgColor
+            ? AppColors.primary.withAlphaComponent(0.2).cgColor
+            : (traitCollection.userInterfaceStyle == .dark
+                ? UIColor.systemGray5.cgColor
+                : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor)
     }
 
     @objc private func handleTap() {
         onTap?()
     }
 }
-
