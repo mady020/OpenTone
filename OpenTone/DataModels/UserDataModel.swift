@@ -78,6 +78,16 @@ final class UserDataModel {
         allUsers.first { $0.id == id }
     }
 
+    func getSampleUserForQuickSignIn() -> User? {
+        // Returns the first sample user who has complete onboarding data
+        // This user can be logged in directly without going through onboarding
+        allUsers.first { user in
+            user.confidenceLevel != nil && 
+            user.englishLevel != nil &&
+            user.interests != nil &&
+            !user.interests!.isEmpty
+        }
+    }
 
     func updateLastSeen() {
         guard var user = currentUser else { return }

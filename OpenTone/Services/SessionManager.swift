@@ -29,6 +29,7 @@ final class SessionManager {
 
     func login(user: User) {
         currentUser = user
+        UserDataModel.shared.setCurrentUser(user)
     }
 
     func logout() {
