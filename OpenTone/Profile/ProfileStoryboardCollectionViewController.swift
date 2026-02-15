@@ -376,7 +376,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.largeTitleDisplayMode = .never
 
-        // Refresh data
+        // Refresh user data so updated session counts are picked up
+        SessionManager.shared.refreshSession()
         collectionView.reloadData()
     }
 

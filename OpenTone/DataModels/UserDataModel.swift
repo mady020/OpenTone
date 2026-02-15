@@ -99,18 +99,21 @@ final class UserDataModel {
         guard var user = currentUser else { return }
         user.callRecordIDs.append(id)
         updateCurrentUser(user)
+        SessionManager.shared.refreshSession()
     }
 
     func addRoleplayID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.roleplayIDs.append(id)
         updateCurrentUser(user)
+        SessionManager.shared.refreshSession()
     }
 
     func addJamSessionID(_ id: UUID) {
         guard var user = currentUser else { return }
         user.jamSessionIDs.append(id)
         updateCurrentUser(user)
+        SessionManager.shared.refreshSession()
     }
 
     func addFriendID(_ id: UUID) {

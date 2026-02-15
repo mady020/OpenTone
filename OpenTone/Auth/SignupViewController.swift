@@ -169,6 +169,7 @@ final class SignupViewController: UIViewController {
             return
         }
 
+        SessionManager.shared.login(user: user)
         goToUserInfo()
     }
 
