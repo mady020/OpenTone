@@ -47,13 +47,28 @@ class CalendarViewController: UIViewController {
 
     private func getHistoryItems(for date: Date) -> [HistoryItem] {
         return StreakDataModel.shared.sessions(for: date).map {
-            HistoryItem(
+            // Infer activity type from icon name
+            let activityType: ActivityType?
+            switch $0.iconName {
+            case "mic.fill":
+                activityType = .jam
+            case "person.2.fill", "person.fill":
+                activityType = .roleplay
+            case "phone.fill":
+                activityType = .call
+            default:
+                activityType = nil
+            }
+
+            return HistoryItem(
                 title: $0.title,
                 subtitle: $0.subtitle,
                 topic: $0.topic,
                 duration: "\($0.durationMinutes) min",
                 xp: "\($0.xp) XP",
-                iconName: $0.iconName
+                iconName: $0.iconName,
+                date: $0.date,
+                activityType: activityType
             )
         }
     }

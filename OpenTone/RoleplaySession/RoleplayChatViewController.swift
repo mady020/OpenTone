@@ -32,9 +32,11 @@ class RoleplayChatViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var micButton: UIButton!
     @IBOutlet weak var replayButton: UIButton!
+    @IBOutlet weak var exitButton: UIButton!
     
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
+    var entryPoint: RoleplayEntryPoint = .roleplays
     
     private var messages: [ChatMessage] = []
     private var didLoadChat = false
@@ -50,6 +52,9 @@ class RoleplayChatViewController: UIViewController {
         guard scenario != nil, session != nil else {
             fatalError("RoleplayChatVC: Scenario or Session not passed")
         }
+
+        // Keep the data model in sync so save-for-later works
+        RoleplaySessionDataModel.shared.activeScenario = scenario
 
         title = scenario.title
         setupUI()
@@ -91,6 +96,17 @@ class RoleplayChatViewController: UIViewController {
         replayButton.layer.borderColor = AppColors.cardBorder.cgColor
         replayButton.layer.borderWidth = 1
         replayButton.tintColor = AppColors.primary
+
+        // Exit button
+        if let exitBtn = exitButton {
+            exitBtn.layer.cornerRadius = 28
+            exitBtn.backgroundColor = AppColors.cardBackground
+            exitBtn.layer.borderColor = AppColors.cardBorder.cgColor
+            exitBtn.layer.borderWidth = 1
+            exitBtn.tintColor = .white
+            exitBtn.setImage(UIImage(systemName: "xmark"), for: .normal)
+            exitBtn.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -311,9 +327,48 @@ class RoleplayChatViewController: UIViewController {
 
 
     @IBAction func endButtonTapped(_ sender: UIBarButtonItem) {
-        
-        RoleplaySessionDataModel.shared.cancelSession()
+        showExitAlert()
+    }
 
+    @objc private func exitButtonTapped() {
+        showExitAlert()
+    }
+
+    private func showExitAlert() {
+        // Stop recording if active
+        if AudioManager.shared.isRecording {
+            AudioManager.shared.stopRecording()
+            updateMicUI(isRecording: false)
+        }
+
+        let alert = UIAlertController(
+            title: "Leave Roleplay?",
+            message: "Save your progress and continue later, or exit without saving.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            // Update session state
+            self.session.status = .paused
+            RoleplaySessionDataModel.shared.updateSession(self.session, scenario: self.scenario)
+            RoleplaySessionDataModel.shared.saveSessionForLater()
+            self.popBackToOrigin()
+        })
+
+        alert.addAction(UIAlertAction(title: "Exit", style: .destructive) { [weak self] _ in
+            RoleplaySessionDataModel.shared.cancelSession()
+            self?.popBackToOrigin()
+        })
+
+        present(alert, animated: true)
+    }
+
+    private func popBackToOrigin() {
+        tabBarController?.tabBar.isHidden = false
+        navigationController?.popToRootViewController(animated: true)
     }
 
 

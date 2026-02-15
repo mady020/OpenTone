@@ -24,14 +24,29 @@ class StreakViewController: UIViewController {
         let selectedDate = dateForWeekday(at: selectedIndex)
 
         let realSessions = StreakDataModel.shared.sessions(for: selectedDate)
-        let sessions: [HistoryItem] = realSessions.map {
-            HistoryItem(
-                title: $0.title,
-                subtitle: $0.subtitle,
-                topic: $0.topic,
-                duration: "\($0.durationMinutes) min",
-                xp: "\($0.xp) XP",
-                iconName: $0.iconName
+        let sessions: [HistoryItem] = realSessions.map { session in
+            // Infer activity type from icon name
+            let activityType: ActivityType?
+            switch session.iconName {
+            case "mic.fill":
+                activityType = .jam
+            case "person.2.fill", "person.fill":
+                activityType = .roleplay
+            case "phone.fill":
+                activityType = .call
+            default:
+                activityType = nil
+            }
+
+            return HistoryItem(
+                title: session.title,
+                subtitle: session.subtitle,
+                topic: session.topic,
+                duration: "\(session.durationMinutes) min",
+                xp: "\(session.xp) XP",
+                iconName: session.iconName,
+                date: session.date,
+                activityType: activityType
             )
         }
 

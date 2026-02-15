@@ -46,7 +46,8 @@ class HistoryDataModel {
         duration: Int,
         imageURL: String,
         xpEarned: Int = 5,
-        isCompleted: Bool = true
+        isCompleted: Bool = true,
+        scenarioId: UUID? = nil
     ) {
         let activity = Activity(
             type: type,
@@ -56,7 +57,8 @@ class HistoryDataModel {
             xpEarned: xpEarned,
             isCompleted: isCompleted,
             title: title,
-            imageURL: imageURL
+            imageURL: imageURL,
+            scenarioId: scenarioId
         )
 
         addActivity(activity)
