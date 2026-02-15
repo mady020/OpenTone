@@ -462,32 +462,24 @@ extension HomeCollectionViewController {
     
     func nothingLayout() -> NSCollectionLayoutSection {
 
+        // Use fractionalWidth(1) with a near-zero estimated height to avoid
+        // the "Invalid absolute dimension, must be > 0" assertion.
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
-                widthDimension: .absolute(0),
-                heightDimension: .absolute(0)
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .estimated(1)
             )
         )
 
         let group = NSCollectionLayoutGroup.vertical(
-            layoutSize: item.layoutSize,
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .estimated(1)
+            ),
             subitems: [item]
         )
 
         let section = NSCollectionLayoutSection(group: group)
-
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(0),
-            heightDimension: .absolute(0)
-        )
-
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [header]
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
         return section
