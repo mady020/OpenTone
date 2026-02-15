@@ -40,6 +40,7 @@ final class InterestsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = AppColors.screenBackground
         filteredItems = allItems
 
         setupSearchBar()
@@ -223,17 +224,4 @@ extension InterestsViewController: UISearchBarDelegate {
 }
 
 
-extension UIColor {
-    convenience init(hex: String) {
-        var hexSanitized = hex.replacingOccurrences(of: "#", with: "")
-        var rgb: UInt64 = 0
-        Scanner(string: hexSanitized).scanHexInt64(&rgb)
-
-        self.init(
-            red: CGFloat((rgb >> 16) & 0xFF) / 255,
-            green: CGFloat((rgb >> 8) & 0xFF) / 255,
-            blue: CGFloat(rgb & 0xFF) / 255,
-            alpha: 1
-        )
-    }
-}
+// UIColor(hex:) extension is defined in Utils/UIColor+Hex.swift

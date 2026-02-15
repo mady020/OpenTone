@@ -26,6 +26,17 @@ final class ProfileActionsCell: UICollectionViewCell {
         setupUI()
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            // Re-apply border colors that are CGColor-based
+            settingsButton.layer.borderColor = settingsButton.titleColor(for: .normal) == .systemRed
+                ? UIColor.systemRed.cgColor : AppColors.primary.cgColor
+            logoutButton.layer.borderColor = logoutButton.titleColor(for: .normal) == .systemRed
+                ? UIColor.systemRed.cgColor : AppColors.primary.cgColor
+        }
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         timerLabel.isHidden = true

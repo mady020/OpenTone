@@ -23,6 +23,13 @@ final class ProfileCell: UICollectionViewCell {
         setupUI()
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            avatarImageView.layer.borderColor = AppColors.primary.cgColor
+        }
+    }
+
 
     private func setupUI() {
             contentView.backgroundColor = .clear

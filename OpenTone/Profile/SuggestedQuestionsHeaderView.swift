@@ -21,7 +21,7 @@ final class SuggestedQuestionsHeaderView: UICollectionReusableView {
     private func setup() {
         titleLabel.text = "Suggested Questions"
         titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        titleLabel.textColor = .label
+        titleLabel.textColor = AppColors.textPrimary
 
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false

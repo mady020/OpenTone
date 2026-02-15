@@ -28,12 +28,8 @@ class BigCircularProgressView: UIView {
             startAngle: -.pi / 2, endAngle: 1.5 * .pi, clockwise: true
         )
 
-        let isDark = traitCollection.userInterfaceStyle == .dark
-
         backgroundLayer.path = path.cgPath
-        backgroundLayer.strokeColor = isDark
-            ? UIColor.systemGray5.cgColor
-            : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
+        backgroundLayer.strokeColor = AppColors.ringTrack.cgColor
         backgroundLayer.lineWidth = 10
         backgroundLayer.fillColor = UIColor.clear.cgColor
 
@@ -51,10 +47,7 @@ class BigCircularProgressView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            let isDark = traitCollection.userInterfaceStyle == .dark
-            backgroundLayer.strokeColor = isDark
-                ? UIColor.systemGray5.cgColor
-                : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
+            backgroundLayer.strokeColor = AppColors.ringTrack.cgColor
             progressLayer.strokeColor = AppColors.primary.cgColor
         }
     }

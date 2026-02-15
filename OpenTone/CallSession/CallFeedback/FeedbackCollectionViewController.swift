@@ -66,6 +66,24 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 withReuseIdentifier: "FeedbackTranscriptCell",
                 for: indexPath
             ) as! FeedbackTranscriptCell
+
+            cell.configure(transcript: """
+            You: Hey! How are you doing today?
+
+            Partner: I'm doing great, thanks for asking! How about you?
+
+            You: I'm good too. I learned some new things…
+            Like I'm learning stock market now a days.
+
+            Partner: That's interesting! What part of stock market are you learning?
+
+            You: I am learning how to analysis the markets and invest properly.
+
+            Partner: Nice! Keep it up — it's a great skill to build.
+
+            You: Yes, I want to improve my financial knowledge. Still a lot to learn.
+            """)
+
             return cell
 
         default:

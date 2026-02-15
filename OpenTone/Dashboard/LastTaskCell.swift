@@ -27,6 +27,13 @@ class LastTaskCell: UICollectionViewCell {
         continueButton.layer.cornerRadius = 14
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            layer.borderColor = AppColors.cardBorder.cgColor
+        }
+    }
+
     @IBAction func continueTapped(_ sender: UIButton) {
         onContinueTapped?()
     }

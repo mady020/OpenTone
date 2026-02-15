@@ -16,6 +16,13 @@ final class InterestCard: UICollectionViewCell {
         setupUI()
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        }
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         containerView.transform = .identity

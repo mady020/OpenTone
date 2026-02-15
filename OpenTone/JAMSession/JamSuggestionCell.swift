@@ -9,24 +9,17 @@ class JamSuggestionCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        let outlineColor = UIColor(
-            red: 86/255,
-            green: 61/255,
-            blue: 189/255,
-            alpha: 1
-        )
-
         let chipBackground = UIColor { trait in
             return trait.userInterfaceStyle == .dark
-                ? UIColor(red: 86/255, green: 61/255, blue: 189/255, alpha: 0.20)
-                : UIColor(red: 242/255, green: 238/255, blue: 255/255, alpha: 1)
+                ? AppColors.primary.withAlphaComponent(0.20)
+                : AppColors.primaryLight
         }
 
         backgroundColor = chipBackground
 
         layer.cornerRadius = 25
         layer.borderWidth = 2
-        layer.borderColor = outlineColor.cgColor
+        layer.borderColor = AppColors.primary.cgColor
         layer.masksToBounds = true
 
         suggestedLabel.textAlignment = .center
@@ -36,6 +29,13 @@ class JamSuggestionCell: UICollectionViewCell {
         suggestedLabel.minimumScaleFactor = 0.60
         suggestedLabel.lineBreakMode = .byClipping
         suggestedLabel.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            layer.borderColor = AppColors.primary.cgColor
+        }
     }
 
     func configure(text: String) {

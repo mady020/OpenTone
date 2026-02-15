@@ -63,7 +63,7 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         )
 
         // Update the content view and any nested visual effect views
-        let lightPurpleBg = UIColor(red: 0.984, green: 0.972, blue: 1.0, alpha: 1.0)
+        let lightPurpleBg = AppColors.primaryLight
         for sub in effectView.contentView.subviews {
             if let nested = sub as? UIVisualEffectView {
                 nested.effect = UIBlurEffect(style: isDark ? .dark : .regular)

@@ -2,10 +2,6 @@ import UIKit
 
 enum UIHelper {
     
-    // MARK: - Colors
-    static let primaryColor = UIColor.systemBlue
-    static let secondaryColor = UIColor.systemTeal
-    
     // MARK: - Text Field Styling
     // MARK: - Text Field Styling
     static func styleTextField(_ textField: UITextField) {
@@ -184,7 +180,7 @@ enum UIHelper {
     }
     
     static func styleViewController(_ viewController: UIViewController) {
-        viewController.view.backgroundColor = UIColor.systemBackground
+        viewController.view.backgroundColor = AppColors.screenBackground
     }
     
     // MARK: - Card Styling

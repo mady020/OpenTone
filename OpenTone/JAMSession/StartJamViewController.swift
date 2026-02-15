@@ -63,7 +63,7 @@ class StartJamViewController: UIViewController {
         let isDark = traitCollection.userInterfaceStyle == .dark
         let buttonBg = isDark
             ? UIColor.tertiarySystemGroupedBackground
-            : UIColor(red: 0.949, green: 0.933, blue: 1.0, alpha: 1.0)
+            : AppColors.primaryLight
 
         for case let button as UIButton in bottomActionStackView.arrangedSubviews {
             if var config = button.configuration {
@@ -188,8 +188,8 @@ class StartJamViewController: UIViewController {
         let isDark = traitCollection.userInterfaceStyle == .dark
         let chip = UIView()
         chip.backgroundColor = isDark
-            ? UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 0.20)
-            : UIColor(red: 146/255, green: 117/255, blue: 234/255, alpha: 0.12)
+            ? AppColors.primary.withAlphaComponent(0.20)
+            : AppColors.primary.withAlphaComponent(0.12)
         chip.layer.cornerRadius = 22
         chip.layer.borderWidth = 2
         chip.layer.borderColor = AppColors.primary.cgColor

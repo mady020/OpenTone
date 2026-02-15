@@ -37,23 +37,14 @@ class TimerRingView: UIView {
             clockwise: true
         )
 
-        let isDark = traitCollection.userInterfaceStyle == .dark
-
         backgroundLayer.path = path.cgPath
-        backgroundLayer.strokeColor = isDark
-            ? UIColor.systemGray4.cgColor
-            : UIColor(red: 0.90, green: 0.80, blue: 1.0, alpha: 1).cgColor
+        backgroundLayer.strokeColor = AppColors.ringTrack.cgColor
         backgroundLayer.fillColor = UIColor.clear.cgColor
         backgroundLayer.lineWidth = ringWidth
         backgroundLayer.lineCap = .round
 
         progressLayer.path = path.cgPath
-        progressLayer.strokeColor = UIColor(
-            red: 86/255,
-            green: 61/255,
-            blue: 189/255,
-            alpha: 1
-        ).cgColor
+        progressLayer.strokeColor = AppColors.primary.cgColor
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineWidth = ringWidth
         progressLayer.lineCap = .round
@@ -62,10 +53,7 @@ class TimerRingView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            let isDark = traitCollection.userInterfaceStyle == .dark
-            backgroundLayer.strokeColor = isDark
-                ? UIColor.systemGray4.cgColor
-                : UIColor(red: 0.90, green: 0.80, blue: 1.0, alpha: 1).cgColor
+            backgroundLayer.strokeColor = AppColors.ringTrack.cgColor
         }
     }
 

@@ -62,11 +62,20 @@ extension CallEndedViewController {
     }
 
     @IBAction func reportTapped(_ sender: UIButton) {
-        print("Report Pressed")
+        let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
+        guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportVC") as? ReportViewController else { return }
+        reportVC.modalPresentationStyle = .pageSheet
+        if let sheet = reportVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(reportVC, animated: true)
     }
 
     @IBAction func feedbackTapped(_ sender: UIButton) {
-        print("Feedback Pressed")
+        let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
+        guard let feedbackVC = storyboard.instantiateViewController(withIdentifier: "Feedback") as? FeedbackCollectionViewController else { return }
+        navigationController?.pushViewController(feedbackVC, animated: true)
     }
 }
 

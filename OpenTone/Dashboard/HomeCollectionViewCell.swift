@@ -26,6 +26,13 @@ class HomeCollectionViewCell: UICollectionViewCell {
         layer.borderColor = AppColors.cardBorder.cgColor
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            layer.borderColor = AppColors.cardBorder.cgColor
+        }
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         imageView.image = nil

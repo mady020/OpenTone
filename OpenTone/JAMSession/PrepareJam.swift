@@ -103,7 +103,7 @@ final class PrepareJamViewController: UIViewController {
         let isDark = traitCollection.userInterfaceStyle == .dark
         let buttonBg = isDark
             ? UIColor.tertiarySystemGroupedBackground
-            : UIColor(red: 0.949, green: 0.933, blue: 1.0, alpha: 1.0)
+            : AppColors.primaryLight
 
         // Style the bulb and close icon buttons
         for button in [bulbButton, closeButton] {

@@ -24,6 +24,7 @@ class ReportViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = AppColors.screenBackground
         setupUI()
     }
 
@@ -31,13 +32,22 @@ class ReportViewController: UIViewController {
     func setupUI() {
         
         titleLabel.text = "You are Leaving call Early!"
+        titleLabel.textColor = AppColors.textPrimary
         subtitleLabel.text = "Still want to end? Please tell us why"
+        subtitleLabel.textColor = AppColors.textSecondary
         
         UIHelper.styleTextField(otherReasonTextField)
 
         styleReasonButtons()
         
         UIHelper.stylePrimaryButton(submitButton)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            styleReasonButtons()
+        }
     }
 
     func styleReasonButtons() {

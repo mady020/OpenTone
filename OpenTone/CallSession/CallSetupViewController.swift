@@ -30,15 +30,15 @@ class CallSetupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = AppColors.screenBackground
         UIHelper.stylePrimaryButton(confirmButton)
+
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.collectionViewLayout = createLayout()
-        
         collectionView.backgroundColor = AppColors.screenBackground
-        
-       
 
+        title = "Find a Peer"
     }
     
    
@@ -287,6 +287,7 @@ extension CallSetupViewController: UICollectionViewDelegate {
         let vc = storyboard.instantiateViewController(withIdentifier: "UserProfile") as! ProfileStoryboardCollectionViewController
         vc.isComingFromCall = true
         vc.titleText = "🎉 Peer Found!"
+        vc.peerUser = matchedUser
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationController?.pushViewController(vc, animated: true)
     }

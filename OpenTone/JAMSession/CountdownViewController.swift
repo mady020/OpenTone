@@ -67,7 +67,7 @@ final class CountdownViewController: UIViewController {
         let isDark = traitCollection.userInterfaceStyle == .dark
         trackLayer.strokeColor = isDark
             ? UIColor.systemGray4.cgColor
-            : UIColor(red: 242/255, green: 238/255, blue: 255/255, alpha: 1).cgColor
+            : AppColors.primaryLight.cgColor
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -98,18 +98,13 @@ final class CountdownViewController: UIViewController {
         let isDark = traitCollection.userInterfaceStyle == .dark
         trackLayer.strokeColor = isDark
             ? UIColor.systemGray4.cgColor
-            : UIColor(red: 242/255, green: 238/255, blue: 255/255, alpha: 1).cgColor
+            : AppColors.primaryLight.cgColor
         trackLayer.lineWidth = thickness
         trackLayer.fillColor = UIColor.clear.cgColor
         trackLayer.lineCap = .round
 
         ringLayer.path = path.cgPath
-        ringLayer.strokeColor = UIColor(
-            red: 86/255,
-            green: 61/255,
-            blue: 189/255,
-            alpha: 1
-        ).cgColor
+        ringLayer.strokeColor = AppColors.primary.cgColor
         ringLayer.lineWidth = thickness
         ringLayer.fillColor = UIColor.clear.cgColor
         ringLayer.lineCap = .round

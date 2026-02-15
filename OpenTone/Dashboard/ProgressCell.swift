@@ -218,12 +218,8 @@ final class ProgressCell: UICollectionViewCell {
             startAngle: -.pi / 2, endAngle: 1.5 * .pi, clockwise: true
         ).cgPath
 
-        let isDark = traitCollection.userInterfaceStyle == .dark
-
         ringBackgroundLayer.path = path
-        ringBackgroundLayer.strokeColor = isDark
-            ? UIColor.systemGray5.cgColor
-            : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
+        ringBackgroundLayer.strokeColor = AppColors.ringTrack.cgColor
         ringBackgroundLayer.fillColor = UIColor.clear.cgColor
         ringBackgroundLayer.lineWidth = 14
         ringBackgroundLayer.lineCap = .round
@@ -300,12 +296,8 @@ final class ProgressCell: UICollectionViewCell {
             let hostW: CGFloat = 10
             guard hostH > 0 else { continue }
 
-            let isDark = traitCollection.userInterfaceStyle == .dark
-
             bgLayer.frame = CGRect(x: 0, y: 0, width: hostW, height: hostH)
-            bgLayer.backgroundColor = isDark
-                ? UIColor.systemGray5.cgColor
-                : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
+            bgLayer.backgroundColor = AppColors.ringTrack.cgColor
 
             let value = i < storedBarValues.count ? storedBarValues[i] : 0
             let ratio = CGFloat(min(Double(value) / Double(max(storedBarMax, 1)), 1.0))
@@ -353,18 +345,11 @@ final class ProgressCell: UICollectionViewCell {
     // MARK: - Dynamic colors
 
     private func applyDynamicColors() {
-        let isDark = traitCollection.userInterfaceStyle == .dark
-
         backgroundColor = AppColors.cardBackground
         layer.borderColor = AppColors.cardBorder.cgColor
 
-        streakContainer.backgroundColor = isDark
-            ? UIColor.systemGray5
-            : UIColor(red: 1.0, green: 0.95, blue: 0.88, alpha: 1.0)
-
-        streakCountLabel.textColor = isDark
-            ? .white
-            : UIColor(red: 0.55, green: 0.35, blue: 0.0, alpha: 1.0)
+        streakContainer.backgroundColor = AppColors.streakBadgeBackground
+        streakCountLabel.textColor = AppColors.streakBadgeText
 
         greetingLabel.textColor = .secondaryLabel
         percentLabel.textColor = AppColors.textPrimary

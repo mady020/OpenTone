@@ -27,12 +27,8 @@ class WeekdayRingView: UIView {
             startAngle: -.pi / 2, endAngle: 1.5 * .pi, clockwise: true
         ).cgPath
 
-        let isDark = traitCollection.userInterfaceStyle == .dark
-
         bgLayer.path = circularPath
-        bgLayer.strokeColor = isDark
-            ? UIColor.systemGray5.cgColor
-            : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
+        bgLayer.strokeColor = AppColors.ringTrack.cgColor
         bgLayer.lineWidth = 4
         bgLayer.fillColor = UIColor.clear.cgColor
 
@@ -56,10 +52,7 @@ class WeekdayRingView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            let isDark = traitCollection.userInterfaceStyle == .dark
-            bgLayer.strokeColor = isDark
-                ? UIColor.systemGray5.cgColor
-                : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor
+            bgLayer.strokeColor = AppColors.ringTrack.cgColor
             progressLayer.strokeColor = AppColors.primary.cgColor
         }
     }
@@ -96,9 +89,7 @@ class WeekdayRingView: UIView {
 
         bgLayer.strokeColor = isActive
             ? AppColors.primary.withAlphaComponent(0.2).cgColor
-            : (traitCollection.userInterfaceStyle == .dark
-                ? UIColor.systemGray5.cgColor
-                : UIColor(red: 0.92, green: 0.87, blue: 1.0, alpha: 1).cgColor)
+            : AppColors.ringTrack.cgColor
     }
 
     @objc private func handleTap() {

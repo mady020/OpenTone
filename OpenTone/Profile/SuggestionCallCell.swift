@@ -12,6 +12,13 @@ final class SuggestionCallCell: UICollectionViewCell {
         setupUI()
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        }
+    }
+
     private func setupUI() {
         contentView.backgroundColor = .clear
 

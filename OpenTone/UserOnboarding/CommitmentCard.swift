@@ -13,6 +13,13 @@ final class CommitmentCard: UICollectionViewCell {
         layer.borderWidth = 1
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            layer.borderColor = AppColors.cardBorder.cgColor
+        }
+    }
+
     func configure(
         with option: CommitmentOption,
         backgroundColor: UIColor,

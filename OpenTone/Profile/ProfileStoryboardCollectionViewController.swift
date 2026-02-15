@@ -6,7 +6,14 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         SessionManager.shared.currentUser
     }
 
-    
+    /// The peer user to display in call modes. Falls back to sessionUser.
+    var peerUser: User?
+
+    /// Returns the user to display — peerUser in call mode, otherwise sessionUser.
+    private var displayUser: User? {
+        (isComingFromCall || isInCall) ? (peerUser ?? sessionUser) : sessionUser
+    }
+
     private var callTimer: Timer?
     private var callStartDate: Date?
 
@@ -86,7 +93,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             case .profile:
                 return 1
             case .interests:
-                return sessionUser?.interests?.count ?? 0
+                return displayUser?.interests?.count ?? 0
             case .stats:
                 return 1
             case .actions:
@@ -99,13 +106,13 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         case .profile:
             return 1
         case .interests:
-            return sessionUser?.interests?.count ?? 0
+            return displayUser?.interests?.count ?? 0
         case .stats:
             return 1
         case .achievements:
             return 0
         case .actions:
-            return sessionUser != nil ? 1 : 0
+            return displayUser != nil ? 1 : 0
         default:
             return 0
         }
@@ -131,12 +138,12 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             
             
             cell.configure(
-                name: sessionUser?.name ?? "",
-                country: "\(sessionUser?.country?.flag ?? "") \(sessionUser?.country?.name ?? "")",
-                level: sessionUser?.englishLevel?.rawValue.capitalized ?? "",
-                bio: sessionUser?.bio ?? "",
-                streakText: "🔥 \(sessionUser?.streak?.currentCount ?? 0) day streak",
-                avatar: UIImage(named: sessionUser?.avatar ?? "pp1")
+                name: displayUser?.name ?? "",
+                country: "\(displayUser?.country?.flag ?? "") \(displayUser?.country?.name ?? "")",
+                level: displayUser?.englishLevel?.rawValue.capitalized ?? "",
+                bio: displayUser?.bio ?? "",
+                streakText: "🔥 \(displayUser?.streak?.currentCount ?? 0) day streak",
+                avatar: UIImage(named: displayUser?.avatar ?? "pp1")
             )
 
             return cell
@@ -148,7 +155,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             ) as! InterestCell
 
     
-            let interests: [InterestItem] = Array(sessionUser?.interests ?? [])
+            let interests: [InterestItem] = Array(displayUser?.interests ?? [])
 
            
             cell.configure(title:  interests[indexPath.item] .title)
@@ -160,7 +167,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 for: indexPath
             ) as! StatsCell
 
-            cell.configure(calls: sessionUser?.callRecordIDs.count ?? 0, roleplays: sessionUser?.roleplayIDs.count ?? 0, jams: sessionUser?.jamSessionIDs.count ?? 0)
+            cell.configure(calls: displayUser?.callRecordIDs.count ?? 0, roleplays: displayUser?.roleplayIDs.count ?? 0, jams: displayUser?.jamSessionIDs.count ?? 0)
             return cell
 
         case .achievements:
@@ -368,6 +375,9 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
 
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.largeTitleDisplayMode = .never
+
+        // Refresh data
+        collectionView.reloadData()
     }
 
 
@@ -379,8 +389,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     }
     
     @objc private func didTapEndCall() {
-        
-        print("hello world")
         stopCallTimer()
 
         isInCall = false
@@ -399,11 +407,21 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
 
     
     @objc private func didTapSearchAgain() {
-        print("Settings tapped")
+        // Pop back to CallSetupViewController so the user can search for a new peer
+        guard let navController = navigationController else { return }
+        for vc in navController.viewControllers {
+            if vc is CallSetupViewController {
+                navController.popToViewController(vc, animated: true)
+                return
+            }
+        }
+        // Fallback: just pop
+        navController.popViewController(animated: true)
     }
 
     @objc private func didTapSettings() {
-        print("Settings tapped")
+        let settingsVC = SettingsViewController()
+        navigationController?.pushViewController(settingsVC, animated: true)
     }
     
     @objc private func didTapLogout() {

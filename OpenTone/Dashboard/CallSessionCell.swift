@@ -20,6 +20,13 @@ class CallSessionCell: UICollectionViewCell {
         buttonLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         image.tintColor = AppColors.primary
     }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            layer.borderColor = AppColors.cardBorder.cgColor
+        }
+    }
     
      func configure(imageURL: String, labelText: String){
         image.image = UIImage(systemName: imageURL)

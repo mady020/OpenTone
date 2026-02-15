@@ -11,6 +11,13 @@ final class ConfidenceCard: UICollectionViewCell {
         setupUI()
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            contentView.layer.borderColor = AppColors.cardBorder.cgColor
+        }
+    }
+
     private func setupUI() {
         contentView.layer.cornerRadius = 16
         contentView.layer.borderWidth = 1
