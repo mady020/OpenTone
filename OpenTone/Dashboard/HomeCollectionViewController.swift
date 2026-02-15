@@ -624,6 +624,22 @@ extension HomeCollectionViewController {
                 self.navigationController?.pushViewController(rootVC, animated: true)
             }else{
                 
+                // Check for API key before launching Talk to AI
+                guard GeminiAPIKeyManager.shared.hasAPIKey else {
+                    let alert = UIAlertController(
+                        title: "Gemini API Key Required",
+                        message: "Add your Gemini API key in Settings to use Talk to AI.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "Go to Settings", style: .default) { [weak self] _ in
+                        let settingsVC = SettingsViewController()
+                        self?.navigationController?.pushViewController(settingsVC, animated: true)
+                    })
+                    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                    present(alert, animated: true)
+                    return
+                }
+
                 let storyboard = UIStoryboard(name: "AICall", bundle: nil)
 
                 guard let scoreVC = storyboard.instantiateInitialViewController() else {

@@ -8,6 +8,7 @@ final class SettingsViewController: UIViewController {
 
     private enum Section: Int, CaseIterable {
         case appearance
+        case apiKeys
         case account
         case about
         case actions
@@ -72,12 +73,18 @@ final class SettingsViewController: UIViewController {
 
         let user = SessionManager.shared.currentUser
 
+        let geminiDetail = GeminiAPIKeyManager.shared.maskedKey ?? "Not configured"
+
         sections = [
             // Section 0 — Appearance
             [
                 Row(title: "Theme", icon: "paintbrush.fill", iconTint: AppColors.primary, detail: themeName)
             ],
-            // Section 1 — Account
+            // Section 1 — API Keys
+            [
+                Row(title: "Gemini API Key", icon: "key.fill", iconTint: .systemYellow, detail: geminiDetail)
+            ],
+            // Section 2 — Account
             [
                 Row(title: "Name", icon: "person.fill", iconTint: .systemBlue, detail: user?.name ?? "—"),
                 Row(title: "Email", icon: "envelope.fill", iconTint: .systemTeal, detail: user?.email ?? "—"),
@@ -148,6 +155,41 @@ final class SettingsViewController: UIViewController {
         present(alert, animated: true)
     }
 
+    private func showGeminiAPIKeyEditor() {
+        let hasKey = GeminiAPIKeyManager.shared.hasAPIKey
+        let title = hasKey ? "Update Gemini API Key" : "Add Gemini API Key"
+        let message = "Enter your Gemini API key from Google AI Studio.\nYour key is stored securely in the iOS Keychain."
+
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        alert.addTextField { tf in
+            tf.placeholder = "AIza..."
+            tf.autocapitalizationType = .none
+            tf.autocorrectionType = .no
+            tf.isSecureTextEntry = true
+            tf.clearButtonMode = .whileEditing
+        }
+
+        alert.addAction(UIAlertAction(title: "Save", style: .default) { [weak self] _ in
+            guard let key = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !key.isEmpty else { return }
+            GeminiAPIKeyManager.shared.setAPIKey(key)
+            self?.buildSections()
+            self?.tableView.reloadData()
+        })
+
+        if hasKey {
+            alert.addAction(UIAlertAction(title: "Remove Key", style: .destructive) { [weak self] _ in
+                GeminiAPIKeyManager.shared.deleteAPIKey()
+                self?.buildSections()
+                self?.tableView.reloadData()
+            })
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
     private func performLogout() {
         SessionManager.shared.logout()
 
@@ -178,6 +220,7 @@ extension SettingsViewController: UITableViewDataSource {
         guard let s = Section(rawValue: section) else { return nil }
         switch s {
         case .appearance: return "Appearance"
+        case .apiKeys:    return "Integrations"
         case .account:    return "Account"
         case .about:      return "About"
         case .actions:    return nil
@@ -207,7 +250,7 @@ extension SettingsViewController: UITableViewDataSource {
 
         // Show disclosure for actionable rows
         let section = Section(rawValue: indexPath.section)
-        if section == .appearance || section == .actions || (section == .about && indexPath.row > 0) {
+        if section == .appearance || section == .apiKeys || section == .actions || (section == .about && indexPath.row > 0) {
             cell.accessoryType = .disclosureIndicator
         } else {
             cell.accessoryType = .none
@@ -229,6 +272,9 @@ extension SettingsViewController: UITableViewDelegate {
         switch section {
         case .appearance:
             showThemePicker()
+
+        case .apiKeys:
+            showGeminiAPIKeyEditor()
 
         case .account:
             break // Read-only for now
