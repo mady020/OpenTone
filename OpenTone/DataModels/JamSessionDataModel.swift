@@ -5,8 +5,6 @@ class JamSessionDataModel {
 
     static let shared = JamSessionDataModel()
 
-    // MARK: - Persistence
-
     private let documentsDirectory = FileManager.default.urls(
         for: .documentDirectory,
         in: .userDomainMask
@@ -30,8 +28,6 @@ class JamSessionDataModel {
             .appendingPathExtension("json")
     }
 
-    // MARK: - State
-
     private var activeSession: JamSession?
     private var completedSessions: [JamSession] = []
 
@@ -53,9 +49,7 @@ class JamSessionDataModel {
         loadCompletedSessions()
     }
 
-    // MARK: - Session Lifecycle
-
-    /// Creates a brand-new session with a random topic, stores it as active, and persists.
+    /// Creates a new session with a random topic, stores it as active.
     @discardableResult
     func startNewSession() -> JamSession? {
         guard let user = UserDataModel.shared.getCurrentUser() else { return nil }
@@ -76,7 +70,7 @@ class JamSessionDataModel {
         return session
     }
 
-    /// Alias kept for backward compatibility.
+    // Alias kept for backward compatibility.
     @discardableResult
     func startJamSession(
         phase: JamPhase = .preparing,
@@ -85,8 +79,7 @@ class JamSessionDataModel {
         return startNewSession()
     }
 
-    // MARK: - Active Session Queries
-
+    //  Active Session
     func getActiveSession() -> JamSession? {
         activeSession
     }
@@ -95,8 +88,7 @@ class JamSessionDataModel {
         activeSession != nil
     }
 
-    // MARK: - Session Updates
-
+    //  Session Updates
     /// Update the active session in-memory and persist to disk.
     func updateActiveSession(_ updated: JamSession) {
         guard let current = activeSession, current.id == updated.id else { return }
@@ -148,8 +140,7 @@ class JamSessionDataModel {
         return session
     }
 
-    // MARK: - Save & Exit
-
+    //  Save & Exit
     /// Save the current session to disk for later resumption, then clear active.
     func saveSessionForLater() {
         guard let session = activeSession else { return }
@@ -198,13 +189,13 @@ class JamSessionDataModel {
         clearActiveSessionFile()
     }
 
-    // MARK: - Completed Sessions
+    // Completed Sessions
 
     func getCompletedSessions() -> [JamSession] {
         completedSessions
     }
 
-    // MARK: - Hints
+    //  Hints
 
     func generateSpeakingHints() -> [String] {
         let allHints = [
@@ -222,7 +213,7 @@ class JamSessionDataModel {
         return Array(allHints.shuffled().prefix(3))
     }
 
-    // MARK: - Private Persistence Helpers
+    // Private Persistence Helpers
 
     private func persistActiveSession() {
         guard let session = activeSession,
@@ -293,7 +284,7 @@ class JamSessionDataModel {
         clearActiveSessionFile()
     }
 
-    // MARK: - Topic Generation
+    // Topic Generation
 
     private func generateRandomTopic() -> String {
         JamSession.availableTopics.randomElement() ?? "General Topic"
