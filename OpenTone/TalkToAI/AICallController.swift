@@ -34,8 +34,8 @@ final class AICallController: UIViewController {
     private var lastPartialText: String = ""
     private var lastPartialUpdate: Date = .distantPast
     private var silenceTimer: Timer?
-    private let silenceThreshold: TimeInterval = 1.2
-    private let minUtteranceLength: Int = 3
+    private let silenceThreshold: TimeInterval = 2.5
+    private let minUtteranceLength: Int = 8
 
     // MARK: - Ring Animation
 
@@ -450,6 +450,23 @@ final class AICallController: UIViewController {
                 await MainActor.run {
                     self.addBubble(ChatBubble(sender: .ai, text: reply))
                     self.speakAI(reply)
+                }
+            } catch let error as GeminiService.GeminiError {
+                await MainActor.run {
+                    let msg: String
+                    switch error {
+                    case .rateLimited:
+                        msg = "I need a moment to catch my breath. Please try again in a few seconds."
+                    case .quotaExhausted:
+                        msg = "API quota exceeded. Please check your Gemini API plan or try again later."
+                    case .noAPIKey:
+                        msg = "No API key found. Please add your Gemini key in Settings."
+                    default:
+                        msg = "Sorry, something went wrong. Please try again."
+                    }
+                    self.addBubble(ChatBubble(sender: .ai, text: msg))
+                    print("❌ Gemini error:", error.localizedDescription)
+                    self.restartListening()
                 }
             } catch {
                 await MainActor.run {

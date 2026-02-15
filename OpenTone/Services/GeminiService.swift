@@ -2,6 +2,7 @@ import Foundation
 
 /// Production-grade Gemini API service using the REST API.
 /// Maintains conversation history and handles multi-turn chat.
+/// Uses gemini-1.5-flash on the stable v1 endpoint for best free-tier compatibility.
 final class GeminiService {
 
     static let shared = GeminiService()
@@ -26,6 +27,8 @@ final class GeminiService {
         case decodingError(String)
         case emptyResponse
         case blocked(String)
+        case rateLimited          // 429 — transient, can retry
+        case quotaExhausted       // 429 — hard limit, need plan upgrade
 
         var errorDescription: String? {
             switch self {
@@ -43,9 +46,32 @@ final class GeminiService {
                 return "Gemini returned an empty response."
             case .blocked(let reason):
                 return "Response blocked: \(reason)"
+            case .rateLimited:
+                return "Rate limited. Please wait a moment and try again."
+            case .quotaExhausted:
+                return "API quota exhausted. Check your Gemini plan and billing."
             }
         }
     }
+
+    // MARK: - Configuration
+
+    /// Models to try in order of preference. Falls back to the next if the
+    /// current one returns a quota error (limit: 0 means no free tier).
+    private let modelCandidates = [
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash"
+    ]
+
+    /// The currently selected model index.
+    private var currentModelIndex = 0
+
+    /// v1beta supports the latest models (2.5, 2.0).
+    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
+
+    /// Maximum automatic retries on transient 429 errors.
+    private let maxRetries = 2
 
     // MARK: - State
 
@@ -61,14 +87,13 @@ final class GeminiService {
     since your text will be spoken aloud via text-to-speech.
     """
 
-    private let modelName = "gemini-2.0-flash"
-
     private init() {}
 
     // MARK: - Public API
 
     /// Send a user message and get an AI response.
-    /// Manages conversation history automatically.
+    /// Manages conversation history automatically. Retries on transient 429s
+    /// and falls back to alternate models when a model has no free-tier quota.
     func sendMessage(_ text: String) async throws -> String {
         guard let apiKey = GeminiAPIKeyManager.shared.getAPIKey() else {
             throw GeminiError.noAPIKey
@@ -77,8 +102,52 @@ final class GeminiService {
         // Add user message to history
         conversationHistory.append(Message(role: .user, text: text))
 
-        // Build the request
-        let urlString = "https://generativelanguage.googleapis.com/v1beta/models/\(modelName):generateContent?key=\(apiKey)"
+        var lastError: Error = GeminiError.emptyResponse
+
+        // Try each model candidate starting from the current one
+        let startIndex = currentModelIndex
+        for offset in 0..<modelCandidates.count {
+            let modelIndex = (startIndex + offset) % modelCandidates.count
+            let model = modelCandidates[modelIndex]
+
+            do {
+                let reply = try await callGemini(model: model, apiKey: apiKey)
+
+                // Success — remember this model for next time
+                currentModelIndex = modelIndex
+                conversationHistory.append(Message(role: .model, text: reply))
+                return reply
+            } catch GeminiError.quotaExhausted {
+                // This model has no quota — try the next one
+                print("⚠️ \(model) quota exhausted, trying next model...")
+                lastError = GeminiError.quotaExhausted
+                continue
+            } catch {
+                // Remove the user message we optimistically added
+                if conversationHistory.last?.role == .user {
+                    conversationHistory.removeLast()
+                }
+                throw error
+            }
+        }
+
+        // All models exhausted
+        if conversationHistory.last?.role == .user {
+            conversationHistory.removeLast()
+        }
+        throw lastError
+    }
+
+    /// Clear conversation history and start fresh.
+    func resetConversation() {
+        conversationHistory.removeAll()
+        currentModelIndex = 0
+    }
+
+    // MARK: - Private — Network
+
+    private func callGemini(model: String, apiKey: String, attempt: Int = 0) async throws -> String {
+        let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
         guard let url = URL(string: urlString) else {
             throw GeminiError.invalidURL
         }
@@ -91,7 +160,6 @@ final class GeminiService {
         let body = buildRequestBody()
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        // Make the request
         let (data, response): (Data, URLResponse)
         do {
             (data, response) = try await URLSession.shared.data(for: request)
@@ -99,32 +167,54 @@ final class GeminiService {
             throw GeminiError.networkError(error)
         }
 
-        // Check HTTP status
-        if let httpResponse = response as? HTTPURLResponse,
-           !(200...299).contains(httpResponse.statusCode) {
-            let bodyStr = String(data: data, encoding: .utf8) ?? "No body"
-            throw GeminiError.httpError(httpResponse.statusCode, bodyStr)
+        // Handle HTTP errors
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            let bodyStr = String(data: data, encoding: .utf8) ?? ""
+
+            if http.statusCode == 429 {
+                // Distinguish hard quota exhaustion (limit: 0) from transient rate limits
+                if bodyStr.contains("limit: 0") || bodyStr.contains("RESOURCE_EXHAUSTED") && bodyStr.contains("limit: 0") {
+                    throw GeminiError.quotaExhausted
+                }
+
+                // Transient rate limit — retry with exponential backoff
+                if attempt < maxRetries {
+                    let delay = pow(2.0, Double(attempt)) // 1s, 2s
+                    print("⏳ Rate limited, retrying in \(delay)s (attempt \(attempt + 1)/\(maxRetries))")
+                    try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                    return try await callGemini(model: model, apiKey: apiKey, attempt: attempt + 1)
+                }
+
+                throw GeminiError.rateLimited
+            }
+
+            // 400 with "not found" likely means the model name is invalid for this API version
+            if http.statusCode == 404 || (http.statusCode == 400 && bodyStr.contains("not found")) {
+                throw GeminiError.quotaExhausted  // triggers fallback to next model
+            }
+
+            throw GeminiError.httpError(http.statusCode, bodyStr)
         }
 
-        // Parse the response
-        let replyText = try parseResponse(data)
-
-        // Add model response to history
-        conversationHistory.append(Message(role: .model, text: replyText))
-
-        return replyText
+        return try parseResponse(data)
     }
 
-    /// Clear conversation history and start fresh.
-    func resetConversation() {
-        conversationHistory.removeAll()
-    }
-
-    // MARK: - Private
+    // MARK: - Private — Request Body
 
     private func buildRequestBody() -> [String: Any] {
-        // Build contents array from conversation history
         var contents: [[String: Any]] = []
+
+        // Inject system instruction as the first user/model exchange
+        // since the v1 endpoint doesn't support the systemInstruction field.
+        contents.append([
+            "role": "user",
+            "parts": [["text": systemInstruction]]
+        ])
+        contents.append([
+            "role": "model",
+            "parts": [["text": "Understood! I'm ready to chat. How are you doing today?"]]
+        ])
+
         for message in conversationHistory {
             contents.append([
                 "role": message.role.rawValue,
@@ -132,7 +222,7 @@ final class GeminiService {
             ])
         }
 
-        var body: [String: Any] = [
+        let body: [String: Any] = [
             "contents": contents,
             "safetySettings": [
                 ["category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"],
@@ -148,32 +238,26 @@ final class GeminiService {
             ]
         ]
 
-        // Add system instruction
-        body["systemInstruction"] = [
-            "parts": [["text": systemInstruction]]
-        ]
-
         return body
     }
+
+    // MARK: - Private — Response Parsing
 
     private func parseResponse(_ data: Data) throws -> String {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw GeminiError.decodingError("Invalid JSON")
         }
 
-        // Check for block reason
         if let promptFeedback = json["promptFeedback"] as? [String: Any],
            let blockReason = promptFeedback["blockReason"] as? String {
             throw GeminiError.blocked(blockReason)
         }
 
-        // Extract text from candidates
         guard let candidates = json["candidates"] as? [[String: Any]],
               let first = candidates.first else {
             throw GeminiError.emptyResponse
         }
 
-        // Check finish reason
         if let finishReason = first["finishReason"] as? String,
            finishReason == "SAFETY" {
             throw GeminiError.blocked("Safety filter triggered")
