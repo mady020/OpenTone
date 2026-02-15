@@ -10,11 +10,22 @@ class CallSessionCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        backgroundColor = AppColors.cardBackground
-        layer.cornerRadius = 30
-        clipsToBounds = true
+
+        // Cell layer: shadow + border (no clipping)
+        backgroundColor = .clear
+        layer.cornerRadius = 20
         layer.borderWidth = 1
         layer.borderColor = AppColors.cardBorder.cgColor
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 4)
+        layer.shadowRadius = 12
+        layer.shadowOpacity = 0.08
+        layer.masksToBounds = false
+
+        // Content view: clips content
+        contentView.backgroundColor = AppColors.cardBackground
+        contentView.layer.cornerRadius = 20
+        contentView.clipsToBounds = true
 
         buttonLabel.textColor = AppColors.textPrimary
         buttonLabel.font = .systemFont(ofSize: 14, weight: .semibold)

@@ -80,8 +80,7 @@
                                 <color key="tintColor" red="0.6352539062" green="0.3999023438" blue="0.8784179688" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" cornerStyle="capsule">
-                                    <backgroundConfiguration key="background" strokeWidth="2">
-                                        <color key="strokeColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <backgroundConfiguration key="background">
                                     </backgroundConfiguration>
                                     <attributedString key="attributedTitle">
                                         <fragment content="UNLEASH A TOPIC !">
@@ -529,13 +528,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VA2-22-vZv">
-                                <rect key="frame" x="20" y="477.33333333333331" width="362" height="43.999999999999943"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="lmK-T0-4K8"/>
-                                </constraints>
-                            </view>
+
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" alignment="center" spacing="45" translatesAutoresizingMaskIntoConstraints="NO" id="L0a-DZ-0DA">
                                 <rect key="frame" x="35" y="667" width="332" height="90"/>
                                 <subviews>
@@ -606,17 +599,17 @@
                             <constraint firstItem="WTQ-BH-tiv" firstAttribute="top" secondItem="xA4-LH-rcD" secondAttribute="bottom" constant="50" id="0Mz-QP-Hm6"/>
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="r0t-ai-1mI" secondAttribute="trailing" constant="20" id="IGJ-UF-H67"/>
                             <constraint firstItem="L0a-DZ-0DA" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="35" id="J5G-ms-T2x"/>
-                            <constraint firstItem="VA2-22-vZv" firstAttribute="top" secondItem="r0t-ai-1mI" secondAttribute="bottom" constant="24" id="O3T-Sp-w3L"/>
+
                             <constraint firstItem="r0t-ai-1mI" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="20" id="Oet-gS-0oX"/>
                             <constraint firstItem="r0t-ai-1mI" firstAttribute="top" secondItem="WTQ-BH-tiv" secondAttribute="bottom" constant="20" id="SGf-OZ-53I"/>
-                            <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="VA2-22-vZv" secondAttribute="trailing" constant="20" id="Tt4-rH-Zru"/>
+
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="L0a-DZ-0DA" secondAttribute="trailing" constant="35" id="WVZ-0k-d9H"/>
                             <constraint firstItem="xA4-LH-rcD" firstAttribute="centerX" secondItem="36I-3p-DRV" secondAttribute="centerX" id="cph-rl-E1V"/>
                             <constraint firstAttribute="bottomMargin" secondItem="L0a-DZ-0DA" secondAttribute="bottom" constant="45" id="hJX-el-tFF"/>
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="WTQ-BH-tiv" secondAttribute="trailing" constant="20" id="n2d-sA-dVo"/>
                             <constraint firstItem="xA4-LH-rcD" firstAttribute="top" secondItem="hHk-P6-EeJ" secondAttribute="top" constant="10" id="sn9-Rp-FGU"/>
                             <constraint firstItem="WTQ-BH-tiv" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="16" id="ts9-7Y-hu5"/>
-                            <constraint firstItem="VA2-22-vZv" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="20" id="zDY-CC-njf"/>
+
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Your Speach TIme" largeTitleDisplayMode="never" id="HO4-ug-MvW"/>

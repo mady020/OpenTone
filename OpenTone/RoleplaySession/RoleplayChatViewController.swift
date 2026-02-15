@@ -258,6 +258,8 @@ class RoleplayChatViewController: UIViewController {
                 iconName: "person.2.fill"
             )
 
+            SessionProgressManager.shared.markCompleted(.roleplay, topic: scenario.title)
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.presentScoreScreen()
             }

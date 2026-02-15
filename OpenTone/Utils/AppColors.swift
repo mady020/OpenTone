@@ -37,7 +37,7 @@ struct AppColors {
     static let textOnPrimary = UIColor.white
     
     static let cardBorder = UIColor { trait in
-        return trait.userInterfaceStyle == .dark ? .separator : UIColor(hex: "#E6E3EE")
+        return trait.userInterfaceStyle == .dark ? .clear : UIColor(hex: "#E6E3EE")
     }
 
     static let success = UIColor.systemGreen

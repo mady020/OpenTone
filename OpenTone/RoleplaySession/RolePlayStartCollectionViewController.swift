@@ -114,7 +114,6 @@ extension RolePlayStartCollectionViewController {
         ) else { return }
 
         self.currentSession = session
-        print("session has created")
         performSegue(withIdentifier: "toRoleplayChat", sender: self)
     }
 }
@@ -150,6 +149,5 @@ extension RolePlayStartCollectionViewController {
     }
     
     @IBAction func unwindToRoleplaysVC(_ segue: UIStoryboardSegue) {
-        print("Returned to Roleplay Start screen")
     }
 }
