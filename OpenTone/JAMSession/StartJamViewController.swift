@@ -111,7 +111,9 @@ class StartJamViewController: UIViewController {
     }
 
     private func showExitAlert() {
-        timerManager.reset()
+        timerManager.pause()
+        timerRingView.resetRing() 
+        timerRingView.setProgress(value: CGFloat(remainingSeconds), max: 30) // Pause visual state
 
         let alert = UIAlertController(
             title: "Exit Session",

@@ -55,6 +55,22 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
         timerManager.start(from: currentSeconds)
     }
 
+    func pauseTimer() {
+        timerManager.pause()
+        timerRingView.resetRing() // Stop the animation sweep
+        // Set to current progress so it looks paused
+        timerRingView.setProgress(value: CGFloat(currentSeconds), max: 30)
+    }
+
+    func resumeTimer() {
+        timerManager.start(from: currentSeconds)
+        timerRingView.animateRing(
+            remainingSeconds: currentSeconds,
+            totalSeconds: 30
+        )
+    }
+
+
     private func resetUI() {
         timerLabel.text = "00:30"
         timerLabel.isHidden = false

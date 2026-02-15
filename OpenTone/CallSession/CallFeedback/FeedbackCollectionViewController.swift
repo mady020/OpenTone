@@ -5,12 +5,21 @@ class FeedbackCollectionViewController: UICollectionViewController {
     /// Optional feedback data — if nil, shows sample/placeholder data.
     var feedback: Feedback?
 
+    @IBOutlet weak var exitButton: UIButton!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = AppColors.screenBackground
         collectionView.backgroundColor = AppColors.screenBackground
         collectionView.collectionViewLayout = createLayout()
     }
+
+    
+    @IBAction func exitButtonTapped(_ sender: Any) {
+        navigationController?.popToRootViewController(animated: true)
+    }
+
+
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 4

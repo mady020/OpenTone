@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="SIZ-7L-Prg">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="SIZ-7L-Prg">
     <device id="retina6_3" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -80,8 +80,7 @@
                                 <color key="tintColor" red="0.6352539062" green="0.3999023438" blue="0.8784179688" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" cornerStyle="capsule">
-                                    <backgroundConfiguration key="background">
-                                    </backgroundConfiguration>
+                                    <backgroundConfiguration key="background"/>
                                     <attributedString key="attributedTitle">
                                         <fragment content="UNLEASH A TOPIC !">
                                             <attributes>
@@ -241,7 +240,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TimerCell" translatesAutoresizingMaskIntoConstraints="NO" id="705-xj-QqS" customClass="TimerCellCollectionViewCell" customModule="OpenTone" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" fixedFrame="YES" reuseIdentifier="TimerCell" translatesAutoresizingMaskIntoConstraints="NO" id="705-xj-QqS" customClass="TimerCellCollectionViewCell" customModule="OpenTone" customModuleProvider="target">
                                         <rect key="frame" x="101" y="0.0" width="200" height="200"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="qPc-Ws-hon">
@@ -476,7 +475,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Fd-xx-iLj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="gpq-vY-gZa" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="1801" y="-156"/>
+            <point key="canvasLocation" x="2500" y="-141"/>
         </scene>
         <!--Your Speach TIme-->
         <scene sceneID="vDA-lf-fOB">
@@ -528,7 +527,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" alignment="center" spacing="45" translatesAutoresizingMaskIntoConstraints="NO" id="L0a-DZ-0DA">
                                 <rect key="frame" x="35" y="667" width="332" height="90"/>
                                 <subviews>
@@ -599,17 +597,14 @@
                             <constraint firstItem="WTQ-BH-tiv" firstAttribute="top" secondItem="xA4-LH-rcD" secondAttribute="bottom" constant="50" id="0Mz-QP-Hm6"/>
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="r0t-ai-1mI" secondAttribute="trailing" constant="20" id="IGJ-UF-H67"/>
                             <constraint firstItem="L0a-DZ-0DA" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="35" id="J5G-ms-T2x"/>
-
                             <constraint firstItem="r0t-ai-1mI" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="20" id="Oet-gS-0oX"/>
                             <constraint firstItem="r0t-ai-1mI" firstAttribute="top" secondItem="WTQ-BH-tiv" secondAttribute="bottom" constant="20" id="SGf-OZ-53I"/>
-
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="L0a-DZ-0DA" secondAttribute="trailing" constant="35" id="WVZ-0k-d9H"/>
                             <constraint firstItem="xA4-LH-rcD" firstAttribute="centerX" secondItem="36I-3p-DRV" secondAttribute="centerX" id="cph-rl-E1V"/>
                             <constraint firstAttribute="bottomMargin" secondItem="L0a-DZ-0DA" secondAttribute="bottom" constant="45" id="hJX-el-tFF"/>
                             <constraint firstItem="hHk-P6-EeJ" firstAttribute="trailing" secondItem="WTQ-BH-tiv" secondAttribute="trailing" constant="20" id="n2d-sA-dVo"/>
                             <constraint firstItem="xA4-LH-rcD" firstAttribute="top" secondItem="hHk-P6-EeJ" secondAttribute="top" constant="10" id="sn9-Rp-FGU"/>
                             <constraint firstItem="WTQ-BH-tiv" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="16" id="ts9-7Y-hu5"/>
-
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Your Speach TIme" largeTitleDisplayMode="never" id="HO4-ug-MvW"/>
@@ -678,7 +673,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1N6-1X-gGa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2564" y="-156"/>
+            <point key="canvasLocation" x="1745" y="-141"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="6YH-BE-MrO">

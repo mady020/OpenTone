@@ -26,6 +26,8 @@ final class PrepareJamViewController: UIViewController {
         Array(allSuggestions.prefix(visibleCount))
     }
     
+    private var didTransitionToCountdown = false
+    
     private func showSessionAlert() {
 
         let alert = UIAlertController(
@@ -34,7 +36,18 @@ final class PrepareJamViewController: UIViewController {
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        // Pause the timer in the cell
+        if let timerCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
+            timerCell.pauseTimer()
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            // Resume the timer in the cell
+            if let timerCell = self.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
+                timerCell.resumeTimer()
+            }
+        })
+
 
         alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { _ in
             // Persist timer state before saving
@@ -134,6 +147,7 @@ final class PrepareJamViewController: UIViewController {
         visibleCount = min(4, allSuggestions.count)
         bulbButton.isHidden = visibleCount >= allSuggestions.count
 
+        didTransitionToCountdown = false // Reset in case we come back
         collectionView.reloadData()
     }
 
@@ -167,6 +181,13 @@ final class PrepareJamViewController: UIViewController {
     }
 
     private func goToCountdown() {
+        guard !didTransitionToCountdown else { return }
+        didTransitionToCountdown = true
+
+        // Stop the timer in the cell to prevent redundant calls
+        if let timerCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
+            timerCell.pauseTimer()
+        }
 
         guard let vc = storyboard?.instantiateViewController(
             withIdentifier: "CountdownViewController"
