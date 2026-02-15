@@ -2,6 +2,9 @@ import UIKit
 
 class FeedbackCollectionViewController: UICollectionViewController {
 
+    /// Optional feedback data — if nil, shows sample/placeholder data.
+    var feedback: Feedback?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = AppColors.screenBackground
@@ -41,8 +44,22 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 withReuseIdentifier: "FeedbackMetricsCell",
                 for: indexPath
             ) as! FeedbackMetricsCell
-            
-            cell.configure(
+
+            if let fb = feedback {
+                let mins = Int(fb.durationInSeconds) / 60
+                let secs = Int(fb.durationInSeconds) % 60
+                cell.configure(
+                    speechValue: String(format: "%d:%02d", mins, secs),
+                    speechProgress: min(Float(fb.durationInSeconds) / 120.0, 1.0),
+                    fillerValue: "\(fb.totalWords) words",
+                    fillerProgress: min(Float(fb.totalWords) / 200.0, 1.0),
+                    wpmValue: "\(Int(fb.wordsPerMinute)) WPM",
+                    wpmProgress: min(Float(fb.wordsPerMinute) / 150.0, 1.0),
+                    pausesValue: fb.comments,
+                    pausesProgress: 0.5
+                )
+            } else {
+                cell.configure(
                     speechValue: "2 min",
                     speechProgress: 0.75,
                     fillerValue: "5 words",
@@ -52,6 +69,7 @@ class FeedbackCollectionViewController: UICollectionViewController {
                     pausesValue: "3 pauses",
                     pausesProgress: 0.40
                 )
+            }
             return cell
 
         case 2:
@@ -67,7 +85,7 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 for: indexPath
             ) as! FeedbackTranscriptCell
 
-            cell.configure(transcript: """
+            let transcript = feedback?.transcript ?? """
             You: Hey! How are you doing today?
 
             Partner: I'm doing great, thanks for asking! How about you?
@@ -82,7 +100,9 @@ class FeedbackCollectionViewController: UICollectionViewController {
             Partner: Nice! Keep it up — it's a great skill to build.
 
             You: Yes, I want to improve my financial knowledge. Still a lot to learn.
-            """)
+            """
+
+            cell.configure(transcript: transcript)
 
             return cell
 

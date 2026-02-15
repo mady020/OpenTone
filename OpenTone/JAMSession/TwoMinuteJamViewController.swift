@@ -34,8 +34,20 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         // Main screen background
         view.backgroundColor = AppColors.screenBackground
 
+        // Style the unleash button
+        styleUnleashButton()
+
         // Style all subviews recursively
         styleSubviews(view)
+    }
+
+    private func styleUnleashButton() {
+        unleashButton.tintColor = AppColors.textOnPrimary
+        unleashButton.layer.shadowColor = AppColors.primary.cgColor
+        unleashButton.layer.shadowOffset = CGSize(width: 0, height: 4)
+        unleashButton.layer.shadowRadius = 10
+        unleashButton.layer.shadowOpacity = 0.3
+        unleashButton.layer.masksToBounds = false
     }
 
     private func styleSubviews(_ parentView: UIView) {
@@ -83,10 +95,10 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
             effectView.backgroundColor = isDark
                 ? UIColor.secondarySystemGroupedBackground
                 : lightPurpleBg
-            effectView.layer.borderWidth = isDark ? 1 : 0
+            effectView.layer.borderWidth = 1
             effectView.layer.borderColor = isDark
                 ? UIColor.separator.cgColor
-                : UIColor.clear.cgColor
+                : AppColors.primary.withAlphaComponent(0.15).cgColor
         }
     }
 

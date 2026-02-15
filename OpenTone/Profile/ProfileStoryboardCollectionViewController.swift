@@ -391,6 +391,36 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     @objc private func didTapEndCall() {
         stopCallTimer()
 
+        // --- Record the call ---
+        let callDuration: TimeInterval
+        if let start = callStartDate {
+            callDuration = Date().timeIntervalSince(start)
+        } else {
+            callDuration = 0
+        }
+
+        // End the active CallSession (logs to HistoryDataModel)
+        CallSessionDataModel.shared.endSession()
+
+        // Create a CallRecord for the peer
+        if let peer = peerUser {
+            let record = CallRecord(
+                participantID: peer.id,
+                participantName: peer.name,
+                participantAvatarURL: peer.avatar,
+                participantBio: peer.bio,
+                participantInterests: nil,
+                callDate: Date(),
+                duration: callDuration,
+                userStatus: .offline
+            )
+            CallRecordDataModel.shared.addCallRecord(record)
+            UserDataModel.shared.addCallRecordID(record.id)
+        }
+
+        // Log to streak/progress
+        SessionProgressManager.shared.markCompleted(.oneToOne, topic: "Conversation")
+
         isInCall = false
         isComingFromCall = true
 
@@ -400,7 +430,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         collectionView.reloadData()
         collectionView.collectionViewLayout.invalidateLayout()
 
-        
         goToEndCallChoice()
     }
 

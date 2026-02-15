@@ -287,6 +287,8 @@ class JamSessionDataModel {
             isCompleted: true
         )
 
+        SessionProgressManager.shared.markCompleted(.twoMinJam, topic: session.topic)
+
         activeSession = nil
         clearActiveSessionFile()
     }

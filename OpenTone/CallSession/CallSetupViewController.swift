@@ -229,11 +229,8 @@ extension CallSetupViewController: UICollectionViewDelegate {
     
     @IBAction func confirmButtonTapped(_ sender: UIButton) {
 
-        print("✅ Confirm tapped")
-
         guard let gender = selectedGender,
               let englishLevel = selectedEnglishLevel else {
-            print("❌ Missing gender or level")
             return
         }
 
@@ -248,13 +245,6 @@ extension CallSetupViewController: UICollectionViewDelegate {
         )
 
         CallSessionDataModel.shared.startSession(session)
-
-        print("""
-        ✅ SESSION CREATED
-        Gender: \(gender.rawValue)
-        English: \(englishLevel.rawValue)
-        Interests: \(interests.map { $0.rawValue })
-        """)
 
         findPeerAndNavigate()
     }
@@ -272,7 +262,6 @@ extension CallSetupViewController: UICollectionViewDelegate {
         let matchID = matches.first,
         let user = UserDataModel.shared.getUser(by: matchID)
         else {
-            print("❌ No peer found")
             return
         }
 

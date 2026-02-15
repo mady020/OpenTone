@@ -132,11 +132,21 @@ final class ProgressCell: UICollectionViewCell {
     private let dayAbbreviations = ["M", "T", "W", "T", "F", "S", "S"]
 
     private func setupUI() {
-        backgroundColor = AppColors.cardBackground
-        layer.cornerRadius = 24
+        // Cell layer: shadow + border (no clipping)
+        backgroundColor = .clear
+        layer.cornerRadius = 20
         layer.borderWidth = 1
         layer.borderColor = AppColors.cardBorder.cgColor
-        clipsToBounds = true
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 4)
+        layer.shadowRadius = 12
+        layer.shadowOpacity = 0.08
+        layer.masksToBounds = false
+
+        // Content view: clips content
+        contentView.backgroundColor = AppColors.cardBackground
+        contentView.layer.cornerRadius = 20
+        contentView.clipsToBounds = true
 
         buildWeekBars()
 

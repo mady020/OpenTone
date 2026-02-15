@@ -54,7 +54,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
         self.age = age
         self.gender = gender
         self.bio = bio
-        self.englishLevel = .beginner
+        self.englishLevel = englishLevel ?? .beginner
         self.confidenceLevel = confidenceLevel
         self.interests = interests
         self.currentPlan = currentPlan

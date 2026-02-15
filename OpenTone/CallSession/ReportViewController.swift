@@ -94,9 +94,42 @@ class ReportViewController: UIViewController {
             finalReason = otherReasonTextField.text
         }
 
-        print("Reason submitted: \(finalReason ?? "None")")
+        guard let reasonText = finalReason, !reasonText.isEmpty else { return }
 
- 
+        // Map the reason text to a ReportReason enum
+        let reportReason: ReportReason
+        switch reasonText {
+        case ReportReason.inappropriateBehavior.rawValue:
+            reportReason = .inappropriateBehavior
+        case ReportReason.abusiveLanguage.rawValue:
+            reportReason = .abusiveLanguage
+        case ReportReason.spam.rawValue:
+            reportReason = .spam
+        case ReportReason.harassment.rawValue:
+            reportReason = .harassment
+        case ReportReason.fakeProfile.rawValue:
+            reportReason = .fakeProfile
+        default:
+            reportReason = .other
+        }
+
+        // Create and save the report
+        guard let currentUser = UserDataModel.shared.getCurrentUser() else { return }
+
+        let report = Report(
+            id: UUID().uuidString,
+            reporterUserID: currentUser.id.uuidString,
+            reportedEntityID: "unknown",
+            entityType: .callSession,
+            reason: reportReason,
+            reasonDetails: reportReason == .other ? reasonText : nil,
+            message: nil,
+            timestamp: Date()
+        )
+
+        ReportDataModel.shared.addReport(report)
+
+        dismiss(animated: true)
     }
     
     
