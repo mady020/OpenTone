@@ -24,6 +24,13 @@ class HomeCollectionViewController: UICollectionViewController {
     var currentProgress: Int?
     var commitment : Int?
     var savedJamSession: JamSession?
+    var savedRoleplaySession: RoleplaySession?
+    var savedRoleplayScenario: RoleplayScenario?
+
+    /// Whether we have any saved session (jam or roleplay) to continue. At most 1.
+    private var hasSavedSession: Bool {
+        savedJamSession != nil || savedRoleplaySession != nil
+    }
     
     
 
@@ -73,8 +80,16 @@ class HomeCollectionViewController: UICollectionViewController {
         currentProgress = user.streak?.currentCount ?? 0
         lastTask = SessionManager.shared.lastUnfinishedActivity
 
-        // Load saved JAM session (if any) for the continue card
+        // Load saved sessions — show at most 1 on dashboard
         savedJamSession = JamSessionDataModel.shared.getSavedSession()
+        savedRoleplaySession = RoleplaySessionDataModel.shared.getSavedSession()
+        savedRoleplayScenario = RoleplaySessionDataModel.shared.getSavedScenario()
+
+        // If both exist, keep the jam (or whichever you prefer) and drop the other
+        if savedJamSession != nil && savedRoleplaySession != nil {
+            savedRoleplaySession = nil
+            savedRoleplayScenario = nil
+        }
     }
 
     /// Build the data struct that drives the redesigned progress card.
@@ -160,6 +175,25 @@ class HomeCollectionViewController: UICollectionViewController {
         }
     }
 
+    // MARK: - Resume Saved Roleplay
+
+    private func resumeSavedRoleplaySession() {
+        guard let (session, scenario) = RoleplaySessionDataModel.shared.resumeSavedSession() else {
+            return
+        }
+
+        let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+        guard let chatVC = storyboard.instantiateViewController(
+            withIdentifier: "RoleplayChatVC"
+        ) as? RoleplayChatViewController else { return }
+
+        chatVC.scenario = scenario
+        chatVC.session = session
+        chatVC.entryPoint = .dashboard
+
+        navigationController?.pushViewController(chatVC, animated: true)
+    }
+
     
     override func collectionView(
         _ collectionView: UICollectionView,
@@ -178,8 +212,8 @@ class HomeCollectionViewController: UICollectionViewController {
             return UICollectionReusableView()
 
         case .continueJam:
-            if savedJamSession != nil {
-                header.titleLabel.text = "Continue your JAM"
+            if hasSavedSession {
+                header.titleLabel.text = "Continue where you left off"
                 return header
             } else {
                 return UICollectionReusableView()
@@ -211,7 +245,7 @@ class HomeCollectionViewController: UICollectionViewController {
         case .progress:
             return 1
         case .continueJam:
-            return savedJamSession != nil ? 1 : 0
+            return hasSavedSession ? 1 : 0
         case .completeTask:
             return hasUnfinishedLastTask ? 1 : 0
         case .callSession:
@@ -248,15 +282,24 @@ class HomeCollectionViewController: UICollectionViewController {
             ) as! ContinueJamCell
 
             if let session = savedJamSession {
-                cell.configure(
+                cell.configure(with: .jam(
                     topic: session.topic,
                     secondsLeft: session.secondsLeft,
                     phase: session.phase
-                )
-            }
-
-            cell.onContinueTapped = { [weak self] in
-                self?.resumeSavedJamSession()
+                ))
+                cell.onContinueTapped = { [weak self] in
+                    self?.resumeSavedJamSession()
+                }
+            } else if let session = savedRoleplaySession,
+                      let scenario = savedRoleplayScenario {
+                cell.configure(with: .roleplay(
+                    scenarioTitle: scenario.title,
+                    progress: session.currentLineIndex,
+                    total: scenario.script.count
+                ))
+                cell.onContinueTapped = { [weak self] in
+                    self?.resumeSavedRoleplaySession()
+                }
             }
 
             return cell
@@ -325,7 +368,7 @@ extension HomeCollectionViewController {
                 return self.progressCardSection()
 
             case .continueJam:
-                return self.savedJamSession != nil
+                return self.hasSavedSession
                     ? self.fullWidthSection()
                     : self.nothingLayout()
 
@@ -551,7 +594,11 @@ extension HomeCollectionViewController {
             print("Progress Clicked")
 
         case .continueJam:
-            resumeSavedJamSession()
+            if savedJamSession != nil {
+                resumeSavedJamSession()
+            } else if savedRoleplaySession != nil {
+                resumeSavedRoleplaySession()
+            }
 
         case .completeTask:
 

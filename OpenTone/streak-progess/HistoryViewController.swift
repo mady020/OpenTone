@@ -37,6 +37,38 @@ class HistoryViewController: UIViewController {
         formatter.dateFormat = "d MMM yyyy"
         navigationItem.title = formatter.string(from: selectedDate)
     }
+
+    // MARK: - Resume Sessions
+
+    private func resumeRoleplaySession(scenarioId: UUID) {
+        // Check if there's a saved session for this scenario
+        if let saved = RoleplaySessionDataModel.shared.getSavedSession(),
+           saved.scenarioId == scenarioId,
+           let (session, scenario) = RoleplaySessionDataModel.shared.resumeSavedSession() {
+
+            let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+            guard let chatVC = storyboard.instantiateViewController(
+                withIdentifier: "RoleplayChatVC"
+            ) as? RoleplayChatViewController else { return }
+
+            chatVC.scenario = scenario
+            chatVC.session = session
+            chatVC.entryPoint = .dashboard
+
+            navigationController?.pushViewController(chatVC, animated: true)
+        } else {
+            // Start a fresh session for this scenario
+            guard let scenario = RoleplayScenarioDataModel.shared.getScenario(by: scenarioId) else { return }
+
+            let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
+            guard let startVC = storyboard.instantiateViewController(
+                withIdentifier: "RolePlayStartVC"
+            ) as? RolePlayStartCollectionViewController else { return }
+
+            startVC.currentScenario = scenario
+            navigationController?.pushViewController(startVC, animated: true)
+        }
+    }
 }
 
 extension HistoryViewController: UITableViewDataSource, UITableViewDelegate {
@@ -57,9 +89,18 @@ extension HistoryViewController: UITableViewDataSource, UITableViewDelegate {
         ) as! HistoryTableViewCell
 
         cell.configure(with: item)
-        cell.selectionStyle = .none
+        cell.selectionStyle = item.scenarioId != nil ? .default : .none
         cell.backgroundColor = .clear
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let item = filteredItems[indexPath.row]
+        if let scenarioId = item.scenarioId {
+            resumeRoleplaySession(scenarioId: scenarioId)
+        }
     }
 }
 

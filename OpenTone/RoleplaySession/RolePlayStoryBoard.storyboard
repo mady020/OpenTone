@@ -282,7 +282,7 @@
         <!--Grocery Shopping-->
         <scene sceneID="bh6-UW-6mV">
             <objects>
-                <viewController id="Z8h-z1-9tc" customClass="RoleplayChatViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RoleplayChatVC" id="Z8h-z1-9tc" customClass="RoleplayChatViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lE6-rN-xOA">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -442,7 +442,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="auu-2r-R14">
-                                        <rect key="frame" x="321" y="28" width="56" height="56"/>
+                                        <rect key="frame" x="168.66666666666666" y="28" width="56" height="56"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="56" id="quf-Ae-miw"/>
                                             <constraint firstAttribute="height" constant="56" id="vmm-s6-5XW"/>
@@ -454,15 +454,26 @@
                                             <action selector="micTapped:" destination="Z8h-z1-9tc" eventType="touchUpInside" id="KNO-bZ-piU"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="exitBtn-01">
+                                        <rect key="frame" x="321" y="28" width="56" height="56"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="56" id="exitW-01"/>
+                                            <constraint firstAttribute="height" constant="56" id="exitH-01"/>
+                                        </constraints>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" image="xmark" catalog="system"/>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="auu-2r-R14" secondAttribute="bottom" constant="16" id="76t-a6-INk"/>
                                     <constraint firstItem="9r6-DC-1me" firstAttribute="leading" secondItem="zIg-Tq-Sr7" secondAttribute="leading" constant="16" id="8sl-9K-jcd"/>
                                     <constraint firstAttribute="height" constant="100" id="KuT-aI-UUx"/>
-                                    <constraint firstAttribute="trailing" secondItem="auu-2r-R14" secondAttribute="trailing" constant="16" id="Q9Z-bf-Vgb"/>
-                                    <constraint firstItem="auu-2r-R14" firstAttribute="firstBaseline" secondItem="9r6-DC-1me" secondAttribute="baseline" id="VBK-2B-oBF"/>
+                                    <constraint firstAttribute="trailing" secondItem="exitBtn-01" secondAttribute="trailing" constant="16" id="Q9Z-bf-Vgb"/>
+                                    <constraint firstItem="auu-2r-R14" firstAttribute="centerX" secondItem="zIg-Tq-Sr7" secondAttribute="centerX" id="micCenterX-01"/>
                                     <constraint firstAttribute="bottom" secondItem="9r6-DC-1me" secondAttribute="bottom" constant="16" id="yXP-n4-ylS"/>
+                                    <constraint firstAttribute="bottom" secondItem="exitBtn-01" secondAttribute="bottom" constant="16" id="exitBot-01"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -483,11 +494,12 @@
                             <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
                                 <action selector="endButtonTapped:" destination="Z8h-z1-9tc" id="p3s-5R-Zwm"/>
-                                <segue destination="6h4-oI-Bzs" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="k7x-uv-6YT"/>
+
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="exitButton" destination="exitBtn-01" id="exitOutlet-01"/>
                         <outlet property="micButton" destination="auu-2r-R14" id="fEa-We-Q4M"/>
                         <outlet property="replayButton" destination="9r6-DC-1me" id="1N9-Lu-nSf"/>
                         <outlet property="tableView" destination="8zv-LH-wjs" id="RbB-n3-hq4"/>

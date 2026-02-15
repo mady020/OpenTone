@@ -1,6 +1,12 @@
 import UIKit
 
-/// A dashboard card that shows a saved JAM session and lets the user continue it.
+/// The type of saved session to display in the continue card.
+enum SavedSessionType {
+    case jam(topic: String, secondsLeft: Int, phase: JamPhase)
+    case roleplay(scenarioTitle: String, progress: Int, total: Int)
+}
+
+/// A dashboard card that shows a saved session and lets the user continue it.
 final class ContinueJamCell: UICollectionViewCell {
 
     static let reuseID = "ContinueJamCell"
@@ -9,7 +15,6 @@ final class ContinueJamCell: UICollectionViewCell {
 
     private let iconImageView: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(systemName: "mic.fill")
         iv.tintColor = AppColors.primary
         iv.contentMode = .scaleAspectFit
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -18,7 +23,6 @@ final class ContinueJamCell: UICollectionViewCell {
 
     private let typeLabel: UILabel = {
         let lbl = UILabel()
-        lbl.text = "2-Minute JAM"
         lbl.font = .systemFont(ofSize: 12, weight: .semibold)
         lbl.textColor = AppColors.primary
         lbl.translatesAutoresizingMaskIntoConstraints = false
@@ -114,13 +118,29 @@ final class ContinueJamCell: UICollectionViewCell {
         onContinueTapped?()
     }
 
-    // MARK: - Configure
+    // MARK: - Configure (legacy jam-only)
 
     func configure(topic: String, secondsLeft: Int, phase: JamPhase) {
-        topicLabel.text = topic
+        configure(with: .jam(topic: topic, secondsLeft: secondsLeft, phase: phase))
+    }
 
-        let phaseText = phase == .preparing ? "Prepare" : "Speak"
-        timeLabel.text = "\(phaseText) • \(secondsLeft)s remaining"
+    // MARK: - Configure (generic)
+
+    func configure(with sessionType: SavedSessionType) {
+        switch sessionType {
+        case .jam(let topic, let secondsLeft, let phase):
+            iconImageView.image = UIImage(systemName: "mic.fill")
+            typeLabel.text = "2-Minute JAM"
+            topicLabel.text = topic
+            let phaseText = phase == .preparing ? "Prepare" : "Speak"
+            timeLabel.text = "\(phaseText) • \(secondsLeft)s remaining"
+
+        case .roleplay(let scenarioTitle, let progress, let total):
+            iconImageView.image = UIImage(systemName: "theatermasks.fill")
+            typeLabel.text = "Roleplay"
+            topicLabel.text = scenarioTitle
+            timeLabel.text = "\(progress)/\(total) lines completed"
+        }
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
