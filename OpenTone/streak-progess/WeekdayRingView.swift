@@ -47,13 +47,10 @@ class WeekdayRingView: UIView {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         addGestureRecognizer(tapGesture)
         isUserInteractionEnabled = true
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            bgLayer.strokeColor = AppColors.ringTrack.cgColor
-            progressLayer.strokeColor = AppColors.primary.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: WeekdayRingView, _) in
+            self.bgLayer.strokeColor = AppColors.ringTrack.cgColor
+            self.progressLayer.strokeColor = AppColors.primary.cgColor
         }
     }
 

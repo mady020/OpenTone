@@ -40,6 +40,10 @@ final class CountdownViewController: UIViewController {
         countdownLabel.font = .systemFont(ofSize: 70, weight: .semibold)
         countdownLabel.textColor = AppColors.textPrimary
         countdownLabel.alpha = 1
+
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: CountdownViewController, _) in
+            self.updateRingColors()
+        }
     }
 
     @objc private func backButtonTapped() {
@@ -53,13 +57,6 @@ final class CountdownViewController: UIViewController {
             setupRing()
             setInitialLeftHalf()
             didSetup = true
-        }
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            updateRingColors()
         }
     }
 

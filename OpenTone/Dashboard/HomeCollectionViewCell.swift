@@ -32,12 +32,9 @@ class HomeCollectionViewCell: UICollectionViewCell {
         textLabel.textColor = .white
         textLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         textLabel.numberOfLines = 2
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            layer.borderColor = AppColors.cardBorder.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: HomeCollectionViewCell, _) in
+            self.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
 

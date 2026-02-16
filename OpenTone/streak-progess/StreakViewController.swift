@@ -151,23 +151,8 @@ class StreakViewController: UIViewController {
     }
 
     private func styleHistoryButton() {
-        var config = UIButton.Configuration.filled()
-        config.title = "View History"
-        config.image = UIImage(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
-        config.imagePadding = 8
-        config.imagePlacement = .leading
-        config.cornerStyle = .large
-        config.baseBackgroundColor = AppColors.primary
-        config.baseForegroundColor = .white
-        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-            var outgoing = incoming
-            outgoing.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-            return outgoing
-        }
-        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-        historyButton.configuration = config
-        historyButton.layer.cornerRadius = 16
-        historyButton.clipsToBounds = true
+        UIHelper.styleLargeCTAButton(historyButton, icon: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+        historyButton.setTitle("  View History", for: .normal)
     }
 
     private func centerLabels() {

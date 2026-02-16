@@ -9,12 +9,9 @@ class CalendarViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = AppColors.screenBackground
         setupCalendarView()
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            view.backgroundColor = AppColors.screenBackground
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: CalendarViewController, _) in
+            self.view.backgroundColor = AppColors.screenBackground
         }
     }
 

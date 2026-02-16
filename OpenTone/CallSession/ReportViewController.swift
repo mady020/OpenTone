@@ -41,12 +41,9 @@ class ReportViewController: UIViewController {
         styleReasonButtons()
         
         UIHelper.stylePrimaryButton(submitButton)
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            styleReasonButtons()
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: ReportViewController, _) in
+            self.styleReasonButtons()
         }
     }
 
@@ -60,11 +57,7 @@ class ReportViewController: UIViewController {
 
         buttons.forEach { button in
             guard let button = button else { return }
-            button.layer.cornerRadius = 20
-            button.layer.borderWidth = 1
-            button.layer.borderColor = AppColors.cardBorder.cgColor
-            button.backgroundColor = AppColors.cardBackground
-            button.setTitleColor(AppColors.textPrimary, for: .normal)
+            UIHelper.styleOptionButton(button)
         }
     }
 

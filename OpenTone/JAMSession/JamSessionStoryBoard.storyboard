@@ -434,7 +434,7 @@
                                     <constraint firstAttribute="height" constant="46" id="MtJ-q0-9Fo"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="arrow.triangle.2.circlepath" catalog="system">
+                                <buttonConfiguration key="configuration" style="plain" image="arrow.trianglehead.2.clockwise.rotate.90" catalog="system">
                                     <backgroundConfiguration key="background" cornerRadius="23" strokeWidth="1" strokeOutset="1">
                                         <color key="backgroundColor" red="0.94901960780000005" green="0.93333333330000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <color key="strokeColor" red="0.3391113281" green="0.24060060080000001" blue="0.740234375" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -468,7 +468,7 @@
                         <outlet property="bulbButton" destination="wXJ-VG-nds" id="Tii-5o-QEI"/>
                         <outlet property="closeButton" destination="b5c-vV-no7" id="sQl-8k-BGi"/>
                         <outlet property="collectionView" destination="DEa-Gt-g51" id="Xnk-Ec-U8i"/>
-                        <segue destination="3p0-fV-fhI" kind="push" id="kuD-iM-nqg"/>
+                        <segue destination="3p0-fV-fhI" kind="show" identifier="toStartJam" id="kuD-iM-nqg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Fd-xx-iLj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -667,7 +667,7 @@
                         <outlet property="bottomLabel" destination="bpn-cp-uqE" id="OQE-PA-72O"/>
                         <outlet property="circleContainer" destination="qOt-A9-MIM" id="btW-bT-51A"/>
                         <outlet property="countdownLabel" destination="Ees-Zd-FGN" id="Teu-ez-fU5"/>
-                        <segue destination="Hlz-xN-p0Z" kind="push" id="5uO-vo-oTQ"/>
+                        <segue destination="Hlz-xN-p0Z" kind="show" identifier="toPrepareJam" id="5uO-vo-oTQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1N6-1X-gGa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

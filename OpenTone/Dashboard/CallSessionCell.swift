@@ -30,12 +30,9 @@ class CallSessionCell: UICollectionViewCell {
         buttonLabel.textColor = AppColors.textPrimary
         buttonLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         image.tintColor = AppColors.primary
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            layer.borderColor = AppColors.cardBorder.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: CallSessionCell, _) in
+            self.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
     

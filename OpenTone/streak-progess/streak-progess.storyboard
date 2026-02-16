@@ -309,7 +309,7 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="9 Dec 2025" id="hpc-zn-VDR">
-                        <barButtonItem key="rightBarButtonItem" style="plain" id="nIN-xL-aTh">
+                        <barButtonItem key="rightBarButtonItem" style="done" id="nIN-xL-aTh">
                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="GvE-J7-eAV">
                                 <rect key="frame" x="322.33333333333331" y="4.6666666666666687" width="50.666666666666686" height="34.666666666666664"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -341,7 +341,7 @@
                         <outlet property="percentLabel" destination="9fP-YN-0XN" id="dBa-Vv-UDo"/>
                         <outlet property="totalWeekTimeLabel" destination="RWW-bn-feq" id="ytX-6P-X16"/>
                         <outlet property="weekdaysStackView" destination="hTA-1L-eOa" id="cNh-g5-tYA"/>
-                        <segue destination="QqN-60-2Mu" kind="push" identifier="showHistorySegue" id="haQ-zC-SgQ"/>
+                        <segue destination="QqN-60-2Mu" kind="show" identifier="showHistorySegue" id="haQ-zC-SgQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

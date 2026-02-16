@@ -10,10 +10,6 @@ final class InterestCell: UICollectionViewCell {
         setupUI()
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-    }
-
     private func setupUI() {
         contentView.backgroundColor = .clear
 

@@ -21,12 +21,8 @@ final class ProfileCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         setupUI()
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            avatarImageView.layer.borderColor = AppColors.primary.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: ProfileCell, _) in
+            self.avatarImageView.layer.borderColor = AppColors.primary.cgColor
         }
     }
 

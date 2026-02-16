@@ -43,12 +43,8 @@ class HistoryTableViewCell: UITableViewCell {
         super.awakeFromNib()
         applyTheme()
         addProgrammaticSubviews()
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            applyTheme()
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: HistoryTableViewCell, _) in
+            self.applyTheme()
         }
     }
 

@@ -33,6 +33,9 @@ class FeedbackMetricsCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         styleUI()
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: FeedbackMetricsCell, _) in
+            self.styleUI()
+        }
     }
 
   
@@ -48,12 +51,7 @@ class FeedbackMetricsCell: UICollectionViewCell {
         }
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            styleUI()
-        }
-    }
+
 
 
     func configure(

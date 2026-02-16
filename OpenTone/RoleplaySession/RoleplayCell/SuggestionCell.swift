@@ -70,6 +70,9 @@ class SuggestionCell: UITableViewCell {
 
     private func makeSuggestionButton(title: String) -> UIButton {
         let button = UIButton(type: .system)
+        var config = UIButton.Configuration.plain()
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20)
+        button.configuration = config
         button.setTitle(title, for: .normal)
         button.titleLabel?.numberOfLines = 0
         button.titleLabel?.textAlignment = .center
@@ -80,7 +83,6 @@ class SuggestionCell: UITableViewCell {
         button.layer.borderWidth = 1
         button.layer.borderColor = AppColors.primary.withAlphaComponent(0.25).cgColor
         button.clipsToBounds = true
-        button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 20, bottom: 12, right: 20)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
 
@@ -92,7 +94,7 @@ class SuggestionCell: UITableViewCell {
         ]
 
         // Max width so long text wraps
-        button.widthAnchor.constraint(lessThanOrEqualToConstant: UIScreen.main.bounds.width - 92).isActive = true
+        button.widthAnchor.constraint(lessThanOrEqualToConstant: 300).isActive = true
 
         return button
     }

@@ -11,12 +11,8 @@ final class CommitmentCard: UICollectionViewCell {
         super.awakeFromNib()
         layer.cornerRadius = 16
         layer.borderWidth = 1
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            layer.borderColor = AppColors.cardBorder.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: CommitmentCard, _) in
+            self.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
 

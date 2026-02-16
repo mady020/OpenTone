@@ -24,17 +24,13 @@ class JamSuggestionCell: UICollectionViewCell {
 
         suggestedLabel.textAlignment = .center
         suggestedLabel.textColor = UIColor.label
-        suggestedLabel.numberOfLines = 1
-        suggestedLabel.adjustsFontSizeToFitWidth = true
-        suggestedLabel.minimumScaleFactor = 0.60
-        suggestedLabel.lineBreakMode = .byClipping
-        suggestedLabel.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-    }
+        suggestedLabel.numberOfLines = 2
+        suggestedLabel.adjustsFontSizeToFitWidth = false
+        suggestedLabel.lineBreakMode = .byTruncatingTail
+        suggestedLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            layer.borderColor = AppColors.primary.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: JamSuggestionCell, _) in
+            self.layer.borderColor = AppColors.primary.cgColor
         }
     }
 

@@ -218,22 +218,12 @@ class RolePlayStartCollectionViewController: UIViewController {
 
     private func buildStartButton() {
         startButton.translatesAutoresizingMaskIntoConstraints = false
-        startButton.backgroundColor = AppColors.primary
-        startButton.setTitle("  Start Roleplay", for: .normal)
-        startButton.setTitleColor(AppColors.textOnPrimary, for: .normal)
-        startButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        startButton.layer.cornerRadius = 27
-        startButton.clipsToBounds = false
 
-        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .bold)
-        let playIcon = UIImage(systemName: "play.fill", withConfiguration: config)
-        startButton.setImage(playIcon, for: .normal)
-        startButton.tintColor = AppColors.textOnPrimary
-
-        startButton.layer.shadowColor = AppColors.primary.cgColor
-        startButton.layer.shadowOpacity = 0.3
-        startButton.layer.shadowOffset = CGSize(width: 0, height: 4)
-        startButton.layer.shadowRadius = 12
+        UIHelper.styleHeroPrimaryButton(
+            startButton,
+            title: "  Start Roleplay",
+            systemIcon: "play.fill"
+        )
 
         startButton.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
         view.addSubview(startButton)

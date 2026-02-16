@@ -10,12 +10,8 @@ final class SuggestionCallCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         setupUI()
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            containerView.layer.borderColor = AppColors.cardBorder.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: SuggestionCallCell, _) in
+            self.containerView.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
 

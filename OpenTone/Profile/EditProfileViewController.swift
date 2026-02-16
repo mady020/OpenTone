@@ -93,7 +93,7 @@ final class EditProfileViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
 
-        let saveButton = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(saveTapped))
+        let saveButton = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(saveTapped))
         saveButton.tintColor = AppColors.primary
         navigationItem.rightBarButtonItem = saveButton
 
@@ -324,6 +324,9 @@ final class EditProfileViewController: UIViewController {
 
     private static func makePickerButton(title: String) -> UIButton {
         let btn = UIButton(type: .system)
+        var btnConfig = UIButton.Configuration.plain()
+        btnConfig.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
+        btn.configuration = btnConfig
         btn.setTitle(title, for: .normal)
         btn.setTitleColor(.secondaryLabel, for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 16)
@@ -332,7 +335,6 @@ final class EditProfileViewController: UIViewController {
         btn.layer.cornerRadius = 12
         btn.layer.borderWidth = 1
         btn.layer.borderColor = AppColors.cardBorder.cgColor
-        btn.contentEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.heightAnchor.constraint(equalToConstant: 48).isActive = true
 

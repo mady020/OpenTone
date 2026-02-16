@@ -128,7 +128,7 @@ final class AICallController: UIViewController {
         tableView.register(ChatBubbleCell.self, forCellReuseIdentifier: ChatBubbleCell.id)
         view.addSubview(tableView)
 
-        let ringBottom = view.bounds.midY + baseRadius + maxExpansion + 24
+        _ = view.bounds.midY + baseRadius + maxExpansion + 24
 
         // Buttons
         muteButton = makeButton(symbol: "mic.fill", action: #selector(toggleMute))
@@ -160,12 +160,7 @@ final class AICallController: UIViewController {
 
     private func makeButton(symbol: String, action: Selector) -> UIButton {
         let button = UIButton(type: .system)
-        button.layer.cornerRadius = 28
-        button.backgroundColor = AppColors.cardBackground
-        button.layer.borderColor = AppColors.cardBorder.cgColor
-        button.layer.borderWidth = 1
-        button.setImage(UIImage(systemName: symbol, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)), for: .normal)
-        button.tintColor = AppColors.textPrimary
+        UIHelper.styleCircularIconButton(button, symbol: symbol)
         button.addTarget(self, action: action, for: .touchUpInside)
         return button
     }
