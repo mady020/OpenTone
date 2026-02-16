@@ -29,7 +29,6 @@ final class ProfileActionsCell: UICollectionViewCell {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            containerView.layer.borderColor = AppColors.cardBorder.cgColor
             // Re-apply destructive button border
             if logoutButton.backgroundColor != AppColors.primary {
                 logoutButton.layer.borderColor = UIColor.systemRed.withAlphaComponent(0.3).cgColor
@@ -53,6 +52,8 @@ final class ProfileActionsCell: UICollectionViewCell {
         contentView.backgroundColor = .clear
 
         UIHelper.styleCardView(containerView)
+        containerView.layer.shadowOpacity = 0
+        containerView.layer.borderWidth = 0
 
         stackView.axis = .vertical
         stackView.spacing = 12

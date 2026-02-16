@@ -69,8 +69,19 @@ class StreakViewController: UIViewController {
     @IBOutlet weak var weekdaysStackView: UIStackView!
 
     private var dailyGoalMinutes: Int {
-        let goal = StreakDataModel.shared.getStreak()?.commitment ?? 0
-        return goal > 0 ? goal : 10  // sensible fallback
+        // Try StreakDataModel first, then user model
+        let streakGoal = StreakDataModel.shared.getStreak()?.commitment ?? 0
+        if streakGoal > 0 { return streakGoal }
+        let userGoal = SessionManager.shared.currentUser?.streak?.commitment ?? 0
+        if userGoal > 0 {
+            // Sync to StreakDataModel so it stays in sync
+            if var streak = StreakDataModel.shared.getStreak() {
+                streak.commitment = userGoal
+                StreakDataModel.shared.updateStreak(streak)
+            }
+            return userGoal
+        }
+        return 10  // sensible fallback
     }
 
     private var hasAnimated = false
@@ -79,6 +90,8 @@ class StreakViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        styleHistoryButton()
+        centerLabels()
         applyTheme()
     }
 
@@ -119,8 +132,31 @@ class StreakViewController: UIViewController {
         bestDayLabel.textColor = .secondaryLabel
         totalWeekTimeLabel.textColor = AppColors.textPrimary
 
-        historyButton.setTitleColor(AppColors.primary, for: .normal)
-        historyButton.setTitleColor(AppColors.primary.withAlphaComponent(0.4), for: .disabled)
+    }
+
+    private func styleHistoryButton() {
+        var config = UIButton.Configuration.filled()
+        config.title = "View History"
+        config.image = UIImage(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+        config.imagePadding = 8
+        config.imagePlacement = .leading
+        config.cornerStyle = .large
+        config.baseBackgroundColor = AppColors.primary
+        config.baseForegroundColor = .white
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+            return outgoing
+        }
+        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+        historyButton.configuration = config
+        historyButton.layer.cornerRadius = 16
+        historyButton.clipsToBounds = true
+    }
+
+    private func centerLabels() {
+        goalLabel.textAlignment = .center
+        comparisonLabel.textAlignment = .center
     }
 
     // MARK: - Data
@@ -214,16 +250,14 @@ class StreakViewController: UIViewController {
         bigCircularRing.setProgress(min(progress, 1))
         percentLabel.text = "\(Int(min(progress, 1) * 100))%"
 
-        let completedHours = Double(todayMinutes) / 60
-        let goalHours = Double(dailyGoalMinutes) / 60
-        goalLabel.text = String(format: "%.1fh / %.0fh goal", completedHours, goalHours)
+        goalLabel.text = "\(todayMinutes) min / \(dailyGoalMinutes) min goal"
 
         let diffMinutes = todayMinutes - previousMinutes
-        let diffHours = Double(abs(diffMinutes)) / 60
         if diffMinutes == 0 {
             comparisonLabel.text = "Same as yesterday"
         } else {
-            comparisonLabel.text = String(format: "%@%.1fh from yesterday", diffMinutes > 0 ? "+" : "-", diffHours)
+            let sign = diffMinutes > 0 ? "+" : "-"
+            comparisonLabel.text = "\(sign)\(abs(diffMinutes)) min from yesterday"
         }
 
         updateWeeklyInsights(for: date)
@@ -233,11 +267,23 @@ class StreakViewController: UIViewController {
 
     // MARK: - Labels
 
+    private func formatTime(_ minutes: Int) -> String {
+        return "\(minutes) min"
+    }
+
     func updateGoalLabel() {
         let todayMinutes = StreakDataModel.shared.totalMinutes(for: Date())
-        let completedHours = Double(todayMinutes) / 60
-        let goalHours = Double(dailyGoalMinutes) / 60
-        goalLabel.text = String(format: "%.1fh / %.0fh goal", completedHours, goalHours)
+        goalLabel.text = "\(todayMinutes) min / \(dailyGoalMinutes) min goal"
+
+        let previousDate = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        let previousMinutes = StreakDataModel.shared.totalMinutes(for: previousDate)
+        let diffMinutes = todayMinutes - previousMinutes
+        if diffMinutes == 0 {
+            comparisonLabel.text = "Same as yesterday"
+        } else {
+            let sign = diffMinutes > 0 ? "+" : "-"
+            comparisonLabel.text = "\(sign)\(abs(diffMinutes)) min from yesterday"
+        }
     }
 
     func updateWeeklyInsights(for selectedDate: Date? = nil) {
@@ -327,13 +373,11 @@ class StreakViewController: UIViewController {
 
     private func applyHistoryDisabledStyle() {
         historyButton.isEnabled = false
-        historyButton.alpha = 0.45
-        historyButton.setTitleColor(AppColors.primary.withAlphaComponent(0.4), for: .normal)
+        historyButton.alpha = 0.5
     }
 
     private func applyHistoryEnabledStyle() {
         historyButton.isEnabled = true
         historyButton.alpha = 1.0
-        historyButton.setTitleColor(AppColors.primary, for: .normal)
     }
 }

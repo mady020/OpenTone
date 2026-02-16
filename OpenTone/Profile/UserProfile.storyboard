@@ -428,9 +428,7 @@
         <scene sceneID="dPO-fM-Kmo">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="pcJ-tP-uhe" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Profile" image="person" catalog="system" selectedImage="person.fill" id="ZiC-a1-pg5"/>
                     <toolbarItems/>
-                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="k9O-MP-sbG">
                         <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>

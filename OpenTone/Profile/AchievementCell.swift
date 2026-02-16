@@ -15,9 +15,6 @@ class AchievementCell: UICollectionViewCell {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            containerView.layer.borderColor = AppColors.cardBorder.cgColor
-        }
     }
 
     private func setupUI() {
@@ -25,8 +22,6 @@ class AchievementCell: UICollectionViewCell {
 
         containerView.backgroundColor = AppColors.cardBackground
         containerView.layer.cornerRadius = 16
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = AppColors.cardBorder.cgColor
 
         iconView.contentMode = .scaleAspectFit
         iconView.tintColor = AppColors.primary

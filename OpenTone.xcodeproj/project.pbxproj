@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0CBCAB422F4370B500CC26D6 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0CBCAB412F4370B500CC26D6 /* IQKeyboardManagerSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		3FBEA97B2ED55D6300788555 /* OpenTone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenTone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,17 +40,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CBCAB422F4370B500CC26D6 /* IQKeyboardManagerSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0CBCAB402F4370B500CC26D6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3FAE41E82EC43B5E00FADCC1 = {
 			isa = PBXGroup;
 			children = (
 				3FAE41F32EC43B5E00FADCC1 /* OpenTone */,
 				3FBEA97B2ED55D6300788555 /* OpenTone.app */,
+				0CBCAB402F4370B500CC26D6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -70,6 +83,7 @@
 			);
 			name = OpenTone;
 			packageProductDependencies = (
+				0CBCAB412F4370B500CC26D6 /* IQKeyboardManagerSwift */,
 			);
 			productName = OpenTone;
 			productReference = 3FBEA97B2ED55D6300788555 /* OpenTone.app */;
@@ -100,6 +114,9 @@
 			);
 			mainGroup = 3FAE41E82EC43B5E00FADCC1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0C63338D2F43706100E698DC /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FAE41E82EC43B5E00FADCC1;
 			projectDirPath = "";
@@ -349,6 +366,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0C63338D2F43706100E698DC /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0CBCAB412F4370B500CC26D6 /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0C63338D2F43706100E698DC /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3FAE41E92EC43B5E00FADCC1 /* Project object */;
 }

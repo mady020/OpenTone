@@ -59,7 +59,39 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             withReuseIdentifier: SuggestedQuestionsHeaderView.reuseIdentifier
         )
 
+        setupNavigationBarButtons()
+    }
 
+    private func setupNavigationBarButtons() {
+        // Only show settings & edit in normal profile mode (not during calls)
+        guard !isComingFromCall && !isInCall else { return }
+
+        let settingsButton = UIBarButtonItem(
+            image: UIImage(systemName: "gearshape"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapSettings)
+        )
+        settingsButton.tintColor = AppColors.primary
+
+        let editButton = UIBarButtonItem(
+            image: UIImage(systemName: "pencil"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapEditProfile)
+        )
+        editButton.tintColor = AppColors.primary
+
+        navigationItem.rightBarButtonItems = [settingsButton, editButton]
+    }
+
+    @objc private func didTapEditProfile() {
+        let editVC = EditProfileViewController()
+        editVC.onProfileUpdated = { [weak self] in
+            SessionManager.shared.refreshSession()
+            self?.collectionView.reloadData()
+        }
+        navigationController?.pushViewController(editVC, animated: true)
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -143,7 +175,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 level: displayUser?.englishLevel?.rawValue.capitalized ?? "",
                 bio: displayUser?.bio ?? "",
                 streakText: "🔥 \(displayUser?.streak?.currentCount ?? 0) day streak",
-                avatar: UIImage(named: displayUser?.avatar ?? "pp1")
+                avatar: Self.loadAvatar(named: displayUser?.avatar)
             )
 
             return cell
@@ -223,11 +255,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             } else {
                 cell.configure(mode: .normal)
 
-                cell.settingsButton.addTarget(
-                    self,
-                    action: #selector(didTapSettings),
-                    for: .touchUpInside
-                )
+                // Settings is now in the nav bar, so hide the settings button
+                cell.settingsButton.isHidden = true
 
                 cell.logoutButton.addTarget(
                     self,
@@ -279,6 +308,15 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             }
         
        
+    }
+
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let section = Section(rawValue: indexPath.section) else { return }
+
+        // Tapping the profile card in normal mode opens the profile editor
+        if section == .profile && !isInCall && !isComingFromCall {
+            didTapEditProfile()
+        }
     }
 
     
@@ -452,6 +490,25 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     @objc private func didTapSettings() {
         let settingsVC = SettingsViewController()
         navigationController?.pushViewController(settingsVC, animated: true)
+    }
+
+    /// Loads an avatar image from asset catalog or from the documents directory (custom photos).
+    static func loadAvatar(named name: String?) -> UIImage? {
+        guard let name = name else { return UIImage(named: "pp1") }
+
+        // Try asset catalog first
+        if let assetImage = UIImage(named: name) {
+            return assetImage
+        }
+
+        // Try documents directory (custom photo)
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsURL.appendingPathComponent(name)
+        if let data = try? Data(contentsOf: fileURL) {
+            return UIImage(data: data)
+        }
+
+        return UIImage(named: "pp1")
     }
     
     @objc private func didTapLogout() {

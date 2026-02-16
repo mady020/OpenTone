@@ -73,6 +73,11 @@ class HistoryDataModel {
         return activities.sorted { $0.date > $1.date }
     }
 
+    func clearHistory() {
+        activities = []
+        saveHistory()
+    }
+
     private func loadHistory() {
         if let savedActivities = loadHistoryFromDisk() {
             activities = savedActivities

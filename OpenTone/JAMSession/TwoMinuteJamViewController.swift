@@ -21,6 +21,25 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
     override func viewDidLoad() {
         super.viewDidLoad()
         applyDarkModeStyles()
+        setupProfileBarButton()
+    }
+
+    private func setupProfileBarButton() {
+        let profileButton = UIBarButtonItem(
+            image: UIImage(systemName: "person.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(openProfile)
+        )
+        profileButton.tintColor = AppColors.primary
+        navigationItem.rightBarButtonItem = profileButton
+    }
+
+    @objc private func openProfile() {
+        let storyboard = UIStoryboard(name: "UserProfile", bundle: nil)
+        guard let profileNav = storyboard.instantiateInitialViewController() as? UINavigationController,
+              let profileVC = profileNav.viewControllers.first else { return }
+        navigationController?.pushViewController(profileVC, animated: true)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

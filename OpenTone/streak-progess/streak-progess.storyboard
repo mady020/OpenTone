@@ -179,33 +179,34 @@
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WdJ-zC-PKT" userLabel="timeSpentView">
                                                         <rect key="frame" x="0.0" y="0.0" width="353" height="60"/>
                                                         <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Time Spent Communicating" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tbh-sG-br9">
-                                                                <rect key="frame" x="40.000000000000014" y="0.0" width="254.33333333333337" height="50"/>
-                                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Time Spent Communicating" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tbh-sG-br9">
+                                                                <rect key="frame" x="0.0" y="0.0" width="353" height="24"/>
+                                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="6h / 7h  Goal" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IDk-1n-rvC">
-                                                                <rect key="frame" x="40.000000000000007" y="55" width="82.666666666666686" height="17"/>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="6h / 7h  Goal" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IDk-1n-rvC">
+                                                                <rect key="frame" x="0.0" y="32" width="150" height="17"/>
                                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                                                <color key="textColor" red="0.086274509799999996" green="0.51372549020000002" blue="0.50196078430000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+ 0.5 hr from yesterday" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x8s-35-n5l">
-                                                                <rect key="frame" x="156" y="55" width="145" height="15.666666666666671"/>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+ 0.5 hr from yesterday" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x8s-35-n5l">
+                                                                <rect key="frame" x="200" y="32" width="145" height="17"/>
                                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                                                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                         </subviews>
                                                         <constraints>
-                                                            <constraint firstItem="IDk-1n-rvC" firstAttribute="top" secondItem="Tbh-sG-br9" secondAttribute="bottom" constant="5" id="Bvc-r1-eyA"/>
-                                                            <constraint firstItem="x8s-35-n5l" firstAttribute="leading" secondItem="IDk-1n-rvC" secondAttribute="trailing" constant="33.333333333333314" id="LVe-uU-Pn2"/>
-                                                            <constraint firstItem="x8s-35-n5l" firstAttribute="top" secondItem="Tbh-sG-br9" secondAttribute="bottom" constant="5" id="Ww2-7a-tdM"/>
-                                                            <constraint firstItem="Tbh-sG-br9" firstAttribute="leading" secondItem="WdJ-zC-PKT" secondAttribute="leading" constant="40" id="XnP-xY-xDa"/>
+                                                            <constraint firstItem="Tbh-sG-br9" firstAttribute="leading" secondItem="WdJ-zC-PKT" secondAttribute="leading" id="XnP-xY-xDa"/>
+                                                            <constraint firstAttribute="trailing" secondItem="Tbh-sG-br9" secondAttribute="trailing" id="Tbh-trail"/>
                                                             <constraint firstItem="Tbh-sG-br9" firstAttribute="top" secondItem="WdJ-zC-PKT" secondAttribute="top" id="cqG-nb-cMT"/>
-                                                            <constraint firstItem="IDk-1n-rvC" firstAttribute="leading" secondItem="Tbh-sG-br9" secondAttribute="leading" id="sjR-4I-6q8"/>
-                                                            <constraint firstAttribute="height" constant="60" id="zYv-6e-3Vi"/>
+                                                            <constraint firstItem="IDk-1n-rvC" firstAttribute="top" secondItem="Tbh-sG-br9" secondAttribute="bottom" constant="8" id="Bvc-r1-eyA"/>
+                                                            <constraint firstItem="IDk-1n-rvC" firstAttribute="centerX" secondItem="WdJ-zC-PKT" secondAttribute="centerX" id="IDk-center"/>
+                                                            <constraint firstItem="x8s-35-n5l" firstAttribute="top" secondItem="IDk-1n-rvC" secondAttribute="bottom" constant="4" id="Ww2-7a-tdM"/>
+                                                            <constraint firstItem="x8s-35-n5l" firstAttribute="centerX" secondItem="WdJ-zC-PKT" secondAttribute="centerX" id="x8s-center"/>
+                                                            <constraint firstAttribute="height" constant="75" id="zYv-6e-3Vi"/>
                                                         </constraints>
                                                     </view>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qwf-vu-ckc">
@@ -215,11 +216,11 @@
                                                         </constraints>
                                                         <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="filled" title="History" titleAlignment="center">
+                                                        <buttonConfiguration key="configuration" style="filled" title="View History" titleAlignment="center">
                                                             <fontDescription key="titleFontDescription" type="boldSystem" pointSize="16"/>
-                                                            <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="24"/>
+                                                            <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
                                                             <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                            <color key="baseBackgroundColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="0.90151998299319724" colorSpace="custom" customColorSpace="displayP3"/>
+                                                            <color key="baseBackgroundColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         </buttonConfiguration>
                                                         <userDefinedRuntimeAttributes>
                                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">

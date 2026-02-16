@@ -12,6 +12,7 @@ final class SettingsViewController: UIViewController {
         case account
         case about
         case actions
+        case dangerZone
     }
 
     private struct Row {
@@ -86,22 +87,21 @@ final class SettingsViewController: UIViewController {
             ],
             // Section 2 — Account
             [
-                Row(title: "Name", icon: "person.fill", iconTint: .systemBlue, detail: user?.name ?? "—"),
-                Row(title: "Email", icon: "envelope.fill", iconTint: .systemTeal, detail: user?.email ?? "—"),
-                Row(title: "Country", icon: "globe", iconTint: .systemGreen,
-                    detail: user?.country.map { "\($0.flag) \($0.name)" } ?? "—"),
-                Row(title: "English Level", icon: "text.book.closed.fill", iconTint: .systemOrange,
-                    detail: user?.englishLevel?.rawValue.capitalized ?? "—")
+                Row(title: "Name", icon: "person.fill", iconTint: .systemBlue, detail: user?.name ?? "—")
             ],
-            // Section 2 — About
+            // Section 3 — About
             [
                 Row(title: "Version", icon: "info.circle.fill", iconTint: .secondaryLabel, detail: appVersion),
                 Row(title: "Privacy Policy", icon: "hand.raised.fill", iconTint: .systemIndigo),
                 Row(title: "Terms of Service", icon: "doc.text.fill", iconTint: .systemIndigo)
             ],
-            // Section 3 — Actions
+            // Section 4 — Actions
             [
                 Row(title: "Log Out", icon: "rectangle.portrait.and.arrow.right", iconTint: .systemRed, isDestructive: true)
+            ],
+            // Section 5 — Danger Zone
+            [
+                Row(title: "Delete Account", icon: "trash.fill", iconTint: .systemRed, isDestructive: true)
             ]
         ]
     }
@@ -202,7 +202,161 @@ final class SettingsViewController: UIViewController {
         }
         window.makeKeyAndVisible()
     }
+
+    private func confirmDeleteAccount() {
+        let alert = UIAlertController(
+            title: "Delete Account",
+            message: "This will permanently delete your account and all your data including call records, roleplay sessions, jam sessions, and streak progress. This action cannot be undone.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete Account", style: .destructive) { [weak self] _ in
+            // Second confirmation
+            let confirm = UIAlertController(
+                title: "Are you absolutely sure?",
+                message: "Type DELETE to confirm account deletion.",
+                preferredStyle: .alert
+            )
+            confirm.addTextField { tf in
+                tf.placeholder = "Type DELETE"
+                tf.autocapitalizationType = .allCharacters
+            }
+            confirm.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            confirm.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+                guard let text = confirm.textFields?.first?.text, text == "DELETE" else {
+                    let error = UIAlertController(
+                        title: "Deletion Cancelled",
+                        message: "You must type DELETE to confirm.",
+                        preferredStyle: .alert
+                    )
+                    error.addAction(UIAlertAction(title: "OK", style: .default))
+                    self?.present(error, animated: true)
+                    return
+                }
+                self?.performDeleteAccount()
+            })
+            self?.present(confirm, animated: true)
+        })
+        present(alert, animated: true)
+    }
+
+    private func performDeleteAccount() {
+        // Delete all user data
+        UserDataModel.shared.deleteCurrentUser()
+        SessionManager.shared.logout()
+
+        // Clear related data
+        StreakDataModel.shared.deleteStreak()
+        HistoryDataModel.shared.clearHistory()
+
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let vc = storyboard.instantiateInitialViewController(),
+              let window = view.window else { return }
+
+        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+            window.rootViewController = vc
+        }
+        window.makeKeyAndVisible()
+    }
+
+    private func showEditField(for row: Int) {
+        guard var user = SessionManager.shared.currentUser else { return }
+
+        switch row {
+        case 0: // Name
+            showTextEditor(title: "Edit Name", current: user.name) { newValue in
+                user.name = newValue
+                SessionManager.shared.updateSessionUser(user)
+                self.buildSections()
+                self.tableView.reloadData()
+            }
+        default:
+            break
+        }
+    }
+
+    private func showTextEditor(title: String, current: String, onSave: @escaping (String) -> Void) {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.text = current
+            tf.clearButtonMode = .whileEditing
+        }
+        alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
+            guard let newValue = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !newValue.isEmpty else { return }
+            onSave(newValue)
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func showCountryPicker() {
+        let countries = [
+            Country(name: "India", code: "IN"),
+            Country(name: "United States", code: "US"),
+            Country(name: "United Kingdom", code: "GB"),
+            Country(name: "Canada", code: "CA"),
+            Country(name: "Australia", code: "AU"),
+            Country(name: "Germany", code: "DE"),
+            Country(name: "France", code: "FR"),
+            Country(name: "Japan", code: "JP"),
+            Country(name: "Brazil", code: "BR"),
+            Country(name: "Mexico", code: "MX"),
+            Country(name: "South Korea", code: "KR"),
+            Country(name: "Italy", code: "IT"),
+            Country(name: "Spain", code: "ES"),
+            Country(name: "Netherlands", code: "NL"),
+            Country(name: "Singapore", code: "SG"),
+        ]
+
+        let alert = UIAlertController(title: "Select Country", message: nil, preferredStyle: .actionSheet)
+        for country in countries {
+            alert.addAction(UIAlertAction(title: "\(country.flag) \(country.name)", style: .default) { [weak self] _ in
+                guard var user = SessionManager.shared.currentUser else { return }
+                user.country = country
+                SessionManager.shared.updateSessionUser(user)
+                self?.buildSections()
+                self?.tableView.reloadData()
+            })
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        present(alert, animated: true)
+    }
+
+    private func showEnglishLevelPicker() {
+        let alert = UIAlertController(title: "English Level", message: nil, preferredStyle: .actionSheet)
+        for level in [EnglishLevel.beginner, .intermediate, .advanced] {
+            let action = UIAlertAction(title: level.rawValue.capitalized, style: .default) { [weak self] _ in
+                guard var user = SessionManager.shared.currentUser else { return }
+                user.englishLevel = level
+                SessionManager.shared.updateSessionUser(user)
+                self?.buildSections()
+                self?.tableView.reloadData()
+            }
+            if level == SessionManager.shared.currentUser?.englishLevel {
+                action.setValue(true, forKey: "checked")
+            }
+            alert.addAction(action)
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        present(alert, animated: true)
+    }
 }
+
 
 // MARK: - UITableViewDataSource
 
@@ -224,6 +378,7 @@ extension SettingsViewController: UITableViewDataSource {
         case .account:    return "Account"
         case .about:      return "About"
         case .actions:    return nil
+        case .dangerZone: return "Danger Zone"
         }
     }
 
@@ -250,7 +405,7 @@ extension SettingsViewController: UITableViewDataSource {
 
         // Show disclosure for actionable rows
         let section = Section(rawValue: indexPath.section)
-        if section == .appearance || section == .apiKeys || section == .actions || (section == .about && indexPath.row > 0) {
+        if section == .appearance || section == .apiKeys || section == .actions || section == .dangerZone || section == .account || (section == .about && indexPath.row > 0) {
             cell.accessoryType = .disclosureIndicator
         } else {
             cell.accessoryType = .none
@@ -277,7 +432,7 @@ extension SettingsViewController: UITableViewDelegate {
             showGeminiAPIKeyEditor()
 
         case .account:
-            break // Read-only for now
+            showEditField(for: indexPath.row)
 
         case .about:
             if indexPath.row == 1 || indexPath.row == 2 {
@@ -293,6 +448,9 @@ extension SettingsViewController: UITableViewDelegate {
 
         case .actions:
             confirmLogout()
+
+        case .dangerZone:
+            confirmDeleteAccount()
         }
     }
 

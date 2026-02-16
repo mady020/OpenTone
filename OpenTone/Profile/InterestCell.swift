@@ -12,15 +12,14 @@ final class InterestCell: UICollectionViewCell {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            containerView.layer.borderColor = AppColors.cardBorder.cgColor
-        }
     }
 
     private func setupUI() {
         contentView.backgroundColor = .clear
 
         UIHelper.styleCardView(containerView)
+        containerView.layer.shadowOpacity = 0
+        containerView.layer.borderWidth = 0
 
         titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
         titleLabel.textColor = AppColors.textPrimary
@@ -33,11 +32,9 @@ final class InterestCell: UICollectionViewCell {
         if selected {
             containerView.backgroundColor = AppColors.primary
             titleLabel.textColor = .white
-            containerView.layer.borderColor = UIColor.clear.cgColor
         } else {
             containerView.backgroundColor = AppColors.cardBackground
             titleLabel.textColor = AppColors.textPrimary
-            containerView.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
 }

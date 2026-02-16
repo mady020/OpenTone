@@ -35,6 +35,8 @@ final class ProfileCell: UICollectionViewCell {
             contentView.backgroundColor = .clear
 
             UIHelper.styleCardView(containerView)
+            containerView.layer.shadowOpacity = 0
+            containerView.layer.borderWidth = 0
 
             avatarImageView.layer.cornerRadius = 32
             avatarImageView.clipsToBounds = true

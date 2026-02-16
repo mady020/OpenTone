@@ -26,6 +26,8 @@ final class StatsCell: UICollectionViewCell {
         contentView.backgroundColor = .clear
 
         UIHelper.styleCardView(containerView)
+        containerView.layer.shadowOpacity = 0
+        containerView.layer.borderWidth = 0
 
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually

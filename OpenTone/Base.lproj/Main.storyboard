@@ -38,16 +38,7 @@
             </objects>
             <point key="canvasLocation" x="3278" y="162"/>
         </scene>
-        <!--UserProfile-->
-        <scene sceneID="3Wt-Ih-RmA">
-            <objects>
-                <viewControllerPlaceholder storyboardName="UserProfile" id="7JK-2B-rMt" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="r4h-hy-RmH"/>
-                </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="4pf-Xl-eze" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3224" y="293"/>
-        </scene>
+
         <!--Main Tab Bar Controller-->
         <scene sceneID="fPz-wB-Etc">
             <objects>
@@ -65,7 +56,6 @@
                         <segue destination="Sc6-Rb-xsC" kind="relationship" relationship="viewControllers" id="C0S-JO-N29"/>
                         <segue destination="C4q-Jr-j4w" kind="relationship" relationship="viewControllers" id="TDp-cn-XGk"/>
                         <segue destination="ni1-KM-TT0" kind="relationship" relationship="viewControllers" id="fAY-5M-Y7Z"/>
-                        <segue destination="7JK-2B-rMt" kind="relationship" relationship="viewControllers" id="Idc-hh-Wtu"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Fww-wh-AE8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -81,7 +71,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="7IM-3C-iym">
-                                <rect key="frame" x="32" y="308" width="329" height="314"/>
+                                <rect key="frame" x="32" y="308" width="329" height="248"/>
                                 <subviews>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Email " textAlignment="natural" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="Tta-oS-jEy" userLabel="Email or Username">
                                         <rect key="frame" x="0.0" y="0.0" width="329" height="50"/>
@@ -144,38 +134,8 @@
                                             <action selector="appleButtonTapped:" destination="hsS-GQ-WnD" eventType="touchUpInside" id="fIn-I7-V8n"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="googleLoginBtn">
-                                        <rect key="frame" x="0.0" y="198" width="329" height="50"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="50" id="googleBtnHeight"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
-                                        <color key="tintColor" systemColor="labelColor"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" title="Continue with Google">
-                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </state>
-                                        <buttonConfiguration key="configuration" style="filled" title="Continue with Google" cornerStyle="capsule">
-                                            <backgroundConfiguration key="background" strokeWidth="1">
-                                                <color key="strokeColor" systemColor="systemGray4Color"/>
-                                            </backgroundConfiguration>
-                                            <fontDescription key="titleFontDescription" type="system" weight="semibold" pointSize="17"/>
-                                            <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <color key="baseBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </buttonConfiguration>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="googleButtonTapped:" destination="hsS-GQ-WnD" eventType="touchUpInside" id="googleLoginAction"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HNm-u3-3I5">
-                                        <rect key="frame" x="0.0" y="264" width="329" height="50"/>
+                                        <rect key="frame" x="0.0" y="198" width="329" height="50"/>
                                         <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="B2n-JP-K37"/>
@@ -212,7 +172,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="-10" translatesAutoresizingMaskIntoConstraints="NO" id="S8F-xi-btQ">
-                                <rect key="frame" x="32" y="708.33333333333337" width="329" height="34.333333333333371"/>
+                                <rect key="frame" x="32" y="642.33333333333337" width="329" height="34.333333333333371"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Don't have an account ?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z24-fw-UVc">
                                         <rect key="frame" x="0.0" y="0.0" width="183" height="34.333333333333336"/>
@@ -234,7 +194,7 @@
                                 </subviews>
                             </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YNK-xV-CZX">
-                                <rect key="frame" x="196.66666666666663" y="634" width="164.33333333333337" height="34.333333333333371"/>
+                                <rect key="frame" x="196.66666666666663" y="568" width="164.33333333333337" height="34.333333333333371"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Forgot Password ?">
                                     <color key="baseForegroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -301,7 +261,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="STr-RQ-V5g">
-                                <rect key="frame" x="32" y="308" width="329" height="380"/>
+                                <rect key="frame" x="32" y="308" width="329" height="314"/>
                                 <subviews>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Full Name" textAlignment="natural" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="f2o-vZ-Q42" userLabel="Email or Username">
                                         <rect key="frame" x="0.0" y="0.0" width="329" height="50"/>
@@ -377,38 +337,8 @@
                                             <action selector="appleButtonTapped:" destination="E0q-mE-K3Z" eventType="touchUpInside" id="4zY-rD-RSd"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="googleSignupBtn">
-                                        <rect key="frame" x="0.0" y="264" width="329" height="50"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="50" id="googleSignupBtnHeight"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
-                                        <color key="tintColor" systemColor="labelColor"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" title="Continue with Google">
-                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </state>
-                                        <buttonConfiguration key="configuration" style="filled" title="Continue with Google" cornerStyle="capsule">
-                                            <backgroundConfiguration key="background" strokeWidth="1">
-                                                <color key="strokeColor" systemColor="systemGray4Color"/>
-                                            </backgroundConfiguration>
-                                            <fontDescription key="titleFontDescription" type="system" weight="semibold" pointSize="17"/>
-                                            <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <color key="baseBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </buttonConfiguration>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="googleButtonTapped:" destination="E0q-mE-K3Z" eventType="touchUpInside" id="googleSignupAction"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PSN-Uo-BhE">
-                                        <rect key="frame" x="0.0" y="330" width="329" height="50"/>
+                                        <rect key="frame" x="0.0" y="264" width="329" height="50"/>
                                         <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="WSZ-P5-uEg"/>
@@ -448,7 +378,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="-10" translatesAutoresizingMaskIntoConstraints="NO" id="XwF-zF-mWa">
-                                <rect key="frame" x="32" y="728" width="329" height="34.333333333333371"/>
+                                <rect key="frame" x="32" y="662" width="329" height="34.333333333333371"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Already have an account ?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Oym-4F-sMe">
                                         <rect key="frame" x="0.0" y="0.0" width="199.33333333333334" height="34.333333333333336"/>
@@ -608,9 +538,6 @@
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemGray4Color">
-            <color red="0.81960784310000001" green="0.81960784310000001" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGray5Color">
             <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
