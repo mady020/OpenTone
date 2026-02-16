@@ -90,9 +90,25 @@ class StreakViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupCloseButton()
         styleHistoryButton()
         centerLabels()
         applyTheme()
+    }
+
+    private func setupCloseButton() {
+        let closeButton = UIBarButtonItem(
+            image: UIImage(systemName: "xmark.circle.fill"),
+            style: .plain,
+            target: self,
+            action: #selector(closeTapped)
+        )
+        closeButton.tintColor = AppColors.textSecondary
+        navigationItem.leftBarButtonItem = closeButton
+    }
+
+    @objc private func closeTapped() {
+        dismiss(animated: true)
     }
 
     override func viewDidAppear(_ animated: Bool) {

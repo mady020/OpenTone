@@ -7,18 +7,14 @@ class RolePlayStartCollectionViewController: UIViewController {
     var currentSession: RoleplaySession?
 
     // MARK: - UI Elements
-    private let scrollView = UIScrollView()
-    private let contentStack = UIStackView()
     private let heroImageView = UIImageView()
     private let heroGradient = CAGradientLayer()
     private let heroTitleLabel = UILabel()
     private let chipStack = UIStackView()
-    private let descriptionCard = UIView()
-    private let practiceCard = UIView()
+    private let infoCard = UIView()
     private let startButton = UIButton(type: .system)
 
     // MARK: - Constants
-    private let heroHeight: CGFloat = 260
     private let cardInset: CGFloat = 20
     private let cardCorner: CGFloat = 16
 
@@ -44,117 +40,75 @@ class RolePlayStartCollectionViewController: UIViewController {
     // MARK: - Build UI
 
     private func buildUI() {
-        buildScrollView()
         buildHeroImage()
         buildChips()
-        buildDescriptionCard()
-        buildPracticeCard()
         buildStartButton()
+        buildInfoCard()
     }
 
-    // MARK: - Scroll View
-
-    private func buildScrollView() {
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.showsVerticalScrollIndicator = false
-        scrollView.contentInsetAdjustmentBehavior = .never
-        view.addSubview(scrollView)
-
-        contentStack.axis = .vertical
-        contentStack.spacing = 0
-        contentStack.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(contentStack)
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
-            contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            contentStack.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
-        ])
-    }
-
-    // MARK: - Hero Image
+    // MARK: - Hero Image (pinned to top, fixed height)
 
     private func buildHeroImage() {
-        let heroContainer = UIView()
-        heroContainer.translatesAutoresizingMaskIntoConstraints = false
-        heroContainer.clipsToBounds = true
-
         heroImageView.contentMode = .scaleAspectFill
         heroImageView.clipsToBounds = true
         heroImageView.translatesAutoresizingMaskIntoConstraints = false
-        heroContainer.addSubview(heroImageView)
+        view.addSubview(heroImageView)
 
         // Gradient overlay
         heroGradient.colors = [
             UIColor.clear.cgColor,
-            UIColor.black.withAlphaComponent(0.7).cgColor
+            UIColor.black.withAlphaComponent(0.65).cgColor
         ]
-        heroGradient.locations = [0.3, 1.0]
+        heroGradient.locations = [0.35, 1.0]
         heroImageView.layer.addSublayer(heroGradient)
 
         // Title on the hero
-        heroTitleLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        heroTitleLabel.font = .systemFont(ofSize: 26, weight: .bold)
         heroTitleLabel.textColor = .white
         heroTitleLabel.numberOfLines = 2
         heroTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        heroContainer.addSubview(heroTitleLabel)
+        view.addSubview(heroTitleLabel)
 
+        // Hero starts below the Dynamic Island
         NSLayoutConstraint.activate([
-            heroImageView.topAnchor.constraint(equalTo: heroContainer.topAnchor),
-            heroImageView.leadingAnchor.constraint(equalTo: heroContainer.leadingAnchor),
-            heroImageView.trailingAnchor.constraint(equalTo: heroContainer.trailingAnchor),
-            heroImageView.bottomAnchor.constraint(equalTo: heroContainer.bottomAnchor),
+            heroImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            heroImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            heroImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            heroImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.30),
 
-            heroContainer.heightAnchor.constraint(equalToConstant: heroHeight),
-
-            heroTitleLabel.leadingAnchor.constraint(equalTo: heroContainer.leadingAnchor, constant: cardInset),
-            heroTitleLabel.trailingAnchor.constraint(equalTo: heroContainer.trailingAnchor, constant: -cardInset),
-            heroTitleLabel.bottomAnchor.constraint(equalTo: heroContainer.bottomAnchor, constant: -20),
+            heroTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: cardInset),
+            heroTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -cardInset),
+            heroTitleLabel.bottomAnchor.constraint(equalTo: heroImageView.bottomAnchor, constant: -16),
         ])
-
-        contentStack.addArrangedSubview(heroContainer)
     }
 
     // MARK: - Chips
 
     private func buildChips() {
-        let wrapper = UIView()
-        wrapper.translatesAutoresizingMaskIntoConstraints = false
-
         chipStack.axis = .horizontal
-        chipStack.spacing = 10
+        chipStack.spacing = 8
         chipStack.distribution = .fill
         chipStack.alignment = .center
         chipStack.translatesAutoresizingMaskIntoConstraints = false
-        wrapper.addSubview(chipStack)
+        view.addSubview(chipStack)
 
         NSLayoutConstraint.activate([
-            chipStack.topAnchor.constraint(equalTo: wrapper.topAnchor, constant: 18),
-            chipStack.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: cardInset),
-            chipStack.trailingAnchor.constraint(lessThanOrEqualTo: wrapper.trailingAnchor, constant: -cardInset),
-            chipStack.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor, constant: -6),
+            chipStack.topAnchor.constraint(equalTo: heroImageView.bottomAnchor, constant: 14),
+            chipStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: cardInset),
+            chipStack.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -cardInset),
         ])
-
-        contentStack.addArrangedSubview(wrapper)
     }
 
     private func makeChip(icon: String, text: String, tintColor: UIColor, bgColor: UIColor) -> UIView {
         let pill = UIView()
         pill.translatesAutoresizingMaskIntoConstraints = false
         pill.backgroundColor = bgColor
-        pill.layer.cornerRadius = 14
+        pill.layer.cornerRadius = 13
         pill.clipsToBounds = true
 
         let hStack = UIStackView()
         hStack.axis = .horizontal
-        hStack.spacing = 5
+        hStack.spacing = 4
         hStack.alignment = .center
         hStack.translatesAutoresizingMaskIntoConstraints = false
         pill.addSubview(hStack)
@@ -164,194 +118,132 @@ class RolePlayStartCollectionViewController: UIViewController {
         iconImage.tintColor = tintColor
         iconImage.contentMode = .scaleAspectFit
         iconImage.translatesAutoresizingMaskIntoConstraints = false
-        iconImage.widthAnchor.constraint(equalToConstant: 14).isActive = true
-        iconImage.heightAnchor.constraint(equalToConstant: 14).isActive = true
+        iconImage.widthAnchor.constraint(equalToConstant: 13).isActive = true
+        iconImage.heightAnchor.constraint(equalToConstant: 13).isActive = true
 
         let label = UILabel()
         label.text = text
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.textColor = tintColor
 
         hStack.addArrangedSubview(iconImage)
         hStack.addArrangedSubview(label)
 
         NSLayoutConstraint.activate([
-            hStack.topAnchor.constraint(equalTo: pill.topAnchor, constant: 6),
-            hStack.bottomAnchor.constraint(equalTo: pill.bottomAnchor, constant: -6),
-            hStack.leadingAnchor.constraint(equalTo: pill.leadingAnchor, constant: 10),
-            hStack.trailingAnchor.constraint(equalTo: pill.trailingAnchor, constant: -10),
+            hStack.topAnchor.constraint(equalTo: pill.topAnchor, constant: 5),
+            hStack.bottomAnchor.constraint(equalTo: pill.bottomAnchor, constant: -5),
+            hStack.leadingAnchor.constraint(equalTo: pill.leadingAnchor, constant: 9),
+            hStack.trailingAnchor.constraint(equalTo: pill.trailingAnchor, constant: -9),
         ])
 
         return pill
     }
 
-    // MARK: - Description Card
+    // MARK: - Info Card (About + Key Phrases combined)
 
-    private func buildDescriptionCard() {
-        let cardWrapper = UIView()
-        cardWrapper.translatesAutoresizingMaskIntoConstraints = false
-
-        descriptionCard.translatesAutoresizingMaskIntoConstraints = false
-        descriptionCard.backgroundColor = AppColors.cardBackground
-        descriptionCard.layer.cornerRadius = cardCorner
-        descriptionCard.layer.borderWidth = 1
-        descriptionCard.layer.borderColor = AppColors.cardBorder.cgColor
-        cardWrapper.addSubview(descriptionCard)
+    private func buildInfoCard() {
+        infoCard.translatesAutoresizingMaskIntoConstraints = false
+        infoCard.backgroundColor = AppColors.cardBackground
+        infoCard.layer.cornerRadius = cardCorner
+        infoCard.layer.borderWidth = 1
+        infoCard.layer.borderColor = AppColors.cardBorder.cgColor
+        view.addSubview(infoCard)
 
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 8
+        stack.spacing = 10
         stack.translatesAutoresizingMaskIntoConstraints = false
-        descriptionCard.addSubview(stack)
+        infoCard.addSubview(stack)
 
-        // Section title
-        let sectionTitle = makeSectionTitle("About")
-        stack.addArrangedSubview(sectionTitle)
+        // "About" section title + description
+        let aboutTitle = makeSectionTitle("About")
+        stack.addArrangedSubview(aboutTitle)
 
-        // Description label
         let descLabel = UILabel()
         descLabel.tag = 100
-        descLabel.font = .systemFont(ofSize: 16, weight: .regular)
+        descLabel.font = .systemFont(ofSize: 14, weight: .regular)
         descLabel.textColor = AppColors.textSecondary
         descLabel.numberOfLines = 0
         stack.addArrangedSubview(descLabel)
 
-        // Divider
-        let divider = makeDivider()
-        stack.addArrangedSubview(divider)
-        stack.setCustomSpacing(14, after: descLabel)
-        stack.setCustomSpacing(14, after: divider)
-
-        // Mode row
+        // Mode row (compact)
         let modeRow = UIStackView()
         modeRow.axis = .horizontal
-        modeRow.spacing = 10
-        modeRow.alignment = .top
-        modeRow.translatesAutoresizingMaskIntoConstraints = false
+        modeRow.spacing = 8
+        modeRow.alignment = .center
 
         let modeIcon = UIImageView(image: UIImage(systemName: "text.bubble.fill"))
         modeIcon.tintColor = AppColors.primary
         modeIcon.contentMode = .scaleAspectFit
         modeIcon.translatesAutoresizingMaskIntoConstraints = false
-        modeIcon.widthAnchor.constraint(equalToConstant: 22).isActive = true
-        modeIcon.heightAnchor.constraint(equalToConstant: 22).isActive = true
-
-        let modeVStack = UIStackView()
-        modeVStack.axis = .vertical
-        modeVStack.spacing = 2
+        modeIcon.widthAnchor.constraint(equalToConstant: 18).isActive = true
+        modeIcon.heightAnchor.constraint(equalToConstant: 18).isActive = true
 
         let modeLabel = UILabel()
-        modeLabel.text = "Guided Script"
-        modeLabel.font = .systemFont(ofSize: 15, weight: .semibold)
-        modeLabel.textColor = AppColors.textPrimary
-
-        let modeSubLabel = UILabel()
-        modeSubLabel.text = "Choose a response and practice speaking naturally"
-        modeSubLabel.font = .systemFont(ofSize: 13, weight: .regular)
-        modeSubLabel.textColor = AppColors.textSecondary
-        modeSubLabel.numberOfLines = 0
-
-        modeVStack.addArrangedSubview(modeLabel)
-        modeVStack.addArrangedSubview(modeSubLabel)
+        modeLabel.text = "Guided Script — choose a response and practice"
+        modeLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        modeLabel.textColor = AppColors.textSecondary
+        modeLabel.numberOfLines = 0
 
         modeRow.addArrangedSubview(modeIcon)
-        modeRow.addArrangedSubview(modeVStack)
+        modeRow.addArrangedSubview(modeLabel)
         stack.addArrangedSubview(modeRow)
 
-        NSLayoutConstraint.activate([
-            descriptionCard.topAnchor.constraint(equalTo: cardWrapper.topAnchor, constant: 12),
-            descriptionCard.leadingAnchor.constraint(equalTo: cardWrapper.leadingAnchor, constant: cardInset),
-            descriptionCard.trailingAnchor.constraint(equalTo: cardWrapper.trailingAnchor, constant: -cardInset),
-            descriptionCard.bottomAnchor.constraint(equalTo: cardWrapper.bottomAnchor),
+        // Divider
+        let divider = makeDivider()
+        stack.addArrangedSubview(divider)
+        stack.setCustomSpacing(10, after: modeRow)
 
-            stack.topAnchor.constraint(equalTo: descriptionCard.topAnchor, constant: 18),
-            stack.leadingAnchor.constraint(equalTo: descriptionCard.leadingAnchor, constant: 18),
-            stack.trailingAnchor.constraint(equalTo: descriptionCard.trailingAnchor, constant: -18),
-            stack.bottomAnchor.constraint(equalTo: descriptionCard.bottomAnchor, constant: -18),
-        ])
+        // "What You'll Practice" title
+        let practiceTitle = makeSectionTitle("What You'll Practice")
+        stack.addArrangedSubview(practiceTitle)
 
-        contentStack.addArrangedSubview(cardWrapper)
-    }
-
-    // MARK: - Practice Card
-
-    private func buildPracticeCard() {
-        let cardWrapper = UIView()
-        cardWrapper.translatesAutoresizingMaskIntoConstraints = false
-
-        practiceCard.translatesAutoresizingMaskIntoConstraints = false
-        practiceCard.backgroundColor = AppColors.cardBackground
-        practiceCard.layer.cornerRadius = cardCorner
-        practiceCard.layer.borderWidth = 1
-        practiceCard.layer.borderColor = AppColors.cardBorder.cgColor
-        cardWrapper.addSubview(practiceCard)
-
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        practiceCard.addSubview(stack)
-
-        let sectionTitle = makeSectionTitle("What You'll Practice")
-        stack.addArrangedSubview(sectionTitle)
-
-        // Phrase rows will be added in populate()
+        // Phrase rows placeholder (tag 200 on the stack)
         stack.tag = 200
 
         NSLayoutConstraint.activate([
-            practiceCard.topAnchor.constraint(equalTo: cardWrapper.topAnchor, constant: 16),
-            practiceCard.leadingAnchor.constraint(equalTo: cardWrapper.leadingAnchor, constant: cardInset),
-            practiceCard.trailingAnchor.constraint(equalTo: cardWrapper.trailingAnchor, constant: -cardInset),
-            practiceCard.bottomAnchor.constraint(equalTo: cardWrapper.bottomAnchor),
+            infoCard.topAnchor.constraint(equalTo: chipStack.bottomAnchor, constant: 12),
+            infoCard.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: cardInset),
+            infoCard.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -cardInset),
+            infoCard.bottomAnchor.constraint(lessThanOrEqualTo: startButton.topAnchor, constant: -16),
 
-            stack.topAnchor.constraint(equalTo: practiceCard.topAnchor, constant: 18),
-            stack.leadingAnchor.constraint(equalTo: practiceCard.leadingAnchor, constant: 18),
-            stack.trailingAnchor.constraint(equalTo: practiceCard.trailingAnchor, constant: -18),
-            stack.bottomAnchor.constraint(equalTo: practiceCard.bottomAnchor, constant: -18),
+            stack.topAnchor.constraint(equalTo: infoCard.topAnchor, constant: 16),
+            stack.leadingAnchor.constraint(equalTo: infoCard.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: infoCard.trailingAnchor, constant: -16),
+            stack.bottomAnchor.constraint(equalTo: infoCard.bottomAnchor, constant: -16),
         ])
-
-        contentStack.addArrangedSubview(cardWrapper)
     }
 
-    // MARK: - Start Button (inline in scroll)
+    // MARK: - Start Button (pinned to bottom)
 
     private func buildStartButton() {
-        let buttonWrapper = UIView()
-        buttonWrapper.translatesAutoresizingMaskIntoConstraints = false
-
         startButton.translatesAutoresizingMaskIntoConstraints = false
         startButton.backgroundColor = AppColors.primary
         startButton.setTitle("  Start Roleplay", for: .normal)
         startButton.setTitleColor(AppColors.textOnPrimary, for: .normal)
         startButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        startButton.layer.cornerRadius = 28
+        startButton.layer.cornerRadius = 27
         startButton.clipsToBounds = false
 
-        // Icon
-        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .bold)
+        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .bold)
         let playIcon = UIImage(systemName: "play.fill", withConfiguration: config)
         startButton.setImage(playIcon, for: .normal)
         startButton.tintColor = AppColors.textOnPrimary
 
-        // Shadow
         startButton.layer.shadowColor = AppColors.primary.cgColor
-        startButton.layer.shadowOpacity = 0.35
-        startButton.layer.shadowOffset = CGSize(width: 0, height: 6)
-        startButton.layer.shadowRadius = 14
+        startButton.layer.shadowOpacity = 0.3
+        startButton.layer.shadowOffset = CGSize(width: 0, height: 4)
+        startButton.layer.shadowRadius = 12
 
         startButton.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
-
-        buttonWrapper.addSubview(startButton)
+        view.addSubview(startButton)
 
         NSLayoutConstraint.activate([
-            startButton.topAnchor.constraint(equalTo: buttonWrapper.topAnchor, constant: 24),
-            startButton.leadingAnchor.constraint(equalTo: buttonWrapper.leadingAnchor, constant: cardInset),
-            startButton.trailingAnchor.constraint(equalTo: buttonWrapper.trailingAnchor, constant: -cardInset),
-            startButton.bottomAnchor.constraint(equalTo: buttonWrapper.bottomAnchor, constant: -32),
-            startButton.heightAnchor.constraint(equalToConstant: 56),
+            startButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: cardInset),
+            startButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -cardInset),
+            startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+            startButton.heightAnchor.constraint(equalToConstant: 54),
         ])
-
-        contentStack.addArrangedSubview(buttonWrapper)
     }
 
     // MARK: - Populate
@@ -359,10 +251,9 @@ class RolePlayStartCollectionViewController: UIViewController {
     private func populate() {
         guard let scenario = currentScenario else { return }
 
-        // Hero
         heroImageView.image = UIImage(named: scenario.imageURL)
         heroTitleLabel.text = scenario.title
-        title = nil  // No nav bar title — title is on the hero
+        title = nil
 
         // Chips
         let diffChip = makeDifficultyChip(scenario.difficulty)
@@ -378,12 +269,12 @@ class RolePlayStartCollectionViewController: UIViewController {
         chipStack.addArrangedSubview(catChip)
 
         // Description
-        if let descLabel = descriptionCard.viewWithTag(100) as? UILabel {
+        if let descLabel = infoCard.viewWithTag(100) as? UILabel {
             descLabel.text = scenario.description
         }
 
         // Key phrases
-        if let phraseStack = practiceCard.viewWithTag(200) as? UIStackView {
+        if let phraseStack = infoCard.viewWithTag(200) as? UIStackView {
             let firstMessage = scenario.script.first
             let phrases = firstMessage?.replyOptions ?? []
             for (index, phrase) in phrases.enumerated() {
@@ -398,7 +289,7 @@ class RolePlayStartCollectionViewController: UIViewController {
     private func makeSectionTitle(_ text: String) -> UILabel {
         let label = UILabel()
         label.text = text
-        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = AppColors.textPrimary
         return label
     }
@@ -414,27 +305,26 @@ class RolePlayStartCollectionViewController: UIViewController {
     private func makePhraseRow(number: Int, text: String) -> UIView {
         let row = UIStackView()
         row.axis = .horizontal
-        row.spacing = 12
-        row.alignment = .top
+        row.spacing = 10
+        row.alignment = .center
 
-        // Number badge
         let badge = UILabel()
         badge.text = "\(number)"
-        badge.font = .systemFont(ofSize: 12, weight: .bold)
+        badge.font = .systemFont(ofSize: 11, weight: .bold)
         badge.textColor = AppColors.primary
         badge.textAlignment = .center
         badge.backgroundColor = AppColors.primaryLight
-        badge.layer.cornerRadius = 12
+        badge.layer.cornerRadius = 11
         badge.clipsToBounds = true
         badge.translatesAutoresizingMaskIntoConstraints = false
-        badge.widthAnchor.constraint(equalToConstant: 24).isActive = true
-        badge.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        badge.widthAnchor.constraint(equalToConstant: 22).isActive = true
+        badge.heightAnchor.constraint(equalToConstant: 22).isActive = true
 
         let phraseLabel = UILabel()
         phraseLabel.text = text
-        phraseLabel.font = .systemFont(ofSize: 15, weight: .regular)
+        phraseLabel.font = .systemFont(ofSize: 14, weight: .regular)
         phraseLabel.textColor = AppColors.textPrimary
-        phraseLabel.numberOfLines = 0
+        phraseLabel.numberOfLines = 2
 
         row.addArrangedSubview(badge)
         row.addArrangedSubview(phraseLabel)

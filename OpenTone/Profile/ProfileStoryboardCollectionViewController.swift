@@ -30,10 +30,13 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         ("Consistency", "7-day streak achieved"),
         ("Explorer", "Tried 5 different topics")
     ]
-    private let suggestions = [
-        ("First Call", "Completed your first call"),
-        ("Consistency", "7-day streak achieved"),
-        ("Explorer", "Tried 5 different topics")
+    private var aiSuggestions: [String] = []
+    private var isLoadingSuggestions = false
+    private let fallbackSuggestions = [
+        "What do you enjoy doing on weekends?",
+        "Have you watched any good shows lately?",
+        "What kind of music do you like?",
+        "Where would you love to travel someday?"
     ]
 
 
@@ -60,6 +63,46 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         )
 
         setupNavigationBarButtons()
+
+        if isComingFromCall || isInCall {
+            generateAIQuestions()
+        }
+    }
+
+    private func generateAIQuestions() {
+        guard let peer = peerUser else {
+            aiSuggestions = fallbackSuggestions
+            return
+        }
+
+        let interests = peer.interests?.map { $0.title } ?? []
+        guard !interests.isEmpty, GeminiAPIKeyManager.shared.hasAPIKey else {
+            aiSuggestions = fallbackSuggestions
+            return
+        }
+
+        isLoadingSuggestions = true
+        collectionView.reloadData()
+
+        Task {
+            do {
+                let questions = try await GeminiService.shared.generateQuestions(
+                    for: interests,
+                    peerName: peer.name
+                )
+                await MainActor.run {
+                    self.aiSuggestions = questions.isEmpty ? self.fallbackSuggestions : questions
+                    self.isLoadingSuggestions = false
+                    self.collectionView.reloadSections(IndexSet(integer: Section.suggestedQuestions.rawValue))
+                }
+            } catch {
+                await MainActor.run {
+                    self.aiSuggestions = self.fallbackSuggestions
+                    self.isLoadingSuggestions = false
+                    self.collectionView.reloadSections(IndexSet(integer: Section.suggestedQuestions.rawValue))
+                }
+            }
+        }
     }
 
     private func setupNavigationBarButtons() {
@@ -112,7 +155,7 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             case .interests:
                 return 0
             case .suggestedQuestions:
-                return suggestions.count
+                return isLoadingSuggestions ? 0 : aiSuggestions.count
             case .actions:
                 return 1
             default:
@@ -128,6 +171,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 return displayUser?.interests?.count ?? 0
             case .stats:
                 return 1
+            case .suggestedQuestions:
+                return isLoadingSuggestions ? 0 : aiSuggestions.count
             case .actions:
                 return 1
             default:
@@ -175,7 +220,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 level: displayUser?.englishLevel?.rawValue.capitalized ?? "",
                 bio: displayUser?.bio ?? "",
                 streakText: "🔥 \(displayUser?.streak?.currentCount ?? 0) day streak",
-                avatar: Self.loadAvatar(named: displayUser?.avatar)
+                avatar: Self.loadAvatar(named: displayUser?.avatar),
+                isPeer: isComingFromCall || isInCall
             )
 
             return cell
@@ -218,8 +264,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 for: indexPath
             ) as! SuggestionCallCell
 
-            let suggestion = suggestions[indexPath.item]
-            cell.configure(title: suggestion.1)
+            let question = aiSuggestions[indexPath.item]
+            cell.configure(title: question, icon: UIImage(systemName: "lightbulb.fill"))
             return cell
 
         case .actions:
@@ -555,7 +601,7 @@ extension ProfileStoryboardCollectionViewController {
                 return section
             case .suggestedQuestions:
                 let section = self.verticalSection(estimatedHeight: 110)
-                if self.isInCall {
+                if self.isInCall || self.isComingFromCall {
                     let headerSize = NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
                         heightDimension: .absolute(44)

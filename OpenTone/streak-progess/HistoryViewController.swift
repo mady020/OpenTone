@@ -1,13 +1,12 @@
-
 import UIKit
 
 class HistoryViewController: UIViewController {
 
-    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
     var items: [HistoryItem] = []
     var selectedDate: Date = Date()
 
+    private let searchController = UISearchController(searchResultsController: nil)
     private var filteredItems: [HistoryItem] = []
 
     override func viewDidLoad() {
@@ -22,20 +21,28 @@ class HistoryViewController: UIViewController {
         tableView.estimatedRowHeight = 100
         tableView.separatorStyle = .none
 
-        searchBar.delegate = self
-        searchBar.placeholder = "Search your activity"
-        searchBar.barTintColor = AppColors.screenBackground
-        searchBar.tintColor = AppColors.primary
+        setupSearchController()
+        setupNavigation()
 
         filteredItems = items
         tableView.reloadData()
-        updateTitle()
     }
 
-    private func updateTitle() {
+    private func setupNavigation() {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM yyyy"
         navigationItem.title = formatter.string(from: selectedDate)
+        navigationItem.largeTitleDisplayMode = .always
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
+
+    private func setupSearchController() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search your activity"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
     }
 
     // MARK: - Resume Sessions
@@ -105,10 +112,12 @@ extension HistoryViewController: UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-extension HistoryViewController: UISearchBarDelegate {
+// MARK: - UISearchResultsUpdating
 
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        let text = searchText.lowercased()
+extension HistoryViewController: UISearchResultsUpdating {
+
+    func updateSearchResults(for searchController: UISearchController) {
+        let text = (searchController.searchBar.text ?? "").lowercased()
 
         filteredItems = text.isEmpty
             ? items
@@ -119,9 +128,5 @@ extension HistoryViewController: UISearchBarDelegate {
             }
 
         tableView.reloadData()
-    }
-
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
     }
 }

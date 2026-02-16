@@ -140,6 +140,63 @@ class JamSessionDataModel {
         return session
     }
 
+    /// Regenerate using Gemini AI. Returns the updated session via completion.
+    func regenerateTopicWithAI(completion: @escaping (JamSession?) -> Void) {
+        guard var session = activeSession else {
+            completion(nil)
+            return
+        }
+
+        Task {
+            do {
+                let result = try await GeminiService.shared.generateJamTopic()
+                session.topic = result.topic
+                session.suggestions = result.hints
+                session.secondsLeft = 30
+                session.startedPrepAt = Date()
+                self.activeSession = session
+                self.persistActiveSession()
+                completion(session)
+            } catch {
+                // Fallback to hardcoded generation
+                print("⚠️ Gemini JAM topic generation failed: \(error.localizedDescription). Using fallback.")
+                let fallback = self.regenerateTopicForActiveSession()
+                completion(fallback)
+            }
+        }
+    }
+
+    /// Start a new session using Gemini AI for topic generation.
+    func startNewSessionWithAI(completion: @escaping (JamSession?) -> Void) {
+        guard let user = UserDataModel.shared.getCurrentUser() else {
+            completion(nil)
+            return
+        }
+
+        Task {
+            do {
+                let result = try await GeminiService.shared.generateJamTopic()
+
+                let session = JamSession(
+                    userId: user.id,
+                    topic: result.topic,
+                    suggestions: result.hints,
+                    phase: .preparing,
+                    secondsLeft: 30
+                )
+
+                self.activeSession = session
+                self.persistActiveSession()
+                completion(session)
+            } catch {
+                // Fallback to hardcoded
+                print("⚠️ Gemini topic generation failed: \(error.localizedDescription). Using fallback.")
+                let session = self.startNewSession()
+                completion(session)
+            }
+        }
+    }
+
     //  Save & Exit
     /// Save the current session to disk for later resumption, then clear active.
     func saveSessionForLater() {

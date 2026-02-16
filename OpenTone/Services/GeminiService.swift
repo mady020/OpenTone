@@ -144,6 +144,176 @@ final class GeminiService {
         currentModelIndex = 0
     }
 
+    /// Generate conversation starter questions based on peer interests.
+    /// This is a one-shot call — does NOT affect conversation history.
+    func generateQuestions(for interests: [String], peerName: String) async throws -> [String] {
+        guard let apiKey = GeminiAPIKeyManager.shared.getAPIKey() else {
+            throw GeminiError.noAPIKey
+        }
+
+        let interestList = interests.joined(separator: ", ")
+        let prompt = """
+        You are helping a language learner prepare conversation starters for a practice call with \(peerName).
+        Their interests include: \(interestList).
+
+        Generate exactly 4 short, friendly conversation starter questions based on these interests.
+        Each question should be 5-12 words, natural and easy for a beginner/intermediate English learner.
+        Return ONLY the 4 questions, one per line. No numbering, no bullets, no extra text.
+        """
+
+        let body = buildOneShotBody(prompt: prompt)
+        var lastError: Error = GeminiError.emptyResponse
+
+        for offset in 0..<modelCandidates.count {
+            let modelIndex = (currentModelIndex + offset) % modelCandidates.count
+            let model = modelCandidates[modelIndex]
+
+            let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
+            guard let url = URL(string: urlString) else { throw GeminiError.invalidURL }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.timeoutInterval = 15
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+
+                if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                    let bodyStr = String(data: data, encoding: .utf8) ?? ""
+                    if http.statusCode == 429 && (bodyStr.contains("limit: 0") || bodyStr.contains("RESOURCE_EXHAUSTED")) {
+                        lastError = GeminiError.quotaExhausted
+                        continue
+                    }
+                    throw GeminiError.httpError(http.statusCode, bodyStr)
+                }
+
+                let text = try parseResponse(data)
+                let lines = text.components(separatedBy: .newlines)
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+
+                return Array(lines.prefix(4))
+            } catch GeminiError.quotaExhausted {
+                lastError = GeminiError.quotaExhausted
+                continue
+            } catch {
+                throw error
+            }
+        }
+
+        throw lastError
+    }
+
+    /// Generate a random JAM topic and speaking hints using Gemini.
+    /// Returns a tuple of (topic, [hints]). One-shot — does NOT affect conversation history.
+    func generateJamTopic() async throws -> (topic: String, hints: [String]) {
+        guard let apiKey = GeminiAPIKeyManager.shared.getAPIKey() else {
+            throw GeminiError.noAPIKey
+        }
+
+        let prompt = """
+        You are a creative topic generator for an English speaking practice app called "2-Minute JAM". \
+        The user will speak about the topic for 2 minutes to practice fluency.
+
+        Generate 1 interesting, specific topic and 6 short hint phrases to help the speaker.
+
+        Rules:
+        - The topic should be engaging, thought-provoking, and accessible to intermediate English learners.
+        - Avoid generic topics like "Technology" — be specific, e.g. "How Social Media Changed Friendships".
+        - Each hint should be 2-5 words — a quick talking point, NOT a full sentence.
+        - Return EXACTLY this format (no extra text, no numbering, no bullets):
+
+        TOPIC: <topic here>
+        HINT: <hint 1>
+        HINT: <hint 2>
+        HINT: <hint 3>
+        HINT: <hint 4>
+        HINT: <hint 5>
+        HINT: <hint 6>
+        """
+
+        let body = buildOneShotBody(prompt: prompt)
+        var lastError: Error = GeminiError.emptyResponse
+
+        for offset in 0..<modelCandidates.count {
+            let modelIndex = (currentModelIndex + offset) % modelCandidates.count
+            let model = modelCandidates[modelIndex]
+
+            let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
+            guard let url = URL(string: urlString) else { throw GeminiError.invalidURL }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.timeoutInterval = 15
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+
+                if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                    let bodyStr = String(data: data, encoding: .utf8) ?? ""
+                    if http.statusCode == 429 && (bodyStr.contains("limit: 0") || bodyStr.contains("RESOURCE_EXHAUSTED")) {
+                        lastError = GeminiError.quotaExhausted
+                        continue
+                    }
+                    throw GeminiError.httpError(http.statusCode, bodyStr)
+                }
+
+                let text = try parseResponse(data)
+                return parseJamTopicResponse(text)
+            } catch GeminiError.quotaExhausted {
+                lastError = GeminiError.quotaExhausted
+                continue
+            } catch {
+                throw error
+            }
+        }
+
+        throw lastError
+    }
+
+    /// Parse the structured TOPIC:/HINT: response from Gemini.
+    private func parseJamTopicResponse(_ text: String) -> (topic: String, hints: [String]) {
+        let lines = text.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        var topic = "Interesting Ideas"
+        var hints: [String] = []
+
+        for line in lines {
+            if line.uppercased().hasPrefix("TOPIC:") {
+                topic = String(line.dropFirst(6)).trimmingCharacters(in: .whitespacesAndNewlines)
+            } else if line.uppercased().hasPrefix("HINT:") {
+                let hint = String(line.dropFirst(5)).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !hint.isEmpty { hints.append(hint) }
+            }
+        }
+
+        // Ensure we have at least some hints
+        if hints.isEmpty {
+            hints = ["key challenges", "real-world examples", "personal experience",
+                     "future outlook", "common opinions", "surprising facts"]
+        }
+
+        return (topic, Array(hints.prefix(6)))
+    }
+
+    private func buildOneShotBody(prompt: String) -> [String: Any] {
+        return [
+            "contents": [
+                ["role": "user", "parts": [["text": prompt]]]
+            ],
+            "generationConfig": [
+                "temperature": 0.9,
+                "maxOutputTokens": 200
+            ]
+        ]
+    }
+
     // MARK: - Private — Network
 
     private func callGemini(model: String, apiKey: String, attempt: Int = 0) async throws -> String {

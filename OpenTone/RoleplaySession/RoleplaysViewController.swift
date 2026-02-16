@@ -2,9 +2,9 @@ import UIKit
 
 class RoleplaysViewController: UIViewController {
 
-    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var collectionView: UICollectionView!
 
+    private let searchController = UISearchController(searchResultsController: nil)
     var selectedScenario: RoleplayScenario?
     var selectedSession: RoleplaySession?
     var roleplays: [RoleplayScenario] = []
@@ -15,13 +15,25 @@ class RoleplaysViewController: UIViewController {
         roleplays = RoleplayScenarioDataModel.shared.getAll()
         filteredRoleplays = roleplays
 
-        setupSearchBar()
+        setupSearchController()
         setupCollectionView()
-        
+
         view.backgroundColor = AppColors.screenBackground
         collectionView.backgroundColor = AppColors.screenBackground
 
         setupProfileBarButton()
+    }
+
+    // MARK: - Search Controller (iOS modern style)
+
+    private func setupSearchController() {
+        searchController.searchResultsUpdater = self
+        searchController.delegate = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search roleplays"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
     }
 
     private func setupProfileBarButton() {
@@ -45,13 +57,6 @@ class RoleplaysViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setupCollectionViewLayout()
-    }
-    func setupSearchBar() {
-        searchBar.delegate = self
-        searchBar.placeholder = "Search roleplays"
-        searchBar.searchBarStyle = .minimal
-        searchBar.layer.cornerRadius = 12
-        searchBar.clipsToBounds = true
     }
 
     func setupCollectionView() {
@@ -81,10 +86,40 @@ class RoleplaysViewController: UIViewController {
 
         collectionView.collectionViewLayout = layout
     }
-    
-    
-    
+
+    private func filterRoleplays(for searchText: String) {
+        if searchText.isEmpty {
+            filteredRoleplays = roleplays
+        } else {
+            filteredRoleplays = roleplays.filter {
+                $0.title.lowercased().contains(searchText.lowercased())
+            }
+        }
+        collectionView.reloadData()
+    }
 }
+
+// MARK: - UISearchResultsUpdating
+
+extension RoleplaysViewController: UISearchResultsUpdating {
+
+    func updateSearchResults(for searchController: UISearchController) {
+        filterRoleplays(for: searchController.searchBar.text ?? "")
+    }
+}
+
+// MARK: - UISearchControllerDelegate
+
+extension RoleplaysViewController: UISearchControllerDelegate {
+
+    func didDismissSearchController(_ searchController: UISearchController) {
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
+    }
+}
+
+// MARK: - UICollectionView
+
 extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -104,17 +139,12 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
 
         return cell
     }
-    
-  
-
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-
         selectedScenario = filteredRoleplays[indexPath.row]
-
         performSegue(withIdentifier: "toRolePlayStart", sender: self)
     }
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toRolePlayStart",
            let vc = segue.destination as? RolePlayStartCollectionViewController {
@@ -122,26 +152,4 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
             vc.currentScenario = selectedScenario
         }
     }
-
-
-}
-extension RoleplaysViewController: UISearchBarDelegate {
-
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-
-        if searchText.isEmpty {
-            filteredRoleplays = roleplays
-        } else {
-            filteredRoleplays = roleplays.filter {
-                $0.title.lowercased().contains(searchText.lowercased())
-            }
-        }
-
-        collectionView.reloadData()
-    }
-
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-    }
-   
 }

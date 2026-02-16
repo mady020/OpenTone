@@ -78,13 +78,20 @@ class SuggestionCell: UITableViewCell {
         button.backgroundColor = AppColors.primaryLight
         button.layer.cornerRadius = 18
         button.layer.borderWidth = 1
-        button.layer.borderColor = AppColors.primary.withAlphaComponent(0.3).cgColor
+        button.layer.borderColor = AppColors.primary.withAlphaComponent(0.25).cgColor
         button.clipsToBounds = true
-        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 18, bottom: 10, right: 18)
+        button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 20, bottom: 12, right: 20)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
 
-        // Max width constraint so long text wraps
+        // Match chat bubble corner style — round top-left, top-right, bottom-left
+        button.layer.maskedCorners = [
+            .layerMinXMinYCorner,  // top-left
+            .layerMaxXMinYCorner,  // top-right
+            .layerMinXMaxYCorner   // bottom-left
+        ]
+
+        // Max width so long text wraps
         button.widthAnchor.constraint(lessThanOrEqualToConstant: UIScreen.main.bounds.width - 92).isActive = true
 
         return button

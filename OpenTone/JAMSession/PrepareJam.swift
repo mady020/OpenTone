@@ -10,9 +10,47 @@ final class PrepareJamViewController: UIViewController {
     
     @IBOutlet var closeButton: UIButton!
     
+    private var isRegenerating = false
+
     @IBAction func closeButtonTapped(_ sender: UIButton) {
-        
-        showSessionAlert()
+        regenerateTopic()
+    }
+    
+    private func regenerateTopic() {
+        guard !isRegenerating else { return }
+        isRegenerating = true
+
+        // Pause the timer while regenerating
+        if let timerCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
+            timerCell.pauseTimer()
+        }
+
+        // Show a spinner on the button
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.color = AppColors.primary
+        spinner.startAnimating()
+        closeButton.setImage(nil, for: .normal)
+        closeButton.configuration?.image = nil
+        closeButton.addSubview(spinner)
+        spinner.center = CGPoint(x: closeButton.bounds.midX, y: closeButton.bounds.midY)
+
+        JamSessionDataModel.shared.regenerateTopicWithAI { [weak self] session in
+            guard let self = self, let session = session else { return }
+
+            // Remove spinner, restore icon
+            spinner.removeFromSuperview()
+            self.closeButton.configuration?.image = UIImage(systemName: "arrow.triangle.2.circlepath")
+            self.isRegenerating = false
+
+            // Update data & reload
+            self.selectedTopic = session.topic
+            self.allSuggestions = session.suggestions
+            self.remainingSeconds = session.secondsLeft
+            self.lastKnownSeconds = session.secondsLeft
+            self.visibleCount = min(4, self.allSuggestions.count)
+            self.bulbButton.isHidden = self.visibleCount >= self.allSuggestions.count
+            self.collectionView.reloadData()
+        }
     }
     
     private var selectedTopic: String = ""

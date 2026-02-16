@@ -19,7 +19,7 @@ final class SuggestedQuestionsHeaderView: UICollectionReusableView {
     }
 
     private func setup() {
-        titleLabel.text = "Suggested Questions"
+        titleLabel.text = "Conversation Starters ✨"
         titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
         titleLabel.textColor = AppColors.textPrimary
 

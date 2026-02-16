@@ -434,7 +434,7 @@
                                     <constraint firstAttribute="height" constant="46" id="MtJ-q0-9Fo"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="xmark" catalog="system">
+                                <buttonConfiguration key="configuration" style="plain" image="arrow.triangle.2.circlepath" catalog="system">
                                     <backgroundConfiguration key="background" cornerRadius="23" strokeWidth="1" strokeOutset="1">
                                         <color key="backgroundColor" red="0.94901960780000005" green="0.93333333330000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <color key="strokeColor" red="0.3391113281" green="0.24060060080000001" blue="0.740234375" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -443,7 +443,6 @@
                                     <color key="baseForegroundColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="closeButton:" destination="gpq-vY-gZa" eventType="touchUpInside" id="gEm-sV-4fN"/>
                                     <action selector="closeButtonTapped:" destination="Hlz-xN-p0Z" eventType="touchUpInside" id="k4c-85-3NF"/>
                                 </connections>
                             </button>

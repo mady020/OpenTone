@@ -70,7 +70,8 @@ final class ProfileCell: UICollectionViewCell {
         level: String,
         bio: String,
         streakText: String,
-        avatar: UIImage?
+        avatar: UIImage?,
+        isPeer: Bool = false
     ) {
         nameLabel.text = name
         countryLabel.text = country
@@ -78,6 +79,15 @@ final class ProfileCell: UICollectionViewCell {
         bioLabel.text = bio
         streakLabel.text = streakText
         avatarImageView.image = avatar
+
+        if isPeer {
+            containerView.backgroundColor = AppColors.primaryLight
+            containerView.layer.borderWidth = 1.5
+            containerView.layer.borderColor = AppColors.primary.withAlphaComponent(0.3).cgColor
+            avatarImageView.layer.borderWidth = 3
+            avatarImageView.layer.borderColor = AppColors.primary.cgColor
+            nameLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        }
     }
 }
 
