@@ -304,6 +304,7 @@ final class AICallController: UIViewController {
     // MARK: - Listening
 
     private func startListening() {
+        guard !isMuted else { return }
         guard !isListening else { return }
         guard let recognizer = speechRecognizer, recognizer.isAvailable else { return }
 
@@ -322,8 +323,9 @@ final class AICallController: UIViewController {
 
         removeTap()
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
-            self?.recognitionRequest?.append(buffer)
-            self?.processAudio(buffer)
+            guard let self, !self.isMuted else { return }
+            self.recognitionRequest?.append(buffer)
+            self.processAudio(buffer)
         }
         tapInstalled = true
 
@@ -376,8 +378,10 @@ final class AICallController: UIViewController {
 
     private func restartListening() {
         stopListening()
+        guard !isMuted else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-            self?.startListening()
+            guard let self, !self.isMuted else { return }
+            self.startListening()
         }
     }
 
