@@ -11,6 +11,14 @@ struct AppColors {
     
     // Primary button color - consistent purple across both modes
     static let primary = UIColor(hex: "#5B3CC4") // Brand color
+
+    /// Adaptive primary button fill — slightly lighter in dark mode for legibility,
+    /// brand purple in light mode. Used as the single source of truth for all CTAs.
+    static let primaryButton = UIColor { trait in
+        return trait.userInterfaceStyle == .dark
+            ? UIColor(hex: "#6E4FD9")   // Brighter purple stands out on dark backgrounds
+            : UIColor(hex: "#5B3CC4")   // Brand purple
+    }
     
     /// A lighter tint of the primary brand color — used for ring tracks, chip backgrounds, badges.
     static let primaryLight = UIColor { trait in

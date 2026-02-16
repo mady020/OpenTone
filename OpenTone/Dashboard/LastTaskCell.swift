@@ -28,14 +28,10 @@ class LastTaskCell: UICollectionViewCell {
         contentView.backgroundColor = AppColors.cardBackground
         contentView.layer.cornerRadius = 20
         contentView.clipsToBounds = true
-        continueButton.clipsToBounds = true
-
         typeLabel.textColor = AppColors.primary
         titleLabel.textColor = AppColors.textPrimary
         iconImageView.tintColor = AppColors.primary
-        continueButton.backgroundColor = AppColors.primary
-        continueButton.setTitleColor(AppColors.textOnPrimary, for: .normal)
-        continueButton.layer.cornerRadius = 14
+        UIHelper.styleSmallCTAButton(continueButton)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

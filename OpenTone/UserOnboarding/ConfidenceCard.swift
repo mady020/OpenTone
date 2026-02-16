@@ -9,12 +9,8 @@ final class ConfidenceCard: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         setupUI()
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            contentView.layer.borderColor = AppColors.cardBorder.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: ConfidenceCard, _) in
+            self.contentView.layer.borderColor = AppColors.cardBorder.cgColor
         }
     }
 

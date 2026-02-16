@@ -525,7 +525,7 @@ extension HomeCollectionViewController {
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .absolute(124)
             ),
-            subitem: item,
+            repeatingSubitem: item,
             count: 2
         )
 

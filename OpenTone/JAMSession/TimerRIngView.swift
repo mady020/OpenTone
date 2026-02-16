@@ -14,6 +14,7 @@ class TimerRingView: UIView {
         if !didSetup && bounds.width > 0 && bounds.height > 0 {
             didSetup = true
             setupRing()
+            registerTraitObserver()
         }
     }
 
@@ -50,10 +51,9 @@ class TimerRingView: UIView {
         progressLayer.lineCap = .round
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            backgroundLayer.strokeColor = AppColors.ringTrack.cgColor
+    private func registerTraitObserver() {
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: TimerRingView, _) in
+            self.backgroundLayer.strokeColor = AppColors.ringTrack.cgColor
         }
     }
 

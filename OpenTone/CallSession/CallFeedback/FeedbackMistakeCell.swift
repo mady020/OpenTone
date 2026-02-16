@@ -5,6 +5,9 @@ class FeedbackMistakeCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         applyTheme()
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: FeedbackMistakeCell, _) in
+            self.applyTheme()
+        }
     }
 
     override func layoutSubviews() {
@@ -13,12 +16,7 @@ class FeedbackMistakeCell: UICollectionViewCell {
         clipsToBounds = true
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            applyTheme()
-        }
-    }
+
 
     private func applyTheme() {
         layer.borderWidth = 1

@@ -47,13 +47,40 @@ enum UIHelper {
     }
     
     // MARK: - Button Styling
-    
+
+    // ─── Hero / Large CTA Primary Button ───
+    // Full-width CTA with icon, bold text, branded purple shadow.
+    // Used for: "Unleash a Topic", "Start Roleplay", "View History", etc.
+    static func styleHeroPrimaryButton(
+        _ button: UIButton,
+        title: String,
+        systemIcon: String? = nil
+    ) {
+        button.setTitle(title, for: .normal)
+        styleLargeCTAButton(button, icon: systemIcon)
+    }
+
+    // ─── Compact Primary Button ───
+    // Smaller CTA inside cards (Continue, See Progress, Settings, etc.).
+    static func styleCompactPrimaryButton(
+        _ button: UIButton,
+        title: String? = nil,
+        fontSize: CGFloat = 14
+    ) {
+        if let title = title {
+            button.setTitle(title, for: .normal)
+        }
+        styleSmallCTAButton(button)
+        button.titleLabel?.font = .systemFont(ofSize: fontSize, weight: .bold)
+    }
+
     // Primary Action (e.g. Sign In, Sign Up) - Purple
+    // Now uses the same branded shadow as hero buttons for visual cohesion.
     static func stylePrimaryButton(_ button: UIButton) {
-        button.alpha = 1.0  // Ensure button is not transparent
-        button.isOpaque = true  // Ensure button renders correctly
+        button.alpha = 1.0
+        button.isOpaque = true
         styleButton(button,
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: AppColors.primaryButton,
                     textColor: UIColor.white,
                     borderColor: nil)
     }
@@ -106,7 +133,102 @@ enum UIHelper {
              button.backgroundColor = .clear
         }
     }
-    
+
+    // MARK: - CTA Button Styles (Unleash / Start Roleplay theme)
+
+    /// Large Call-to-Action button — matches the "Unleash a Topic" / "Start Roleplay" style.
+    /// Adaptive purple background, white text, corner radius 27, bold purple shadow.
+    /// Optionally accepts an SF Symbol name shown as a leading icon.
+    static func styleLargeCTAButton(_ button: UIButton, icon: String? = nil) {
+        button.configuration = nil
+        button.backgroundColor = AppColors.primaryButton
+        button.setTitleColor(AppColors.textOnPrimary, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.layer.cornerRadius = 27
+        button.clipsToBounds = false
+
+        if let iconName = icon {
+            let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .bold)
+            let img = UIImage(systemName: iconName, withConfiguration: config)
+            button.setImage(img, for: .normal)
+            button.tintColor = AppColors.textOnPrimary
+            button.semanticContentAttribute = .forceLeftToRight
+            button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
+        } else {
+            button.setImage(nil, for: .normal)
+            button.tintColor = AppColors.textOnPrimary
+        }
+
+        // Purple glow shadow
+        button.layer.shadowColor = AppColors.primaryButton.cgColor
+        button.layer.shadowOpacity = 0.35
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.shadowRadius = 12
+        button.layer.masksToBounds = false
+    }
+
+    /// Compact CTA button used inside cards (Continue, See Progress, View History, etc.).
+    /// Adaptive purple background, white text, corner radius 16, subtle branded shadow.
+    static func styleSmallCTAButton(_ button: UIButton) {
+        button.configuration = nil
+        button.backgroundColor = AppColors.primaryButton
+        button.setTitleColor(AppColors.textOnPrimary, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
+        button.layer.cornerRadius = 16
+        button.clipsToBounds = false
+
+        // Subtle branded shadow
+        button.layer.shadowColor = AppColors.primaryButton.cgColor
+        button.layer.shadowOpacity = 0.22
+        button.layer.shadowOffset = CGSize(width: 0, height: 3)
+        button.layer.shadowRadius = 8
+        button.layer.masksToBounds = false
+    }
+
+    /// Circular 56×56 icon button — used for mic, speaker, close actions.
+    /// Card background with card border, primary tint. Adapts to dark/light.
+    static func styleCircularIconButton(_ button: UIButton, symbol: String? = nil) {
+        button.layer.cornerRadius = 28
+        button.backgroundColor = AppColors.cardBackground
+        button.layer.borderWidth = 1
+        button.layer.borderColor = AppColors.cardBorder.cgColor
+        button.tintColor = AppColors.primary
+        button.clipsToBounds = true
+
+        if let symbolName = symbol {
+            let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
+            button.setImage(UIImage(systemName: symbolName, withConfiguration: config), for: .normal)
+        }
+    }
+
+    /// Refreshes circular icon button border colors on trait change.
+    static func updateCircularIconButton(_ button: UIButton) {
+        button.layer.borderColor = AppColors.cardBorder.cgColor
+        button.backgroundColor = AppColors.cardBackground
+    }
+
+    /// Destructive action button — red tint, light red background, subtle red border.
+    static func styleDestructiveButton(_ button: UIButton) {
+        button.configuration = nil
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        button.layer.cornerRadius = 16
+        button.clipsToBounds = true
+        button.backgroundColor = UIColor.systemRed.withAlphaComponent(0.12)
+        button.setTitleColor(.systemRed, for: .normal)
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.systemRed.withAlphaComponent(0.3).cgColor
+    }
+
+    /// Selection-style chip/reason button — card background, card border, primary text.
+    static func styleOptionButton(_ button: UIButton) {
+        button.layer.cornerRadius = 20
+        button.layer.borderWidth = 1
+        button.layer.borderColor = AppColors.cardBorder.cgColor
+        button.backgroundColor = AppColors.cardBackground
+        button.setTitleColor(AppColors.textPrimary, for: .normal)
+        button.clipsToBounds = true
+    }
+
     // Private Helper to handle Configuration vs Legacy
     private static func styleButton(_ button: UIButton, backgroundColor: UIColor, textColor: UIColor, borderColor: UIColor?) {
         button.layer.cornerRadius = 25
@@ -158,12 +280,12 @@ enum UIHelper {
             button.setNeedsUpdateConfiguration()
         }
         
-        // Add shadow for depth if needed
+        // Add branded shadow for depth on filled buttons
         if backgroundColor != .clear {
-            button.layer.shadowColor = UIColor.black.cgColor
-            button.layer.shadowOffset = CGSize(width: 0, height: 2)
-            button.layer.shadowRadius = 4
-            button.layer.shadowOpacity = 0.1
+            button.layer.shadowColor = AppColors.primaryButton.cgColor
+            button.layer.shadowOffset = CGSize(width: 0, height: 4)
+            button.layer.shadowRadius = 10
+            button.layer.shadowOpacity = 0.28
             button.layer.masksToBounds = false
         }
     }

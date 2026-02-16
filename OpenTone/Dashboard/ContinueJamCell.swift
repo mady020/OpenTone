@@ -49,12 +49,8 @@ final class ContinueJamCell: UICollectionViewCell {
     private let continueButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.setTitle("Continue", for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
-        btn.setTitleColor(AppColors.textOnPrimary, for: .normal)
-        btn.backgroundColor = AppColors.primary
-        btn.layer.cornerRadius = 14
-        btn.clipsToBounds = true
         btn.translatesAutoresizingMaskIntoConstraints = false
+        UIHelper.styleSmallCTAButton(btn)
         return btn
     }()
 

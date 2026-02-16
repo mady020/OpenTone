@@ -22,13 +22,10 @@ class FeedbackTranscriptCell: UICollectionViewCell {
         transcriptLabel.numberOfLines = 0
         transcriptLabel.textColor = AppColors.textPrimary
         transcriptLabel.font = .systemFont(ofSize: 14)
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            layer.borderColor = AppColors.cardBorder.cgColor
-            layer.backgroundColor = AppColors.cardBackground.cgColor
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: FeedbackTranscriptCell, _) in
+            self.layer.borderColor = AppColors.cardBorder.cgColor
+            self.layer.backgroundColor = AppColors.cardBackground.cgColor
         }
     }
 

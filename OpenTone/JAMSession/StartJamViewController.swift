@@ -43,12 +43,9 @@ class StartJamViewController: UIViewController {
         JamSessionDataModel.shared.beginSpeakingPhase()
 
         applyDarkModeStyles()
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            applyDarkModeStyles()
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: StartJamViewController, _) in
+            self.applyDarkModeStyles()
         }
     }
 

@@ -97,12 +97,8 @@ final class ProgressCell: UICollectionViewCell {
     private let seeProgressButton: UIButton = {
         let b = UIButton(type: .system)
         b.setTitle("See overall progress", for: .normal)
-        b.titleLabel?.font = .systemFont(ofSize: 13, weight: .bold)
-        b.setTitleColor(AppColors.textOnPrimary, for: .normal)
-        b.backgroundColor = AppColors.primary
-        b.layer.cornerRadius = 16
-        b.clipsToBounds = true
         b.translatesAutoresizingMaskIntoConstraints = false
+        UIHelper.styleSmallCTAButton(b)
         return b
     }()
 
@@ -369,8 +365,7 @@ final class ProgressCell: UICollectionViewCell {
         percentLabel.textColor = AppColors.textPrimary
         goalSubLabel.textColor = .secondaryLabel
 
-        seeProgressButton.backgroundColor = AppColors.primary
-        seeProgressButton.setTitleColor(AppColors.textOnPrimary, for: .normal)
+        UIHelper.styleSmallCTAButton(seeProgressButton)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

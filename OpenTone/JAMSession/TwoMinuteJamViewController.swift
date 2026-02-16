@@ -61,12 +61,8 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
     }
 
     private func styleUnleashButton() {
-        unleashButton.tintColor = AppColors.textOnPrimary
-        unleashButton.layer.shadowColor = AppColors.primary.cgColor
-        unleashButton.layer.shadowOffset = CGSize(width: 0, height: 4)
-        unleashButton.layer.shadowRadius = 10
-        unleashButton.layer.shadowOpacity = 0.3
-        unleashButton.layer.masksToBounds = false
+        UIHelper.styleLargeCTAButton(unleashButton, icon: "sparkles")
+        unleashButton.setTitle("  Unleash a Topic", for: .normal)
     }
 
     private func styleSubviews(_ parentView: UIView) {

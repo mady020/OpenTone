@@ -97,41 +97,21 @@ class RoleplayChatViewController: UIViewController {
     
     private func setupButtons() {
         // Mic button
-        micButton.layer.cornerRadius = 28
-        micButton.backgroundColor = AppColors.cardBackground
-        micButton.layer.borderColor = AppColors.cardBorder.cgColor
-        micButton.layer.borderWidth = 1
-        micButton.tintColor = AppColors.primary
-        
+        UIHelper.styleCircularIconButton(micButton, symbol: "mic.fill")
+
         // Replay button — repurpose as mute toggle
-        replayButton.layer.cornerRadius = 28
-        replayButton.backgroundColor = AppColors.cardBackground
-        replayButton.layer.borderColor = AppColors.cardBorder.cgColor
-        replayButton.layer.borderWidth = 1
-        replayButton.tintColor = AppColors.primary
-        replayButton.setImage(UIImage(systemName: "speaker.wave.2.fill"), for: .normal)
+        UIHelper.styleCircularIconButton(replayButton, symbol: "speaker.wave.2.fill")
         replayButton.removeTarget(nil, action: nil, for: .allEvents)
         replayButton.addTarget(self, action: #selector(muteTapped), for: .touchUpInside)
 
         // Exit button
-        exitButton.layer.cornerRadius = 28
-        exitButton.backgroundColor = AppColors.cardBackground
-        exitButton.layer.borderColor = AppColors.cardBorder.cgColor
-        exitButton.layer.borderWidth = 1
-        exitButton.tintColor = AppColors.primary
-        exitButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        UIHelper.styleCircularIconButton(exitButton, symbol: "xmark")
         exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
-    }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            micButton.layer.borderColor = AppColors.cardBorder.cgColor
-            micButton.backgroundColor = AppColors.cardBackground
-            replayButton.layer.borderColor = AppColors.cardBorder.cgColor
-            replayButton.backgroundColor = AppColors.cardBackground
-            exitButton.layer.borderColor = AppColors.cardBorder.cgColor
-            exitButton.backgroundColor = AppColors.cardBackground
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: RoleplayChatViewController, _) in
+            UIHelper.updateCircularIconButton(self.micButton)
+            UIHelper.updateCircularIconButton(self.replayButton)
+            UIHelper.updateCircularIconButton(self.exitButton)
         }
     }
 

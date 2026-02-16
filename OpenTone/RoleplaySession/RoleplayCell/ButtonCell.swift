@@ -10,10 +10,11 @@ class ButtonCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        startButton.layer.cornerRadius = 28
-        startButton.backgroundColor = AppColors.primary
-        startButton.setTitleColor(AppColors.textOnPrimary, for: .normal)
-        startButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        UIHelper.styleHeroPrimaryButton(
+            startButton,
+            title: startButton.title(for: .normal) ?? "Start",
+            systemIcon: "play.fill"
+        )
     }
 
     @IBAction func startTapped(_ sender: UIButton) {

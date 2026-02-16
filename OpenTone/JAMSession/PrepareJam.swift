@@ -134,17 +134,14 @@ final class PrepareJamViewController: UIViewController {
         navigationItem.leftBarButtonItem = backButton
 
         applyDarkModeStyles()
+
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: PrepareJamViewController, _) in
+            self.applyDarkModeStyles()
+        }
     }
 
     @objc private func backButtonTapped() {
         showSessionAlert()
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            applyDarkModeStyles()
-        }
     }
 
     private func applyDarkModeStyles() {
@@ -295,7 +292,18 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
         }
 
         if indexPath.section == 1 {
-            return CGSize(width: width, height: 105)
+            // Dynamic height: "Your Hot Topic" header (24pt bold, ~32px) + 8 top + 8 gap + topic text + 15 bottom
+            let horizontalPadding: CGFloat = 30  // 15 leading + 15 trailing
+            let availableWidth = width - horizontalPadding
+            let topicFont = UIFont.boldSystemFont(ofSize: 24)
+            let topicHeight = selectedTopic.boundingRect(
+                with: CGSize(width: availableWidth, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                attributes: [.font: topicFont],
+                context: nil
+            ).height
+            let totalHeight: CGFloat = 8 + 24 + 8 + ceil(topicHeight) + 15  // top + header + gap + topic + bottom
+            return CGSize(width: width, height: max(totalHeight, 80))
         }
 
         let available = width - 30 - 12
