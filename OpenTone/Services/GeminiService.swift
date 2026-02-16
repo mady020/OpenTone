@@ -192,6 +192,18 @@ final class GeminiService {
                 let text = try parseResponse(data)
                 let lines = text.components(separatedBy: .newlines)
                     .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .map { line in
+                        // Strip leading numbering like "1.", "1)", "- " etc.
+                        var cleaned = line
+                            .replacingOccurrences(of: #"^\d+[\.\)]\s*"#, with: "", options: .regularExpression)
+                            .replacingOccurrences(of: #"^[-•]\s*"#, with: "", options: .regularExpression)
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                        // Ensure every question ends with a question mark
+                        if !cleaned.isEmpty && !cleaned.hasSuffix("?") {
+                            cleaned += "?"
+                        }
+                        return cleaned
+                    }
                     .filter { !$0.isEmpty }
 
                 return Array(lines.prefix(4))
@@ -312,6 +324,164 @@ final class GeminiService {
                 "maxOutputTokens": 200
             ]
         ]
+    }
+
+    private func buildOneShotBody(prompt: String, maxTokens: Int) -> [String: Any] {
+        return [
+            "contents": [
+                ["role": "user", "parts": [["text": prompt]]]
+            ],
+            "generationConfig": [
+                "temperature": 0.7,
+                "maxOutputTokens": maxTokens
+            ]
+        ]
+    }
+
+    // MARK: - JAM Feedback Analysis
+
+    /// Analyze a user's speech transcript and return structured feedback.
+    /// One-shot call — does NOT affect conversation history.
+    func generateJamFeedback(transcript: String, topic: String, durationSeconds: Double) async throws -> Feedback {
+        guard let apiKey = GeminiAPIKeyManager.shared.getAPIKey() else {
+            throw GeminiError.noAPIKey
+        }
+
+        let prompt = """
+        You are an expert English speech coach. A language learner just spoke about "\(topic)" for \(Int(durationSeconds)) seconds.
+
+        Here is their transcript:
+        ---
+        \(transcript)
+        ---
+
+        Analyze their speech and return your analysis in EXACTLY this format (no markdown, no extra text):
+
+        RATING: <excellent|good|average|poor>
+        WORDS_PER_MINUTE: <number>
+        TOTAL_WORDS: <number>
+        FILLER_WORDS: <number of filler words like um, uh, like, you know>
+        PAUSES: <estimated pauses>
+        COMMENTS: <1-2 sentence overall feedback>
+        MISTAKE: <what they said> ||| <correction> ||| <brief explanation>
+        MISTAKE: <what they said> ||| <correction> ||| <brief explanation>
+        MISTAKE: <what they said> ||| <correction> ||| <brief explanation>
+        SUMMARY: <2-3 sentence detailed feedback on fluency, grammar, vocabulary, and confidence>
+
+        Rules:
+        - List 0-5 MISTAKE lines. Only include real grammar/vocabulary/pronunciation issues found in the transcript.
+        - If the transcript is very short or empty, rate as "poor" and note that the user should try speaking more.
+        - WORDS_PER_MINUTE should be calculated from TOTAL_WORDS and the duration.
+        - Be encouraging but honest.
+        """
+
+        let body = buildOneShotBody(prompt: prompt, maxTokens: 600)
+        var lastError: Error = GeminiError.emptyResponse
+
+        for offset in 0..<modelCandidates.count {
+            let modelIndex = (currentModelIndex + offset) % modelCandidates.count
+            let model = modelCandidates[modelIndex]
+
+            let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
+            guard let url = URL(string: urlString) else { throw GeminiError.invalidURL }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.timeoutInterval = 20
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+
+                if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                    let bodyStr = String(data: data, encoding: .utf8) ?? ""
+                    if http.statusCode == 429 && (bodyStr.contains("limit: 0") || bodyStr.contains("RESOURCE_EXHAUSTED")) {
+                        lastError = GeminiError.quotaExhausted
+                        continue
+                    }
+                    throw GeminiError.httpError(http.statusCode, bodyStr)
+                }
+
+                let text = try parseResponse(data)
+                return parseJamFeedbackResponse(text, transcript: transcript, durationSeconds: durationSeconds)
+            } catch GeminiError.quotaExhausted {
+                lastError = GeminiError.quotaExhausted
+                continue
+            } catch {
+                throw error
+            }
+        }
+
+        throw lastError
+    }
+
+    /// Parse the structured feedback response from Gemini.
+    private func parseJamFeedbackResponse(_ text: String, transcript: String, durationSeconds: Double) -> Feedback {
+        let lines = text.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        var rating: SessionFeedbackRating = .average
+        var wpm: Double = 0
+        var totalWords: Int = 0
+        var fillerWords: Int = 0
+        var pauses: Int = 0
+        var comments = "Keep practicing!"
+        var mistakes: [SpeechMistake] = []
+        var summary = ""
+
+        for line in lines {
+            let upper = line.uppercased()
+            if upper.hasPrefix("RATING:") {
+                let val = String(line.dropFirst(7)).trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                rating = SessionFeedbackRating(rawValue: val) ?? .average
+            } else if upper.hasPrefix("WORDS_PER_MINUTE:") {
+                wpm = Double(String(line.dropFirst(17)).trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+            } else if upper.hasPrefix("TOTAL_WORDS:") {
+                totalWords = Int(String(line.dropFirst(12)).trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+            } else if upper.hasPrefix("FILLER_WORDS:") {
+                fillerWords = Int(String(line.dropFirst(13)).trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+            } else if upper.hasPrefix("PAUSES:") {
+                pauses = Int(String(line.dropFirst(7)).trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+            } else if upper.hasPrefix("COMMENTS:") {
+                comments = String(line.dropFirst(9)).trimmingCharacters(in: .whitespacesAndNewlines)
+            } else if upper.hasPrefix("MISTAKE:") {
+                let parts = String(line.dropFirst(8))
+                    .components(separatedBy: "|||")
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                if parts.count >= 3 {
+                    mistakes.append(SpeechMistake(
+                        original: parts[0],
+                        correction: parts[1],
+                        explanation: parts[2]
+                    ))
+                }
+            } else if upper.hasPrefix("SUMMARY:") {
+                summary = String(line.dropFirst(8)).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+
+        // Fallback calculations
+        if totalWords == 0 {
+            totalWords = transcript.split(separator: " ").count
+        }
+        if wpm == 0 && durationSeconds > 0 {
+            wpm = Double(totalWords) / (durationSeconds / 60.0)
+        }
+
+        return Feedback(
+            comments: comments,
+            rating: rating,
+            wordsPerMinute: wpm,
+            durationInSeconds: durationSeconds,
+            totalWords: totalWords,
+            transcript: transcript,
+            fillerWordCount: fillerWords,
+            pauseCount: pauses,
+            mistakes: mistakes,
+            aiFeedbackSummary: summary.isEmpty ? nil : summary
+        )
     }
 
     // MARK: - Private — Network

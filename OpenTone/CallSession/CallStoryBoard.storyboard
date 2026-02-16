@@ -402,6 +402,11 @@
                                         <constraint firstAttribute="bottom" secondItem="EIY-fo-Dqr" secondAttribute="bottom" constant="16" id="rO6-aT-iBe"/>
                                     </constraints>
                                 </collectionViewCellContentView>
+                                <connections>
+                                    <outlet property="originalLabel" destination="yMt-Ch-Wue" id="mst-OL-001"/>
+                                    <outlet property="correctionLabel" destination="1oh-tD-9t6" id="mst-CL-002"/>
+                                    <outlet property="explanationLabel" destination="EIY-fo-Dqr" id="mst-EL-003"/>
+                                </connections>
                             </collectionViewCell>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FeedbackTranscriptCell" id="efE-nI-tv3" customClass="FeedbackTranscriptCell" customModule="OpenTone" customModuleProvider="target">
                                 <rect key="frame" x="68" y="576.33333333333337" width="266.33333333333331" height="148.66666666666663"/>

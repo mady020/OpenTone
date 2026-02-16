@@ -41,9 +41,10 @@ extension CallEndedViewController {
         messageLabel.textAlignment = .center
         messageLabel.textColor = .secondaryLabel
         
-        UIHelper.stylePrimaryButton(newCallButton)
-        UIHelper.styleSecondaryButton(reportButton)
-        UIHelper.styleSecondaryButton(feedbackButton)
+        UIHelper.styleLargeCTAButton(newCallButton)
+        newCallButton.setTitle("New Call", for: .normal)
+        UIHelper.styleHollowButton(reportButton)
+        UIHelper.styleHollowButton(feedbackButton)
     }
 }
 

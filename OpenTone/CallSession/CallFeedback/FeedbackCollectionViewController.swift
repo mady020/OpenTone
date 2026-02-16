@@ -2,8 +2,18 @@ import UIKit
 
 class FeedbackCollectionViewController: UICollectionViewController {
 
-    /// Optional feedback data — if nil, shows sample/placeholder data.
+    /// Optional feedback data — populated after Gemini analysis.
     var feedback: Feedback?
+
+    /// Raw transcript passed from the speaking session.
+    var transcript: String?
+    /// Topic the user was speaking about.
+    var topic: String?
+    /// Duration the user was speaking (seconds).
+    var speakingDuration: Double = 30.0
+
+    /// Whether we are currently loading feedback from Gemini.
+    private var isLoadingFeedback = false
 
     @IBOutlet weak var exitButton: UIButton!
 
@@ -12,6 +22,32 @@ class FeedbackCollectionViewController: UICollectionViewController {
         view.backgroundColor = AppColors.screenBackground
         collectionView.backgroundColor = AppColors.screenBackground
         collectionView.collectionViewLayout = createLayout()
+
+        // Replace the storyboard nav button with a proper xmark button
+        setupExitButton()
+
+        // If we have a transcript but no feedback yet, fetch from Gemini
+        if feedback == nil, let transcript = transcript {
+            fetchGeminiFeedback(transcript: transcript)
+        }
+    }
+
+    private func setupExitButton() {
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .bold))
+        config.cornerStyle = .capsule
+        config.baseForegroundColor = AppColors.primary
+        config.baseBackgroundColor = AppColors.cardBackground
+
+        let button = UIButton(configuration: config)
+        button.addTarget(self, action: #selector(exitButtonTapped(_:)), for: .touchUpInside)
+        button.layer.borderWidth = 1.5
+        button.layer.borderColor = AppColors.primary.withAlphaComponent(0.3).cgColor
+        button.layer.cornerRadius = 20
+        button.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 40).isActive = true
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: button)
     }
 
     
@@ -19,7 +55,66 @@ class FeedbackCollectionViewController: UICollectionViewController {
         navigationController?.popToRootViewController(animated: true)
     }
 
+    // MARK: - Gemini Feedback
 
+    private func fetchGeminiFeedback(transcript: String) {
+        isLoadingFeedback = true
+        collectionView.reloadData()
+
+        let topicText = topic ?? "General Topic"
+        let duration = speakingDuration
+
+        Task {
+            do {
+                let result = try await GeminiService.shared.generateJamFeedback(
+                    transcript: transcript,
+                    topic: topicText,
+                    durationSeconds: duration
+                )
+                self.feedback = result
+            } catch {
+                print("⚠️ Gemini feedback failed: \(error.localizedDescription)")
+                // Build a basic local feedback if Gemini fails
+                self.feedback = buildLocalFeedback(transcript: transcript, duration: duration)
+            }
+            self.isLoadingFeedback = false
+            self.collectionView.reloadData()
+        }
+    }
+
+    /// Fallback: compute basic metrics locally if Gemini is unavailable.
+    private func buildLocalFeedback(transcript: String, duration: Double) -> Feedback {
+        let words = transcript.split(separator: " ")
+        let totalWords = words.count
+        let wpm = duration > 0 ? Double(totalWords) / (duration / 60.0) : 0
+
+        let fillerPatterns = ["um", "uh", "like", "you know", "basically", "actually", "literally"]
+        let lower = transcript.lowercased()
+        let fillerCount = fillerPatterns.reduce(0) { count, filler in
+            count + lower.components(separatedBy: filler).count - 1
+        }
+
+        let rating: SessionFeedbackRating
+        if totalWords > 60 { rating = .excellent }
+        else if totalWords > 30 { rating = .good }
+        else if totalWords > 10 { rating = .average }
+        else { rating = .poor }
+
+        return Feedback(
+            comments: totalWords < 5
+                ? "Try to speak more next time! Practice makes perfect."
+                : "Good effort! Keep practicing to improve fluency.",
+            rating: rating,
+            wordsPerMinute: wpm,
+            durationInSeconds: duration,
+            totalWords: totalWords,
+            transcript: transcript,
+            fillerWordCount: fillerCount,
+            pauseCount: nil,
+            mistakes: nil,
+            aiFeedbackSummary: nil
+        )
+    }
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 4
@@ -30,7 +125,11 @@ class FeedbackCollectionViewController: UICollectionViewController {
         switch section {
         case 0: return 1
         case 1: return 1
-        case 2: return 3
+        case 2:
+            // Show actual mistake count (or 0 while loading)
+            if isLoadingFeedback { return 1 }
+            let count = feedback?.mistakes?.count ?? 0
+            return max(count, 1) // At least 1 to show "no mistakes" message
         case 3: return 1
         default: return 0
         }
@@ -54,29 +153,40 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 for: indexPath
             ) as! FeedbackMetricsCell
 
-            if let fb = feedback {
+            if isLoadingFeedback {
+                cell.configure(
+                    speechValue: "...",
+                    speechProgress: 0,
+                    fillerValue: "...",
+                    fillerProgress: 0,
+                    wpmValue: "...",
+                    wpmProgress: 0,
+                    pausesValue: "Analyzing...",
+                    pausesProgress: 0
+                )
+            } else if let fb = feedback {
                 let mins = Int(fb.durationInSeconds) / 60
                 let secs = Int(fb.durationInSeconds) % 60
                 cell.configure(
                     speechValue: String(format: "%d:%02d", mins, secs),
                     speechProgress: min(Float(fb.durationInSeconds) / 120.0, 1.0),
-                    fillerValue: "\(fb.totalWords) words",
-                    fillerProgress: min(Float(fb.totalWords) / 200.0, 1.0),
+                    fillerValue: "\(fb.fillerWordCount ?? 0) fillers",
+                    fillerProgress: min(Float(fb.fillerWordCount ?? 0) / 10.0, 1.0),
                     wpmValue: "\(Int(fb.wordsPerMinute)) WPM",
                     wpmProgress: min(Float(fb.wordsPerMinute) / 150.0, 1.0),
-                    pausesValue: fb.comments,
-                    pausesProgress: 0.5
+                    pausesValue: fb.pauseCount != nil ? "\(fb.pauseCount!) pauses" : fb.comments,
+                    pausesProgress: min(Float(fb.pauseCount ?? 2) / 10.0, 1.0)
                 )
             } else {
                 cell.configure(
-                    speechValue: "2 min",
-                    speechProgress: 0.75,
-                    fillerValue: "5 words",
-                    fillerProgress: 0.30,
-                    wpmValue: "23 WPM",
-                    wpmProgress: 0.65,
-                    pausesValue: "3 pauses",
-                    pausesProgress: 0.40
+                    speechValue: "--",
+                    speechProgress: 0,
+                    fillerValue: "--",
+                    fillerProgress: 0,
+                    wpmValue: "--",
+                    wpmProgress: 0,
+                    pausesValue: "No data",
+                    pausesProgress: 0
                 )
             }
             return cell
@@ -86,6 +196,17 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 withReuseIdentifier: "FeedbackMistakeCell",
                 for: indexPath
             ) as! FeedbackMistakeCell
+
+            if isLoadingFeedback {
+                cell.configure(original: "Analyzing your speech...", correction: "", explanation: "Please wait while we review your performance.")
+            } else if let mistakes = feedback?.mistakes, !mistakes.isEmpty, indexPath.item < mistakes.count {
+                let mistake = mistakes[indexPath.item]
+                cell.configure(original: mistake.original, correction: mistake.correction, explanation: mistake.explanation)
+            } else if let summary = feedback?.aiFeedbackSummary, !summary.isEmpty {
+                cell.configure(original: "✨ Great job!", correction: "No major mistakes found.", explanation: summary)
+            } else {
+                cell.configure(original: "✨ Nice work!", correction: "No mistakes detected.", explanation: feedback?.comments ?? "Keep practicing to improve!")
+            }
             return cell
             
         case 3:
@@ -94,24 +215,12 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 for: indexPath
             ) as! FeedbackTranscriptCell
 
-            let transcript = feedback?.transcript ?? """
-            You: Hey! How are you doing today?
-
-            Partner: I'm doing great, thanks for asking! How about you?
-
-            You: I'm good too. I learned some new things…
-            Like I'm learning stock market now a days.
-
-            Partner: That's interesting! What part of stock market are you learning?
-
-            You: I am learning how to analysis the markets and invest properly.
-
-            Partner: Nice! Keep it up — it's a great skill to build.
-
-            You: Yes, I want to improve my financial knowledge. Still a lot to learn.
-            """
-
-            cell.configure(transcript: transcript)
+            if isLoadingFeedback {
+                cell.configure(transcript: transcript ?? "Transcribing...")
+            } else {
+                let displayTranscript = feedback?.transcript ?? transcript ?? "No transcript available."
+                cell.configure(transcript: displayTranscript)
+            }
 
             return cell
 
