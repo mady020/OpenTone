@@ -1,4 +1,5 @@
 import UIKit
+import AVFoundation
 
 enum ChatSender {
     case app
@@ -45,6 +46,16 @@ class RoleplayChatViewController: UIViewController {
     private var totalWrongAttempts = 0
 
     private var isProcessingResponse = false
+    private var isMuted = false
+
+    // MARK: - TTS
+
+    private let speechSynthesizer = AVSpeechSynthesizer()
+
+    // MARK: - Gemini conversation history (for this roleplay)
+
+    private var geminiHistory: [GeminiService.Message] = []
+    private var geminiTurnCount = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +68,7 @@ class RoleplayChatViewController: UIViewController {
         RoleplaySessionDataModel.shared.activeScenario = scenario
 
         title = scenario.title
+        speechSynthesizer.delegate = self
         setupUI()
         setupTableView()
         setupButtons()
@@ -91,14 +103,17 @@ class RoleplayChatViewController: UIViewController {
         micButton.layer.borderWidth = 1
         micButton.tintColor = AppColors.primary
         
-        // Replay button
+        // Replay button — repurpose as mute toggle
         replayButton.layer.cornerRadius = 28
         replayButton.backgroundColor = AppColors.cardBackground
         replayButton.layer.borderColor = AppColors.cardBorder.cgColor
         replayButton.layer.borderWidth = 1
         replayButton.tintColor = AppColors.primary
+        replayButton.setImage(UIImage(systemName: "speaker.wave.2.fill"), for: .normal)
+        replayButton.removeTarget(nil, action: nil, for: .allEvents)
+        replayButton.addTarget(self, action: #selector(muteTapped), for: .touchUpInside)
 
-        // exit button
+        // Exit button
         exitButton.layer.cornerRadius = 28
         exitButton.backgroundColor = AppColors.cardBackground
         exitButton.layer.borderColor = AppColors.cardBorder.cgColor
@@ -106,22 +121,17 @@ class RoleplayChatViewController: UIViewController {
         exitButton.tintColor = AppColors.primary
         exitButton.setImage(UIImage(systemName: "xmark"), for: .normal)
         exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
-        
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            // Re-apply border colors (CGColor doesn't auto-update)
             micButton.layer.borderColor = AppColors.cardBorder.cgColor
             micButton.backgroundColor = AppColors.cardBackground
             replayButton.layer.borderColor = AppColors.cardBorder.cgColor
             replayButton.backgroundColor = AppColors.cardBackground
-            if let exitBtn = exitButton {
-                exitBtn.layer.borderColor = AppColors.cardBorder.cgColor
-                exitBtn.backgroundColor = AppColors.cardBackground
-                exitBtn.tintColor = AppColors.textPrimary
-            }
+            exitButton.layer.borderColor = AppColors.cardBorder.cgColor
+            exitButton.backgroundColor = AppColors.cardBackground
         }
     }
 
@@ -130,7 +140,7 @@ class RoleplayChatViewController: UIViewController {
 
         if !didLoadChat {
             didLoadChat = true
-            loadCurrentStep()
+            startGeminiRoleplay()
         }
     }
 
@@ -139,10 +149,10 @@ class RoleplayChatViewController: UIViewController {
         tabBarController?.tabBar.isHidden = true
     }
 
-    
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
+        speechSynthesizer.stopSpeaking(at: .immediate)
 
         if AudioManager.shared.isRecording {
             AudioManager.shared.stopRecording()
@@ -151,9 +161,199 @@ class RoleplayChatViewController: UIViewController {
         tabBarController?.tabBar.isHidden = false
     }
 
+    // MARK: - Gemini-powered Roleplay
+
+    private func buildRoleplaySystemPrompt() -> String {
+        return """
+        You are playing a character in a roleplay scenario for an English language learning app called OpenTone.
+
+        SCENARIO: \(scenario.title)
+        DESCRIPTION: \(scenario.description)
+
+        RULES:
+        1. Stay in character for this scenario at all times.
+        2. Keep each message to 1-2 short sentences (this will be spoken via TTS).
+        3. After each message, provide EXACTLY 3 suggested responses the learner could say, formatted as a JSON array on a new line starting with "SUGGESTIONS:".
+        4. The suggestions should range from simple to more advanced English.
+        5. Be encouraging and patient — the user is practicing English.
+        6. Do NOT use markdown, emojis, or special formatting.
+        7. If the user says something grammatically incorrect, gently rephrase it correctly in your response before continuing.
+        8. Keep the conversation going naturally within the scenario context.
+
+        FORMAT your response EXACTLY like this:
+        [Your in-character message here]
+        SUGGESTIONS:["suggestion 1","suggestion 2","suggestion 3"]
+
+        Start the roleplay now with your opening line.
+        """
+    }
+
+    private func startGeminiRoleplay() {
+        geminiHistory.removeAll()
+        geminiTurnCount = 0
+        isProcessingResponse = true
+
+        // Show a loading indicator
+        messages.append(ChatMessage(sender: .app, text: "Starting roleplay…", suggestions: nil))
+        reloadTableSafely()
+
+        Task {
+            do {
+                let systemPrompt = buildRoleplaySystemPrompt()
+                let reply = try await sendToGeminiForRoleplay(systemPrompt)
+                await MainActor.run {
+                    // Remove loading message
+                    if messages.last?.text == "Starting roleplay…" {
+                        messages.removeLast()
+                    }
+                    handleGeminiResponse(reply)
+                    isProcessingResponse = false
+                }
+            } catch {
+                await MainActor.run {
+                    if messages.last?.text == "Starting roleplay…" {
+                        messages.removeLast()
+                    }
+                    // Fallback to scripted mode
+                    fallbackToScriptedMode()
+                    isProcessingResponse = false
+                }
+            }
+        }
+    }
+
+    private func sendToGeminiForRoleplay(_ text: String) async throws -> String {
+        guard let apiKey = GeminiAPIKeyManager.shared.getAPIKey() else {
+            throw GeminiService.GeminiError.noAPIKey
+        }
+
+        geminiHistory.append(GeminiService.Message(role: .user, text: text))
+
+        let models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+        let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
+
+        var lastError: Error = GeminiService.GeminiError.emptyResponse
+
+        for model in models {
+            do {
+                let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
+                guard let url = URL(string: urlString) else { continue }
+
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.timeoutInterval = 30
+
+                var contents: [[String: Any]] = []
+                for msg in geminiHistory {
+                    contents.append([
+                        "role": msg.role.rawValue,
+                        "parts": [["text": msg.text]]
+                    ])
+                }
+
+                let body: [String: Any] = [
+                    "contents": contents,
+                    "generationConfig": [
+                        "temperature": 0.8,
+                        "topP": 0.9,
+                        "maxOutputTokens": 300
+                    ]
+                ]
+
+                request.httpBody = try JSONSerialization.data(withJSONObject: body)
+                let (data, response) = try await URLSession.shared.data(for: request)
+
+                if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                    let bodyStr = String(data: data, encoding: .utf8) ?? ""
+                    if http.statusCode == 429 && (bodyStr.contains("limit: 0") || bodyStr.contains("RESOURCE_EXHAUSTED")) {
+                        continue // try next model
+                    }
+                    throw GeminiService.GeminiError.httpError(http.statusCode, bodyStr)
+                }
+
+                guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let candidates = json["candidates"] as? [[String: Any]],
+                      let first = candidates.first,
+                      let content = first["content"] as? [String: Any],
+                      let parts = content["parts"] as? [[String: Any]],
+                      let textPart = parts.first,
+                      let text = textPart["text"] as? String,
+                      !text.isEmpty else {
+                    throw GeminiService.GeminiError.emptyResponse
+                }
+
+                let reply = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                geminiHistory.append(GeminiService.Message(role: .model, text: reply))
+                return reply
+
+            } catch GeminiService.GeminiError.httpError(429, _) {
+                lastError = GeminiService.GeminiError.rateLimited
+                continue
+            } catch {
+                lastError = error
+                // Remove user message if we fail
+                if geminiHistory.last?.role == .user {
+                    geminiHistory.removeLast()
+                }
+                throw error
+            }
+        }
+
+        if geminiHistory.last?.role == .user {
+            geminiHistory.removeLast()
+        }
+        throw lastError
+    }
+
+    private func handleGeminiResponse(_ response: String) {
+        geminiTurnCount += 1
+        let (messageText, suggestions) = parseGeminiResponse(response)
+
+        messages.append(ChatMessage(sender: .app, text: messageText, suggestions: nil))
+
+        if !suggestions.isEmpty {
+            messages.append(ChatMessage(sender: .suggestions, text: "", suggestions: suggestions))
+        }
+
+        reloadTableSafely()
+        speakText(messageText)
+    }
+
+    private func parseGeminiResponse(_ response: String) -> (String, [String]) {
+        let lines = response.components(separatedBy: "\n")
+        var messageLines: [String] = []
+        var suggestions: [String] = []
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("SUGGESTIONS:") {
+                let jsonPart = String(trimmed.dropFirst("SUGGESTIONS:".count))
+                    .trimmingCharacters(in: .whitespaces)
+                if let data = jsonPart.data(using: .utf8),
+                   let parsed = try? JSONSerialization.jsonObject(with: data) as? [String] {
+                    suggestions = parsed
+                }
+            } else if !trimmed.isEmpty {
+                messageLines.append(trimmed)
+            }
+        }
+
+        let messageText = messageLines.joined(separator: " ")
+        return (messageText.isEmpty ? response : messageText, suggestions)
+    }
+
+    // MARK: - Fallback to scripted mode
+
+    private var isScriptedMode = false
+
+    private func fallbackToScriptedMode() {
+        isScriptedMode = true
+        print("⚠️ Falling back to scripted roleplay mode")
+        loadCurrentStep()
+    }
 
     private func loadCurrentStep() {
-
         let index = session.currentLineIndex
         guard index < scenario.script.count else {
             presentScoreScreen()
@@ -163,26 +363,61 @@ class RoleplayChatViewController: UIViewController {
         let message = scenario.script[index]
 
         messages.append(
-            ChatMessage(
-                sender: .app,
-                text: message.text,
-                suggestions: nil
-            )
+            ChatMessage(sender: .app, text: message.text, suggestions: nil)
         )
 
         if let options = message.replyOptions {
             messages.append(
-                ChatMessage(
-                    sender: .suggestions,
-                    text: "",
-                    suggestions: options
-                )
+                ChatMessage(sender: .suggestions, text: "", suggestions: options)
             )
         }
 
         reloadTableSafely()
+        speakText(message.text)
     }
 
+    // MARK: - TTS
+
+    private func speakText(_ text: String) {
+        guard !isMuted else { return }
+
+        // Stop any ongoing recording while TTS plays
+        if AudioManager.shared.isRecording {
+            AudioManager.shared.stopRecording()
+            updateMicUI(isRecording: false)
+        }
+
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
+        try? session.setActive(true)
+
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.9
+        speechSynthesizer.speak(utterance)
+    }
+
+    // MARK: - Mute
+
+    @objc private func muteTapped() {
+        isMuted.toggle()
+        AudioManager.shared.setMuted(isMuted)
+
+        replayButton.setImage(
+            UIImage(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill"),
+            for: .normal
+        )
+
+        if isMuted {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+            if AudioManager.shared.isRecording {
+                AudioManager.shared.stopRecording()
+                updateMicUI(isRecording: false)
+            }
+        }
+    }
+
+    // MARK: - Mic UI
     
     private func updateMicUI(isRecording: Bool) {
         micButton.backgroundColor = isRecording
@@ -192,6 +427,13 @@ class RoleplayChatViewController: UIViewController {
 
     
     @IBAction func micTapped(_ sender: UIButton) {
+        guard !isMuted else { return }
+
+        // Stop TTS if playing so user can speak
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+
         if AudioManager.shared.isRecording {
             AudioManager.shared.stopRecording()
             updateMicUI(isRecording: false)
@@ -220,6 +462,7 @@ class RoleplayChatViewController: UIViewController {
     private func userResponded(_ text: String) {
 
         guard !isProcessingResponse else { return }
+        guard !isMuted else { return }
         isProcessingResponse = true
 
         // Remove suggestions
@@ -227,27 +470,92 @@ class RoleplayChatViewController: UIViewController {
             messages.removeLast()
         }
 
-        // Append user message ONCE
+        // Append user message
         messages.append(
-            ChatMessage(
-                sender: .user,
-                text: text,
-                suggestions: nil
-            )
+            ChatMessage(sender: .user, text: text, suggestions: nil)
         )
 
         reloadTableSafely()
 
+        if isScriptedMode {
+            handleScriptedResponse(text)
+        } else {
+            handleGeminiUserResponse(text)
+        }
+    }
+
+    // MARK: - Gemini response flow
+
+    private func handleGeminiUserResponse(_ text: String) {
+        // Show thinking indicator
+        messages.append(ChatMessage(sender: .app, text: "…", suggestions: nil))
+        reloadTableSafely()
+
+        Task {
+            do {
+                let reply = try await sendToGeminiForRoleplay(text)
+                await MainActor.run {
+                    // Remove thinking indicator
+                    if messages.last?.text == "…" {
+                        messages.removeLast()
+                    }
+                    session.currentLineIndex += 1
+                    handleGeminiResponse(reply)
+                    isProcessingResponse = false
+
+                    // Check if we should end after enough turns
+                    if geminiTurnCount >= scenario.script.count {
+                        endGeminiRoleplay()
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    if messages.last?.text == "…" {
+                        messages.removeLast()
+                    }
+                    messages.append(ChatMessage(
+                        sender: .app,
+                        text: "Sorry, something went wrong. Please try again.",
+                        suggestions: nil
+                    ))
+                    reloadTableSafely()
+                    isProcessingResponse = false
+                }
+            }
+        }
+    }
+
+    private func endGeminiRoleplay() {
+        session.status = .completed
+        session.endedAt = Date()
+
+        RoleplaySessionDataModel.shared.updateSession(session, scenario: scenario)
+        StreakDataModel.shared.logSession(
+            title: "Roleplay Session",
+            subtitle: "You completed a roleplay",
+            topic: scenario.title,
+            durationMinutes: scenario.estimatedTimeMinutes,
+            xp: 30,
+            iconName: "person.2.fill"
+        )
+        SessionProgressManager.shared.markCompleted(.roleplay, topic: scenario.title)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.presentScoreScreen()
+        }
+    }
+
+    // MARK: - Scripted response flow
+
+    private func handleScriptedResponse(_ text: String) {
         let index = session.currentLineIndex
         let expected = scenario.script[index].replyOptions ?? []
         let normalizedInput = normalize(text)
 
         let isCorrect = expected.contains { option in
             let normalizedOption = normalize(option)
-
             let inputWords = Set(normalizedInput.split(separator: " "))
             let optionWords = Set(normalizedOption.split(separator: " "))
-
             return inputWords.intersection(optionWords).count >= 2
         }
 
@@ -260,27 +568,19 @@ class RoleplayChatViewController: UIViewController {
         }
     }
 
-
-
     private func advanceSession() {
-
         session.currentLineIndex += 1
 
         if session.currentLineIndex < scenario.script.count {
-
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.loadCurrentStep()
                 self.isProcessingResponse = false
             }
-
         } else {
             session.status = .completed
             session.endedAt = Date()
 
-            RoleplaySessionDataModel.shared.updateSession(
-                session,
-                scenario: scenario
-            )
+            RoleplaySessionDataModel.shared.updateSession(session, scenario: scenario)
             StreakDataModel.shared.logSession(
                 title: "Roleplay Session",
                 subtitle: "You completed a roleplay",
@@ -289,36 +589,24 @@ class RoleplayChatViewController: UIViewController {
                 xp: 30,
                 iconName: "person.2.fill"
             )
-
             SessionProgressManager.shared.markCompleted(.roleplay, topic: scenario.title)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.presentScoreScreen()
             }
         }
-
     }
 
 
     private func handleWrongAttempt(expected: [String]) {
-
         currentWrongStreak += 1
         totalWrongAttempts += 1
 
         messages.append(
-            ChatMessage(
-                sender: .app,
-                text: "Not quite 🤏\nTry one of the options below!",
-                suggestions: nil
-            )
+            ChatMessage(sender: .app, text: "Not quite 🤏\nTry one of the options below!", suggestions: nil)
         )
-
         messages.append(
-            ChatMessage(
-                sender: .suggestions,
-                text: "",
-                suggestions: expected
-            )
+            ChatMessage(sender: .suggestions, text: "", suggestions: expected)
         )
 
         reloadTableSafely()
@@ -351,7 +639,8 @@ class RoleplayChatViewController: UIViewController {
     }
 
     private func showExitAlert() {
-        // Stop recording if active
+        speechSynthesizer.stopSpeaking(at: .immediate)
+
         if AudioManager.shared.isRecording {
             AudioManager.shared.stopRecording()
             updateMicUI(isRecording: false)
@@ -367,7 +656,6 @@ class RoleplayChatViewController: UIViewController {
 
         alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { [weak self] _ in
             guard let self = self else { return }
-            // Update session state
             self.session.status = .paused
             RoleplaySessionDataModel.shared.updateSession(self.session, scenario: self.scenario)
             RoleplaySessionDataModel.shared.saveSessionForLater()
@@ -390,11 +678,12 @@ class RoleplayChatViewController: UIViewController {
 
     
     @IBAction func replayTapped(_ sender: UIButton) {
-        replayRoleplayFromStart()
+        // This is now handled by muteTapped via the repurposed button
     }
 
     
     private func replayRoleplayFromStart() {
+        speechSynthesizer.stopSpeaking(at: .immediate)
 
         session.currentLineIndex = 0
         session.status = .notStarted
@@ -403,19 +692,17 @@ class RoleplayChatViewController: UIViewController {
         messages.removeAll()
         currentWrongStreak = 0
         totalWrongAttempts = 0
+        geminiHistory.removeAll()
+        geminiTurnCount = 0
+        isScriptedMode = false
 
         tableView.reloadData()
 
-        loadCurrentStep()
+        startGeminiRoleplay()
     }
-   
 
-
-
-
-
-    
     private func presentScoreScreen() {
+        speechSynthesizer.stopSpeaking(at: .immediate)
 
         let storyboard = UIStoryboard(name: "RolePlayStoryBoard", bundle: nil)
 
@@ -426,11 +713,23 @@ class RoleplayChatViewController: UIViewController {
         scoreVC.score = calculateScore()
         scoreVC.pointsEarned = 5
 
-
         present(scoreVC, animated: true)
     }
 
 }
+
+// MARK: - AVSpeechSynthesizerDelegate
+
+extension RoleplayChatViewController: AVSpeechSynthesizerDelegate {
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        // Reset audio session for recording after TTS finishes
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.record, mode: .measurement, options: [.duckOthers])
+        try? session.setActive(true)
+    }
+}
+
+// MARK: - UITableView
 
 extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate {
 
@@ -476,12 +775,4 @@ extension RoleplayChatViewController: UITableViewDataSource, UITableViewDelegate
         let penalty = totalWrongAttempts * 5
         return max(100 - penalty, 60)
     }
-
-    
-    
-   
-
-    
-   
-
 }

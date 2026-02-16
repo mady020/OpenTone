@@ -12,10 +12,18 @@ final class AudioManager {
     private var task: SFSpeechRecognitionTask?
 
     private(set) var isRecording = false
+    private(set) var isMuted = false
 
     var onFinalTranscription: ((String) -> Void)?
 
     private init() {}
+
+    func setMuted(_ muted: Bool) {
+        isMuted = muted
+        if muted && isRecording {
+            stopRecording()
+        }
+    }
 
 
 
@@ -41,7 +49,7 @@ final class AudioManager {
 
     func startRecording() {
 
-        guard !isRecording else { return }
+        guard !isRecording, !isMuted else { return }
 
         requestPermissions { [weak self] granted in
             guard let self, granted else {
