@@ -99,13 +99,16 @@ final class CommitmentViewController: UIViewController {
             let selected = selectedOption,
             var user = SessionManager.shared.currentUser
         else { return }
-        user.streak = Streak(
+        let newStreak = Streak(
             commitment: selected.number,
-            currentCount: 1,
-            longestCount: 0
+            currentCount: 0,
+            longestCount: 0,
+            lastActiveDate: nil
         )
+        user.streak = newStreak
 
         SessionManager.shared.updateSessionUser(user)
+        StreakDataModel.shared.updateStreak(newStreak)
         InterestSelectionStore.shared.selected.removeAll()
 
         goToDashboard()

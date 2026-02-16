@@ -187,7 +187,7 @@ final class UserDataModel {
             User(
                 name: "Madhav Sharma",
                 email: "madhav@opentone.com",
-                password: "madhav123",
+                password: "Madhav123",
                 country: Country(name: "India", code: "IN"),
                 age: 20,
                 gender: .male,

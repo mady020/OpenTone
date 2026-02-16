@@ -457,10 +457,10 @@
                                     <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="exitBtn-01">
                                         <rect key="frame" x="321" y="28" width="56" height="56"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="56" id="exitW-01"/>
                                             <constraint firstAttribute="height" constant="56" id="exitH-01"/>
+                                            <constraint firstAttribute="width" constant="56" id="exitW-01"/>
                                         </constraints>
-                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="tintColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" image="xmark" catalog="system"/>
                                     </button>
@@ -471,9 +471,9 @@
                                     <constraint firstItem="9r6-DC-1me" firstAttribute="leading" secondItem="zIg-Tq-Sr7" secondAttribute="leading" constant="16" id="8sl-9K-jcd"/>
                                     <constraint firstAttribute="height" constant="100" id="KuT-aI-UUx"/>
                                     <constraint firstAttribute="trailing" secondItem="exitBtn-01" secondAttribute="trailing" constant="16" id="Q9Z-bf-Vgb"/>
+                                    <constraint firstAttribute="bottom" secondItem="exitBtn-01" secondAttribute="bottom" constant="16" id="exitBot-01"/>
                                     <constraint firstItem="auu-2r-R14" firstAttribute="centerX" secondItem="zIg-Tq-Sr7" secondAttribute="centerX" id="micCenterX-01"/>
                                     <constraint firstAttribute="bottom" secondItem="9r6-DC-1me" secondAttribute="bottom" constant="16" id="yXP-n4-ylS"/>
-                                    <constraint firstAttribute="bottom" secondItem="exitBtn-01" secondAttribute="bottom" constant="16" id="exitBot-01"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -489,15 +489,7 @@
                             <constraint firstItem="8zv-LH-wjs" firstAttribute="bottom" secondItem="zIg-Tq-Sr7" secondAttribute="top" id="xe2-fY-ifg"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Grocery Shopping" id="cIj-Cm-PdM">
-                        <barButtonItem key="rightBarButtonItem" image="xmark" catalog="system" id="hm1-wz-fzC">
-                            <color key="tintColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <connections>
-                                <action selector="endButtonTapped:" destination="Z8h-z1-9tc" id="p3s-5R-Zwm"/>
-
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Grocery Shopping" id="cIj-Cm-PdM"/>
                     <connections>
                         <outlet property="exitButton" destination="exitBtn-01" id="exitOutlet-01"/>
                         <outlet property="micButton" destination="auu-2r-R14" id="fEa-We-Q4M"/>
@@ -506,7 +498,6 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VmJ-3U-8rX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <exit id="6h4-oI-Bzs" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="2580.9160305343512" y="130.98591549295776"/>
         </scene>

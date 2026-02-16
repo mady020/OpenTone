@@ -71,6 +71,7 @@ class RoleplayChatViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground
         navigationItem.hidesBackButton = true
+        navigationItem.rightBarButtonItem = nil
     }
     
     private func setupTableView() {
@@ -97,15 +98,30 @@ class RoleplayChatViewController: UIViewController {
         replayButton.layer.borderWidth = 1
         replayButton.tintColor = AppColors.primary
 
-        // Exit button
-        if let exitBtn = exitButton {
-            exitBtn.layer.cornerRadius = 28
-            exitBtn.backgroundColor = AppColors.cardBackground
-            exitBtn.layer.borderColor = AppColors.cardBorder.cgColor
-            exitBtn.layer.borderWidth = 1
-            exitBtn.tintColor = .white
-            exitBtn.setImage(UIImage(systemName: "xmark"), for: .normal)
-            exitBtn.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
+        // exit button
+        exitButton.layer.cornerRadius = 28
+        exitButton.backgroundColor = AppColors.cardBackground
+        exitButton.layer.borderColor = AppColors.cardBorder.cgColor
+        exitButton.layer.borderWidth = 1
+        exitButton.tintColor = AppColors.primary
+        exitButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
+        
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            // Re-apply border colors (CGColor doesn't auto-update)
+            micButton.layer.borderColor = AppColors.cardBorder.cgColor
+            micButton.backgroundColor = AppColors.cardBackground
+            replayButton.layer.borderColor = AppColors.cardBorder.cgColor
+            replayButton.backgroundColor = AppColors.cardBackground
+            if let exitBtn = exitButton {
+                exitBtn.layer.borderColor = AppColors.cardBorder.cgColor
+                exitBtn.backgroundColor = AppColors.cardBackground
+                exitBtn.tintColor = AppColors.textPrimary
+            }
         }
     }
 

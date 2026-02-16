@@ -175,10 +175,9 @@ final class ProgressCell: UICollectionViewCell {
             streakCountLabel.trailingAnchor.constraint(equalTo: streakContainer.trailingAnchor, constant: -10),
             streakCountLabel.centerYAnchor.constraint(equalTo: streakContainer.centerYAnchor),
 
-            // Greeting
-            greetingLabel.centerYAnchor.constraint(equalTo: streakContainer.centerYAnchor),
-            greetingLabel.leadingAnchor.constraint(equalTo: streakContainer.trailingAnchor, constant: 10),
-            greetingLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16),
+            // Greeting — top-right corner
+            greetingLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            greetingLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
             // Ring
             ringContainer.topAnchor.constraint(equalTo: streakContainer.bottomAnchor, constant: 12),
@@ -328,16 +327,21 @@ final class ProgressCell: UICollectionViewCell {
         greetingLabel.text = greetingText()
 
         // Ring
-        let goalSafe = max(data.dailyGoalMinutes, 1)
-        let pct = min(Double(data.todayMinutes) / Double(goalSafe), 1.0)
-        ringProgressLayer.strokeEnd = CGFloat(pct)
-        percentLabel.text = "\(Int(pct * 100))%"
+        if data.dailyGoalMinutes <= 0 {
+            ringProgressLayer.strokeEnd = 0
+            percentLabel.text = "—"
+            goalSubLabel.text = "No schedule"
+        } else {
+            let pct = min(Double(data.todayMinutes) / Double(data.dailyGoalMinutes), 1.0)
+            ringProgressLayer.strokeEnd = CGFloat(pct)
+            percentLabel.text = "\(Int(pct * 100))%"
 
-        let remaining = max(0, data.dailyGoalMinutes - data.todayMinutes)
-        goalSubLabel.text = "\(remaining) min left"
+            let remaining = max(0, data.dailyGoalMinutes - data.todayMinutes)
+            goalSubLabel.text = "\(remaining) min left"
+        }
 
         // Weekly bars
-        let maxMinutes = max(data.weeklyMinutes.max() ?? 1, data.dailyGoalMinutes)
+        let maxMinutes = max(data.weeklyMinutes.max() ?? 0, max(data.dailyGoalMinutes, 1))
         storedBarValues = data.weeklyMinutes
         storedBarMax = maxMinutes
         setNeedsLayout()

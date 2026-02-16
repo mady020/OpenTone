@@ -96,7 +96,7 @@ class HomeCollectionViewController: UICollectionViewController {
     private func buildProgressData() -> ProgressCellData {
         let streak = StreakDataModel.shared.getStreak()
         let streakDays = streak?.currentCount ?? 0
-        let dailyGoal = max(streak?.commitment ?? 10, 1)   // fallback 10 min
+        let dailyGoal = streak?.commitment ?? 0
         let todayMinutes = StreakDataModel.shared.totalMinutes(for: Date())
 
         // Build Mon → Sun weekly minutes
