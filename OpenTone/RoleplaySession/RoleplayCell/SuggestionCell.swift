@@ -6,68 +6,96 @@ protocol SuggestionCellDelegate: AnyObject {
 
 class SuggestionCell: UITableViewCell {
 
-    @IBOutlet weak var button1: UIButton!
-    @IBOutlet weak var button2: UIButton!
-    @IBOutlet weak var button3: UIButton!
-
     weak var delegate: SuggestionCellDelegate?
 
-    private var buttons: [UIButton] {
-        [button1, button2, button3]
+    private let stackView = UIStackView()
+    private var suggestionButtons: [UIButton] = []
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupStack()
     }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupStack()
+    }
+
     override func awakeFromNib() {
         super.awakeFromNib()
         backgroundColor = .clear
         selectionStyle = .none
-        setupButtons()
+        // Stack is already set up from init(coder:)
+    }
+
+    private func setupStack() {
+        backgroundColor = .clear
+        selectionStyle = .none
+
+        stackView.axis = .vertical
+        stackView.spacing = 8
+        stackView.alignment = .trailing
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 60),
+        ])
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        for button in buttons {
-            button.setTitle(nil, for: .normal)
-            button.isHidden = true
-            button.isEnabled = true
-            button.alpha = 1.0
+        for button in suggestionButtons {
+            button.removeFromSuperview()
         }
+        suggestionButtons.removeAll()
     }
-    private func setupButtons() {
-        for button in buttons {
-            button.isHidden = true
-            button.titleLabel?.numberOfLines = 0
-            button.titleLabel?.textAlignment = .center
-            button.layer.cornerRadius = 16
-            button.backgroundColor = AppColors.primary.withAlphaComponent(0.1)
-            button.setTitleColor(AppColors.primary, for: .normal)
-            button.layer.borderWidth = 1
-            button.layer.borderColor = AppColors.primary.cgColor
-            button.removeTarget(nil, action: nil, for: .allEvents)
-            button.addTarget(
-                self,
-                action: #selector(suggestionTapped(_:)),
-                for: .touchUpInside
-            )
-        }
-    }
-    func configure(_ suggestions: [String]) {
-        for button in buttons {
-            button.isHidden = true
-        }
-        for (index, suggestion) in suggestions.enumerated() {
-            guard index < buttons.count else { break }
 
-            let button = buttons[index]
-            button.setTitle(suggestion, for: .normal)
-            button.isHidden = false
+    func configure(_ suggestions: [String]) {
+        // Clear old buttons
+        for button in suggestionButtons {
+            button.removeFromSuperview()
+        }
+        suggestionButtons.removeAll()
+
+        for suggestion in suggestions {
+            let button = makeSuggestionButton(title: suggestion)
+            stackView.addArrangedSubview(button)
+            suggestionButtons.append(button)
         }
     }
+
+    private func makeSuggestionButton(title: String) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.textAlignment = .center
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.setTitleColor(AppColors.primary, for: .normal)
+        button.backgroundColor = AppColors.primaryLight
+        button.layer.cornerRadius = 18
+        button.layer.borderWidth = 1
+        button.layer.borderColor = AppColors.primary.withAlphaComponent(0.3).cgColor
+        button.clipsToBounds = true
+        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 18, bottom: 10, right: 18)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
+
+        // Max width constraint so long text wraps
+        button.widthAnchor.constraint(lessThanOrEqualToConstant: UIScreen.main.bounds.width - 92).isActive = true
+
+        return button
+    }
+
     @objc private func suggestionTapped(_ sender: UIButton) {
         guard let text = sender.title(for: .normal) else { return }
-        for button in buttons {
+        for button in suggestionButtons {
             button.isEnabled = false
-            button.alpha = 0.6
+            button.alpha = 0.5
         }
-
         delegate?.didTapSuggestion(text)
     }
 }

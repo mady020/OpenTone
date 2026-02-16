@@ -87,7 +87,8 @@ final class SettingsViewController: UIViewController {
             ],
             // Section 2 — Account
             [
-                Row(title: "Name", icon: "person.fill", iconTint: .systemBlue, detail: user?.name ?? "—")
+                Row(title: "Email", icon: "envelope.fill", iconTint: .systemBlue, detail: user?.email ?? "—"),
+                Row(title: "Password", icon: "lock.fill", iconTint: .systemOrange, detail: "••••••••")
             ],
             // Section 3 — About
             [
@@ -263,23 +264,79 @@ final class SettingsViewController: UIViewController {
         guard var user = SessionManager.shared.currentUser else { return }
 
         switch row {
-        case 0: // Name
-            showTextEditor(title: "Edit Name", current: user.name) { newValue in
-                user.name = newValue
+        case 0: // Email
+            showTextEditor(title: "Update Email", current: user.email, keyboardType: .emailAddress) { newValue in
+                user.email = newValue
                 SessionManager.shared.updateSessionUser(user)
                 self.buildSections()
                 self.tableView.reloadData()
             }
+        case 1: // Password
+            showPasswordEditor()
         default:
             break
         }
     }
 
-    private func showTextEditor(title: String, current: String, onSave: @escaping (String) -> Void) {
+    private func showPasswordEditor() {
+        guard var user = SessionManager.shared.currentUser else { return }
+
+        let alert = UIAlertController(title: "Update Password", message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.placeholder = "Current password"
+            tf.isSecureTextEntry = true
+        }
+        alert.addTextField { tf in
+            tf.placeholder = "New password"
+            tf.isSecureTextEntry = true
+        }
+        alert.addTextField { tf in
+            tf.placeholder = "Confirm new password"
+            tf.isSecureTextEntry = true
+        }
+        alert.addAction(UIAlertAction(title: "Update", style: .default) { [weak self] _ in
+            let current = alert.textFields?[0].text ?? ""
+            let newPass = alert.textFields?[1].text ?? ""
+            let confirm = alert.textFields?[2].text ?? ""
+
+            guard !current.isEmpty, !newPass.isEmpty else {
+                self?.showAlert(title: "Error", message: "All fields are required.")
+                return
+            }
+            guard current == user.password else {
+                self?.showAlert(title: "Error", message: "Current password is incorrect.")
+                return
+            }
+            guard newPass.count >= 6 else {
+                self?.showAlert(title: "Error", message: "New password must be at least 6 characters.")
+                return
+            }
+            guard newPass == confirm else {
+                self?.showAlert(title: "Error", message: "New passwords do not match.")
+                return
+            }
+
+            user.password = newPass
+            SessionManager.shared.updateSessionUser(user)
+            self?.showAlert(title: "Success", message: "Password updated successfully.")
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func showTextEditor(title: String, current: String, keyboardType: UIKeyboardType = .default, onSave: @escaping (String) -> Void) {
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
         alert.addTextField { tf in
             tf.text = current
             tf.clearButtonMode = .whileEditing
+            tf.keyboardType = keyboardType
+            tf.autocapitalizationType = keyboardType == .emailAddress ? .none : .words
         }
         alert.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             guard let newValue = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),

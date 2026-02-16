@@ -674,6 +674,7 @@ extension HomeCollectionViewController {
             ) as! RolePlayStartCollectionViewController
 
             vc.currentScenario = scenario
+            vc.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(vc, animated: true)
 
         }

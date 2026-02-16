@@ -66,6 +66,7 @@ class HistoryViewController: UIViewController {
             ) as? RolePlayStartCollectionViewController else { return }
 
             startVC.currentScenario = scenario
+            startVC.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(startVC, animated: true)
         }
     }

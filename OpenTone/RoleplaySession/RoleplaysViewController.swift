@@ -118,9 +118,8 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toRolePlayStart",
            let vc = segue.destination as? RolePlayStartCollectionViewController {
-
+            vc.hidesBottomBarWhenPushed = true
             vc.currentScenario = selectedScenario
-           
         }
     }
 
