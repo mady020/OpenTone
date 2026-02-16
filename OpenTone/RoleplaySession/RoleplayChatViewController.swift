@@ -209,7 +209,7 @@ class RoleplayChatViewController: UIViewController {
 
         geminiHistory.append(GeminiService.Message(role: .user, text: text))
 
-        let models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+        let models = ["gemini-2.5-flash"]
         let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
 
         var lastError: Error = GeminiService.GeminiError.emptyResponse

@@ -25,16 +25,8 @@ final class CountdownViewController: UIViewController {
         bottomLabel.textColor = AppColors.textPrimary
         
         navigationItem.hidesBackButton = true
-
-        // Custom back button to cancel countdown
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(backButtonTapped)
-        )
-        backButton.tintColor = AppColors.primary
-        navigationItem.leftBarButtonItem = backButton
+        navigationItem.leftBarButtonItem = nil
+        navigationController?.setNavigationBarHidden(true, animated: false)
 
         countdownLabel.text = "Ready"
         countdownLabel.font = .systemFont(ofSize: 70, weight: .semibold)
@@ -72,6 +64,11 @@ final class CountdownViewController: UIViewController {
 
         tabBarController?.tabBar.isHidden = true
         animateRightHalf()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: false)
     }
 
 

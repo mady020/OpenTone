@@ -1,8 +1,8 @@
 import UIKit
 
 /// Full-screen profile editor. Lets the user update their avatar, name, bio,
-/// country, and English level. All changes persist through SessionManager →
-/// UserDataModel immediately.
+/// country, English level, and interests. All changes persist through
+/// SessionManager → UserDataModel immediately.
 final class EditProfileViewController: UIViewController {
 
     // MARK: - Callback
@@ -14,24 +14,6 @@ final class EditProfileViewController: UIViewController {
     private var editableUser: User?
 
     private let avatarOptions = ["pp1", "pp2"]  // Asset catalog images
-
-    private let countryList: [Country] = [
-        Country(name: "India", code: "IN"),
-        Country(name: "United States", code: "US"),
-        Country(name: "United Kingdom", code: "GB"),
-        Country(name: "Canada", code: "CA"),
-        Country(name: "Australia", code: "AU"),
-        Country(name: "Germany", code: "DE"),
-        Country(name: "France", code: "FR"),
-        Country(name: "Japan", code: "JP"),
-        Country(name: "Brazil", code: "BR"),
-        Country(name: "Mexico", code: "MX"),
-        Country(name: "South Korea", code: "KR"),
-        Country(name: "Italy", code: "IT"),
-        Country(name: "Spain", code: "ES"),
-        Country(name: "Netherlands", code: "NL"),
-        Country(name: "Singapore", code: "SG"),
-    ]
 
     // MARK: - UI Elements
 
@@ -83,6 +65,35 @@ final class EditProfileViewController: UIViewController {
     private let countryButton = EditProfileViewController.makePickerButton(title: "Select Country")
     private let levelButton = EditProfileViewController.makePickerButton(title: "English Level")
 
+    // MARK: - Interests
+
+    private let allInterestItems: [InterestItem] = [
+        InterestItem(title: "Technology",   symbol: "cpu"),
+        InterestItem(title: "Gaming",       symbol: "gamecontroller.fill"),
+        InterestItem(title: "Travel",       symbol: "airplane"),
+        InterestItem(title: "Fitness",      symbol: "dumbbell"),
+        InterestItem(title: "Food",         symbol: "fork.knife"),
+        InterestItem(title: "Music",        symbol: "music.note.list"),
+        InterestItem(title: "Movies",       symbol: "film.fill"),
+        InterestItem(title: "Photography",  symbol: "camera.fill"),
+        InterestItem(title: "Finance",      symbol: "chart.bar.xaxis"),
+        InterestItem(title: "Business",     symbol: "briefcase.fill"),
+        InterestItem(title: "Health",       symbol: "heart.fill"),
+        InterestItem(title: "Learning",     symbol: "book.fill"),
+        InterestItem(title: "Productivity", symbol: "checkmark.circle"),
+        InterestItem(title: "Shopping",     symbol: "cart.fill"),
+        InterestItem(title: "Sports",       symbol: "sportscourt.fill"),
+        InterestItem(title: "Cars",         symbol: "car.fill"),
+        InterestItem(title: "Cooking",      symbol: "takeoutbag.and.cup.and.straw.fill"),
+        InterestItem(title: "Fashion",      symbol: "tshirt.fill"),
+        InterestItem(title: "Pets",         symbol: "pawprint.fill"),
+        InterestItem(title: "Art & Design", symbol: "paintpalette.fill")
+    ]
+
+    private var selectedInterests: Set<InterestItem> = []
+    private var interestsCollectionView: UICollectionView!
+    private var interestsHeightConstraint: NSLayoutConstraint!
+
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -101,6 +112,12 @@ final class EditProfileViewController: UIViewController {
 
         setupUI()
         populateFields()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Reload interests so pre-selected cards show the purple highlight
+        interestsCollectionView.reloadData()
     }
 
     // MARK: - Setup
@@ -157,6 +174,10 @@ final class EditProfileViewController: UIViewController {
         contentStack.addArrangedSubview(makeSectionLabel("English Level"))
         levelButton.addTarget(self, action: #selector(levelTapped), for: .touchUpInside)
         contentStack.addArrangedSubview(levelButton)
+
+        // Interests
+        contentStack.addArrangedSubview(makeSectionLabel("Interests (pick at least 3)"))
+        setupInterestsCollectionView()
     }
 
     private func populateFields() {
@@ -175,6 +196,11 @@ final class EditProfileViewController: UIViewController {
             levelButton.setTitle(level.rawValue.capitalized, for: .normal)
             levelButton.setTitleColor(AppColors.textPrimary, for: .normal)
         }
+
+        // Interests
+        selectedInterests = user.interests ?? []
+        interestsCollectionView.reloadData()
+        updateInterestsHeight()
     }
 
     // MARK: - Actions
@@ -190,6 +216,7 @@ final class EditProfileViewController: UIViewController {
 
         user.name = newName
         user.bio = bioTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        user.interests = selectedInterests
 
         SessionManager.shared.updateSessionUser(user)
         onProfileUpdated?()
@@ -240,27 +267,18 @@ final class EditProfileViewController: UIViewController {
     }
 
     @objc private func countryTapped() {
-        let alert = UIAlertController(title: "Select Country", message: nil, preferredStyle: .actionSheet)
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let vc = storyboard.instantiateViewController(
+            withIdentifier: "CountryPickerViewController"
+        ) as! CountryPickerViewController
 
-        for country in countryList {
-            let action = UIAlertAction(title: "\(country.flag) \(country.name)", style: .default) { [weak self] _ in
-                self?.editableUser?.country = country
-                self?.countryButton.setTitle("\(country.flag) \(country.name)", for: .normal)
-                self?.countryButton.setTitleColor(AppColors.textPrimary, for: .normal)
-            }
-            if country.code == editableUser?.country?.code {
-                action.setValue(true, forKey: "checked")
-            }
-            alert.addAction(action)
-        }
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = countryButton
-            popover.sourceRect = countryButton.bounds
+        vc.onSelect = { [weak self] country in
+            self?.editableUser?.country = country
+            self?.countryButton.setTitle("\(country.flag) \(country.name)", for: .normal)
+            self?.countryButton.setTitleColor(AppColors.textPrimary, for: .normal)
         }
 
-        present(alert, animated: true)
+        present(vc, animated: true)
     }
 
     @objc private func levelTapped() {
@@ -351,6 +369,101 @@ final class EditProfileViewController: UIViewController {
         ])
 
         return btn
+    }
+}
+
+// MARK: - Interests Collection View
+
+extension EditProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+
+    func setupInterestsCollectionView() {
+        let layout = makeInterestsLayout()
+        interestsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        interestsCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        interestsCollectionView.backgroundColor = .clear
+        interestsCollectionView.isScrollEnabled = false
+        interestsCollectionView.dataSource = self
+        interestsCollectionView.delegate = self
+
+        interestsCollectionView.register(
+            UINib(nibName: "InterestCard", bundle: nil),
+            forCellWithReuseIdentifier: InterestCard.reuseIdentifier
+        )
+
+        contentStack.addArrangedSubview(interestsCollectionView)
+
+        interestsHeightConstraint = interestsCollectionView.heightAnchor.constraint(equalToConstant: 320)
+        interestsHeightConstraint.isActive = true
+    }
+
+    private func makeInterestsLayout() -> UICollectionViewLayout {
+        UICollectionViewCompositionalLayout { _, _ in
+            let itemSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0 / 3.0),
+                heightDimension: .fractionalHeight(1.0)
+            )
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+
+            let groupSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(120)
+            )
+            let group = NSCollectionLayoutGroup.horizontal(
+                layoutSize: groupSize,
+                subitems: [item, item, item]
+            )
+
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 8
+            return section
+        }
+    }
+
+    func updateInterestsHeight() {
+        let rows = ceil(Double(allInterestItems.count) / 3.0)
+        let height = rows * 120 + (rows - 1) * 8
+        interestsHeightConstraint.constant = CGFloat(height)
+        interestsCollectionView.layoutIfNeeded()
+    }
+
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        allInterestItems.count
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: InterestCard.reuseIdentifier,
+            for: indexPath
+        ) as! InterestCard
+
+        let item = allInterestItems[indexPath.item]
+        let isSelected = selectedInterests.contains(item)
+
+        cell.configure(
+            with: item,
+            backgroundColor: isSelected ? AppColors.primary : AppColors.cardBackground,
+            tintColor: isSelected ? AppColors.textOnPrimary : AppColors.textPrimary,
+            borderColor: AppColors.cardBorder,
+            selected: isSelected
+        )
+
+        return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let item = allInterestItems[indexPath.item]
+
+        if selectedInterests.contains(item) {
+            selectedInterests.remove(item)
+        } else {
+            selectedInterests.insert(item)
+        }
+
+        collectionView.reloadItems(at: [indexPath])
     }
 }
 

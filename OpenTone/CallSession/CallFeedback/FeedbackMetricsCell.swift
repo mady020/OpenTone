@@ -78,7 +78,7 @@ class FeedbackMetricsCell: UICollectionViewCell {
         fillerValueLabel.text = fillerValue
         fillerValueLabel.textColor = AppColors.textPrimary
         fillerProgressView.progress = fillerProgress
-        fillerProgressView.progressTintColor = AppColors.primary
+        fillerProgressView.progressTintColor = fillerProgress > 0.5 ? .systemOrange : AppColors.primary
   
         wpmTitleLabel.text = "Words Per Minute"
         wpmTitleLabel.textColor = .secondaryLabel

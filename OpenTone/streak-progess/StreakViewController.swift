@@ -145,8 +145,8 @@ class StreakViewController: UIViewController {
         percentLabel.textColor = AppColors.textPrimary
         goalLabel.textColor = .secondaryLabel
         comparisonLabel.textColor = .secondaryLabel
-        bestDayLabel.textColor = .secondaryLabel
-        totalWeekTimeLabel.textColor = AppColors.textPrimary
+        bestDayLabel.textColor = UIColor.white.withAlphaComponent(0.8)
+        totalWeekTimeLabel.textColor = .white
 
     }
 

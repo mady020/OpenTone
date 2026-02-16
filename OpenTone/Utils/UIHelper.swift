@@ -219,12 +219,20 @@ enum UIHelper {
         button.layer.borderColor = UIColor.systemRed.withAlphaComponent(0.3).cgColor
     }
 
-    /// Selection-style chip/reason button — card background, card border, primary text.
+    /// Selection-style chip/reason button — card background, visible border, primary text.
     static func styleOptionButton(_ button: UIButton) {
         button.layer.cornerRadius = 20
         button.layer.borderWidth = 1
-        button.layer.borderColor = AppColors.cardBorder.cgColor
-        button.backgroundColor = AppColors.cardBackground
+        button.layer.borderColor = UIColor { trait in
+            return trait.userInterfaceStyle == .dark
+                ? UIColor.systemGray3
+                : AppColors.cardBorder
+        }.cgColor
+        button.backgroundColor = UIColor { trait in
+            return trait.userInterfaceStyle == .dark
+                ? UIColor.tertiarySystemGroupedBackground
+                : AppColors.cardBackground
+        }
         button.setTitleColor(AppColors.textPrimary, for: .normal)
         button.clipsToBounds = true
     }

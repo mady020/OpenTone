@@ -2,6 +2,10 @@ import UIKit
 
 class FeedbackMistakeCell: UICollectionViewCell {
 
+    @IBOutlet weak var originalLabel: UILabel!
+    @IBOutlet weak var correctionLabel: UILabel!
+    @IBOutlet weak var explanationLabel: UILabel!
+
     override func awakeFromNib() {
         super.awakeFromNib()
         applyTheme()
@@ -16,7 +20,24 @@ class FeedbackMistakeCell: UICollectionViewCell {
         clipsToBounds = true
     }
 
+    func configure(original: String, correction: String, explanation: String) {
+        if !original.isEmpty {
+            originalLabel.text = original.hasPrefix("✨") ? original : "❌ \(original)"
+            originalLabel.textColor = original.hasPrefix("✨") ? AppColors.textPrimary : .systemRed
+        } else {
+            originalLabel.text = nil
+        }
 
+        if !correction.isEmpty {
+            correctionLabel.text = correction.hasPrefix("No ") ? correction : "✔️ \(correction)"
+            correctionLabel.textColor = .systemGreen
+        } else {
+            correctionLabel.text = nil
+        }
+
+        explanationLabel.text = explanation
+        explanationLabel.textColor = .secondaryLabel
+    }
 
     private func applyTheme() {
         layer.borderWidth = 1

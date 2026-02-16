@@ -1,5 +1,7 @@
 
 import UIKit
+import Speech
+import AVFoundation
 
 class StartJamViewController: UIViewController {
 
@@ -15,6 +17,18 @@ class StartJamViewController: UIViewController {
     private var hintStackView: UIStackView?
     private var didFinishSpeech = false
     private var isMicOn = false
+
+    // MARK: - Speech Recognition
+
+    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+    private var recognitionTask: SFSpeechRecognitionTask?
+    private let audioEngine = AVAudioEngine()
+
+    /// Accumulated transcript from the user's speech.
+    private var currentTranscript: String = ""
+    /// Tracks whether recording has been started at least once.
+    private var hasStartedRecording = false
 
     // MARK: - Lifecycle
 
@@ -47,6 +61,9 @@ class StartJamViewController: UIViewController {
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: StartJamViewController, _) in
             self.applyDarkModeStyles()
         }
+
+        // Request speech recognition & microphone permissions, then start recording
+        requestSpeechPermissions()
     }
 
     private func applyDarkModeStyles() {
@@ -91,6 +108,7 @@ class StartJamViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         timerManager.reset()
+        stopRecording()
 
         guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
         session.secondsLeft = remainingSeconds
@@ -109,6 +127,7 @@ class StartJamViewController: UIViewController {
 
     private func showExitAlert() {
         timerManager.pause()
+        pauseRecording()
         timerRingView.resetRing() 
         timerRingView.setProgress(value: CGFloat(remainingSeconds), max: 30) // Pause visual state
 
@@ -119,12 +138,13 @@ class StartJamViewController: UIViewController {
         )
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            // Resume the timer
+            // Resume the timer and recording
             self.timerManager.start(from: self.remainingSeconds)
             self.timerRingView.animateRing(
                 remainingSeconds: self.remainingSeconds,
                 totalSeconds: 30
             )
+            self.resumeRecording()
         })
 
         alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { _ in
@@ -153,6 +173,22 @@ class StartJamViewController: UIViewController {
 
     @IBAction func micTapped(_ sender: UIButton) {
         isMicOn.toggle()
+
+        if isMicOn {
+            // Mic is now ON — resume/start recording
+            if hasStartedRecording {
+                resumeRecording()
+            } else {
+                startRecording()
+            }
+            sender.setImage(UIImage(systemName: "mic.fill"), for: .normal)
+            sender.tintColor = AppColors.primary
+        } else {
+            // Mic is now OFF — pause recording
+            pauseRecording()
+            sender.setImage(UIImage(systemName: "mic.slash.fill"), for: .normal)
+            sender.tintColor = .systemRed
+        }
     }
 
     @IBAction func hintTapped(_ sender: UIButton) {
@@ -220,6 +256,129 @@ class StartJamViewController: UIViewController {
     private func format(_ seconds: Int) -> String {
         String(format: "%02d:%02d", seconds / 60, seconds % 60)
     }
+
+    // MARK: - Speech Recognition
+
+    private func requestSpeechPermissions() {
+        SFSpeechRecognizer.requestAuthorization { [weak self] status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized:
+                    self?.startRecording()
+                case .denied, .restricted, .notDetermined:
+                    print("⚠️ Speech recognition not authorized: \(status.rawValue)")
+                @unknown default:
+                    break
+                }
+            }
+        }
+    }
+
+    private func startRecording() {
+        // Cancel any running task
+        recognitionTask?.cancel()
+        recognitionTask = nil
+
+        guard let speechRecognizer = speechRecognizer, speechRecognizer.isAvailable else {
+            print("⚠️ Speech recognizer not available")
+            return
+        }
+
+        // Configure audio session
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("⚠️ Audio session setup failed: \(error)")
+            return
+        }
+
+        // Create recognition request
+        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        guard let recognitionRequest = recognitionRequest else { return }
+        recognitionRequest.shouldReportPartialResults = true
+
+        // Start recognition task
+        recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
+            guard let self = self else { return }
+
+            if let result = result {
+                self.currentTranscript = result.bestTranscription.formattedString
+            }
+
+            if error != nil || (result?.isFinal ?? false) {
+                self.audioEngine.stop()
+                self.audioEngine.inputNode.removeTap(onBus: 0)
+                self.recognitionRequest = nil
+                self.recognitionTask = nil
+            }
+        }
+
+        // Configure audio input
+        let inputNode = audioEngine.inputNode
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+            self.recognitionRequest?.append(buffer)
+        }
+
+        audioEngine.prepare()
+        do {
+            try audioEngine.start()
+            isMicOn = true
+            hasStartedRecording = true
+            updateMicButtonAppearance()
+        } catch {
+            print("⚠️ Audio engine start failed: \(error)")
+        }
+    }
+
+    private func pauseRecording() {
+        if audioEngine.isRunning {
+            audioEngine.pause()
+        }
+    }
+
+    private func resumeRecording() {
+        if !audioEngine.isRunning && hasStartedRecording {
+            do {
+                try audioEngine.start()
+                isMicOn = true
+                updateMicButtonAppearance()
+            } catch {
+                print("⚠️ Audio engine resume failed: \(error)")
+            }
+        }
+    }
+
+    private func stopRecording() {
+        if audioEngine.isRunning {
+            audioEngine.stop()
+        }
+        audioEngine.inputNode.removeTap(onBus: 0)
+        recognitionRequest?.endAudio()
+        recognitionRequest = nil
+        recognitionTask?.cancel()
+        recognitionTask = nil
+        isMicOn = false
+    }
+
+    private func updateMicButtonAppearance() {
+        // Find the mic button in the bottom stack view
+        for case let button as UIButton in bottomActionStackView.arrangedSubviews {
+            if button.currentImage == UIImage(systemName: "mic.fill") ||
+               button.currentImage == UIImage(systemName: "mic.slash.fill") {
+                if isMicOn {
+                    button.setImage(UIImage(systemName: "mic.fill"), for: .normal)
+                    button.tintColor = AppColors.primary
+                } else {
+                    button.setImage(UIImage(systemName: "mic.slash.fill"), for: .normal)
+                    button.tintColor = .systemRed
+                }
+                break
+            }
+        }
+    }
 }
 
 // MARK: - TimerManagerDelegate
@@ -243,6 +402,10 @@ extension StartJamViewController: TimerManagerDelegate {
         guard !didFinishSpeech else { return }
         didFinishSpeech = true
 
+        // Stop recording and capture the final transcript
+        let transcript = currentTranscript
+        stopRecording()
+
         timerLabel.text = "00:00"
 
         guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
@@ -250,9 +413,23 @@ extension StartJamViewController: TimerManagerDelegate {
         session.endedAt = Date()
         JamSessionDataModel.shared.updateActiveSession(session)
 
+        // Calculate speaking duration
+        let speakingDuration: Double
+        if let start = session.startedSpeakingAt {
+            speakingDuration = Date().timeIntervalSince(start)
+        } else {
+            speakingDuration = 30.0
+        }
+
         let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "Feedback")
+        let vc = storyboard.instantiateViewController(withIdentifier: "Feedback") as! FeedbackCollectionViewController
         vc.navigationItem.hidesBackButton = true
+
+        // Pass transcript and topic for Gemini analysis
+        vc.transcript = transcript
+        vc.topic = session.topic
+        vc.speakingDuration = speakingDuration
+
         tabBarController?.tabBar.isHidden = false
         navigationController?.pushViewController(vc, animated: true)
     }

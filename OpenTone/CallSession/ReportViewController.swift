@@ -40,7 +40,8 @@ class ReportViewController: UIViewController {
 
         styleReasonButtons()
         
-        UIHelper.stylePrimaryButton(submitButton)
+        UIHelper.styleLargeCTAButton(submitButton)
+        submitButton.setTitle("Submit", for: .normal)
 
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: ReportViewController, _) in
             self.styleReasonButtons()
