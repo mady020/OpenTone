@@ -1,4 +1,5 @@
 import UIKit
+import AuthenticationServices
 
 final class LoginViewController: UIViewController {
 
@@ -8,6 +9,9 @@ final class LoginViewController: UIViewController {
     private var isPasswordVisible = false
 
     private var loginButton: UIButton?
+    private var appleSignInButton: ASAuthorizationAppleIDButton?
+    
+    private var passwordToggleButton: UIButton?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +41,7 @@ final class LoginViewController: UIViewController {
             } else if actions.contains("googleButtonTapped:") || title.contains("google") {
                 UIHelper.styleGoogleButton(button)
             } else if title.contains("apple") {
-                UIHelper.styleAppleButton(button)
+                replaceWithAppleSignInButton(placeholder: button)
             } else if title.contains("forgot") {
                 UIHelper.styleSecondaryButton(button)
             } else {
@@ -191,37 +195,107 @@ final class LoginViewController: UIViewController {
     }
 
     private func addIconsToTextFields() {
-        let emailIcon = UIImageView(image: UIImage(systemName: "envelope.fill"))
-        emailIcon.tintColor = .secondaryLabel
-        let emailContainer = UIView(frame: CGRect(x: 0, y: 0, width: 34, height: 22))
-        emailIcon.frame = CGRect(x: 8, y: 0, width: 22, height: 22)
-        emailContainer.addSubview(emailIcon)
-        emailField.leftView = emailContainer
+
+        emailField.leftView = makeIconView(systemName: "envelope.fill")
         emailField.leftViewMode = .always
 
-        let lockIcon = UIImageView(image: UIImage(systemName: "lock.fill"))
-        lockIcon.tintColor = .secondaryLabel
-        let lockContainer = UIView(frame: CGRect(x: 0, y: 0, width: 34, height: 22))
-        lockIcon.frame = CGRect(x: 8, y: 0, width: 22, height: 22)
-        lockContainer.addSubview(lockIcon)
-        passwordField.leftView = lockContainer
+        passwordField.leftView = makeIconView(systemName: "lock.fill")
         passwordField.leftViewMode = .always
     }
 
+    // Use a fixed symbol configuration so every SF Symbol is rendered the same size
+    private func makeIconView(systemName: String) -> UIView {
+        // Choose the pointSize you want for all icons (change 18 to taste)
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        let image = UIImage(systemName: systemName, withConfiguration: symbolConfig)
+
+        let iconView = UIImageView(image: image)
+        iconView.tintColor = .secondaryLabel
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.setContentHuggingPriority(.required, for: .horizontal)
+
+        // Container guarantees a consistent leftView width and center alignment
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(iconView)
+
+        // Fixed container size (change width/height to match your design)
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: 44),
+            container.heightAnchor.constraint(equalToConstant: 44),
+
+            iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            iconView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 20),
+            iconView.heightAnchor.constraint(equalToConstant: 20)
+        ])
+
+        return container
+    }
+
+    // MARK: - Apple Sign In
+
+    private func replaceWithAppleSignInButton(placeholder: UIButton) {
+        guard let superview = placeholder.superview else { return }
+
+        let style: ASAuthorizationAppleIDButton.Style = traitCollection.userInterfaceStyle == .dark ? .white : .black
+        let appleButton = ASAuthorizationAppleIDButton(type: .continue, style: style)
+        appleButton.cornerRadius = 25
+        appleButton.translatesAutoresizingMaskIntoConstraints = false
+        appleButton.addTarget(self, action: #selector(appleButtonTapped(_:)), for: .touchUpInside)
+
+        if let stackView = superview as? UIStackView,
+           let index = stackView.arrangedSubviews.firstIndex(of: placeholder) {
+            stackView.insertArrangedSubview(appleButton, at: index)
+            placeholder.removeFromSuperview()
+            appleButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        } else {
+            superview.addSubview(appleButton)
+            NSLayoutConstraint.activate([
+                appleButton.leadingAnchor.constraint(equalTo: placeholder.leadingAnchor),
+                appleButton.trailingAnchor.constraint(equalTo: placeholder.trailingAnchor),
+                appleButton.topAnchor.constraint(equalTo: placeholder.topAnchor),
+                appleButton.heightAnchor.constraint(equalToConstant: 50)
+            ])
+            placeholder.removeFromSuperview()
+        }
+
+        self.appleSignInButton = appleButton
+    }
+
+    // Prefer a UIButton for the eye toggle so the tap target is predictable
     private func addPasswordToggle() {
-        let eyeIcon = UIImageView(image: UIImage(systemName: "eye.slash.fill"))
-        eyeIcon.tintColor = .secondaryLabel
-        eyeIcon.isUserInteractionEnabled = true
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        let eyeImage = UIImage(systemName: "eye.slash.fill", withConfiguration: symbolConfig)
 
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 36))
-        eyeIcon.frame = CGRect(x: 8, y: 8, width: 20, height: 20)
-        container.addSubview(eyeIcon)
+        // Use .custom to avoid UIButton adding system padding/scaling
+        let button = UIButton(type: .custom)
+        button.setImage(eyeImage, for: .normal)
+        button.tintColor = .secondaryLabel
+        button.contentEdgeInsets = .zero
+        button.imageEdgeInsets = .zero
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+        button.accessibilityLabel = "Toggle password visibility"
 
-        let tap = UITapGestureRecognizer(
-            target: self,
-            action: #selector(togglePasswordVisibility)
-        )
-        container.addGestureRecognizer(tap)
+        // Keep a reference so we can update the image reliably later
+        self.passwordToggleButton = button
+
+        // Container keeps rightView width consistent and preserves a 44pt touch target
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: 44),
+            container.heightAnchor.constraint(equalToConstant: 44),
+
+            button.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            button.widthAnchor.constraint(equalToConstant: 20),
+            button.heightAnchor.constraint(equalToConstant: 20)
+        ])
 
         passwordField.rightView = container
         passwordField.rightViewMode = .always
@@ -229,13 +303,20 @@ final class LoginViewController: UIViewController {
 
     @objc private func togglePasswordVisibility() {
         isPasswordVisible.toggle()
+
+        // Preserve cursor position / first responder state (prevents cursor jump)
+        let wasFirstResponder = passwordField.isFirstResponder
+        if wasFirstResponder { passwordField.resignFirstResponder() }
+
         passwordField.isSecureTextEntry = !isPasswordVisible
 
-        if let imageView = passwordField.rightView?.subviews.first as? UIImageView {
-            imageView.image = UIImage(
-                systemName: isPasswordVisible ? "eye.fill" : "eye.slash.fill"
-            )
-        }
+        if wasFirstResponder { passwordField.becomeFirstResponder() }
+
+        // Update button image with same symbol configuration used elsewhere
+        let symbol = isPasswordVisible ? "eye.fill" : "eye.slash.fill"
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        let img = UIImage(systemName: symbol, withConfiguration: symbolConfig)
+        passwordToggleButton?.setImage(img, for: .normal)
     }
 }
 

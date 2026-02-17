@@ -1,4 +1,3 @@
-
 import UIKit
 import Speech
 import AVFoundation
@@ -11,6 +10,8 @@ class StartJamViewController: UIViewController {
     @IBOutlet weak var topicTitleLabel: UILabel!
     @IBOutlet weak var hintButton: UIButton!
     @IBOutlet weak var bottomActionStackView: UIStackView!
+
+    @IBOutlet var micButton: UIButton!
 
     private let timerManager = TimerManager(totalSeconds: 30)
     private var remainingSeconds: Int = 30
@@ -25,8 +26,19 @@ class StartJamViewController: UIViewController {
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
 
-    /// Accumulated transcript from the user's speech.
-    private var currentTranscript: String = ""
+    /// Accumulated final transcript across all start/pause cycles.
+    private var accumulatedTranscript: String = ""
+    /// Latest partial result from the current recognition session.
+    private var latestPartial: String = ""
+    /// Presentation transcript (what you show or pass to next screen).
+    private var currentTranscript: String {
+        let a = accumulatedTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
+        let p = latestPartial.trimmingCharacters(in: .whitespacesAndNewlines)
+        if a.isEmpty { return p }
+        if p.isEmpty { return a }
+        return a + " " + p
+    }
+
     /// Tracks whether recording has been started at least once.
     private var hasStartedRecording = false
 
@@ -108,6 +120,7 @@ class StartJamViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         timerManager.reset()
+        // Stop and clean up before leaving
         stopRecording()
 
         guard var session = JamSessionDataModel.shared.getActiveSession() else { return }
@@ -128,7 +141,7 @@ class StartJamViewController: UIViewController {
     private func showExitAlert() {
         timerManager.pause()
         pauseRecording()
-        timerRingView.resetRing() 
+        timerRingView.resetRing()
         timerRingView.setProgress(value: CGFloat(remainingSeconds), max: 30) // Pause visual state
 
         let alert = UIAlertController(
@@ -144,7 +157,8 @@ class StartJamViewController: UIViewController {
                 remainingSeconds: self.remainingSeconds,
                 totalSeconds: 30
             )
-            self.resumeRecording()
+            // Start a fresh recognition session (Apple requires new sessions)
+            self.startRecording()
         })
 
         alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { _ in
@@ -172,22 +186,31 @@ class StartJamViewController: UIViewController {
     // MARK: - Actions
 
     @IBAction func micTapped(_ sender: UIButton) {
+        // Toggle UI state
         isMicOn.toggle()
 
         if isMicOn {
-            // Mic is now ON — resume/start recording
-            if hasStartedRecording {
-                resumeRecording()
-            } else {
-                startRecording()
-            }
+            // Start a new recognition session (if we had paused before, we resume by starting a new session)
+            startRecording()
             sender.setImage(UIImage(systemName: "mic.fill"), for: .normal)
             sender.tintColor = AppColors.primary
+                sender.backgroundColor = AppColors.primaryLight
+                sender.layer.borderColor = AppColors.primary.cgColor
+                sender.layer.borderWidth = 2
+                sender.layer.shadowOpacity = 0.15
+                sender.layer.shadowRadius = 6
+                sender.layer.shadowOffset = CGSize(width: 0, height: 2)
         } else {
-            // Mic is now OFF — pause recording
+            // Pause: stop feeding audio; the recognition handler will finalize current partial and append it
             pauseRecording()
             sender.setImage(UIImage(systemName: "mic.slash.fill"), for: .normal)
             sender.tintColor = .systemRed
+                sender.backgroundColor = UIColor.systemRed.withAlphaComponent(0.12)
+                sender.layer.borderColor = UIColor.systemRed.cgColor
+                sender.layer.borderWidth = 2
+                sender.layer.shadowOpacity = 0.10
+                sender.layer.shadowRadius = 4
+                sender.layer.shadowOffset = CGSize(width: 0, height: 1)
         }
     }
 
@@ -264,6 +287,8 @@ class StartJamViewController: UIViewController {
             DispatchQueue.main.async {
                 switch status {
                 case .authorized:
+                    // Do not auto-start here if you prefer to wait for user tap;
+                    // existing behavior started recording automatically — preserve that.
                     self?.startRecording()
                 case .denied, .restricted, .notDetermined:
                     print("⚠️ Speech recognition not authorized: \(status.rawValue)")
@@ -275,7 +300,7 @@ class StartJamViewController: UIViewController {
     }
 
     private func startRecording() {
-        // Cancel any running task
+        // Cancel existing recognition task if any — we always start a fresh session.
         recognitionTask?.cancel()
         recognitionTask = nil
 
@@ -294,7 +319,7 @@ class StartJamViewController: UIViewController {
             return
         }
 
-        // Create recognition request
+        // Create new recognition request
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         guard let recognitionRequest = recognitionRequest else { return }
         recognitionRequest.shouldReportPartialResults = true
@@ -304,20 +329,44 @@ class StartJamViewController: UIViewController {
             guard let self = self else { return }
 
             if let result = result {
-                self.currentTranscript = result.bestTranscription.formattedString
+                // Update latest partial (do not append to accumulated until final)
+                self.latestPartial = result.bestTranscription.formattedString
+                // Update any UI or local variables consuming transcript
+                // For example, timer or transcript display can read self.currentTranscript
+                // (We keep currentTranscript as computed property)
+            }
+
+            // When recognizer returns final, append the final partial to accumulatedTranscript
+            if (result?.isFinal ?? false) {
+                let finalText = (self.latestPartial ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                if !finalText.isEmpty {
+                    if !self.accumulatedTranscript.isEmpty {
+                        self.accumulatedTranscript += " "
+                    }
+                    self.accumulatedTranscript += finalText
+                }
+                // clear latest partial for the finished session
+                self.latestPartial = ""
             }
 
             if error != nil || (result?.isFinal ?? false) {
-                self.audioEngine.stop()
-                self.audioEngine.inputNode.removeTap(onBus: 0)
+                // Cleanup for this recognition session
                 self.recognitionRequest = nil
                 self.recognitionTask = nil
+                // Note: audio engine was stopped by pauseRecording() when user paused,
+                // or we can stop it here if the recognizer decided to finish.
+                // Ensure taps are removed if they exist.
+                if self.audioEngine.isRunning {
+                    self.audioEngine.stop()
+                    self.audioEngine.inputNode.removeTap(onBus: 0)
+                }
             }
         }
 
         // Configure audio input
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.removeTap(onBus: 0) // defensive: ensure no duplicate taps
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
             self.recognitionRequest?.append(buffer)
         }
@@ -325,59 +374,70 @@ class StartJamViewController: UIViewController {
         audioEngine.prepare()
         do {
             try audioEngine.start()
-            isMicOn = true
             hasStartedRecording = true
+            isMicOn = true
             updateMicButtonAppearance()
         } catch {
             print("⚠️ Audio engine start failed: \(error)")
         }
     }
 
+    /// Pause the current session: stop feeding audio and signal end-of-audio to the recognizer.
+    /// The recognition handler will receive a final result and append it to accumulatedTranscript.
     private func pauseRecording() {
+        // If not running, nothing to do
         if audioEngine.isRunning {
-            audioEngine.pause()
+            audioEngine.stop()
+            audioEngine.inputNode.removeTap(onBus: 0)
         }
+
+        // Signal the current recognition request that audio has ended. This allows the handler
+        // to emit a final result which will be appended to accumulatedTranscript.
+        recognitionRequest?.endAudio()
+
+        // Do not cancel the recognitionTask here — allow it to finish and call its completion block.
+        // Just update UI state:
+        isMicOn = false
+        updateMicButtonAppearance()
     }
 
-    private func resumeRecording() {
-        if !audioEngine.isRunning && hasStartedRecording {
-            do {
-                try audioEngine.start()
-                isMicOn = true
-                updateMicButtonAppearance()
-            } catch {
-                print("⚠️ Audio engine resume failed: \(error)")
-            }
-        }
-    }
-
+    /// Stop everything and invalidate tasks (called when leaving screen or finishing)
     private func stopRecording() {
         if audioEngine.isRunning {
             audioEngine.stop()
         }
+
+        // Clean audio tap if present
         audioEngine.inputNode.removeTap(onBus: 0)
+
+        // Ask the recognizer to finalize; then cancel to free resources
         recognitionRequest?.endAudio()
-        recognitionRequest = nil
         recognitionTask?.cancel()
+
+        recognitionRequest = nil
         recognitionTask = nil
+
         isMicOn = false
+        updateMicButtonAppearance()
     }
 
     private func updateMicButtonAppearance() {
-        // Find the mic button in the bottom stack view
-        for case let button as UIButton in bottomActionStackView.arrangedSubviews {
-            if button.currentImage == UIImage(systemName: "mic.fill") ||
-               button.currentImage == UIImage(systemName: "mic.slash.fill") {
-                if isMicOn {
-                    button.setImage(UIImage(systemName: "mic.fill"), for: .normal)
-                    button.tintColor = AppColors.primary
-                } else {
-                    button.setImage(UIImage(systemName: "mic.slash.fill"), for: .normal)
-                    button.tintColor = .systemRed
-                }
-                break
+        // Update the explicit micButton outlet if available
+        DispatchQueue.main.async {
+            if self.isMicOn {
+                self.micButton.setImage(UIImage(systemName: "mic.fill"), for: .normal)
+                self.micButton.tintColor = AppColors.primary
+            } else {
+                self.micButton.setImage(UIImage(systemName: "mic.slash.fill"), for: .normal)
+                self.micButton.tintColor = .systemRed
             }
         }
+    }
+
+    // MARK: - Helper to get final transcript for pass-through/submit
+    private func getFinalTranscript() -> String {
+        // combine accumulated + any in-flight partial (useful when finishing)
+        return currentTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
@@ -402,8 +462,8 @@ extension StartJamViewController: TimerManagerDelegate {
         guard !didFinishSpeech else { return }
         didFinishSpeech = true
 
-        // Stop recording and capture the final transcript
-        let transcript = currentTranscript
+        // Capture the final transcript (accumulated + partial)
+        let transcript = getFinalTranscript()
         stopRecording()
 
         timerLabel.text = "00:00"
@@ -434,3 +494,4 @@ extension StartJamViewController: TimerManagerDelegate {
         navigationController?.pushViewController(vc, animated: true)
     }
 }
+
