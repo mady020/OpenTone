@@ -129,7 +129,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     }
 
     @objc private func didTapEditProfile() {
-        let editVC = EditProfileViewController()
+        let storyboard = UIStoryboard(name: "UserProfile", bundle: nil)
+        let editVC = storyboard.instantiateViewController(withIdentifier: "EditProfileScreen") as! EditProfileViewController
         editVC.onProfileUpdated = { [weak self] in
             SessionManager.shared.refreshSession()
             self?.collectionView.reloadData()

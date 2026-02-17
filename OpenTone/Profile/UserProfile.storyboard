@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pcJ-tP-uhe">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pcJ-tP-uhe">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -424,7 +425,7 @@
             </objects>
             <point key="canvasLocation" x="2084.7328244274809" y="-59.154929577464792"/>
         </scene>
-        <!--Profile-->
+        <!--Navigation Controller-->
         <scene sceneID="dPO-fM-Kmo">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="pcJ-tP-uhe" sceneMemberID="viewController">
@@ -442,12 +443,162 @@
             </objects>
             <point key="canvasLocation" x="1159.5419847328244" y="-59.154929577464792"/>
         </scene>
+        <!--Edit Profile-->
+        <scene sceneID="ePf-1A-qR3">
+            <objects>
+                <viewController storyboardIdentifier="EditProfileScreen" id="ePf-vc-001" customClass="EditProfileViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ePf-vw-002">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" keyboardDismissMode="interactive" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-sv-003">
+                                <rect key="frame" x="0.0" y="59" width="393" height="793"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-sk-004">
+                                        <rect key="frame" x="20" y="24" width="353" height="959.33333333333337"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-as-005">
+                                                <rect key="frame" x="0.0" y="0.0" width="353" height="137"/>
+                                                <subviews>
+                                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-av-006">
+                                                        <rect key="frame" x="126.66666666666666" y="0.0" width="100" height="100"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="100" id="ePf-c1-001"/>
+                                                            <constraint firstAttribute="height" constant="100" id="ePf-c1-002"/>
+                                                        </constraints>
+                                                    </imageView>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-cp-007">
+                                                        <rect key="frame" x="129.66666666666666" y="108" width="94" height="29"/>
+                                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                        <state key="normal" title="Change Photo"/>
+                                                    </button>
+                                                </subviews>
+                                            </stackView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-nl-008">
+                                                <rect key="frame" x="0.0" y="157" width="353" height="15.666666666666657"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Full Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-nf-009">
+                                                <rect key="frame" x="0.0" y="192.66666666666669" width="353" height="48"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="48" id="ePf-c2-001"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <textInputTraits key="textInputTraits" returnKeyType="done"/>
+                                            </textField>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bio" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-bl-010">
+                                                <rect key="frame" x="0.0" y="260.66666666666669" width="353" height="15.666666666666686"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-bt-011">
+                                                <rect key="frame" x="0.0" y="296.33333333333331" width="353" height="80"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" id="ePf-c3-001"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </textView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Country" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-cl-012">
+                                                <rect key="frame" x="0.0" y="396.33333333333337" width="353" height="15.666666666666686"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-cb-013">
+                                                <rect key="frame" x="0.0" y="432" width="353" height="48"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="48" id="ePf-c4-001"/>
+                                                </constraints>
+                                                <state key="normal" title="Select Country"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="Select Country" titleAlignment="leading">
+                                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="12" bottom="0.0" trailing="12"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="countryTapped" destination="ePf-vc-001" eventType="touchUpInside" id="ePf-ac-001"/>
+                                                </connections>
+                                            </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="English Level" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-ll-014">
+                                                <rect key="frame" x="0.0" y="500" width="353" height="15.666666666666629"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-lb-015">
+                                                <rect key="frame" x="0.0" y="535.66666666666663" width="353" height="48"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="48" id="ePf-c5-001"/>
+                                                </constraints>
+                                                <state key="normal" title="English Level"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="English Level" titleAlignment="leading">
+                                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="12" bottom="0.0" trailing="12"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="levelTapped" destination="ePf-vc-001" eventType="touchUpInside" id="ePf-ac-002"/>
+                                                </connections>
+                                            </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Interests (pick at least 3)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-il-016">
+                                                <rect key="frame" x="0.0" y="603.66666666666663" width="353" height="15.666666666666629"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" scrollEnabled="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-cv-017">
+                                                <rect key="frame" x="0.0" y="639.33333333333337" width="353" height="320"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="ePf-fl-018">
+                                                    <size key="itemSize" width="110" height="120"/>
+                                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                </collectionViewFlowLayout>
+                                            </collectionView>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="959.33333333333337" id="gXX-s3-OaY"/>
+                                        </constraints>
+                                    </stackView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="ePf-sk-004" firstAttribute="top" secondItem="ePf-sv-003" secondAttribute="top" constant="24" id="ePf-c6-001"/>
+                                    <constraint firstItem="ePf-sk-004" firstAttribute="leading" secondItem="ePf-sv-003" secondAttribute="leading" constant="20" id="ePf-c6-002"/>
+                                    <constraint firstItem="ePf-sk-004" firstAttribute="trailing" secondItem="ePf-sv-003" secondAttribute="trailing" constant="-20" id="ePf-c6-003"/>
+                                    <constraint firstItem="ePf-sk-004" firstAttribute="bottom" secondItem="ePf-sv-003" secondAttribute="bottom" constant="-32" id="ePf-c6-004"/>
+                                    <constraint firstItem="ePf-sk-004" firstAttribute="width" secondItem="ePf-sv-003" secondAttribute="width" constant="-40" id="ePf-c6-005"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="ePf-sa-019"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="ePf-sv-003" firstAttribute="top" secondItem="ePf-sa-019" secondAttribute="top" id="ePf-c7-001"/>
+                            <constraint firstItem="ePf-sv-003" firstAttribute="leading" secondItem="ePf-vw-002" secondAttribute="leading" id="ePf-c7-002"/>
+                            <constraint firstItem="ePf-sv-003" firstAttribute="trailing" secondItem="ePf-vw-002" secondAttribute="trailing" id="ePf-c7-003"/>
+                            <constraint firstItem="ePf-sv-003" firstAttribute="bottom" secondItem="ePf-vw-002" secondAttribute="bottom" id="ePf-c7-004"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Edit Profile" id="ePf-ni-020"/>
+                    <connections>
+                        <outlet property="avatarImageView" destination="ePf-av-006" id="ePf-cn-001"/>
+                        <outlet property="bioTextView" destination="ePf-bt-011" id="ePf-cn-004"/>
+                        <outlet property="changePhotoButton" destination="ePf-cp-007" id="ePf-cn-002"/>
+                        <outlet property="countryButton" destination="ePf-cb-013" id="ePf-cn-005"/>
+                        <outlet property="interestsCollectionView" destination="ePf-cv-017" id="ePf-cn-007"/>
+                        <outlet property="levelButton" destination="ePf-lb-015" id="ePf-cn-006"/>
+                        <outlet property="nameField" destination="ePf-nf-009" id="ePf-cn-003"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ePf-fr-021" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3010" y="-59.154929577464792"/>
+        </scene>
     </scenes>
     <resources>
-        <image name="person" catalog="system" width="128" height="121"/>
-        <image name="person.fill" catalog="system" width="128" height="120"/>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

@@ -15,84 +15,21 @@ final class EditProfileViewController: UIViewController {
 
     private let avatarOptions = ["pp1", "pp2"]  // Asset catalog images
 
-    // MARK: - UI Elements
-
-    private let scrollView = UIScrollView()
-    private let contentStack = UIStackView()
-
-    private let avatarImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.layer.cornerRadius = 50
-        iv.layer.borderWidth = 3
-        iv.layer.borderColor = AppColors.primary.cgColor
-        iv.isUserInteractionEnabled = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            iv.widthAnchor.constraint(equalToConstant: 100),
-            iv.heightAnchor.constraint(equalToConstant: 100),
-        ])
-        return iv
-    }()
-
-    private let changePhotoButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitle("Change Photo", for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
-        btn.setTitleColor(AppColors.primary, for: .normal)
-        return btn
-    }()
-
-    private let nameField = EditProfileViewController.makeTextField(placeholder: "Full Name")
-    private let bioTextView: UITextView = {
-        let tv = UITextView()
-        tv.font = .systemFont(ofSize: 16)
-        tv.textColor = AppColors.textPrimary
-        tv.backgroundColor = AppColors.cardBackground
-        tv.layer.cornerRadius = 12
-        tv.layer.borderWidth = 1
-        tv.layer.borderColor = AppColors.cardBorder.cgColor
-        tv.isScrollEnabled = false
-        tv.textContainerInset = UIEdgeInsets(top: 12, left: 8, bottom: 12, right: 8)
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            tv.heightAnchor.constraint(greaterThanOrEqualToConstant: 80)
-        ])
-        return tv
-    }()
-
-    private let countryButton = EditProfileViewController.makePickerButton(title: "Select Country")
-    private let levelButton = EditProfileViewController.makePickerButton(title: "English Level")
-
-    // MARK: - Interests
-
-    private let allInterestItems: [InterestItem] = [
-        InterestItem(title: "Technology",   symbol: "cpu"),
-        InterestItem(title: "Gaming",       symbol: "gamecontroller.fill"),
-        InterestItem(title: "Travel",       symbol: "airplane"),
-        InterestItem(title: "Fitness",      symbol: "dumbbell"),
-        InterestItem(title: "Food",         symbol: "fork.knife"),
-        InterestItem(title: "Music",        symbol: "music.note.list"),
-        InterestItem(title: "Movies",       symbol: "film.fill"),
-        InterestItem(title: "Photography",  symbol: "camera.fill"),
-        InterestItem(title: "Finance",      symbol: "chart.bar.xaxis"),
-        InterestItem(title: "Business",     symbol: "briefcase.fill"),
-        InterestItem(title: "Health",       symbol: "heart.fill"),
-        InterestItem(title: "Learning",     symbol: "book.fill"),
-        InterestItem(title: "Productivity", symbol: "checkmark.circle"),
-        InterestItem(title: "Shopping",     symbol: "cart.fill"),
-        InterestItem(title: "Sports",       symbol: "sportscourt.fill"),
-        InterestItem(title: "Cars",         symbol: "car.fill"),
-        InterestItem(title: "Cooking",      symbol: "takeoutbag.and.cup.and.straw.fill"),
-        InterestItem(title: "Fashion",      symbol: "tshirt.fill"),
-        InterestItem(title: "Pets",         symbol: "pawprint.fill"),
-        InterestItem(title: "Art & Design", symbol: "paintpalette.fill")
-    ]
+    private let allInterestItems = InterestItem.allItems
 
     private var selectedInterests: Set<InterestItem> = []
-    private var interestsCollectionView: UICollectionView!
+
     private var interestsHeightConstraint: NSLayoutConstraint!
+
+    // MARK: - IBOutlets
+
+    @IBOutlet private weak var avatarImageView: UIImageView!
+    @IBOutlet private weak var changePhotoButton: UIButton!
+    @IBOutlet private weak var nameField: UITextField!
+    @IBOutlet private weak var bioTextView: UITextView!
+    @IBOutlet private weak var countryButton: UIButton!
+    @IBOutlet private weak var levelButton: UIButton!
+    @IBOutlet private weak var interestsCollectionView: UICollectionView!
 
     // MARK: - Lifecycle
 
@@ -110,75 +47,78 @@ final class EditProfileViewController: UIViewController {
 
         editableUser = SessionManager.shared.currentUser
 
-        setupUI()
+        styleUI()
+        setupInterestsCollectionView()
         populateFields()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // Reload interests so pre-selected cards show the purple highlight
         interestsCollectionView.reloadData()
     }
 
-    // MARK: - Setup
+    // MARK: - Styling
 
-    private func setupUI() {
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.keyboardDismissMode = .interactive
-        view.addSubview(scrollView)
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
+    private func styleUI() {
+        // Avatar
+        avatarImageView.layer.cornerRadius = 50
+        avatarImageView.layer.borderWidth = 3
+        avatarImageView.layer.borderColor = AppColors.primary.cgColor
 
-        contentStack.axis = .vertical
-        contentStack.spacing = 20
-        contentStack.alignment = .fill
-        contentStack.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(contentStack)
-        NSLayoutConstraint.activate([
-            contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -20),
-            contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -32),
-            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -40),
-        ])
-
-        // Avatar section
-        let avatarStack = UIStackView(arrangedSubviews: [avatarImageView, changePhotoButton])
-        avatarStack.axis = .vertical
-        avatarStack.alignment = .center
-        avatarStack.spacing = 8
-        contentStack.addArrangedSubview(avatarStack)
-
+        changePhotoButton.setTitleColor(AppColors.primary, for: .normal)
         changePhotoButton.addTarget(self, action: #selector(changePhotoTapped), for: .touchUpInside)
+
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(changePhotoTapped))
         avatarImageView.addGestureRecognizer(tapGesture)
 
-        // Name
-        contentStack.addArrangedSubview(makeSectionLabel("Name"))
-        contentStack.addArrangedSubview(nameField)
+        // Name field
+        nameField.textColor = AppColors.textPrimary
+        nameField.backgroundColor = AppColors.cardBackground
+        nameField.layer.cornerRadius = 12
+        nameField.layer.borderWidth = 1
+        nameField.layer.borderColor = AppColors.cardBorder.cgColor
+        nameField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
+        nameField.leftViewMode = .always
+        nameField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
+        nameField.rightViewMode = .always
 
-        // Bio
-        contentStack.addArrangedSubview(makeSectionLabel("Bio"))
-        contentStack.addArrangedSubview(bioTextView)
+        // Bio text view
+        bioTextView.textColor = AppColors.textPrimary
+        bioTextView.backgroundColor = AppColors.cardBackground
+        bioTextView.layer.cornerRadius = 12
+        bioTextView.layer.borderWidth = 1
+        bioTextView.layer.borderColor = AppColors.cardBorder.cgColor
+        bioTextView.textContainerInset = UIEdgeInsets(top: 12, left: 8, bottom: 12, right: 8)
 
-        // Country
-        contentStack.addArrangedSubview(makeSectionLabel("Country"))
-        countryButton.addTarget(self, action: #selector(countryTapped), for: .touchUpInside)
-        contentStack.addArrangedSubview(countryButton)
+        // Country button
+        stylePickerButton(countryButton, placeholder: "Select Country")
 
-        // English Level
-        contentStack.addArrangedSubview(makeSectionLabel("English Level"))
-        levelButton.addTarget(self, action: #selector(levelTapped), for: .touchUpInside)
-        contentStack.addArrangedSubview(levelButton)
-
-        // Interests
-        contentStack.addArrangedSubview(makeSectionLabel("Interests (pick at least 3)"))
-        setupInterestsCollectionView()
+        // Level button
+        stylePickerButton(levelButton, placeholder: "English Level")
     }
+
+    private func stylePickerButton(_ btn: UIButton, placeholder: String) {
+        btn.setTitleColor(.secondaryLabel, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 16)
+        btn.backgroundColor = AppColors.cardBackground
+        btn.layer.cornerRadius = 12
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = AppColors.cardBorder.cgColor
+
+        // Add disclosure chevron
+        let chevron = UIImageView(image: UIImage(systemName: "chevron.down"))
+        chevron.tintColor = .secondaryLabel
+        chevron.translatesAutoresizingMaskIntoConstraints = false
+        btn.addSubview(chevron)
+        NSLayoutConstraint.activate([
+            chevron.trailingAnchor.constraint(equalTo: btn.trailingAnchor, constant: -12),
+            chevron.centerYAnchor.constraint(equalTo: btn.centerYAnchor),
+            chevron.widthAnchor.constraint(equalToConstant: 14),
+            chevron.heightAnchor.constraint(equalToConstant: 8),
+        ])
+    }
+
+    // MARK: - Populate
 
     private func populateFields() {
         guard let user = editableUser else { return }
@@ -197,7 +137,7 @@ final class EditProfileViewController: UIViewController {
             levelButton.setTitleColor(AppColors.textPrimary, for: .normal)
         }
 
-        // Interests
+        // Pre-select user's existing interests
         selectedInterests = user.interests ?? []
         interestsCollectionView.reloadData()
         updateInterestsHeight()
@@ -242,7 +182,6 @@ final class EditProfileViewController: UIViewController {
             alert.addAction(action)
         }
 
-        // Option to pick from photo library
         alert.addAction(UIAlertAction(title: "Choose from Library", style: .default) { [weak self] _ in
             self?.openPhotoLibrary()
         })
@@ -312,74 +251,14 @@ final class EditProfileViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
-
-    private func makeSectionLabel(_ text: String) -> UILabel {
-        let label = UILabel()
-        label.text = text
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
-        label.textColor = .secondaryLabel
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-
-    private static func makeTextField(placeholder: String) -> UITextField {
-        let tf = UITextField()
-        tf.placeholder = placeholder
-        tf.font = .systemFont(ofSize: 16)
-        tf.textColor = AppColors.textPrimary
-        tf.backgroundColor = AppColors.cardBackground
-        tf.layer.cornerRadius = 12
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = AppColors.cardBorder.cgColor
-        tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
-        tf.leftViewMode = .always
-        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
-        tf.rightViewMode = .always
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.heightAnchor.constraint(equalToConstant: 48).isActive = true
-        return tf
-    }
-
-    private static func makePickerButton(title: String) -> UIButton {
-        let btn = UIButton(type: .system)
-        var btnConfig = UIButton.Configuration.plain()
-        btnConfig.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
-        btn.configuration = btnConfig
-        btn.setTitle(title, for: .normal)
-        btn.setTitleColor(.secondaryLabel, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 16)
-        btn.contentHorizontalAlignment = .leading
-        btn.backgroundColor = AppColors.cardBackground
-        btn.layer.cornerRadius = 12
-        btn.layer.borderWidth = 1
-        btn.layer.borderColor = AppColors.cardBorder.cgColor
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.heightAnchor.constraint(equalToConstant: 48).isActive = true
-
-        // Add disclosure indicator
-        let chevron = UIImageView(image: UIImage(systemName: "chevron.down"))
-        chevron.tintColor = .secondaryLabel
-        chevron.translatesAutoresizingMaskIntoConstraints = false
-        btn.addSubview(chevron)
-        NSLayoutConstraint.activate([
-            chevron.trailingAnchor.constraint(equalTo: btn.trailingAnchor, constant: -12),
-            chevron.centerYAnchor.constraint(equalTo: btn.centerYAnchor),
-            chevron.widthAnchor.constraint(equalToConstant: 14),
-            chevron.heightAnchor.constraint(equalToConstant: 8),
-        ])
-
-        return btn
-    }
 }
 
 // MARK: - Interests Collection View
 
 extension EditProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
-    func setupInterestsCollectionView() {
-        let layout = makeInterestsLayout()
-        interestsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        interestsCollectionView.translatesAutoresizingMaskIntoConstraints = false
+    fileprivate func setupInterestsCollectionView() {
+        interestsCollectionView.collectionViewLayout = makeInterestsLayout()
         interestsCollectionView.backgroundColor = .clear
         interestsCollectionView.isScrollEnabled = false
         interestsCollectionView.dataSource = self
@@ -389,8 +268,6 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
             UINib(nibName: "InterestCard", bundle: nil),
             forCellWithReuseIdentifier: InterestCard.reuseIdentifier
         )
-
-        contentStack.addArrangedSubview(interestsCollectionView)
 
         interestsHeightConstraint = interestsCollectionView.heightAnchor.constraint(equalToConstant: 320)
         interestsHeightConstraint.isActive = true
@@ -420,7 +297,7 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
         }
     }
 
-    func updateInterestsHeight() {
+    fileprivate func updateInterestsHeight() {
         let rows = ceil(Double(allInterestItems.count) / 3.0)
         let height = rows * 120 + (rows - 1) * 8
         interestsHeightConstraint.constant = CGFloat(height)
@@ -482,7 +359,6 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
 
         avatarImageView.image = editedImage
 
-        // Save the custom image to documents and store the file name
         let fileName = "custom_avatar_\(UUID().uuidString).jpg"
         if let data = editedImage.jpegData(compressionQuality: 0.8) {
             let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
