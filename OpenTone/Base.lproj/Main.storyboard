@@ -38,7 +38,6 @@
             </objects>
             <point key="canvasLocation" x="3278" y="162"/>
         </scene>
-
         <!--Main Tab Bar Controller-->
         <scene sceneID="fPz-wB-Etc">
             <objects>
@@ -71,7 +70,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="7IM-3C-iym">
-                                <rect key="frame" x="32" y="308" width="329" height="248"/>
+                                <rect key="frame" x="32" y="308" width="329" height="298.33333333333326"/>
                                 <subviews>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Email " textAlignment="natural" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="Tta-oS-jEy" userLabel="Email or Username">
                                         <rect key="frame" x="0.0" y="0.0" width="329" height="50"/>
@@ -105,8 +104,41 @@
                                             <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                                         </userDefinedRuntimeAttributes>
                                     </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YNK-xV-CZX">
+                                        <rect key="frame" x="0.0" y="132" width="329" height="34.333333333333343"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Forgot Password ?">
+                                            <color key="baseForegroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <segue destination="1By-S7-lSP" kind="show" id="i0G-zV-fpg"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HNm-u3-3I5">
+                                        <rect key="frame" x="0.0" y="182.33333333333331" width="329" height="50"/>
+                                        <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="B2n-JP-K37"/>
+                                        </constraints>
+                                        <color key="tintColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="0.74980743838028174" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Sign in" cornerStyle="capsule">
+                                            <fontDescription key="titleFontDescription" type="boldSystem" pointSize="17"/>
+                                            <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <color key="baseBackgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </buttonConfiguration>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="signinButtonTapped:" destination="hsS-GQ-WnD" eventType="touchUpInside" id="K9t-Kj-1iH"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oQo-f1-vPU">
-                                        <rect key="frame" x="0.0" y="132" width="329" height="50"/>
+                                        <rect key="frame" x="0.0" y="248.33333333333337" width="329" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="dbk-G0-h0O"/>
@@ -132,29 +164,6 @@
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="appleButtonTapped:" destination="hsS-GQ-WnD" eventType="touchUpInside" id="fIn-I7-V8n"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HNm-u3-3I5">
-                                        <rect key="frame" x="0.0" y="198" width="329" height="50"/>
-                                        <color key="backgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="50" id="B2n-JP-K37"/>
-                                        </constraints>
-                                        <color key="tintColor" red="0.35686274509803922" green="0.23529411764705882" blue="0.76862745098039209" alpha="0.74980743838028174" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="Sign in" cornerStyle="capsule">
-                                            <fontDescription key="titleFontDescription" type="boldSystem" pointSize="17"/>
-                                            <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <color key="baseBackgroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </buttonConfiguration>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="signinButtonTapped:" destination="hsS-GQ-WnD" eventType="touchUpInside" id="K9t-Kj-1iH"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -193,34 +202,21 @@
                                     </button>
                                 </subviews>
                             </stackView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YNK-xV-CZX">
-                                <rect key="frame" x="196.66666666666663" y="568" width="164.33333333333337" height="34.333333333333371"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Forgot Password ?">
-                                    <color key="baseForegroundColor" red="0.35686274509999999" green="0.23529411759999999" blue="0.76862745099999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <segue destination="1By-S7-lSP" kind="show" id="i0G-zV-fpg"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="mBa-Y2-Xh0"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="4xX-km-dmS" firstAttribute="top" secondItem="mBa-Y2-Xh0" secondAttribute="top" constant="24" id="0Tv-qc-Kay"/>
-                            <constraint firstItem="S8F-xi-btQ" firstAttribute="top" secondItem="YNK-xV-CZX" secondAttribute="bottom" constant="40" id="6eG-DW-XB1"/>
                             <constraint firstItem="mBa-Y2-Xh0" firstAttribute="trailing" secondItem="S8F-xi-btQ" secondAttribute="trailing" constant="32" id="7gy-XR-Rvi"/>
                             <constraint firstItem="mBa-Y2-Xh0" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="7IM-3C-iym" secondAttribute="bottom" constant="80" id="8HI-vl-QmT"/>
                             <constraint firstItem="S8F-xi-btQ" firstAttribute="centerX" secondItem="sCq-0G-5jf" secondAttribute="centerX" id="AQm-sR-42E"/>
                             <constraint firstItem="mBa-Y2-Xh0" firstAttribute="trailing" secondItem="7IM-3C-iym" secondAttribute="trailing" constant="32" id="K37-yO-qEK"/>
-                            <constraint firstItem="YNK-xV-CZX" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="mBa-Y2-Xh0" secondAttribute="leading" symbolic="YES" id="LXw-5r-1pS"/>
-                            <constraint firstItem="YNK-xV-CZX" firstAttribute="top" secondItem="HNm-u3-3I5" secondAttribute="bottom" constant="12" id="OkP-lI-m9q"/>
-                            <constraint firstItem="mBa-Y2-Xh0" firstAttribute="trailing" secondItem="YNK-xV-CZX" secondAttribute="trailing" constant="32" id="P7L-Cq-NAQ"/>
                             <constraint firstItem="S8F-xi-btQ" firstAttribute="leading" secondItem="mBa-Y2-Xh0" secondAttribute="leading" constant="32" id="SdQ-Be-RBi"/>
                             <constraint firstItem="4xX-km-dmS" firstAttribute="centerX" secondItem="mBa-Y2-Xh0" secondAttribute="centerX" id="ZoC-er-5oc"/>
                             <constraint firstItem="vAA-bM-noc" firstAttribute="top" secondItem="4xX-km-dmS" secondAttribute="bottom" constant="20" id="bFS-30-C5M"/>
                             <constraint firstItem="7IM-3C-iym" firstAttribute="top" secondItem="vAA-bM-noc" secondAttribute="bottom" constant="20" id="ehR-SF-7Lp"/>
                             <constraint firstItem="vAA-bM-noc" firstAttribute="centerX" secondItem="4xX-km-dmS" secondAttribute="centerX" id="mU8-fS-Z6V"/>
+                            <constraint firstItem="S8F-xi-btQ" firstAttribute="top" secondItem="7IM-3C-iym" secondAttribute="bottom" constant="36" id="qcA-4a-YJ6"/>
                             <constraint firstItem="7IM-3C-iym" firstAttribute="leading" secondItem="mBa-Y2-Xh0" secondAttribute="leading" constant="32" id="sLZ-DU-gYQ"/>
                         </constraints>
                     </view>

@@ -2,7 +2,6 @@ import Foundation
 
 /// Production-grade Gemini API service using the REST API.
 /// Maintains conversation history and handles multi-turn chat.
-/// Uses gemini-1.5-flash on the stable v1 endpoint for best free-tier compatibility.
 final class GeminiService {
 
     static let shared = GeminiService()

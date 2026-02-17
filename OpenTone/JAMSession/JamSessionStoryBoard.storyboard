@@ -472,11 +472,10 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Fd-xx-iLj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <exit id="gpq-vY-gZa" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="2500" y="-141"/>
         </scene>
-        <!--Your Speach TIme-->
+        <!--Your Speech TIme-->
         <scene sceneID="vDA-lf-fOB">
             <objects>
                 <viewController storyboardIdentifier="StartJamViewController" id="3p0-fV-fhI" customClass="StartJamViewController" customModule="OpenTone" customModuleProvider="target" sceneMemberID="viewController">
@@ -606,10 +605,11 @@
                             <constraint firstItem="WTQ-BH-tiv" firstAttribute="leading" secondItem="hHk-P6-EeJ" secondAttribute="leading" constant="16" id="ts9-7Y-hu5"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Your Speach TIme" largeTitleDisplayMode="never" id="HO4-ug-MvW"/>
+                    <navigationItem key="navigationItem" title="Your Speech TIme" largeTitleDisplayMode="never" id="HO4-ug-MvW"/>
                     <connections>
                         <outlet property="bottomActionStackView" destination="L0a-DZ-0DA" id="zdi-y0-3O2"/>
                         <outlet property="hintButton" destination="vCE-4t-50n" id="ZLP-M9-aUK"/>
+                        <outlet property="micButton" destination="hdh-oI-Xky" id="vc0-No-zKP"/>
                         <outlet property="timerLabel" destination="7u9-tv-TLS" id="0vY-pq-Tmj"/>
                         <outlet property="timerRingView" destination="fOQ-fk-J1l" id="57A-FP-O1d"/>
                         <outlet property="topicHeaderLabel" destination="WTQ-BH-tiv" id="hdr-tp-lbl"/>
@@ -695,6 +695,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="arrow.trianglehead.2.clockwise.rotate.90" catalog="system" width="128" height="117"/>
         <image name="hourglass" catalog="system" width="103" height="128"/>
         <image name="hourglass.tophalf.filled" catalog="system" width="103" height="128"/>
         <image name="lightbulb.fill" catalog="system" width="92" height="128"/>
