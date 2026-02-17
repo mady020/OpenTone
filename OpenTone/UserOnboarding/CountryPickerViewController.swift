@@ -46,7 +46,9 @@ class CountryPickerViewController: UIViewController {
     @IBOutlet private weak var searchField: UITextField!
     @IBOutlet private weak var tableView: UITableView!
 
-    private var countries: [Country] = Locale.Region.isoRegions.compactMap {
+    private var countries: [Country] = Locale.Region.isoRegions
+        .filter { $0.identifier.count == 2 }
+        .compactMap {
         let code = $0.identifier
         guard let name = Locale.current.localizedString(forRegionCode: code) else { return nil }
         return Country(name: name, code: code)
