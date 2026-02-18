@@ -6,28 +6,7 @@ final class InterestsViewController: UIViewController {
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var continueButton: UIButton!
 
-    private let allItems: [InterestItem] = [
-        InterestItem(title: "Technology",   symbol: "cpu"),
-        InterestItem(title: "Gaming",       symbol: "gamecontroller.fill"),
-        InterestItem(title: "Travel",       symbol: "airplane"),
-        InterestItem(title: "Fitness",      symbol: "dumbbell"),
-        InterestItem(title: "Food",         symbol: "fork.knife"),
-        InterestItem(title: "Music",        symbol: "music.note.list"),
-        InterestItem(title: "Movies",       symbol: "film.fill"),
-        InterestItem(title: "Photography",  symbol: "camera.fill"),
-        InterestItem(title: "Finance",      symbol: "chart.bar.xaxis"),
-        InterestItem(title: "Business",     symbol: "briefcase.fill"),
-        InterestItem(title: "Health",       symbol: "heart.fill"),
-        InterestItem(title: "Learning",     symbol: "book.fill"),
-        InterestItem(title: "Productivity", symbol: "checkmark.circle"),
-        InterestItem(title: "Shopping",     symbol: "cart.fill"),
-        InterestItem(title: "Sports",       symbol: "sportscourt.fill"),
-        InterestItem(title: "Cars",         symbol: "car.fill"),
-        InterestItem(title: "Cooking",      symbol: "takeoutbag.and.cup.and.straw.fill"),
-        InterestItem(title: "Fashion",      symbol: "tshirt.fill"),
-        InterestItem(title: "Pets",         symbol: "pawprint.fill"),
-        InterestItem(title: "Art & Design", symbol: "paintpalette.fill")
-    ]
+    private let allItems = InterestItem.allItems
 
     private var filteredItems: [InterestItem] = []
     private var selectedInterests: Set<InterestItem> {

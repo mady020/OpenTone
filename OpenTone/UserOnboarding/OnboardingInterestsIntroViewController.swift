@@ -7,14 +7,7 @@ final class OnboardingInterestsViewController: UIViewController {
     @IBOutlet private weak var showAllButton: UIButton!
     @IBOutlet private weak var continueButton: UIButton!
 
-    private let popularItems: [InterestItem] = [
-        InterestItem(title: "Technology", symbol: "cpu"),
-        InterestItem(title: "Gaming", symbol: "gamecontroller.fill"),
-        InterestItem(title: "Travel", symbol: "airplane"),
-        InterestItem(title: "Fitness", symbol: "dumbbell"),
-        InterestItem(title: "Food", symbol: "fork.knife"),
-        InterestItem(title: "Music", symbol: "music.note.list")
-    ]
+    private let popularItems = InterestItem.popularItems
     private var selectedItems: Set<InterestItem> {
         get { InterestSelectionStore.shared.selected }
         set { InterestSelectionStore.shared.selected = newValue }
