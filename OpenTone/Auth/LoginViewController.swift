@@ -302,7 +302,9 @@ final class LoginViewController: UIViewController {
         let wasFirstResponder = passwordField.isFirstResponder
         if wasFirstResponder { passwordField.resignFirstResponder() }
 
+        let text = passwordField.text
         passwordField.isSecureTextEntry = !isPasswordVisible
+        passwordField.text = text
 
         if wasFirstResponder { passwordField.becomeFirstResponder() }
 

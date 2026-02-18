@@ -10,5 +10,6 @@ class TopicCell: UICollectionViewCell {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
         tileLabel.textColor = AppColors.textPrimary
+        tileLabel.numberOfLines = 0
     }
 }

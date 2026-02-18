@@ -55,7 +55,9 @@ class StreakDataModel {
 
     func deleteStreak() {
         streak = nil
+        sessions = []
         try? FileManager.default.removeItem(at: streakURL)
+        try? FileManager.default.removeItem(at: sessionsURL)
     }
 
     private func loadStreak() {

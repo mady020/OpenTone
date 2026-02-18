@@ -243,12 +243,30 @@ final class SettingsViewController: UIViewController {
 
     private func performDeleteAccount() {
         // Delete all user data
+        let user = SessionManager.shared.currentUser
         UserDataModel.shared.deleteCurrentUser()
         SessionManager.shared.logout()
 
         // Clear related data
         StreakDataModel.shared.deleteStreak()
         HistoryDataModel.shared.clearHistory()
+
+        // Delete all call records for this user
+        if let user = user {
+            // Remove call records
+            let callRecords = CallRecordDataModel.shared.getAllCallRecords().filter { $0.participantID == user.id }
+            for record in callRecords {
+                CallRecordDataModel.shared.deleteCallRecord(by: record.id)
+            }
+
+            // Remove jam sessions
+            JamSessionDataModel.shared.cancelJamSession()
+            // Remove saved/completed jam sessions if needed (not user-specific, but clear active)
+
+            // Remove roleplay sessions
+            RoleplaySessionDataModel.shared.cancelSession()
+            RoleplaySessionDataModel.shared.deleteSavedSession()
+        }
 
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         guard let vc = storyboard.instantiateInitialViewController(),

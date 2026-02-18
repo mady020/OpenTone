@@ -51,6 +51,10 @@ final class UserDataModel {
     }
 
     func deleteCurrentUser() {
+        if let user = currentUser {
+            allUsers.removeAll { $0.id == user.id }
+            persistAllUsers()
+        }
         currentUser = nil
         deletePersistedCurrentUser()
     }
