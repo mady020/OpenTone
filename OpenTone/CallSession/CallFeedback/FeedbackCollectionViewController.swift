@@ -72,10 +72,31 @@ class FeedbackCollectionViewController: UICollectionViewController {
                     durationSeconds: duration
                 )
                 self.feedback = result
+                // Log the session once feedback is received
+                let durationMinutes = Int(ceil(duration / 60.0))
+                StreakDataModel.shared.logSession(
+                    title: "Jam Session",
+                    subtitle: "Speaking practice",
+                    topic: topicText,
+                    durationMinutes: max(1, durationMinutes),
+                    xp: 20,
+                    iconName: "waveform"
+                )
             } catch {
                 print("⚠️ Gemini feedback failed: \(error.localizedDescription)")
                 // Build a basic local feedback if Gemini fails
                 self.feedback = buildLocalFeedback(transcript: transcript, duration: duration)
+                
+                // Still log the session even if Gemini fails
+                let durationMinutes = Int(ceil(duration / 60.0))
+                StreakDataModel.shared.logSession(
+                    title: "Jam Session",
+                    subtitle: "Speaking practice",
+                    topic: topicText,
+                    durationMinutes: max(1, durationMinutes),
+                    xp: 15, // Slightly less XP for failed analysis
+                    iconName: "waveform"
+                )
             }
             self.isLoadingFeedback = false
             self.collectionView.reloadData()

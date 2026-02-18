@@ -28,7 +28,6 @@ final class LoginViewController: UIViewController {
         UIHelper.styleTextField(passwordField)
         UIHelper.styleLabels(in: view)
         
-        // Apply styling to buttons found in view hierarchy
         findButtons(in: view).forEach { button in
             // Identify buttons by connection actions or title text
             let actions = button.actions(forTarget: self, forControlEvent: .touchUpInside) ?? []
@@ -38,8 +37,6 @@ final class LoginViewController: UIViewController {
             if actions.contains("signinButtonTapped:") {
                 UIHelper.stylePrimaryButton(button)
                 self.loginButton = button
-            } else if actions.contains("googleButtonTapped:") || title.contains("google") {
-                UIHelper.styleGoogleButton(button)
             } else if title.contains("apple") {
                 replaceWithAppleSignInButton(placeholder: button)
             } else if title.contains("forgot") {
@@ -106,13 +103,10 @@ final class LoginViewController: UIViewController {
     @IBAction func signinButtonTapped(_ sender: Any) {
         handleLogin()
     }
-    
-    @IBAction func googleButtonTapped(_ sender: Any) {
-        handleQuickSignIn()
-    }
 
+    
     @IBAction func appleButtonTapped(_ sender: Any) {
-        handleQuickSignIn()
+//        handleQuickSignIn()
     }
 
     

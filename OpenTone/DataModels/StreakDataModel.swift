@@ -172,4 +172,44 @@ class StreakDataModel {
 
         saveStreak()
     }
+    
+    func resetAllPracticeData() {
+        UserDefaults.standard.removeObject(forKey: "dailyMinutes")
+        UserDefaults.standard.removeObject(forKey: "weeklyMinutes")
+    }
+
+    func buildProgressCellData() -> ProgressCellData {
+
+        let today = Calendar.current.startOfDay(for: Date())
+
+        let todayMinutes = totalMinutes(for: today)
+
+        let commitment = streak?.commitment ?? 0
+
+        // Monday-based weekly minutes
+        var weekly: [Int] = []
+        let calendar = Calendar.current
+        
+        // Find the most recent Monday
+        let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+        guard let monday = calendar.date(from: components) else {
+            return ProgressCellData(streakDays: streak?.currentCount ?? 0, todayMinutes: todayMinutes, dailyGoalMinutes: commitment, weeklyMinutes: Array(repeating: 0, count: 7))
+        }
+
+        for i in 0..<7 {
+            if let day = calendar.date(byAdding: .day, value: i, to: monday) {
+                weekly.append(totalMinutes(for: day))
+            } else {
+                weekly.append(0)
+            }
+        }
+
+        return ProgressCellData(
+            streakDays: streak?.currentCount ?? 0,
+            todayMinutes: todayMinutes,
+            dailyGoalMinutes: commitment,
+            weeklyMinutes: weekly
+        )
+    }
+
 }

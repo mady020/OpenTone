@@ -146,9 +146,7 @@ final class SignupViewController: UIViewController {
             if actions.contains("signupButtonTapped:") {
                 UIHelper.stylePrimaryButton(button)
                 self.signupButton = button
-            } else if actions.contains("googleButtonTapped:") || title.contains("google") {
-                UIHelper.styleGoogleButton(button)
-            } else if title.contains("apple") {
+            }  else if title.contains("apple") {
                 replaceWithAppleSignInButton(placeholder: button)
             } else if actions.contains("signinButtonTapped:") || title.contains("sign in") {
                 UIHelper.styleSecondaryButton(button)
@@ -224,12 +222,9 @@ final class SignupViewController: UIViewController {
         handleSignup()
     }
 
-    @IBAction func googleButtonTapped(_ sender: Any) {
-        handleQuickSignIn()
-    }
 
     @IBAction func appleButtonTapped(_ sender: Any) {
-        handleQuickSignIn()
+//        handleQuickSignIn()
     }
 
     private func handleQuickSignIn() {

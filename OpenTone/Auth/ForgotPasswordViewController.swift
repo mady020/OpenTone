@@ -33,8 +33,6 @@ class ForgotPasswordViewController: UIViewController {
                 UIHelper.stylePrimaryButton(button)
                 self.resetButton = button
             } else {
-                // Determine based on context or leave as is if unknown, 
-                // but for this screen, the other button is likely the primary action.
                 UIHelper.stylePrimaryButton(button)
                 self.resetButton = button
             }
@@ -54,7 +52,6 @@ class ForgotPasswordViewController: UIViewController {
     private func validateInputs() {
         var isValid = true
         
-        // Email Validation
         if let error = AuthValidator.validateEmail(emailField.text) {
              if let text = emailField.text, !text.isEmpty {
                  UIHelper.showError(message: error, on: emailField, in: view, nextView: resetButton)
@@ -64,7 +61,6 @@ class ForgotPasswordViewController: UIViewController {
              UIHelper.clearError(on: emailField)
         }
         
-        // Update Button State
         if let button = resetButton {
             UIHelper.setButtonState(button, enabled: isValid)
         }
@@ -81,13 +77,41 @@ class ForgotPasswordViewController: UIViewController {
         return buttons
     }
     
+    
+    
     private func addIconsToTextFields() {
-        let emailIcon = UIImageView(image: UIImage(systemName: "envelope.fill"))
-        emailIcon.tintColor = .secondaryLabel
-        let emailContainer = UIView(frame: CGRect(x: 0, y: 0, width: 34, height: 22))
-        emailIcon.frame = CGRect(x: 8, y: 0, width: 22, height: 22)
-        emailContainer.addSubview(emailIcon)
-        emailField.leftView = emailContainer
+        emailField.leftView = makeIconView(systemName: "envelope.fill")
         emailField.leftViewMode = .always
+    }
+    
+    // Use a fixed symbol configuration so every SF Symbol is rendered the same size
+    private func makeIconView(systemName: String) -> UIView {
+        // Choose the pointSize you want for all icons (change 18 to taste)
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        let image = UIImage(systemName: systemName, withConfiguration: symbolConfig)
+
+        let iconView = UIImageView(image: image)
+        iconView.tintColor = .secondaryLabel
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.setContentHuggingPriority(.required, for: .horizontal)
+
+        // Container guarantees a consistent leftView width and center alignment
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(iconView)
+
+        // Fixed container size (change width/height to match your design)
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: 44),
+            container.heightAnchor.constraint(equalToConstant: 44),
+
+            iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            iconView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 20),
+            iconView.heightAnchor.constraint(equalToConstant: 20)
+        ])
+
+        return container
     }
 }

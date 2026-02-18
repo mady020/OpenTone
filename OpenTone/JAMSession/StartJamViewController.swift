@@ -18,6 +18,7 @@ class StartJamViewController: UIViewController {
     private var hintStackView: UIStackView?
     private var didFinishSpeech = false
     private var isMicOn = false
+    private let activityTimer = ActivityTimer()
 
     // MARK: - Speech Recognition
 
@@ -115,6 +116,7 @@ class StartJamViewController: UIViewController {
             totalSeconds: 30
         )
         timerManager.start(from: remainingSeconds)
+        activityTimer.start()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -473,13 +475,8 @@ extension StartJamViewController: TimerManagerDelegate {
         session.endedAt = Date()
         JamSessionDataModel.shared.updateActiveSession(session)
 
-        // Calculate speaking duration
-        let speakingDuration: Double
-        if let start = session.startedSpeakingAt {
-            speakingDuration = Date().timeIntervalSince(start)
-        } else {
-            speakingDuration = 30.0
-        }
+        // Calculate speaking duration using ActivityTimer
+        let speakingDuration = activityTimer.stop()
 
         let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "Feedback") as! FeedbackCollectionViewController

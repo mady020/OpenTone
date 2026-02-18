@@ -109,7 +109,9 @@ final class CommitmentViewController: UIViewController {
 
         SessionManager.shared.updateSessionUser(user)
         StreakDataModel.shared.updateStreak(newStreak)
+        StreakDataModel.shared.resetAllPracticeData()
         InterestSelectionStore.shared.selected.removeAll()
+
 
         goToDashboard()
     }

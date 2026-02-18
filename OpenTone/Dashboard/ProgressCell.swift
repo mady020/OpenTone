@@ -1,6 +1,5 @@
 import UIKit
 
-// MARK: - Data struct the dashboard passes into the cell
 
 struct ProgressCellData {
     let streakDays: Int
@@ -9,19 +8,12 @@ struct ProgressCellData {
     let weeklyMinutes: [Int]   // 7 values, Mon → Sun
 }
 
-// MARK: - Redesigned Progress Cell (fully programmatic)
 
 final class ProgressCell: UICollectionViewCell {
 
     static let reuseID = "ProgressCell"
 
-    // MARK: - Callback
-
     var onSeeProgressTapped: (() -> Void)?
-
-    // MARK: - Subviews
-
-    // ── Top row: Streak badge + greeting ──
 
     private let streakContainer: UIView = {
         let v = UIView()
@@ -80,7 +72,6 @@ final class ProgressCell: UICollectionViewCell {
         return l
     }()
 
-    // ── Bottom: Weekly mini bars ──
 
     private let weekStack: UIStackView = {
         let s = UIStackView()
@@ -91,8 +82,7 @@ final class ProgressCell: UICollectionViewCell {
         s.translatesAutoresizingMaskIntoConstraints = false
         return s
     }()
-
-    // ── CTA ──
+    
 
     private let seeProgressButton: UIButton = {
         let b = UIButton(type: .system)
@@ -102,7 +92,6 @@ final class ProgressCell: UICollectionViewCell {
         return b
     }()
 
-    // MARK: - Bar data cache
 
     private var barHostViews: [UIView] = []
     private var barBgLayers: [CALayer] = []
@@ -111,7 +100,6 @@ final class ProgressCell: UICollectionViewCell {
     private var storedBarValues: [Int] = Array(repeating: 0, count: 7)
     private var storedBarMax: Int = 1
 
-    // MARK: - Init
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -123,12 +111,10 @@ final class ProgressCell: UICollectionViewCell {
         setupUI()
     }
 
-    // MARK: - Layout
 
     private let dayAbbreviations = ["M", "T", "W", "T", "F", "S", "S"]
 
     private func setupUI() {
-        // Cell layer: shadow + border (no clipping)
         backgroundColor = .clear
         layer.cornerRadius = 20
         layer.borderWidth = 1
@@ -205,7 +191,6 @@ final class ProgressCell: UICollectionViewCell {
         applyDynamicColors()
     }
 
-    // MARK: - Ring drawing
 
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -243,7 +228,6 @@ final class ProgressCell: UICollectionViewCell {
         }
     }
 
-    // MARK: - Weekly bars
 
     private func buildWeekBars() {
         for i in 0..<7 {
@@ -313,8 +297,6 @@ final class ProgressCell: UICollectionViewCell {
         }
     }
 
-    // MARK: - Configure
-
     func configure(with data: ProgressCellData) {
         // Streak
         streakCountLabel.text = "\(data.streakDays) day streak"
@@ -322,7 +304,6 @@ final class ProgressCell: UICollectionViewCell {
         // Greeting
         greetingLabel.text = greetingText()
 
-        // Ring
         if data.dailyGoalMinutes <= 0 {
             ringProgressLayer.strokeEnd = 0
             percentLabel.text = "—"
@@ -336,7 +317,7 @@ final class ProgressCell: UICollectionViewCell {
             goalSubLabel.text = "\(remaining) min left"
         }
 
-        // Weekly bars
+
         let maxMinutes = max(data.weeklyMinutes.max() ?? 0, max(data.dailyGoalMinutes, 1))
         storedBarValues = data.weeklyMinutes
         storedBarMax = maxMinutes

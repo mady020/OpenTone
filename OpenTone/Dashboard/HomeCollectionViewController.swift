@@ -9,8 +9,6 @@ enum DashboardSection: Int, CaseIterable {
     case recommended
 }
 
-
-
 class HomeCollectionViewController: UICollectionViewController {
     
     
@@ -112,31 +110,10 @@ class HomeCollectionViewController: UICollectionViewController {
         }
     }
 
-    /// Build the data struct that drives the redesigned progress card.
     private func buildProgressData() -> ProgressCellData {
-        let streak = StreakDataModel.shared.getStreak()
-        let streakDays = streak?.currentCount ?? 0
-        let dailyGoal = streak?.commitment ?? 0
-        let todayMinutes = StreakDataModel.shared.totalMinutes(for: Date())
-
-        // Build Mon → Sun weekly minutes
-        var weeklyMinutes: [Int] = []
-        let calendar = Calendar.current
-        let todayWeekdayIndex = mondayBasedWeekdayIndex()
-
-        for i in 0..<7 {
-            let diff = i - todayWeekdayIndex
-            let date = calendar.date(byAdding: .day, value: diff, to: Date()) ?? Date()
-            weeklyMinutes.append(StreakDataModel.shared.totalMinutes(for: date))
-        }
-
-        return ProgressCellData(
-            streakDays: streakDays,
-            todayMinutes: todayMinutes,
-            dailyGoalMinutes: dailyGoal,
-            weeklyMinutes: weeklyMinutes
-        )
+        return StreakDataModel.shared.buildProgressCellData()
     }
+
 
     private func mondayBasedWeekdayIndex() -> Int {
         let weekday = Calendar.current.component(.weekday, from: Date())

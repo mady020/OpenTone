@@ -38,6 +38,7 @@ class RoleplayChatViewController: UIViewController {
     var scenario: RoleplayScenario!
     var session: RoleplaySession!
     var entryPoint: RoleplayEntryPoint = .roleplays
+    private let activityTimer = ActivityTimer()
     
     private var messages: [ChatMessage] = []
     private var didLoadChat = false
@@ -172,6 +173,7 @@ class RoleplayChatViewController: UIViewController {
         geminiHistory.removeAll()
         geminiTurnCount = 0
         isProcessingResponse = true
+        activityTimer.start()
 
         // Show a loading indicator
         messages.append(ChatMessage(sender: .app, text: "Starting roleplay…", suggestions: nil))
@@ -509,12 +511,14 @@ class RoleplayChatViewController: UIViewController {
         session.status = .completed
         session.endedAt = Date()
 
+        let durationMinutes = Int(ceil(activityTimer.stop() / 60.0))
+
         RoleplaySessionDataModel.shared.updateSession(session, scenario: scenario)
         StreakDataModel.shared.logSession(
             title: "Roleplay Session",
             subtitle: "You completed a roleplay",
             topic: scenario.title,
-            durationMinutes: scenario.estimatedTimeMinutes,
+            durationMinutes: max(1, durationMinutes),
             xp: 30,
             iconName: "person.2.fill"
         )
@@ -560,12 +564,14 @@ class RoleplayChatViewController: UIViewController {
             session.status = .completed
             session.endedAt = Date()
 
+            let durationMinutes = Int(ceil(activityTimer.stop() / 60.0))
+
             RoleplaySessionDataModel.shared.updateSession(session, scenario: scenario)
             StreakDataModel.shared.logSession(
                 title: "Roleplay Session",
                 subtitle: "You completed a roleplay",
                 topic: scenario.title,
-                durationMinutes: scenario.estimatedTimeMinutes,
+                durationMinutes: max(1, durationMinutes),
                 xp: 30,
                 iconName: "person.2.fill"
             )
@@ -637,6 +643,17 @@ class RoleplayChatViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.session.status = .paused
+            let durationMinutes = Int(ceil(self.activityTimer.stop() / 60.0))
+            if durationMinutes > 0 {
+                StreakDataModel.shared.logSession(
+                    title: "Roleplay (Paused)",
+                    subtitle: "Practice session",
+                    topic: self.scenario.title,
+                    durationMinutes: durationMinutes,
+                    xp: 5,
+                    iconName: "person.2.fill"
+                )
+            }
             RoleplaySessionDataModel.shared.updateSession(self.session, scenario: self.scenario)
             RoleplaySessionDataModel.shared.saveSessionForLater()
             self.popBackToOrigin()

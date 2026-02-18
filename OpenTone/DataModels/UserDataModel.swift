@@ -30,7 +30,6 @@ final class UserDataModel {
 
         loadAllUsersFromDisk()
         loadCurrentUserFromDisk()
-        loadSampleUsersIfNeeded()
     }
 
 
@@ -170,72 +169,8 @@ final class UserDataModel {
 
 
 
-    private func loadSampleUsersIfNeeded() {
-        guard allUsers.isEmpty else { return }
+    
 
-        allUsers = loadSampleUsers()
-        persistAllUsers()
-
-        if currentUser == nil {
-            currentUser = allUsers.last
-            persistCurrentUser()
-        }
-    }
-
-    private func loadSampleUsers() -> [User] {
-        [
-            User(
-                name: "Madhav Sharma",
-                email: "madhav@opentone.com",
-                password: "Madhav@123",
-                country: Country(name: "India", code: "IN"),
-                age: 20,
-                gender: .male,
-                bio: "Learning to communicate every day and loving the progress. Passionate about public speaking and making new connections.",
-                englishLevel: .beginner,
-                confidenceLevel: ConfidenceOption(title: "Very Nervous", emoji: "🥺"),
-                interests: [
-                    InterestItem(title: "Public Speaking", symbol: "🎤"),
-                    InterestItem(title: "Travel", symbol: "✈️"),
-                    InterestItem(title: "Technology", symbol: "💻"),
-                    InterestItem(title: "Movies", symbol: "🎬"),
-                ],
-                currentPlan: .free,
-                avatar: "pp1",
-                streak: Streak(commitment: 10, currentCount: 5, longestCount: 8, lastActiveDate: Date()),
-                lastSeen: Date().addingTimeInterval(-120),
-                callRecordIDs: [],
-                roleplayIDs: [],
-                jamSessionIDs: [],
-                friends: [],
-                goal: 10
-            ),
-            User(
-                name: "Harshdeep Singh",
-                email: "harsh@opentone.com",
-                password: "Harsh@123",
-                country: Country(name: "India", code: "IN"),
-                age: 19,
-                gender: .male,
-                bio: "On a journey to improve my Communication Skills. Love meeting people and exploring new cultures.",
-                englishLevel: .intermediate,
-                confidenceLevel: ConfidenceOption(title: "Somewhat Confident", emoji: "😊"),
-                interests: [
-                    InterestItem(title: "Casual Conversation", symbol: "💬"),
-                    InterestItem(title: "Interview Practice", symbol: "🧑‍💼"),
-                    InterestItem(title: "Music", symbol: "🎵"),
-                ],
-                currentPlan: .free,
-                avatar: "pp2",
-                streak: Streak(commitment: 15, currentCount: 3, longestCount: 5, lastActiveDate: Date().addingTimeInterval(-86400)),
-                lastSeen: Date(),
-                callRecordIDs: [],
-                roleplayIDs: [],
-                jamSessionIDs: [],
-                friends: [],
-                goal: 15
-            )
-        ]
-    }
+    
 }
 

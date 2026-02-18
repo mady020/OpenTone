@@ -72,6 +72,7 @@ final class AICallController: UIViewController {
 
     private var muteButton: UIButton!
     private var closeButton: UIButton!
+    private let activityTimer = ActivityTimer()
 
     // MARK: - Data
 
@@ -274,6 +275,7 @@ final class AICallController: UIViewController {
             requestMicPermission { granted in
                 guard granted else { return }
                 DispatchQueue.main.async {
+                    self?.activityTimer.start()
                     self?.startListening()
                 }
             }
@@ -513,6 +515,18 @@ final class AICallController: UIViewController {
     }
 
     @objc private func closeTapped() {
+        let durationMinutes = Int(ceil(activityTimer.stop() / 60.0))
+        if durationMinutes > 0 {
+            StreakDataModel.shared.logSession(
+                title: "Talk to AI",
+                subtitle: "Real-time conversation",
+                topic: "AI Call",
+                durationMinutes: durationMinutes,
+                xp: durationMinutes * 5,
+                iconName: "sparkles"
+            )
+        }
+        
         speechSynthesizer.stopSpeaking(at: .immediate)
         teardownAudio()
         GeminiService.shared.resetConversation()
