@@ -30,8 +30,6 @@ final class SuggestionCallCell: UICollectionViewCell {
         labelView.textColor = AppColors.textPrimary
         labelView.numberOfLines = 0
         labelView.lineBreakMode = .byWordWrapping
-
-        // Ensure the label doesn't overflow — add trailing constraint if missing
         if let container = containerView {
             labelView.translatesAutoresizingMaskIntoConstraints = false
             labelView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16).isActive = true

@@ -20,12 +20,10 @@ final class PrepareJamViewController: UIViewController {
         guard !isRegenerating else { return }
         isRegenerating = true
 
-        // Pause the timer while regenerating
         if let timerCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
             timerCell.pauseTimer()
         }
 
-        // Show a spinner on the button
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.color = AppColors.primary
         spinner.startAnimating()
@@ -37,12 +35,10 @@ final class PrepareJamViewController: UIViewController {
         JamSessionDataModel.shared.regenerateTopicWithAI { [weak self] session in
             guard let self = self, let session = session else { return }
 
-            // Remove spinner, restore icon
             spinner.removeFromSuperview()
             self.closeButton.configuration?.image = UIImage(systemName: "arrow.triangle.2.circlepath")
             self.isRegenerating = false
 
-            // Update data & reload
             self.selectedTopic = session.topic
             self.allSuggestions = session.suggestions
             self.remainingSeconds = session.secondsLeft
@@ -74,13 +70,11 @@ final class PrepareJamViewController: UIViewController {
             preferredStyle: .alert
         )
 
-        // Pause the timer in the cell
         if let timerCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
             timerCell.pauseTimer()
         }
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            // Resume the timer in the cell
             if let timerCell = self.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
                 timerCell.resumeTimer()
             }
@@ -88,7 +82,6 @@ final class PrepareJamViewController: UIViewController {
 
 
         alert.addAction(UIAlertAction(title: "Save & Exit", style: .default) { _ in
-            // Persist timer state before saving
             if var session = JamSessionDataModel.shared.getActiveSession() {
                 session.secondsLeft = self.lastKnownSeconds
                 JamSessionDataModel.shared.updateActiveSession(session)
@@ -123,7 +116,6 @@ final class PrepareJamViewController: UIViewController {
         
         navigationItem.hidesBackButton = true
 
-        // Custom back button that triggers exit alert
         let backButton = UIBarButtonItem(
             image: UIImage(systemName: "chevron.left"),
             style: .plain,
@@ -153,7 +145,6 @@ final class PrepareJamViewController: UIViewController {
             ? UIColor.tertiarySystemGroupedBackground
             : AppColors.primaryLight
 
-        // Style the bulb and close icon buttons
         for button in [bulbButton, closeButton] {
             guard let btn = button, var config = btn.configuration else { continue }
             config.background.backgroundColor = buttonBg
@@ -182,7 +173,7 @@ final class PrepareJamViewController: UIViewController {
         visibleCount = min(4, allSuggestions.count)
         bulbButton.isHidden = visibleCount >= allSuggestions.count
 
-        didTransitionToCountdown = false // Reset in case we come back
+        didTransitionToCountdown = false
         collectionView.reloadData()
     }
 
@@ -219,7 +210,6 @@ final class PrepareJamViewController: UIViewController {
         guard !didTransitionToCountdown else { return }
         didTransitionToCountdown = true
 
-        // Stop the timer in the cell to prevent redundant calls
         if let timerCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TimerCellCollectionViewCell {
             timerCell.pauseTimer()
         }
@@ -228,7 +218,7 @@ final class PrepareJamViewController: UIViewController {
             withIdentifier: "CountdownViewController"
         ) as? CountdownViewController else { return }
 
-        vc.isSpeechCountdown = true   // ✅ REQUIRED FIX
+        vc.isSpeechCountdown = true
 
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -292,8 +282,7 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
         }
 
         if indexPath.section == 1 {
-            // Dynamic height: "Your Hot Topic" header (24pt bold, ~32px) + 8 top + 8 gap + topic text + 15 bottom
-            let horizontalPadding: CGFloat = 30  // 15 leading + 15 trailing
+            let horizontalPadding: CGFloat = 30
             let availableWidth = width - horizontalPadding
             let topicFont = UIFont.boldSystemFont(ofSize: 24)
             let topicHeight = selectedTopic.boundingRect(
@@ -302,7 +291,7 @@ extension PrepareJamViewController: UICollectionViewDataSource, UICollectionView
                 attributes: [.font: topicFont],
                 context: nil
             ).height
-            let totalHeight: CGFloat = 8 + 24 + 8 + ceil(topicHeight) + 15  // top + header + gap + topic + bottom
+            let totalHeight: CGFloat = 8 + 24 + 8 + ceil(topicHeight) + 15 
             return CGSize(width: width, height: max(totalHeight, 80))
         }
 

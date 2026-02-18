@@ -90,7 +90,6 @@ class ReportViewController: UIViewController {
 
         guard let reasonText = finalReason, !reasonText.isEmpty else { return }
 
-        // Map the reason text to a ReportReason enum
         let reportReason: ReportReason
         switch reasonText {
         case ReportReason.inappropriateBehavior.rawValue:
@@ -107,7 +106,6 @@ class ReportViewController: UIViewController {
             reportReason = .other
         }
 
-        // Create and save the report
         guard let currentUser = UserDataModel.shared.getCurrentUser() else { return }
 
         let report = Report(

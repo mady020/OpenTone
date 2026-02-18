@@ -25,8 +25,8 @@ class UserMessageCell: UITableViewCell {
         
         bubbleView.translatesAutoresizingMaskIntoConstraints = false
         bubbleView.layer.maskedCorners = [
-            .layerMinXMinYCorner, // top-left
-            .layerMaxXMinYCorner ,   // top-right
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner ,   
             .layerMinXMaxYCorner
             
         ]

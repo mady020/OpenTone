@@ -49,7 +49,6 @@ class JamSessionDataModel {
         loadCompletedSessions()
     }
 
-    /// Creates a new session with a random topic, stores it as active.
     @discardableResult
     func startNewSession() -> JamSession? {
         guard let user = UserDataModel.shared.getCurrentUser() else { return nil }
@@ -70,7 +69,6 @@ class JamSessionDataModel {
         return session
     }
 
-    // Alias kept for backward compatibility.
     @discardableResult
     func startJamSession(
         phase: JamPhase = .preparing,
@@ -79,7 +77,6 @@ class JamSessionDataModel {
         return startNewSession()
     }
 
-    //  Active Session
     func getActiveSession() -> JamSession? {
         activeSession
     }
@@ -88,43 +85,36 @@ class JamSessionDataModel {
         activeSession != nil
     }
 
-    //  Session Updates
-    /// Update the active session in-memory and persist to disk.
     func updateActiveSession(_ updated: JamSession) {
         guard let current = activeSession, current.id == updated.id else { return }
 
         activeSession = updated
         persistActiveSession()
 
-        // If the session just completed, archive it.
         if current.phase != .completed && updated.phase == .completed {
             archiveCompletedSession(updated)
         }
     }
 
-    /// Transition the active session into the speaking phase.
     func beginSpeakingPhase() {
         guard var session = activeSession else { return }
         session.phase = .speaking
         session.startedSpeakingAt = Date()
-        session.secondsLeft = 30   // speaking timer
+        session.secondsLeft = 30
         activeSession = session
         persistActiveSession()
     }
 
-    /// Continue the current session (no-op if nil). Returns the session.
     @discardableResult
     func continueSession() -> JamSession? {
         return activeSession
     }
 
-    /// Continue the active session, optionally adding bonus seconds.
     @discardableResult
     func continueActiveSession() -> JamSession? {
         return activeSession
     }
 
-    /// Regenerate a new random topic for the current active session.
     @discardableResult
     func regenerateTopicForActiveSession() -> JamSession? {
         guard var session = activeSession else { return nil }
@@ -140,7 +130,6 @@ class JamSessionDataModel {
         return session
     }
 
-    /// Regenerate using Gemini AI. Returns the updated session via completion.
     func regenerateTopicWithAI(completion: @escaping (JamSession?) -> Void) {
         guard var session = activeSession else {
             completion(nil)
@@ -158,7 +147,6 @@ class JamSessionDataModel {
                 self.persistActiveSession()
                 completion(session)
             } catch {
-                // Fallback to hardcoded generation
                 print("⚠️ Gemini JAM topic generation failed: \(error.localizedDescription). Using fallback.")
                 let fallback = self.regenerateTopicForActiveSession()
                 completion(fallback)
@@ -166,7 +154,6 @@ class JamSessionDataModel {
         }
     }
 
-    /// Start a new session using Gemini AI for topic generation.
     func startNewSessionWithAI(completion: @escaping (JamSession?) -> Void) {
         guard let user = UserDataModel.shared.getCurrentUser() else {
             completion(nil)
@@ -189,7 +176,6 @@ class JamSessionDataModel {
                 self.persistActiveSession()
                 completion(session)
             } catch {
-                // Fallback to hardcoded
                 print("⚠️ Gemini topic generation failed: \(error.localizedDescription). Using fallback.")
                 let session = self.startNewSession()
                 completion(session)
@@ -197,8 +183,6 @@ class JamSessionDataModel {
         }
     }
 
-    //  Save & Exit
-    /// Save the current session to disk for later resumption, then clear active.
     func saveSessionForLater() {
         guard let session = activeSession else { return }
         if let data = try? encoder.encode(session) {
@@ -208,12 +192,10 @@ class JamSessionDataModel {
         clearActiveSessionFile()
     }
 
-    /// Check if there is a previously saved (paused) session.
     func hasSavedSession() -> Bool {
         FileManager.default.fileExists(atPath: savedSessionURL.path)
     }
 
-    /// Peek at the saved session without making it active.
     func getSavedSession() -> JamSession? {
         guard let data = try? Data(contentsOf: savedSessionURL),
               let session = try? decoder.decode(JamSession.self, from: data) else {
@@ -222,7 +204,6 @@ class JamSessionDataModel {
         return session
     }
 
-    /// Resume a previously saved session, making it active again.
     @discardableResult
     func resumeSavedSession() -> JamSession? {
         guard let data = try? Data(contentsOf: savedSessionURL),
@@ -235,24 +216,19 @@ class JamSessionDataModel {
         return session
     }
 
-    /// Delete the saved session file without loading it.
     func deleteSavedSession() {
         try? FileManager.default.removeItem(at: savedSessionURL)
     }
 
-    /// Discard the active session entirely (no save).
     func cancelJamSession() {
         activeSession = nil
         clearActiveSessionFile()
     }
 
-    // Completed Sessions
 
     func getCompletedSessions() -> [JamSession] {
         completedSessions
     }
-
-    //  Hints
 
     func generateSpeakingHints() -> [String] {
         let allHints = [
@@ -270,7 +246,6 @@ class JamSessionDataModel {
         return Array(allHints.shuffled().prefix(3))
     }
 
-    // Private Persistence Helpers
 
     private func persistActiveSession() {
         guard let session = activeSession,
@@ -288,7 +263,6 @@ class JamSessionDataModel {
             activeSession = nil
             return
         }
-        // Don't resume completed sessions
         if session.phase == .completed {
             activeSession = nil
             clearActiveSessionFile()
@@ -315,7 +289,6 @@ class JamSessionDataModel {
         completedSessions.append(session)
         saveCompletedSessions()
 
-        // Log to history
         let duration: Int
         if let start = session.startedSpeakingAt, let end = session.endedAt {
             duration = Int(end.timeIntervalSince(start))
@@ -341,7 +314,6 @@ class JamSessionDataModel {
         clearActiveSessionFile()
     }
 
-    // Topic Generation
 
     private func generateRandomTopic() -> String {
         JamSession.availableTopics.randomElement() ?? "General Topic"

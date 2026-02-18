@@ -25,7 +25,6 @@ class HomeCollectionViewController: UICollectionViewController {
     var savedRoleplaySession: RoleplaySession?
     var savedRoleplayScenario: RoleplayScenario?
 
-    /// Whether we have any saved session (jam or roleplay) to continue. At most 1.
     private var hasSavedSession: Bool {
         savedJamSession != nil || savedRoleplaySession != nil
     }
@@ -98,12 +97,10 @@ class HomeCollectionViewController: UICollectionViewController {
         currentProgress = user.streak?.currentCount ?? 0
         lastTask = SessionManager.shared.lastUnfinishedActivity
 
-        // Load saved sessions — show at most 1 on dashboard
         savedJamSession = JamSessionDataModel.shared.getSavedSession()
         savedRoleplaySession = RoleplaySessionDataModel.shared.getSavedSession()
         savedRoleplayScenario = RoleplaySessionDataModel.shared.getSavedScenario()
 
-        // If both exist, keep the jam (or whichever you prefer) and drop the other
         if savedJamSession != nil && savedRoleplaySession != nil {
             savedRoleplaySession = nil
             savedRoleplayScenario = nil
@@ -127,16 +124,12 @@ class HomeCollectionViewController: UICollectionViewController {
             present(vc, animated: true)
     }
 
-    // MARK: - Resume Saved JAM
 
     private func resumeSavedJamSession() {
-        // Load the saved session as active
         JamSessionDataModel.shared.resumeSavedSession()
 
-        // Switch to the JAM tab
         guard let tabBar = tabBarController else { return }
 
-        // Find the JAM tab index (the one whose root VC is TwoMinuteJamViewController)
         var jamTabIndex: Int?
         if let viewControllers = tabBar.viewControllers {
             for (index, vc) in viewControllers.enumerated() {
@@ -155,10 +148,8 @@ class HomeCollectionViewController: UICollectionViewController {
 
         guard let targetIndex = jamTabIndex else { return }
 
-        // Switch tab
         tabBar.selectedIndex = targetIndex
 
-        // Push PrepareJam from the JAM tab's navigation controller
         if let jamNav = tabBar.viewControllers?[targetIndex] as? UINavigationController {
             jamNav.popToRootViewController(animated: false)
 
@@ -171,8 +162,6 @@ class HomeCollectionViewController: UICollectionViewController {
             }
         }
     }
-
-    // MARK: - Resume Saved Roleplay
 
     private func resumeSavedRoleplaySession() {
         guard let (session, scenario) = RoleplaySessionDataModel.shared.resumeSavedSession() else {
@@ -459,8 +448,6 @@ extension HomeCollectionViewController {
     
     func nothingLayout() -> NSCollectionLayoutSection {
 
-        // Use fractionalWidth(1) with a near-zero estimated height to avoid
-        // the "Invalid absolute dimension, must be > 0" assertion.
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
@@ -611,7 +598,6 @@ extension HomeCollectionViewController {
                 present(alert, animated: true)
             }else{
                 
-                // Check for API key before launching Talk to AI
                 guard GeminiAPIKeyManager.shared.hasAPIKey else {
                     let alert = UIAlertController(
                         title: "Gemini API Key Required",
@@ -656,4 +642,3 @@ extension HomeCollectionViewController {
     }
 
 }
-

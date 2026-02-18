@@ -6,7 +6,6 @@ final class GeminiService {
 
     static let shared = GeminiService()
 
-    // MARK: - Types
 
     struct Message {
         let role: Role
@@ -53,7 +52,6 @@ final class GeminiService {
         }
     }
 
-    // MARK: - Configuration
 
     /// Models to try in order of preference. Falls back to the next if the
     /// current one returns a quota error (limit: 0 means no free tier).
@@ -72,7 +70,6 @@ final class GeminiService {
     /// Maximum automatic retries on transient 429 errors.
     private let maxRetries = 2
 
-    // MARK: - State
 
     private(set) var conversationHistory: [Message] = []
 
@@ -88,7 +85,6 @@ final class GeminiService {
 
     private init() {}
 
-    // MARK: - Public API
 
     /// Send a user message and get an AI response.
     /// Manages conversation history automatically. Retries on transient 429s
@@ -337,7 +333,6 @@ final class GeminiService {
         ]
     }
 
-    // MARK: - JAM Feedback Analysis
 
     /// Analyze a user's speech transcript and return structured feedback.
     /// One-shot call — does NOT affect conversation history.
@@ -483,7 +478,6 @@ final class GeminiService {
         )
     }
 
-    // MARK: - Private — Network
 
     private func callGemini(model: String, apiKey: String, attempt: Int = 0) async throws -> String {
         let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
@@ -538,7 +532,6 @@ final class GeminiService {
         return try parseResponse(data)
     }
 
-    // MARK: - Private — Request Body
 
     private func buildRequestBody() -> [String: Any] {
         var contents: [[String: Any]] = []
@@ -580,7 +573,6 @@ final class GeminiService {
         return body
     }
 
-    // MARK: - Private — Response Parsing
 
     private func parseResponse(_ data: Data) throws -> String {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {

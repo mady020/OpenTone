@@ -49,11 +49,9 @@ class RoleplayChatViewController: UIViewController {
     private var isProcessingResponse = false
     private var isMuted = false
 
-    // MARK: - TTS
 
     private let speechSynthesizer = AVSpeechSynthesizer()
 
-    // MARK: - Gemini conversation history (for this roleplay)
 
     private var geminiHistory: [GeminiService.Message] = []
     private var geminiTurnCount = 0
@@ -65,7 +63,6 @@ class RoleplayChatViewController: UIViewController {
             fatalError("RoleplayChatVC: Scenario or Session not passed")
         }
 
-        // Keep the data model in sync so save-for-later works
         RoleplaySessionDataModel.shared.activeScenario = scenario
 
         title = scenario.title
@@ -97,15 +94,12 @@ class RoleplayChatViewController: UIViewController {
     }
     
     private func setupButtons() {
-        // Mic button
         UIHelper.styleCircularIconButton(micButton, symbol: "mic.fill")
 
-        // Replay button — repurpose as mute toggle
         UIHelper.styleCircularIconButton(replayButton, symbol: "speaker.wave.2.fill")
         replayButton.removeTarget(nil, action: nil, for: .allEvents)
         replayButton.addTarget(self, action: #selector(muteTapped), for: .touchUpInside)
 
-        // Exit button
         UIHelper.styleCircularIconButton(exitButton, symbol: "xmark")
         exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
 
@@ -142,7 +136,6 @@ class RoleplayChatViewController: UIViewController {
         tabBarController?.tabBar.isHidden = false
     }
 
-    // MARK: - Gemini-powered Roleplay
 
     private func buildRoleplaySystemPrompt() -> String {
         return """
@@ -175,7 +168,6 @@ class RoleplayChatViewController: UIViewController {
         isProcessingResponse = true
         activityTimer.start()
 
-        // Show a loading indicator
         messages.append(ChatMessage(sender: .app, text: "Starting roleplay…", suggestions: nil))
         reloadTableSafely()
 
@@ -184,7 +176,6 @@ class RoleplayChatViewController: UIViewController {
                 let systemPrompt = buildRoleplaySystemPrompt()
                 let reply = try await sendToGeminiForRoleplay(systemPrompt)
                 await MainActor.run {
-                    // Remove loading message
                     if messages.last?.text == "Starting roleplay…" {
                         messages.removeLast()
                     }
@@ -196,7 +187,6 @@ class RoleplayChatViewController: UIViewController {
                     if messages.last?.text == "Starting roleplay…" {
                         messages.removeLast()
                     }
-                    // Fallback to scripted mode
                     fallbackToScriptedMode()
                     isProcessingResponse = false
                 }
@@ -249,7 +239,7 @@ class RoleplayChatViewController: UIViewController {
                 if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
                     let bodyStr = String(data: data, encoding: .utf8) ?? ""
                     if http.statusCode == 429 && (bodyStr.contains("limit: 0") || bodyStr.contains("RESOURCE_EXHAUSTED")) {
-                        continue // try next model
+                        continue
                     }
                     throw GeminiService.GeminiError.httpError(http.statusCode, bodyStr)
                 }
@@ -274,7 +264,6 @@ class RoleplayChatViewController: UIViewController {
                 continue
             } catch {
                 lastError = error
-                // Remove user message if we fail
                 if geminiHistory.last?.role == .user {
                     geminiHistory.removeLast()
                 }
@@ -325,7 +314,6 @@ class RoleplayChatViewController: UIViewController {
         return (messageText.isEmpty ? response : messageText, suggestions)
     }
 
-    // MARK: - Fallback to scripted mode
 
     private var isScriptedMode = false
 
@@ -358,12 +346,10 @@ class RoleplayChatViewController: UIViewController {
         speakText(message.text)
     }
 
-    // MARK: - TTS
 
     private func speakText(_ text: String) {
         guard !isMuted else { return }
 
-        // Stop any ongoing recording while TTS plays
         if AudioManager.shared.isRecording {
             AudioManager.shared.stopRecording()
             updateMicUI(isRecording: false)
@@ -378,8 +364,6 @@ class RoleplayChatViewController: UIViewController {
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.9
         speechSynthesizer.speak(utterance)
     }
-
-    // MARK: - Mute
 
     @objc private func muteTapped() {
         isMuted.toggle()
@@ -399,7 +383,6 @@ class RoleplayChatViewController: UIViewController {
         }
     }
 
-    // MARK: - Mic UI
     
     private func updateMicUI(isRecording: Bool) {
         micButton.backgroundColor = isRecording
@@ -411,7 +394,6 @@ class RoleplayChatViewController: UIViewController {
     @IBAction func micTapped(_ sender: UIButton) {
         guard !isMuted else { return }
 
-        // Stop TTS if playing so user can speak
         if speechSynthesizer.isSpeaking {
             speechSynthesizer.stopSpeaking(at: .immediate)
         }
@@ -442,23 +424,21 @@ class RoleplayChatViewController: UIViewController {
 
     
     private func userResponded(_ text: String) {
-
+        
         guard !isProcessingResponse else { return }
         guard !isMuted else { return }
         isProcessingResponse = true
-
-        // Remove suggestions
+        
         if messages.last?.sender == .suggestions {
             messages.removeLast()
         }
-
-        // Append user message
+        
         messages.append(
             ChatMessage(sender: .user, text: text, suggestions: nil)
         )
-
+        
         reloadTableSafely()
-
+        
         if isScriptedMode {
             handleScriptedResponse(text)
         } else {
@@ -466,10 +446,7 @@ class RoleplayChatViewController: UIViewController {
         }
     }
 
-    // MARK: - Gemini response flow
-
     private func handleGeminiUserResponse(_ text: String) {
-        // Show thinking indicator
         messages.append(ChatMessage(sender: .app, text: "…", suggestions: nil))
         reloadTableSafely()
 
@@ -477,7 +454,6 @@ class RoleplayChatViewController: UIViewController {
             do {
                 let reply = try await sendToGeminiForRoleplay(text)
                 await MainActor.run {
-                    // Remove thinking indicator
                     if messages.last?.text == "…" {
                         messages.removeLast()
                     }
@@ -485,7 +461,7 @@ class RoleplayChatViewController: UIViewController {
                     handleGeminiResponse(reply)
                     isProcessingResponse = false
 
-                    // Check if we should end after enough turns
+
                     if geminiTurnCount >= scenario.script.count {
                         endGeminiRoleplay()
                     }

@@ -94,14 +94,10 @@ class RoleplaySessionDataModel {
 
             activeSession = nil
             activeScenario = nil
-            // Clear any saved session since this one completed
             deleteSavedSession()
         }
     }
 
-    //  Save & Exit
-
-    /// Save the current session + scenario to disk for later resumption, then clear active.
     func saveSessionForLater() {
         guard let session = activeSession,
               let scenario = activeScenario else { return }
@@ -120,12 +116,10 @@ class RoleplaySessionDataModel {
         activeScenario = nil
     }
 
-    /// Check if there is a previously saved (paused) session.
     func hasSavedSession() -> Bool {
         FileManager.default.fileExists(atPath: savedSessionURL.path)
     }
 
-    /// Peek at the saved session without making it active.
     func getSavedSession() -> RoleplaySession? {
         guard let data = try? Data(contentsOf: savedSessionURL),
               let session = try? decoder.decode(RoleplaySession.self, from: data) else {
@@ -134,7 +128,6 @@ class RoleplaySessionDataModel {
         return session
     }
 
-    /// Peek at the saved scenario.
     func getSavedScenario() -> RoleplayScenario? {
         guard let data = try? Data(contentsOf: savedScenarioURL),
               let scenario = try? decoder.decode(RoleplayScenario.self, from: data) else {
@@ -143,7 +136,6 @@ class RoleplaySessionDataModel {
         return scenario
     }
 
-    /// Resume a previously saved session, making it active again.
     @discardableResult
     func resumeSavedSession() -> (RoleplaySession, RoleplayScenario)? {
         guard let sessionData = try? Data(contentsOf: savedSessionURL),
@@ -162,7 +154,6 @@ class RoleplaySessionDataModel {
         return (resumed, scenario)
     }
 
-    /// Delete saved session files.
     func deleteSavedSession() {
         try? FileManager.default.removeItem(at: savedSessionURL)
         try? FileManager.default.removeItem(at: savedScenarioURL)

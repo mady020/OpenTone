@@ -1,10 +1,7 @@
 import UIKit
 
-/// Settings screen with theme toggle, account info, and logout.
-/// Fully programmatic — no storyboard required. HIG-compliant grouped table view.
 final class SettingsViewController: UIViewController {
 
-    // MARK: - Data Model
 
     private enum Section: Int, CaseIterable {
         case appearance
@@ -25,7 +22,6 @@ final class SettingsViewController: UIViewController {
 
     private var sections: [[Row]] = []
 
-    // MARK: - Views
 
     private lazy var tableView: UITableView = {
         let tv = UITableView(frame: .zero, style: .insetGrouped)
@@ -38,7 +34,6 @@ final class SettingsViewController: UIViewController {
         return tv
     }()
 
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,8 +51,6 @@ final class SettingsViewController: UIViewController {
         buildSections()
         tableView.reloadData()
     }
-
-    // MARK: - Setup
 
     private func setupTableView() {
         view.addSubview(tableView)
@@ -77,30 +70,24 @@ final class SettingsViewController: UIViewController {
         let geminiDetail = GeminiAPIKeyManager.shared.maskedKey ?? "Not configured"
 
         sections = [
-            // Section 0 — Appearance
             [
                 Row(title: "Theme", icon: "paintbrush.fill", iconTint: AppColors.primary, detail: themeName)
             ],
-            // Section 1 — API Keys
             [
                 Row(title: "Gemini API Key", icon: "key.fill", iconTint: .systemYellow, detail: geminiDetail)
             ],
-            // Section 2 — Account
             [
                 Row(title: "Email", icon: "envelope.fill", iconTint: .systemBlue, detail: user?.email ?? "—"),
                 Row(title: "Password", icon: "lock.fill", iconTint: .systemOrange, detail: "••••••••")
             ],
-            // Section 3 — About
             [
                 Row(title: "Version", icon: "info.circle.fill", iconTint: .secondaryLabel, detail: appVersion),
                 Row(title: "Privacy Policy", icon: "hand.raised.fill", iconTint: .systemIndigo),
                 Row(title: "Terms of Service", icon: "doc.text.fill", iconTint: .systemIndigo)
             ],
-            // Section 4 — Actions
             [
                 Row(title: "Log Out", icon: "rectangle.portrait.and.arrow.right", iconTint: .systemRed, isDestructive: true)
             ],
-            // Section 5 — Danger Zone
             [
                 Row(title: "Delete Account", icon: "trash.fill", iconTint: .systemRed, isDestructive: true)
             ]
@@ -113,7 +100,6 @@ final class SettingsViewController: UIViewController {
         return "\(version) (\(build))"
     }
 
-    // MARK: - Actions
 
     private func showThemePicker() {
         let alert = UIAlertController(title: "Choose Theme", message: nil, preferredStyle: .actionSheet)
@@ -212,7 +198,6 @@ final class SettingsViewController: UIViewController {
         )
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Delete Account", style: .destructive) { [weak self] _ in
-            // Second confirmation
             let confirm = UIAlertController(
                 title: "Are you absolutely sure?",
                 message: "Type DELETE to confirm account deletion.",
@@ -242,28 +227,22 @@ final class SettingsViewController: UIViewController {
     }
 
     private func performDeleteAccount() {
-        // Delete all user data
         let user = SessionManager.shared.currentUser
         UserDataModel.shared.deleteCurrentUser()
         SessionManager.shared.logout()
 
-        // Clear related data
         StreakDataModel.shared.deleteStreak()
         HistoryDataModel.shared.clearHistory()
 
-        // Delete all call records for this user
         if let user = user {
-            // Remove call records
+
             let callRecords = CallRecordDataModel.shared.getAllCallRecords().filter { $0.participantID == user.id }
             for record in callRecords {
                 CallRecordDataModel.shared.deleteCallRecord(by: record.id)
             }
 
-            // Remove jam sessions
             JamSessionDataModel.shared.cancelJamSession()
-            // Remove saved/completed jam sessions if needed (not user-specific, but clear active)
 
-            // Remove roleplay sessions
             RoleplaySessionDataModel.shared.cancelSession()
             RoleplaySessionDataModel.shared.deleteSavedSession()
         }
@@ -282,14 +261,14 @@ final class SettingsViewController: UIViewController {
         guard var user = SessionManager.shared.currentUser else { return }
 
         switch row {
-        case 0: // Email
+        case 0:
             showTextEditor(title: "Update Email", current: user.email, keyboardType: .emailAddress) { newValue in
                 user.email = newValue
                 SessionManager.shared.updateSessionUser(user)
                 self.buildSections()
                 self.tableView.reloadData()
             }
-        case 1: // Password
+        case 1:
             showPasswordEditor()
         default:
             break
@@ -433,8 +412,6 @@ final class SettingsViewController: UIViewController {
 }
 
 
-// MARK: - UITableViewDataSource
-
 extension SettingsViewController: UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -478,7 +455,6 @@ extension SettingsViewController: UITableViewDataSource {
         cell.backgroundColor = AppColors.cardBackground
         cell.selectionStyle = row.isDestructive || row.detail == nil || indexPath.section == 0 ? .default : .none
 
-        // Show disclosure for actionable rows
         let section = Section(rawValue: indexPath.section)
         if section == .appearance || section == .apiKeys || section == .actions || section == .dangerZone || section == .account || (section == .about && indexPath.row > 0) {
             cell.accessoryType = .disclosureIndicator
@@ -489,8 +465,6 @@ extension SettingsViewController: UITableViewDataSource {
         return cell
     }
 }
-
-// MARK: - UITableViewDelegate
 
 extension SettingsViewController: UITableViewDelegate {
 
@@ -511,7 +485,6 @@ extension SettingsViewController: UITableViewDelegate {
 
         case .about:
             if indexPath.row == 1 || indexPath.row == 2 {
-                // Placeholder for Privacy Policy / Terms
                 let alert = UIAlertController(
                     title: sections[indexPath.section][indexPath.row].title,
                     message: "This feature will be available soon.",
@@ -530,6 +503,6 @@ extension SettingsViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        50 // HIG minimum 44pt touch target + padding
+        50 
     }
 }

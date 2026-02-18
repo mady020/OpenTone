@@ -10,7 +10,6 @@ final class GeminiAPIKeyManager {
 
     private init() {}
 
-    // MARK: - Public API
 
     /// Whether a Gemini API key has been saved.
     var hasAPIKey: Bool {

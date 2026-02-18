@@ -1,9 +1,3 @@
-//
-//  TwoMinuteJamViewController.swift
-//  OpenTone
-//
-//  Created by Ardhanya Sharma on 17/12/25.
-//
 import UIKit
 
 final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDelegate {
@@ -50,13 +44,8 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
     }
 
     private func applyDarkModeStyles() {
-        // Main screen background
         view.backgroundColor = AppColors.screenBackground
-
-        // Style the unleash button
         styleUnleashButton()
-
-        // Style all subviews recursively
         styleSubviews(view)
     }
 
@@ -70,26 +59,19 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
             if let visualEffectView = subview as? UIVisualEffectView {
                 styleVisualEffectView(visualEffectView)
             } else if let label = subview as? UILabel {
-                // Labels with nil textColor in storyboard default to .label, but
-                // ensure they use our dynamic color for consistency
                 if label.textColor == .black || label.textColor == UIColor.label {
                     label.textColor = AppColors.textPrimary
                 }
             }
-            // Recurse into child views
             styleSubviews(subview)
         }
     }
 
     private func styleVisualEffectView(_ effectView: UIVisualEffectView) {
         let isDark = traitCollection.userInterfaceStyle == .dark
-
-        // Update blur effect to match current mode
         effectView.effect = UIBlurEffect(
             style: isDark ? .systemUltraThinMaterialDark : .systemUltraThinMaterialLight
         )
-
-        // Update the content view and any nested visual effect views
         let lightPurpleBg = AppColors.primaryLight
         for sub in effectView.contentView.subviews {
             if let nested = sub as? UIVisualEffectView {
@@ -100,12 +82,9 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
             }
         }
 
-        // Style the effect view's own content background
         effectView.contentView.backgroundColor = isDark
             ? UIColor.secondarySystemGroupedBackground
             : lightPurpleBg
-
-        // If it has rounded corners (the "How It Works" card), add card styling
         if effectView.layer.cornerRadius >= 20 {
             effectView.backgroundColor = isDark
                 ? UIColor.secondarySystemGroupedBackground
@@ -117,7 +96,6 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         }
     }
 
-    // MARK: - Actions
 
     @IBAction func unleashTapped(_ sender: UIButton) {
 
@@ -150,7 +128,6 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
     }
 
     private func startNewSession() {
-        // Show a loading indicator while Gemini generates a topic
         let hud = UIActivityIndicatorView(style: .large)
         hud.color = AppColors.primary
         hud.center = view.center
@@ -176,7 +153,6 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
         navigationController?.pushViewController(prepareVC, animated: true)
     }
 
-    // MARK: - Tab Bar Guard
 
     func tabBarController(_ tabBarController: UITabBarController,
                           shouldSelect viewController: UIViewController) -> Bool {
@@ -214,7 +190,6 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
     }
 
     private func switchToPendingTab() {
-        // Pop back to root in case we're deep in the nav stack
         navigationController?.popToRootViewController(animated: false)
 
         if let targetVC = pendingTabController {

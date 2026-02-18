@@ -82,8 +82,6 @@ final class UserDataModel {
     }
 
     func getSampleUserForQuickSignIn() -> User? {
-        // Returns the first sample user who has complete onboarding data
-        // This user can be logged in directly without going through onboarding
         allUsers.first { user in
             user.confidenceLevel != nil && 
             user.englishLevel != nil &&

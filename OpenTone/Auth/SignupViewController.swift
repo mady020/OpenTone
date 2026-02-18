@@ -24,13 +24,11 @@ final class SignupViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // Ensure text fields re-evaluate their left/right views after layout passes
         nameField.layoutIfNeeded()
         emailField.layoutIfNeeded()
         passwordField.layoutIfNeeded()
     }
 
-    // MARK: - Icon + Password Toggle Setup
 
     private func addIconsToTextFields() {
         nameField.leftView = makeIconView(systemName: "person.fill")
@@ -43,9 +41,7 @@ final class SignupViewController: UIViewController {
         passwordField.leftViewMode = .always
     }
 
-    // Use a fixed symbol configuration so every SF Symbol is rendered the same size
     private func makeIconView(systemName: String) -> UIView {
-        // Choose the pointSize you want for all icons (change 18 to taste)
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let image = UIImage(systemName: systemName, withConfiguration: symbolConfig)
 
@@ -55,12 +51,10 @@ final class SignupViewController: UIViewController {
         iconView.translatesAutoresizingMaskIntoConstraints = false
         iconView.setContentHuggingPriority(.required, for: .horizontal)
 
-        // Container guarantees a consistent leftView width and center alignment
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(iconView)
 
-        // Fixed container size (change width/height to match your design)
         NSLayoutConstraint.activate([
             container.widthAnchor.constraint(equalToConstant: 44),
             container.heightAnchor.constraint(equalToConstant: 44),
@@ -74,12 +68,10 @@ final class SignupViewController: UIViewController {
         return container
     }
 
-    // Prefer a UIButton for the eye toggle so the tap target is predictable
     private func addPasswordToggle() {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let eyeImage = UIImage(systemName: "eye.slash.fill", withConfiguration: symbolConfig)
 
-        // Use .custom to avoid UIButton adding system padding/scaling
         let button = UIButton(type: .custom)
         button.setImage(eyeImage, for: .normal)
         button.tintColor = .secondaryLabel
@@ -89,10 +81,8 @@ final class SignupViewController: UIViewController {
         button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         button.accessibilityLabel = "Toggle password visibility"
 
-        // Keep a reference so we can update the image reliably later
         self.passwordToggleButton = button
 
-        // Container keeps rightView width consistent and preserves a 44pt touch target
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(button)
@@ -114,7 +104,6 @@ final class SignupViewController: UIViewController {
     @objc private func togglePasswordVisibility() {
         isPasswordVisible.toggle()
 
-        // Preserve cursor position / first responder state (prevents cursor jump)
         let wasFirstResponder = passwordField.isFirstResponder
         if wasFirstResponder { passwordField.resignFirstResponder() }
 
@@ -124,14 +113,11 @@ final class SignupViewController: UIViewController {
 
         if wasFirstResponder { passwordField.becomeFirstResponder() }
 
-        // Update button image with same symbol configuration used elsewhere
         let symbol = isPasswordVisible ? "eye.fill" : "eye.slash.fill"
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let img = UIImage(systemName: symbol, withConfiguration: symbolConfig)
         passwordToggleButton?.setImage(img, for: .normal)
     }
-
-    // MARK: - Original UI + Validation Methods (unchanged logic)
 
     private func setupUI() {
         UIHelper.styleViewController(self)
@@ -155,7 +141,6 @@ final class SignupViewController: UIViewController {
             }
         }
 
-        // Initial state
         validateInputs()
     }
 
@@ -172,9 +157,7 @@ final class SignupViewController: UIViewController {
     private func validateInputs() {
         var isValid = true
 
-        // Name Validation
         if let error = AuthValidator.validateName(nameField.text) {
-            // Only show error if user has started typing
             if let text = nameField.text, !text.isEmpty {
                  UIHelper.showError(message: error, on: nameField, in: view, nextView: emailField)
             }
@@ -183,7 +166,6 @@ final class SignupViewController: UIViewController {
             UIHelper.clearError(on: nameField)
         }
 
-        // Email Validation
         if let error = AuthValidator.validateEmail(emailField.text) {
              if let text = emailField.text, !text.isEmpty {
                  UIHelper.showError(message: error, on: emailField, in: view, nextView: passwordField)
@@ -193,7 +175,6 @@ final class SignupViewController: UIViewController {
              UIHelper.clearError(on: emailField)
         }
 
-        // Password Validation
         if let error = AuthValidator.validatePassword(passwordField.text) {
              if let text = passwordField.text, !text.isEmpty {
                  UIHelper.showError(message: error, on: passwordField, in: view, nextView: signupButton)
@@ -203,7 +184,6 @@ final class SignupViewController: UIViewController {
              UIHelper.clearError(on: passwordField)
         }
 
-        // Update Button State
         if let button = signupButton {
             UIHelper.setButtonState(button, enabled: isValid)
         }
@@ -226,11 +206,10 @@ final class SignupViewController: UIViewController {
 
 
     @IBAction func appleButtonTapped(_ sender: Any) {
-//        handleQuickSignIn()
+
     }
 
     private func handleQuickSignIn() {
-        // Get the first sample user who has complete onboarding data
         guard let sampleUser = UserDataModel.shared.getSampleUserForQuickSignIn() else {
             let alert = UIAlertController(title: "Error", message: "Could not load sample user", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -248,7 +227,6 @@ final class SignupViewController: UIViewController {
     }
 
     private func handleSignup() {
-        // Double check validation
         guard
             AuthValidator.validateName(nameField.text) == nil,
             AuthValidator.validateEmail(emailField.text) == nil,
@@ -332,8 +310,6 @@ final class SignupViewController: UIViewController {
             window.makeKeyAndVisible()
         }
     }
-
-    // MARK: - Apple Sign In
 
     private func replaceWithAppleSignInButton(placeholder: UIButton) {
         guard let superview = placeholder.superview else { return }

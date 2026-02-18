@@ -10,9 +10,9 @@ final class ProfileActionsCell: UICollectionViewCell {
     @IBOutlet weak var timerLabel: UILabel!
 
     enum Mode {
-        case normal        // Settings / Log Out
-        case postCall      // Start Call / Search Again
-        case inCall        // Timer + End Call
+        case normal
+        case postCall
+        case inCall
         
         
     }
@@ -29,7 +29,6 @@ final class ProfileActionsCell: UICollectionViewCell {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            // Re-apply button styles for trait changes
             if logoutButton.backgroundColor != AppColors.primary {
                 UIHelper.styleDestructiveButton(logoutButton)
                 logoutButton.setTitle(logoutButton.title(for: .normal), for: .normal)

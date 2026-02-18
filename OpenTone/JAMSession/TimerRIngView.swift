@@ -57,7 +57,6 @@ class TimerRingView: UIView {
         }
     }
 
-    // REQUIRED for existing ProgressCell and other callers
     func setProgress(value: CGFloat, max: CGFloat) {
         progressLayer.strokeEnd = value / max
     }

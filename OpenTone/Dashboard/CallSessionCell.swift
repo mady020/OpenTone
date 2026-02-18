@@ -11,7 +11,6 @@ class CallSessionCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        // Cell layer: shadow + border (no clipping)
         backgroundColor = .clear
         layer.cornerRadius = 20
         layer.borderWidth = 1
@@ -22,7 +21,6 @@ class CallSessionCell: UICollectionViewCell {
         layer.shadowOpacity = 0.08
         layer.masksToBounds = false
 
-        // Content view: clips content
         contentView.backgroundColor = AppColors.cardBackground
         contentView.layer.cornerRadius = 20
         contentView.clipsToBounds = true

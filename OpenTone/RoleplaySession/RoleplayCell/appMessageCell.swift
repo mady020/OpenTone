@@ -21,8 +21,8 @@ class AppMessageCell: UITableViewCell {
 
         
         bubbleView.layer.maskedCorners = [
-            .layerMinXMinYCorner, // top-left
-            .layerMaxXMinYCorner ,   // top-right
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner ,   
             .layerMaxXMaxYCorner
         ]
         

@@ -46,7 +46,6 @@ struct JamSession: Identifiable, Equatable, Codable {
         lhs.id == rhs.id
     }
 
-    // MARK: - Codable
 
     private enum CodingKeys: String, CodingKey {
         case id, userId, topic, suggestions, phase, secondsLeft

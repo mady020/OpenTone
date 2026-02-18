@@ -1,17 +1,14 @@
 import UIKit
 
-/// The type of saved session to display in the continue card.
 enum SavedSessionType {
     case jam(topic: String, secondsLeft: Int, phase: JamPhase)
     case roleplay(scenarioTitle: String, progress: Int, total: Int)
 }
 
-/// A dashboard card that shows a saved session and lets the user continue it.
 final class ContinueJamCell: UICollectionViewCell {
 
     static let reuseID = "ContinueJamCell"
 
-    // MARK: - Subviews
 
     private let iconImageView: UIImageView = {
         let iv = UIImageView()
@@ -54,11 +51,9 @@ final class ContinueJamCell: UICollectionViewCell {
         return btn
     }()
 
-    // MARK: - Callback
 
     var onContinueTapped: (() -> Void)?
 
-    // MARK: - Init
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -70,7 +65,6 @@ final class ContinueJamCell: UICollectionViewCell {
         setupUI()
     }
 
-    // MARK: - Setup
 
     private func setupUI() {
         backgroundColor = AppColors.cardBackground
@@ -89,18 +83,15 @@ final class ContinueJamCell: UICollectionViewCell {
         contentView.addSubview(continueButton)
 
         NSLayoutConstraint.activate([
-            // Icon on the left
             iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             iconImageView.widthAnchor.constraint(equalToConstant: 36),
             iconImageView.heightAnchor.constraint(equalToConstant: 36),
 
-            // Text stack in the middle
             textStack.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 12),
             textStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             textStack.trailingAnchor.constraint(lessThanOrEqualTo: continueButton.leadingAnchor, constant: -8),
 
-            // Continue button on the right
             continueButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             continueButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             continueButton.widthAnchor.constraint(equalToConstant: 90),
@@ -114,13 +105,11 @@ final class ContinueJamCell: UICollectionViewCell {
         onContinueTapped?()
     }
 
-    // MARK: - Configure (legacy jam-only)
 
     func configure(topic: String, secondsLeft: Int, phase: JamPhase) {
         configure(with: .jam(topic: topic, secondsLeft: secondsLeft, phase: phase))
     }
 
-    // MARK: - Configure (generic)
 
     func configure(with sessionType: SavedSessionType) {
         switch sessionType {

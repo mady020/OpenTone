@@ -29,7 +29,6 @@ final class LoginViewController: UIViewController {
         UIHelper.styleLabels(in: view)
         
         findButtons(in: view).forEach { button in
-            // Identify buttons by connection actions or title text
             let actions = button.actions(forTarget: self, forControlEvent: .touchUpInside) ?? []
             let title = button.title(for: .normal)?.lowercased() ?? 
                         button.configuration?.title?.lowercased() ?? ""
@@ -42,7 +41,6 @@ final class LoginViewController: UIViewController {
             } else if title.contains("forgot") {
                 UIHelper.styleSecondaryButton(button)
             } else {
-                // Default fallback if any other buttons appear
                 UIHelper.styleSecondaryButton(button)
             }
         }
@@ -62,7 +60,6 @@ final class LoginViewController: UIViewController {
     private func validateInputs() {
         var isValid = true
         
-        // Email Validation
         if let error = AuthValidator.validateEmail(emailField.text) {
              if let text = emailField.text, !text.isEmpty {
                  UIHelper.showError(message: error, on: emailField, in: view, nextView: passwordField)
@@ -72,10 +69,8 @@ final class LoginViewController: UIViewController {
              UIHelper.clearError(on: emailField)
         }
         
-        // Password Validation
         if let error = AuthValidator.validatePassword(passwordField.text) {
              if let text = passwordField.text, !text.isEmpty {
-                 // Push login button
                  UIHelper.showError(message: error, on: passwordField, in: view, nextView: loginButton)
              }
              isValid = false
@@ -83,7 +78,6 @@ final class LoginViewController: UIViewController {
              UIHelper.clearError(on: passwordField)
         }
         
-        // Update Button State
         if let button = loginButton {
             UIHelper.setButtonState(button, enabled: isValid)
         }
@@ -106,13 +100,11 @@ final class LoginViewController: UIViewController {
 
     
     @IBAction func appleButtonTapped(_ sender: Any) {
-//        handleQuickSignIn()
     }
 
     
     
     private func handleQuickSignIn() {
-        // Get the first sample user who has complete onboarding data
         guard let sampleUser = UserDataModel.shared.getSampleUserForQuickSignIn() else {
             let alert = UIAlertController(title: "Error", message: "Could not load sample user", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -126,7 +118,6 @@ final class LoginViewController: UIViewController {
     }
 
     private func handleLogin() {
-        // Double check validation
         guard
             AuthValidator.validateEmail(emailField.text) == nil,
             AuthValidator.validatePassword(passwordField.text) == nil,
@@ -140,7 +131,6 @@ final class LoginViewController: UIViewController {
             email: email,
             password: password
         ) else {
-            // show "Invalid email or password"
             let alert = UIAlertController(title: "Login Failed", message: "Invalid email or password", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
@@ -197,9 +187,7 @@ final class LoginViewController: UIViewController {
         passwordField.leftViewMode = .always
     }
 
-    // Use a fixed symbol configuration so every SF Symbol is rendered the same size
     private func makeIconView(systemName: String) -> UIView {
-        // Choose the pointSize you want for all icons (change 18 to taste)
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let image = UIImage(systemName: systemName, withConfiguration: symbolConfig)
 
@@ -209,12 +197,10 @@ final class LoginViewController: UIViewController {
         iconView.translatesAutoresizingMaskIntoConstraints = false
         iconView.setContentHuggingPriority(.required, for: .horizontal)
 
-        // Container guarantees a consistent leftView width and center alignment
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(iconView)
 
-        // Fixed container size (change width/height to match your design)
         NSLayoutConstraint.activate([
             container.widthAnchor.constraint(equalToConstant: 44),
             container.heightAnchor.constraint(equalToConstant: 44),
@@ -228,7 +214,6 @@ final class LoginViewController: UIViewController {
         return container
     }
 
-    // MARK: - Apple Sign In
 
     private func replaceWithAppleSignInButton(placeholder: UIButton) {
         guard let superview = placeholder.superview else { return }
@@ -258,12 +243,10 @@ final class LoginViewController: UIViewController {
         self.appleSignInButton = appleButton
     }
 
-    // Prefer a UIButton for the eye toggle so the tap target is predictable
     private func addPasswordToggle() {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let eyeImage = UIImage(systemName: "eye.slash.fill", withConfiguration: symbolConfig)
 
-        // Use .custom to avoid UIButton adding system padding/scaling
         let button = UIButton(type: .custom)
         button.setImage(eyeImage, for: .normal)
         button.tintColor = .secondaryLabel
@@ -273,10 +256,8 @@ final class LoginViewController: UIViewController {
         button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         button.accessibilityLabel = "Toggle password visibility"
 
-        // Keep a reference so we can update the image reliably later
         self.passwordToggleButton = button
 
-        // Container keeps rightView width consistent and preserves a 44pt touch target
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(button)
@@ -298,7 +279,6 @@ final class LoginViewController: UIViewController {
     @objc private func togglePasswordVisibility() {
         isPasswordVisible.toggle()
 
-        // Preserve cursor position / first responder state (prevents cursor jump)
         let wasFirstResponder = passwordField.isFirstResponder
         if wasFirstResponder { passwordField.resignFirstResponder() }
 
@@ -307,8 +287,7 @@ final class LoginViewController: UIViewController {
         passwordField.text = text
 
         if wasFirstResponder { passwordField.becomeFirstResponder() }
-
-        // Update button image with same symbol configuration used elsewhere
+        
         let symbol = isPasswordVisible ? "eye.fill" : "eye.slash.fill"
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let img = UIImage(systemName: symbol, withConfiguration: symbolConfig)

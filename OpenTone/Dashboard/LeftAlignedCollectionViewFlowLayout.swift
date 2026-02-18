@@ -1,6 +1,3 @@
-
-
-
 import UIKit
 
 class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {

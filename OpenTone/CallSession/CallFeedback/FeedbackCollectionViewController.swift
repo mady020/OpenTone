@@ -2,17 +2,11 @@ import UIKit
 
 class FeedbackCollectionViewController: UICollectionViewController {
 
-    /// Optional feedback data — populated after Gemini analysis.
     var feedback: Feedback?
-
-    /// Raw transcript passed from the speaking session.
     var transcript: String?
-    /// Topic the user was speaking about.
     var topic: String?
-    /// Duration the user was speaking (seconds).
     var speakingDuration: Double = 30.0
 
-    /// Whether we are currently loading feedback from Gemini.
     private var isLoadingFeedback = false
 
     @IBOutlet weak var exitButton: UIButton!
@@ -23,10 +17,8 @@ class FeedbackCollectionViewController: UICollectionViewController {
         collectionView.backgroundColor = AppColors.screenBackground
         collectionView.collectionViewLayout = createLayout()
 
-        // Replace the storyboard nav button with a proper xmark button
         setupExitButton()
 
-        // If we have a transcript but no feedback yet, fetch from Gemini
         if feedback == nil, let transcript = transcript {
             fetchGeminiFeedback(transcript: transcript)
         }
@@ -55,7 +47,6 @@ class FeedbackCollectionViewController: UICollectionViewController {
         navigationController?.popToRootViewController(animated: true)
     }
 
-    // MARK: - Gemini Feedback
 
     private func fetchGeminiFeedback(transcript: String) {
         isLoadingFeedback = true
@@ -72,7 +63,6 @@ class FeedbackCollectionViewController: UICollectionViewController {
                     durationSeconds: duration
                 )
                 self.feedback = result
-                // Log the session once feedback is received
                 let durationMinutes = Int(ceil(duration / 60.0))
                 StreakDataModel.shared.logSession(
                     title: "Jam Session",
@@ -84,17 +74,15 @@ class FeedbackCollectionViewController: UICollectionViewController {
                 )
             } catch {
                 print("⚠️ Gemini feedback failed: \(error.localizedDescription)")
-                // Build a basic local feedback if Gemini fails
                 self.feedback = buildLocalFeedback(transcript: transcript, duration: duration)
                 
-                // Still log the session even if Gemini fails
                 let durationMinutes = Int(ceil(duration / 60.0))
                 StreakDataModel.shared.logSession(
                     title: "Jam Session",
                     subtitle: "Speaking practice",
                     topic: topicText,
                     durationMinutes: max(1, durationMinutes),
-                    xp: 15, // Slightly less XP for failed analysis
+                    xp: 15,
                     iconName: "waveform"
                 )
             }
@@ -103,7 +91,6 @@ class FeedbackCollectionViewController: UICollectionViewController {
         }
     }
 
-    /// Fallback: compute basic metrics locally if Gemini is unavailable.
     private func buildLocalFeedback(transcript: String, duration: Double) -> Feedback {
         let words = transcript.split(separator: " ")
         let totalWords = words.count
@@ -147,10 +134,9 @@ class FeedbackCollectionViewController: UICollectionViewController {
         case 0: return 1
         case 1: return 1
         case 2:
-            // Show actual mistake count (or 0 while loading)
             if isLoadingFeedback { return 1 }
             let count = feedback?.mistakes?.count ?? 0
-            return max(count, 1) // At least 1 to show "no mistakes" message
+            return max(count, 1) 
         case 3: return 1
         default: return 0
         }

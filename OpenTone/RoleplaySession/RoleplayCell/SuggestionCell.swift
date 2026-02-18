@@ -25,7 +25,6 @@ class SuggestionCell: UITableViewCell {
         super.awakeFromNib()
         backgroundColor = .clear
         selectionStyle = .none
-        // Stack is already set up from init(coder:)
     }
 
     private func setupStack() {
@@ -55,7 +54,6 @@ class SuggestionCell: UITableViewCell {
     }
 
     func configure(_ suggestions: [String]) {
-        // Clear old buttons
         for button in suggestionButtons {
             button.removeFromSuperview()
         }
@@ -86,14 +84,12 @@ class SuggestionCell: UITableViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
 
-        // Match chat bubble corner style — round top-left, top-right, bottom-left
         button.layer.maskedCorners = [
-            .layerMinXMinYCorner,  // top-left
-            .layerMaxXMinYCorner,  // top-right
-            .layerMinXMaxYCorner   // bottom-left
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner,
+            .layerMinXMaxYCorner
         ]
 
-        // Max width so long text wraps
         button.widthAnchor.constraint(lessThanOrEqualToConstant: 300).isActive = true
 
         return button

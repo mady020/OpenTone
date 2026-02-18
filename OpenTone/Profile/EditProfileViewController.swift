@@ -1,19 +1,14 @@
 import UIKit
 
-/// Full-screen profile editor. Lets the user update their avatar, name, bio,
-/// country, English level, and interests. All changes persist through
-/// SessionManager → UserDataModel immediately.
 final class EditProfileViewController: UIViewController {
 
-    // MARK: - Callback
 
     var onProfileUpdated: (() -> Void)?
 
-    // MARK: - Data
 
     private var editableUser: User?
 
-    private let avatarOptions = ["pp1", "pp2"]  // Asset catalog images
+    private let avatarOptions = ["pp1", "pp2"]
 
     private let allInterestItems = InterestItem.allItems
 
@@ -21,7 +16,6 @@ final class EditProfileViewController: UIViewController {
 
     private var interestsHeightConstraint: NSLayoutConstraint!
 
-    // MARK: - IBOutlets
 
     @IBOutlet private weak var avatarImageView: UIImageView!
     @IBOutlet private weak var changePhotoButton: UIButton!
@@ -31,7 +25,6 @@ final class EditProfileViewController: UIViewController {
     @IBOutlet private weak var levelButton: UIButton!
     @IBOutlet private weak var interestsCollectionView: UICollectionView!
 
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,10 +50,9 @@ final class EditProfileViewController: UIViewController {
         interestsCollectionView.reloadData()
     }
 
-    // MARK: - Styling
 
     private func styleUI() {
-        // Avatar
+
         avatarImageView.layer.cornerRadius = 50
         avatarImageView.layer.borderWidth = 3
         avatarImageView.layer.borderColor = AppColors.primary.cgColor
@@ -71,7 +63,6 @@ final class EditProfileViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(changePhotoTapped))
         avatarImageView.addGestureRecognizer(tapGesture)
 
-        // Name field
         nameField.textColor = AppColors.textPrimary
         nameField.backgroundColor = AppColors.cardBackground
         nameField.layer.cornerRadius = 12
@@ -82,7 +73,6 @@ final class EditProfileViewController: UIViewController {
         nameField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
         nameField.rightViewMode = .always
 
-        // Bio text view
         bioTextView.textColor = AppColors.textPrimary
         bioTextView.backgroundColor = AppColors.cardBackground
         bioTextView.layer.cornerRadius = 12
@@ -90,10 +80,8 @@ final class EditProfileViewController: UIViewController {
         bioTextView.layer.borderColor = AppColors.cardBorder.cgColor
         bioTextView.textContainerInset = UIEdgeInsets(top: 12, left: 8, bottom: 12, right: 8)
 
-        // Country button
         stylePickerButton(countryButton, placeholder: "Select Country")
 
-        // Level button
         stylePickerButton(levelButton, placeholder: "English Level")
     }
 
@@ -105,7 +93,6 @@ final class EditProfileViewController: UIViewController {
         btn.layer.borderWidth = 1
         btn.layer.borderColor = AppColors.cardBorder.cgColor
 
-        // Add disclosure chevron
         let chevron = UIImageView(image: UIImage(systemName: "chevron.down"))
         chevron.tintColor = .secondaryLabel
         chevron.translatesAutoresizingMaskIntoConstraints = false
@@ -118,7 +105,6 @@ final class EditProfileViewController: UIViewController {
         ])
     }
 
-    // MARK: - Populate
 
     private func populateFields() {
         guard let user = editableUser else { return }
@@ -137,13 +123,10 @@ final class EditProfileViewController: UIViewController {
             levelButton.setTitleColor(AppColors.textPrimary, for: .normal)
         }
 
-        // Pre-select user's existing interests
         selectedInterests = user.interests ?? []
         interestsCollectionView.reloadData()
         updateInterestsHeight()
     }
-
-    // MARK: - Actions
 
     @objc private func saveTapped() {
         guard var user = editableUser else { return }
@@ -244,7 +227,6 @@ final class EditProfileViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    // MARK: - Helpers
 
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -252,8 +234,6 @@ final class EditProfileViewController: UIViewController {
         present(alert, animated: true)
     }
 }
-
-// MARK: - Interests Collection View
 
 extension EditProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate {
 
@@ -343,8 +323,6 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
         collectionView.reloadItems(at: [indexPath])
     }
 }
-
-// MARK: - UIImagePickerControllerDelegate
 
 extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 

@@ -23,8 +23,6 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
         timerManager.delegate = self
         resetUI()
-
-        // Dynamic background for dark/light mode
         backgroundColor = UIColor.clear
         contentView.backgroundColor = UIColor.clear
         timerRingView.backgroundColor = UIColor.clear
@@ -57,8 +55,7 @@ final class TimerCellCollectionViewCell: UICollectionViewCell {
 
     func pauseTimer() {
         timerManager.pause()
-        timerRingView.resetRing() // Stop the animation sweep
-        // Set to current progress so it looks paused
+        timerRingView.resetRing() 
         timerRingView.setProgress(value: CGFloat(currentSeconds), max: 30)
     }
 

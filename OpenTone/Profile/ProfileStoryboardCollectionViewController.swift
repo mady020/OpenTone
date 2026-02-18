@@ -6,10 +6,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         SessionManager.shared.currentUser
     }
 
-    /// The peer user to display in call modes. Falls back to sessionUser.
     var peerUser: User?
 
-    /// Returns the user to display — peerUser in call mode, otherwise sessionUser.
     private var displayUser: User? {
         (isComingFromCall || isInCall) ? (peerUser ?? sessionUser) : sessionUser
     }
@@ -106,7 +104,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     }
 
     private func setupNavigationBarButtons() {
-        // Only show settings & edit in normal profile mode (not during calls)
         guard !isComingFromCall && !isInCall else { return }
 
         let settingsButton = UIBarButtonItem(
@@ -302,7 +299,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             } else {
                 cell.configure(mode: .normal)
 
-                // Settings is now in the nav bar, so hide the settings button
                 cell.settingsButton.isHidden = true
 
                 cell.logoutButton.addTarget(
@@ -360,7 +356,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let section = Section(rawValue: indexPath.section) else { return }
 
-        // Tapping the profile card in normal mode opens the profile editor
         if section == .profile && !isInCall && !isComingFromCall {
             didTapEditProfile()
         }
@@ -461,7 +456,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.largeTitleDisplayMode = .never
 
-        // Refresh user data so updated session counts are picked up
         SessionManager.shared.refreshSession()
         collectionView.reloadData()
     }
@@ -477,18 +471,15 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     @objc private func didTapEndCall() {
         stopCallTimer()
 
-        // --- Record the call ---
         let callDuration: TimeInterval
         if let start = callStartDate {
             callDuration = Date().timeIntervalSince(start)
         } else {
             callDuration = 0
         }
-
-        // End the active CallSession (logs to HistoryDataModel)
+        
         CallSessionDataModel.shared.endSession()
 
-        // Create a CallRecord for the peer
         if let peer = peerUser {
             let record = CallRecord(
                 participantID: peer.id,
@@ -504,7 +495,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
             UserDataModel.shared.addCallRecordID(record.id)
         }
 
-        // Log to streak/progress
         SessionProgressManager.shared.markCompleted(.oneToOne, topic: "Conversation")
 
         isInCall = false
@@ -522,7 +512,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
 
     
     @objc private func didTapSearchAgain() {
-        // Pop back to CallSetupViewController so the user can search for a new peer
         guard let navController = navigationController else { return }
         for vc in navController.viewControllers {
             if vc is CallSetupViewController {
@@ -530,7 +519,6 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 return
             }
         }
-        // Fallback: just pop
         navController.popViewController(animated: true)
     }
 
@@ -539,16 +527,13 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         navigationController?.pushViewController(settingsVC, animated: true)
     }
 
-    /// Loads an avatar image from asset catalog or from the documents directory (custom photos).
     static func loadAvatar(named name: String?) -> UIImage? {
         guard let name = name else { return UIImage(named: "pp1") }
 
-        // Try asset catalog first
         if let assetImage = UIImage(named: name) {
             return assetImage
         }
 
-        // Try documents directory (custom photo)
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let fileURL = documentsURL.appendingPathComponent(name)
         if let data = try? Data(contentsOf: fileURL) {

@@ -84,9 +84,7 @@ class ForgotPasswordViewController: UIViewController {
         emailField.leftViewMode = .always
     }
     
-    // Use a fixed symbol configuration so every SF Symbol is rendered the same size
     private func makeIconView(systemName: String) -> UIView {
-        // Choose the pointSize you want for all icons (change 18 to taste)
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let image = UIImage(systemName: systemName, withConfiguration: symbolConfig)
 
@@ -96,12 +94,10 @@ class ForgotPasswordViewController: UIViewController {
         iconView.translatesAutoresizingMaskIntoConstraints = false
         iconView.setContentHuggingPriority(.required, for: .horizontal)
 
-        // Container guarantees a consistent leftView width and center alignment
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(iconView)
 
-        // Fixed container size (change width/height to match your design)
         NSLayoutConstraint.activate([
             container.widthAnchor.constraint(equalToConstant: 44),
             container.heightAnchor.constraint(equalToConstant: 44),

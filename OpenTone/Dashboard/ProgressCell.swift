@@ -5,7 +5,7 @@ struct ProgressCellData {
     let streakDays: Int
     let todayMinutes: Int
     let dailyGoalMinutes: Int
-    let weeklyMinutes: [Int]   // 7 values, Mon → Sun
+    let weeklyMinutes: [Int]
 }
 
 
@@ -45,7 +45,6 @@ final class ProgressCell: UICollectionViewCell {
         return l
     }()
 
-    // ── Center: Ring + % + minutes ──
 
     private let ringContainer: UIView = {
         let v = UIView()
@@ -125,7 +124,6 @@ final class ProgressCell: UICollectionViewCell {
         layer.shadowOpacity = 0.08
         layer.masksToBounds = false
 
-        // Content view: clips content
         contentView.backgroundColor = AppColors.cardBackground
         contentView.layer.cornerRadius = 20
         contentView.clipsToBounds = true
@@ -145,7 +143,6 @@ final class ProgressCell: UICollectionViewCell {
         let ringSize: CGFloat = 110
 
         NSLayoutConstraint.activate([
-            // Streak badge
             streakContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
             streakContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             streakContainer.heightAnchor.constraint(equalToConstant: 28),
@@ -157,11 +154,8 @@ final class ProgressCell: UICollectionViewCell {
             streakCountLabel.trailingAnchor.constraint(equalTo: streakContainer.trailingAnchor, constant: -10),
             streakCountLabel.centerYAnchor.constraint(equalTo: streakContainer.centerYAnchor),
 
-            // Greeting — top-right corner
             greetingLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
             greetingLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-
-            // Ring
             ringContainer.topAnchor.constraint(equalTo: streakContainer.bottomAnchor, constant: 12),
             ringContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             ringContainer.widthAnchor.constraint(equalToConstant: ringSize),
@@ -173,13 +167,11 @@ final class ProgressCell: UICollectionViewCell {
             goalSubLabel.centerXAnchor.constraint(equalTo: ringContainer.centerXAnchor),
             goalSubLabel.topAnchor.constraint(equalTo: percentLabel.bottomAnchor, constant: 0),
 
-            // Weekly bars
             weekStack.leadingAnchor.constraint(equalTo: ringContainer.trailingAnchor, constant: 16),
             weekStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             weekStack.centerYAnchor.constraint(equalTo: ringContainer.centerYAnchor, constant: 4),
             weekStack.heightAnchor.constraint(equalToConstant: 70),
 
-            // Button
             seeProgressButton.topAnchor.constraint(equalTo: ringContainer.bottomAnchor, constant: 14),
             seeProgressButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             seeProgressButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -298,10 +290,7 @@ final class ProgressCell: UICollectionViewCell {
     }
 
     func configure(with data: ProgressCellData) {
-        // Streak
         streakCountLabel.text = "\(data.streakDays) day streak"
-
-        // Greeting
         greetingLabel.text = greetingText()
 
         if data.dailyGoalMinutes <= 0 {
@@ -322,8 +311,6 @@ final class ProgressCell: UICollectionViewCell {
         storedBarValues = data.weeklyMinutes
         storedBarMax = maxMinutes
         setNeedsLayout()
-
-        // Highlight today
         let todayIdx = mondayBasedWeekdayIndex()
         for (i, lbl) in dayLabels.enumerated() {
             lbl.font = i == todayIdx
@@ -333,7 +320,6 @@ final class ProgressCell: UICollectionViewCell {
         }
     }
 
-    // MARK: - Dynamic colors
 
     private func applyDynamicColors() {
         backgroundColor = AppColors.cardBackground
@@ -358,7 +344,6 @@ final class ProgressCell: UICollectionViewCell {
         }
     }
 
-    // MARK: - Helpers
 
     private func greetingText() -> String {
         let hour = Calendar.current.component(.hour, from: Date())

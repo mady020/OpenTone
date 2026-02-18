@@ -91,7 +91,6 @@ class StreakDataModel {
         }
     }
 
-    /// Append a pre-built session (used by SampleDataSeeder)
     func addSession(_ session: CompletedSession) {
         sessions.append(session)
         saveSessions()
@@ -155,7 +154,7 @@ class StreakDataModel {
                 let diff = Calendar.current.dateComponents([.day], from: lastDay, to: today).day ?? 0
 
                 if diff == 0 {
-                    return // Already counted today
+                    return 
                 } else if diff == 1 {
                     streak.currentCount += 1
                 } else {
@@ -188,11 +187,9 @@ class StreakDataModel {
 
         let commitment = streak?.commitment ?? 0
 
-        // Monday-based weekly minutes
         var weekly: [Int] = []
         let calendar = Calendar.current
         
-        // Find the most recent Monday
         let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
         guard let monday = calendar.date(from: components) else {
             return ProgressCellData(streakDays: streak?.currentCount ?? 0, todayMinutes: todayMinutes, dailyGoalMinutes: commitment, weeklyMinutes: Array(repeating: 0, count: 7))
