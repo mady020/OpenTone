@@ -23,13 +23,14 @@ class CallSessionDataModel {
         if let start = session.startedAt as Date?,
            let end = finished.endedAt {
 
-            let duration = Int(end.timeIntervalSince(start))
+            let durationSeconds = Int(end.timeIntervalSince(start))
+            let durationMinutes = max(1, durationSeconds / 60)
 
             HistoryDataModel.shared.logActivity(
                 type: .call,
                 title: "Call Session",
                 topic: "Conversation",
-                duration: duration,
+                duration: durationMinutes,
                 imageURL: "call_icon",
                 xpEarned: 8,
                 isCompleted: true

@@ -15,6 +15,14 @@ class CallRecordDataModel {
         }
     }
 
+    /// Clears in-memory data and reloads for the current user.
+    func reloadForCurrentUser() {
+        callRecords = []
+        Task {
+            await loadCallRecords()
+        }
+    }
+
     // MARK: - Read
 
     func getAllCallRecords() -> [CallRecord] {

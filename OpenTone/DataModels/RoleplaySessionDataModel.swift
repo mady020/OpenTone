@@ -12,6 +12,16 @@ class RoleplaySessionDataModel {
     private(set) var activeSession: RoleplaySession?
     var activeScenario: RoleplayScenario?
 
+    /// Clears in-memory data and reloads for the current user.
+    func reloadForCurrentUser() {
+        activeSession = nil
+        activeScenario = nil
+        _savedSessionCache = nil
+        _savedScenarioCache = nil
+        _hasSavedSessionCached = false
+        refreshSavedSession()
+    }
+
     // MARK: - Start
 
     func startSession(scenarioId: UUID) -> RoleplaySession? {

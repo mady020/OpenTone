@@ -405,9 +405,7 @@ class RoleplayChatViewController: UIViewController {
             : AppColors.cardBackground
     }
 
-    
     @IBAction func micTapped(_ sender: UIButton) {
-        guard !isMuted else { return }
 
         // Stop TTS if playing so user can speak
         if speechSynthesizer.isSpeaking {
@@ -442,7 +440,6 @@ class RoleplayChatViewController: UIViewController {
     private func userResponded(_ text: String) {
 
         guard !isProcessingResponse else { return }
-        guard !isMuted else { return }
         isProcessingResponse = true
 
         // Remove suggestions
@@ -510,15 +507,12 @@ class RoleplayChatViewController: UIViewController {
         session.endedAt = Date()
 
         RoleplaySessionDataModel.shared.updateSession(session, scenario: scenario)
-        StreakDataModel.shared.logSession(
-            title: "Roleplay Session",
-            subtitle: "You completed a roleplay",
-            topic: scenario.title,
-            durationMinutes: scenario.estimatedTimeMinutes,
-            xp: 30,
-            iconName: "person.2.fill"
-        )
-        SessionProgressManager.shared.markCompleted(.roleplay, topic: scenario.title)
+        
+        // Calculate actual duration in minutes
+        let seconds = session.endedAt?.timeIntervalSince(session.startedAt) ?? 0
+        let actualMinutes = max(1, Int(seconds) / 60)
+
+        SessionProgressManager.shared.markCompleted(.roleplay, topic: scenario.title, actualDurationMinutes: actualMinutes)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.presentScoreScreen()
@@ -561,15 +555,12 @@ class RoleplayChatViewController: UIViewController {
             session.endedAt = Date()
 
             RoleplaySessionDataModel.shared.updateSession(session, scenario: scenario)
-            StreakDataModel.shared.logSession(
-                title: "Roleplay Session",
-                subtitle: "You completed a roleplay",
-                topic: scenario.title,
-                durationMinutes: scenario.estimatedTimeMinutes,
-                xp: 30,
-                iconName: "person.2.fill"
-            )
-            SessionProgressManager.shared.markCompleted(.roleplay, topic: scenario.title)
+            
+            // Calculate actual duration in minutes
+            let seconds = session.endedAt?.timeIntervalSince(session.startedAt) ?? 0
+            let actualMinutes = max(1, Int(seconds) / 60)
+
+            SessionProgressManager.shared.markCompleted(.roleplay, topic: scenario.title, actualDurationMinutes: actualMinutes)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.presentScoreScreen()
@@ -692,6 +683,12 @@ class RoleplayChatViewController: UIViewController {
 
         scoreVC.score = calculateScore()
         scoreVC.pointsEarned = 5
+        scoreVC.modalPresentationStyle = .fullScreen
+
+        scoreVC.onDismiss = { [weak self] in
+            self?.tabBarController?.tabBar.isHidden = false
+            self?.navigationController?.popToRootViewController(animated: true)
+        }
 
         present(scoreVC, animated: true)
     }

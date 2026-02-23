@@ -49,7 +49,7 @@ final class AudioManager {
 
     func startRecording() {
 
-        guard !isRecording, !isMuted else { return }
+        guard !isRecording else { return }
 
         requestPermissions { [weak self] granted in
             guard let self, granted else {

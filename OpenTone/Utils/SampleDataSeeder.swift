@@ -8,7 +8,15 @@ final class SampleDataSeeder {
     static let shared = SampleDataSeeder()
     private init() {}
 
-    private let seededKey = "SampleDataSeeder.hasSeeded"
+    private let seededKeyPrefix = "SampleDataSeeder.hasSeeded"
+
+    /// Per-user seeded flag — uses the current user's ID to scope the key.
+    private var seededKey: String {
+        if let userId = SessionManager.shared.currentUser?.id {
+            return "\(seededKeyPrefix).\(userId.uuidString)"
+        }
+        return seededKeyPrefix
+    }
 
     var hasSeeded: Bool {
         UserDefaults.standard.bool(forKey: seededKey)

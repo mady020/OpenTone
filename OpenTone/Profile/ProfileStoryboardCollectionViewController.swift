@@ -63,6 +63,14 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         )
 
         setupNavigationBarButtons()
+        
+        NotificationCenter.default.addObserver(
+            forName: HistoryDataModel.historyDataLoadedNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.collectionView.reloadData()
+        }
 
         if isComingFromCall || isInCall {
             generateAIQuestions()
@@ -245,7 +253,13 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
                 for: indexPath
             ) as! StatsCell
 
-            cell.configure(calls: displayUser?.callRecordIDs.count ?? 0, roleplays: displayUser?.roleplayIDs.count ?? 0, jams: displayUser?.jamSessionIDs.count ?? 0)
+            let isCurrentUser = displayUser?.id == SessionManager.shared.currentUser?.id
+            
+            let callsCount = isCurrentUser ? HistoryDataModel.shared.searchHistory(by: .call).count : (displayUser?.callRecordIDs.count ?? 0)
+            let roleplaysCount = isCurrentUser ? HistoryDataModel.shared.searchHistory(by: .roleplay).count : (displayUser?.roleplayIDs.count ?? 0)
+            let jamsCount = isCurrentUser ? HistoryDataModel.shared.searchHistory(by: .jam).count : (displayUser?.jamSessionIDs.count ?? 0)
+
+            cell.configure(calls: callsCount, roleplays: roleplaysCount, jams: jamsCount)
             return cell
 
         case .achievements:
@@ -504,7 +518,8 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
         }
 
         // Log to streak/progress
-        SessionProgressManager.shared.markCompleted(.oneToOne, topic: "Conversation")
+        let durationMinutes = max(1, Int(callDuration) / 60)
+        SessionProgressManager.shared.markCompleted(.oneToOne, topic: "Conversation", actualDurationMinutes: durationMinutes)
 
         isInCall = false
         isComingFromCall = true

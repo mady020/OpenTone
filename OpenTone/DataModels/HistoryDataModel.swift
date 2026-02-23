@@ -6,10 +6,20 @@ import Supabase
 class HistoryDataModel {
 
     static let shared = HistoryDataModel()
+    
+    static let historyDataLoadedNotification = Notification.Name("HistoryDataModel.historyDataLoaded")
 
     private var activities: [Activity] = []
 
     private init() {
+        Task {
+            await loadHistory()
+        }
+    }
+
+    /// Clears in-memory data and reloads for the current user.
+    func reloadForCurrentUser() {
+        activities = []
         Task {
             await loadHistory()
         }
@@ -94,9 +104,12 @@ class HistoryDataModel {
             if activities.isEmpty {
                 activities = loadSampleActivities()
             }
+            
+            NotificationCenter.default.post(name: HistoryDataModel.historyDataLoadedNotification, object: nil)
         } catch {
             print("❌ Failed to load activities: \(error.localizedDescription)")
             activities = loadSampleActivities()
+            NotificationCenter.default.post(name: HistoryDataModel.historyDataLoadedNotification, object: nil)
         }
     }
 

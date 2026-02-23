@@ -324,7 +324,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="tinted" title="Exit"/>
                                 <connections>
-                                    <segue destination="mFw-fi-6s6" kind="unwind" unwindAction="unwindToRoleplaysVC:" id="ZpZ-hc-zM1"/>
+                                    <action selector="exitTapped:" destination="rzK-Io-w2W" eventType="touchUpInside" id="exitAction-01"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -341,6 +341,7 @@
                     <connections>
                         <outlet property="PointsLabel" destination="o76-vS-DRw" id="ctg-89-pjL"/>
                         <outlet property="ScoreLabel" destination="gq1-tL-nE0" id="div-Nj-3Hz"/>
+                        <outlet property="exitButton" destination="Y8H-eI-TRi" id="exitBtnOutlet-01"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Wh9-f2-vI1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

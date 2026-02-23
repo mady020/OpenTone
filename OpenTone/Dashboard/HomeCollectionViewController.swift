@@ -63,6 +63,26 @@ class HomeCollectionViewController: UICollectionViewController {
         collectionView.backgroundColor = AppColors.screenBackground
 
         setupProfileBarButton()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleStreakDataLoaded),
+            name: StreakDataModel.streakDataLoadedNotification,
+            object: nil
+        )
+    }
+
+    @objc private func handleStreakDataLoaded() {
+        // Run on main thread to be safe, although Notification is posted from MainActor
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.syncFromSession()
+            self.collectionView.reloadData()
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     private func setupProfileBarButton() {

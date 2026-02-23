@@ -6,11 +6,23 @@ import Supabase
 class StreakDataModel {
 
     static let shared = StreakDataModel()
+    
+    static let streakDataLoadedNotification = Notification.Name("StreakDataModel.streakDataLoaded")
 
     private var sessions: [CompletedSession] = []
     private var streak: Streak?
 
     private init() {
+        Task {
+            await loadData()
+        }
+    }
+
+    /// Clears in-memory data and reloads for the current user.
+    /// Call when the user changes (login, signup, logout).
+    func reloadForCurrentUser() {
+        sessions = []
+        streak = nil
         Task {
             await loadData()
         }
@@ -153,6 +165,8 @@ class StreakDataModel {
     private func loadData() async {
         await loadStreakFromSupabase()
         await loadSessionsFromSupabase()
+        
+        NotificationCenter.default.post(name: StreakDataModel.streakDataLoadedNotification, object: nil)
     }
 
     private func loadStreakFromSupabase() async {

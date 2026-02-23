@@ -16,6 +16,17 @@ class JamSessionDataModel {
         }
     }
 
+    /// Clears in-memory data and reloads for the current user.
+    func reloadForCurrentUser() {
+        activeSession = nil
+        completedSessions = []
+        _savedSessionCache = nil
+        _hasSavedSessionCached = false
+        Task {
+            await loadCompletedSessions()
+        }
+    }
+
     // MARK: - Start Session
 
     @discardableResult
@@ -331,12 +342,15 @@ class JamSessionDataModel {
     private func archiveCompletedSession(_ session: JamSession) {
         completedSessions.append(session)
 
-        let duration: Int
+        let durationSeconds: Int
         if let start = session.startedSpeakingAt, let end = session.endedAt {
-            duration = Int(end.timeIntervalSince(start))
+            durationSeconds = Int(end.timeIntervalSince(start))
         } else {
-            duration = 0
+            durationSeconds = 0
         }
+        
+        // Convert to minutes for history and streak tracking
+        let durationMinutes = max(1, durationSeconds / 60)
 
         UserDataModel.shared.addJamSessionID(session.id)
 
@@ -344,13 +358,13 @@ class JamSessionDataModel {
             type: .jam,
             title: "Speaking Jam",
             topic: session.topic,
-            duration: duration,
+            duration: durationMinutes,
             imageURL: "jam_icon",
             xpEarned: 10,
             isCompleted: true
         )
 
-        SessionProgressManager.shared.markCompleted(.twoMinJam, topic: session.topic)
+        SessionProgressManager.shared.markCompleted(.twoMinJam, topic: session.topic, actualDurationMinutes: durationMinutes)
 
         activeSession = nil
     }

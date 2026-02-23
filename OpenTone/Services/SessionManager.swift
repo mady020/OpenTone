@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 final class SessionManager {
 
     static let shared = SessionManager()
@@ -28,11 +29,24 @@ final class SessionManager {
     func login(user: User) {
         currentUser = user
         UserDataModel.shared.setCurrentUser(user)
+        reloadAllDataModels()
     }
 
     func logout() {
         currentUser = nil
         UserDataModel.shared.deleteCurrentUser()
+        reloadAllDataModels()
+    }
+
+    /// Tells every data-model singleton to drop cached data and reload
+    /// for the current user. Must be called on every user change.
+    private func reloadAllDataModels() {
+        StreakDataModel.shared.reloadForCurrentUser()
+        HistoryDataModel.shared.reloadForCurrentUser()
+        CallRecordDataModel.shared.reloadForCurrentUser()
+        JamSessionDataModel.shared.reloadForCurrentUser()
+        RoleplaySessionDataModel.shared.reloadForCurrentUser()
+        activities = []
     }
 
     func refreshSession() {

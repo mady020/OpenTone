@@ -43,13 +43,15 @@ class SessionProgressManager {
         }
     }
 
-    func markCompleted(_ type: SessionType, topic: String) {
+    func markCompleted(_ type: SessionType, topic: String, actualDurationMinutes: Int? = nil) {
+
+        let finalDuration = actualDurationMinutes ?? type.durationInMinutes
 
         StreakDataModel.shared.logSession(
             title: type.title,
             subtitle: "You completed a session",
             topic: topic,
-            durationMinutes: type.durationInMinutes,
+            durationMinutes: finalDuration,
             xp: type.xp,
             iconName: type.iconName
         )

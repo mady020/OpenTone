@@ -16,6 +16,10 @@ final class SignupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         passwordField.isSecureTextEntry = true
+        // Prevent iOS Password AutoFill (which causes yellow background tint)
+        // Using an empty textContentType avoids AutoFill without breaking caps lock
+        passwordField.textContentType = .init(rawValue: "")
+        passwordField.passwordRules = UITextInputPasswordRules(descriptor: "")
         addIconsToTextFields()
         addPasswordToggle()
         setupUI()
@@ -114,13 +118,19 @@ final class SignupViewController: UIViewController {
     @objc private func togglePasswordVisibility() {
         isPasswordVisible.toggle()
 
-        // Preserve cursor position / first responder state (prevents cursor jump)
-        let wasFirstResponder = passwordField.isFirstResponder
-        if wasFirstResponder { passwordField.resignFirstResponder() }
+        // Save current text — toggling isSecureTextEntry can clear it on some iOS versions
+        let existingText = passwordField.text
 
         passwordField.isSecureTextEntry = !isPasswordVisible
 
-        if wasFirstResponder { passwordField.becomeFirstResponder() }
+        // Restore the text (iOS may clear it during the secure ↔ plain switch)
+        passwordField.text = existingText
+
+        // Move cursor to end so the user can keep typing naturally
+        if passwordField.isFirstResponder {
+            let endPosition = passwordField.endOfDocument
+            passwordField.selectedTextRange = passwordField.textRange(from: endPosition, to: endPosition)
+        }
 
         // Update button image with same symbol configuration used elsewhere
         let symbol = isPasswordVisible ? "eye.fill" : "eye.slash.fill"
