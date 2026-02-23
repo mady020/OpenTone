@@ -2,7 +2,10 @@ import Foundation
 
 struct RoleplaySession: Identifiable, Codable, Equatable {
 
-    let id: UUID
+    private(set) var id: UUID
+    
+    /// Override the auto-generated UUID (used when loading from Supabase).
+    mutating func setID(_ newID: UUID) { id = newID }
 
     let userId: UUID
     let scenarioId: UUID

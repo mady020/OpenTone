@@ -1,84 +1,119 @@
 import Foundation
-
+internal import PostgREST
+import Supabase
 @MainActor
 class ReportDataModel {
-    
-    static let shared = ReportDataModel()
-    
-    private let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-    private let archiveURL: URL
-    
-    private var reports: [Report] = []
-    
-    private init() {
-        archiveURL = documentsDirectory.appendingPathComponent("reports").appendingPathExtension("json")
-        loadReports()
-    }
-    
 
-    
+    static let shared = ReportDataModel()
+
+    private var reports: [Report] = []
+
+    private init() {
+        Task {
+            await loadReports()
+        }
+    }
+
+    // MARK: - Read
+
     func getAllReports() -> [Report] {
         return reports
     }
-    
-    func addReport(_ report: Report) {
-        reports.append(report)
-        saveReports()
-    }
-    
-    func updateReport(_ report: Report) {
-        if let index = reports.firstIndex(where: { $0.id == report.id }) {
-            reports[index] = report
-            saveReports()
-        }
-    }
-    
-    func deleteReport(at index: Int) {
-        reports.remove(at: index)
-        saveReports()
-    }
-    
-    func deleteReport(by id: String) {
-        reports.removeAll(where: { $0.id == id })
-        saveReports()
-    }
-    
+
     func getReport(by id: String) -> Report? {
         return reports.first(where: { $0.id == id })
     }
-    
+
     func getReports(byReporterUserID reporterUserID: String) -> [Report] {
         return reports.filter { $0.reporterUserID == reporterUserID }
     }
-    
+
     func getReports(byReportedEntityID reportedEntityID: String) -> [Report] {
         return reports.filter { $0.reportedEntityID == reportedEntityID }
     }
-    
 
-    
-    private func loadReports() {
-        if let savedReports = loadReportsFromDisk() {
-            reports = savedReports
-        } else {
-            reports = loadSampleReports()
+    // MARK: - Write
+
+    func addReport(_ report: Report) {
+        reports.append(report)
+        Task {
+            await insertReportInSupabase(report)
         }
     }
-    
-    private func loadReportsFromDisk() -> [Report]? {
-        guard let codedReports = try? Data(contentsOf: archiveURL) else { return nil }
-        let decoder = JSONDecoder()
-        return try? decoder.decode([Report].self, from: codedReports)
+
+    func updateReport(_ report: Report) {
+        if let index = reports.firstIndex(where: { $0.id == report.id }) {
+            reports[index] = report
+            Task {
+                await updateReportInSupabase(report)
+            }
+        }
     }
-    
-    private func saveReports() {
-        let encoder = JSONEncoder()
-        let codedReports = try? encoder.encode(reports)
-        try? codedReports?.write(to: archiveURL)
+
+    func deleteReport(at index: Int) {
+        let report = reports.remove(at: index)
+        Task {
+            await deleteReportFromSupabase(report.id)
+        }
     }
-    
-    private func loadSampleReports() -> [Report] {
-        return []
+
+    func deleteReport(by id: String) {
+        reports.removeAll(where: { $0.id == id })
+        Task {
+            await deleteReportFromSupabase(id)
+        }
+    }
+
+    // MARK: - Supabase Operations
+
+    private func loadReports() async {
+        do {
+            let rows: [ReportRow] = try await supabase
+                .from(SupabaseTable.reports)
+                .select()
+                .execute()
+                .value
+            reports = rows.map { $0.toReport() }
+        } catch {
+            print("❌ Failed to load reports: \(error.localizedDescription)")
+            reports = []
+        }
+    }
+
+    private func insertReportInSupabase(_ report: Report) async {
+        do {
+            let row = ReportRow(from: report)
+            try await supabase
+                .from(SupabaseTable.reports)
+                .insert(row)
+                .execute()
+        } catch {
+            print("❌ Failed to insert report: \(error.localizedDescription)")
+        }
+    }
+
+    private func updateReportInSupabase(_ report: Report) async {
+        do {
+            let row = ReportRow(from: report)
+            try await supabase
+                .from(SupabaseTable.reports)
+                .update(row)
+                .eq("id", value: report.id)
+                .execute()
+        } catch {
+            print("❌ Failed to update report: \(error.localizedDescription)")
+        }
+    }
+
+    private func deleteReportFromSupabase(_ id: String) async {
+        do {
+            try await supabase
+                .from(SupabaseTable.reports)
+                .delete()
+                .eq("id", value: id)
+                .execute()
+        } catch {
+            print("❌ Failed to delete report: \(error.localizedDescription)")
+        }
     }
 }
-

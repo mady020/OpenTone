@@ -21,8 +21,6 @@ final class SessionManager {
         restoreSession()
     }
 
-   
-
     func restoreSession() {
         currentUser = UserDataModel.shared.getCurrentUser()
     }
@@ -34,7 +32,7 @@ final class SessionManager {
 
     func logout() {
         currentUser = nil
-//        UserDataModel.shared.deleteCurrentUser()
+        UserDataModel.shared.deleteCurrentUser()
     }
 
     func refreshSession() {
@@ -46,8 +44,6 @@ final class SessionManager {
         currentUser = updatedUser
         UserDataModel.shared.updateCurrentUser(updatedUser)
     }
-
-
 
     func setActivities(_ activities: [Activity]) {
         self.activities = activities
@@ -75,4 +71,3 @@ final class SessionManager {
         )
     }
 }
-

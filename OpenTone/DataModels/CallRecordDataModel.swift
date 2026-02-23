@@ -1,59 +1,91 @@
 import Foundation
+internal import PostgREST
+import Supabase
 
 @MainActor
 class CallRecordDataModel {
 
     static let shared: CallRecordDataModel = CallRecordDataModel()
 
-    private let documentsDirectory = FileManager.default.urls(
-        for: .documentDirectory,
-        in: .userDomainMask
-    ).first!
-
-    private let archiveURL: URL
-
     private var callRecords: [CallRecord] = []
 
     private init() {
-        archiveURL =
-            documentsDirectory
-            .appendingPathComponent("callRecords")
-            .appendingPathExtension("json")
-
-        loadCallRecords()
+        Task {
+            await loadCallRecords()
+        }
     }
+
+    // MARK: - Read
 
     func getAllCallRecords() -> [CallRecord] {
         return callRecords
-    }
-
-    func addCallRecord(_ record: CallRecord) {
-        callRecords.append(record)
-        saveCallRecords()
-    }
-
-    func deleteCallRecord(by id: UUID) {
-        callRecords.removeAll { $0.id == id }
-        saveCallRecords()
     }
 
     func getCallRecord(by id: UUID) -> CallRecord? {
         return callRecords.first { $0.id == id }
     }
 
-    private func loadCallRecords() {
-        if let saved = try? Data(contentsOf: archiveURL) {
-            let decoder = JSONDecoder()
-            callRecords = (try? decoder.decode([CallRecord].self, from: saved)) ?? []
-        } else {
+    // MARK: - Write
+
+    func addCallRecord(_ record: CallRecord) {
+        callRecords.append(record)
+
+        Task {
+            await insertCallRecordInSupabase(record)
+        }
+    }
+
+    func deleteCallRecord(by id: UUID) {
+        callRecords.removeAll { $0.id == id }
+
+        Task {
+            await deleteCallRecordFromSupabase(id)
+        }
+    }
+
+    // MARK: - Supabase Operations
+
+    private func loadCallRecords() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
+
+        do {
+            let rows: [CallRecordRow] = try await supabase
+                .from(SupabaseTable.callRecords)
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .order("call_date", ascending: false)
+                .execute()
+                .value
+            callRecords = rows.map { $0.toCallRecord() }
+        } catch {
+            print("❌ Failed to load call records: \(error.localizedDescription)")
             callRecords = []
         }
     }
 
-    private func saveCallRecords() {
-        let encoder = JSONEncoder()
-        if let data = try? encoder.encode(callRecords) {
-            try? data.write(to: archiveURL)
+    private func insertCallRecordInSupabase(_ record: CallRecord) async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
+
+        do {
+            let row = CallRecordRow(from: record, userId: userId)
+            try await supabase
+                .from(SupabaseTable.callRecords)
+                .insert(row)
+                .execute()
+        } catch {
+            print("❌ Failed to insert call record: \(error.localizedDescription)")
+        }
+    }
+
+    private func deleteCallRecordFromSupabase(_ id: UUID) async {
+        do {
+            try await supabase
+                .from(SupabaseTable.callRecords)
+                .delete()
+                .eq("id", value: id.uuidString)
+                .execute()
+        } catch {
+            print("❌ Failed to delete call record: \(error.localizedDescription)")
         }
     }
 }

@@ -1,42 +1,45 @@
 import Foundation
+internal import PostgREST
+import Supabase
 
 @MainActor
 class HistoryDataModel {
 
     static let shared = HistoryDataModel()
 
-    private let documentsDirectory = FileManager.default.urls(
-        for: .documentDirectory,
-        in: .userDomainMask
-    ).first!
-
-    private let archiveURL: URL
-
     private var activities: [Activity] = []
 
     private init() {
-        archiveURL =
-            documentsDirectory
-            .appendingPathComponent("history")
-            .appendingPathExtension("json")
-
-        loadHistory()
+        Task {
+            await loadHistory()
+        }
     }
 
+    // MARK: - Read
 
     func getActivities(for date: Date) -> [Activity] {
-
         let calendar = Calendar.current
-
         return activities.filter { activity in
             calendar.isDate(activity.date, inSameDayAs: date)
         }
     }
 
+    func searchHistory(by type: ActivityType) -> [Activity] {
+        return activities.filter { $0.type == type }
+    }
+
+    func getAllActivities() -> [Activity] {
+        return activities.sorted { $0.date > $1.date }
+    }
+
+    // MARK: - Write
 
     func addActivity(_ activity: Activity) {
         activities.append(activity)
-        saveHistory()
+
+        Task {
+            await insertActivityInSupabase(activity)
+        }
     }
 
     func logActivity(
@@ -60,44 +63,72 @@ class HistoryDataModel {
             imageURL: imageURL,
             scenarioId: scenarioId
         )
-
         addActivity(activity)
-    }
-
-    func searchHistory(by type: ActivityType) -> [Activity] {
-        return activities.filter { $0.type == type }
-    }
-
-
-    func getAllActivities() -> [Activity] {
-        return activities.sorted { $0.date > $1.date }
     }
 
     func clearHistory() {
         activities = []
-        saveHistory()
+        Task {
+            await deleteAllActivitiesFromSupabase()
+        }
     }
 
-    private func loadHistory() {
-        if let savedActivities = loadHistoryFromDisk() {
-            activities = savedActivities
-        } else {
+    // MARK: - Supabase Operations
+
+    private func loadHistory() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else {
+            activities = loadSampleActivities()
+            return
+        }
+
+        do {
+            let rows: [ActivityRow] = try await supabase
+                .from(SupabaseTable.activities)
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .order("date", ascending: false)
+                .execute()
+                .value
+            activities = rows.map { $0.toActivity() }
+
+            if activities.isEmpty {
+                activities = loadSampleActivities()
+            }
+        } catch {
+            print("❌ Failed to load activities: \(error.localizedDescription)")
             activities = loadSampleActivities()
         }
     }
 
-    private func loadHistoryFromDisk() -> [Activity]? {
-        guard let codedActivities = try? Data(contentsOf: archiveURL) else { return nil }
-        let decoder = JSONDecoder()
-        return try? decoder.decode([Activity].self, from: codedActivities)
-    }
+    private func insertActivityInSupabase(_ activity: Activity) async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
 
-    private func saveHistory() {
-        let encoder = JSONEncoder()
-        if let data = try? encoder.encode(activities) {
-            try? data.write(to: archiveURL)
+        do {
+            let row = ActivityRow(from: activity, userId: userId)
+            try await supabase
+                .from(SupabaseTable.activities)
+                .insert(row)
+                .execute()
+        } catch {
+            print("❌ Failed to insert activity: \(error.localizedDescription)")
         }
     }
+
+    private func deleteAllActivitiesFromSupabase() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
+
+        do {
+            try await supabase
+                .from(SupabaseTable.activities)
+                .delete()
+                .eq("user_id", value: userId.uuidString)
+                .execute()
+        } catch {
+            print("❌ Failed to clear activities: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Sample Data
 
     private func loadSampleActivities() -> [Activity] {
         let activity1 = Activity(

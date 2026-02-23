@@ -1,61 +1,58 @@
 import Foundation
+internal import PostgREST
+import Supabase
 
 final class UserDataModel {
 
     static let shared = UserDataModel()
 
-
-    private let documentsDirectory: URL
-    private let usersArchiveURL: URL
-    private let currentUserArchiveURL: URL
-
-
+    // In-memory cache
     private(set) var allUsers: [User] = []
     private var currentUser: User?
 
+    /// Key for persisting the current user's UUID across launches.
+    private let currentUserIDKey = "currentUserID"
 
     private init() {
-        self.documentsDirectory = FileManager.default.urls(
-            for: .documentDirectory,
-            in: .userDomainMask
-        ).first!
-
-        self.usersArchiveURL = documentsDirectory
-            .appendingPathComponent("allUsers")
-            .appendingPathExtension("json")
-
-        self.currentUserArchiveURL = documentsDirectory
-            .appendingPathComponent("currentUser")
-            .appendingPathExtension("json")
-
-        loadAllUsersFromDisk()
-        loadCurrentUserFromDisk()
-        loadSampleUsersIfNeeded()
+        // Kick off an async load — callers should observe `allUsers` after this completes.
+        Task { @MainActor in
+            await loadAllUsersFromSupabase()
+            await restoreCurrentUser()
+        }
     }
 
+    // MARK: - Current User
 
     func getCurrentUser() -> User? {
         currentUser
     }
 
     func setCurrentUser(_ user: User) {
-        upsertUser(user)
         currentUser = user
-        persistCurrentUser()
+        UserDefaults.standard.set(user.id.uuidString, forKey: currentUserIDKey)
     }
 
     func updateCurrentUser(_ updatedUser: User) {
         guard currentUser?.id == updatedUser.id else { return }
-        upsertUser(updatedUser)
         currentUser = updatedUser
-        persistCurrentUser()
+
+        // Update in-memory cache
+        if let index = allUsers.firstIndex(where: { $0.id == updatedUser.id }) {
+            allUsers[index] = updatedUser
+        }
+
+        // Persist to Supabase
+        Task {
+            await updateUserInSupabase(updatedUser)
+        }
     }
 
     func deleteCurrentUser() {
         currentUser = nil
-        deletePersistedCurrentUser()
+        UserDefaults.standard.removeObject(forKey: currentUserIDKey)
     }
 
+    // MARK: - Registration & Auth
 
     func registerUser(_ user: User) -> Bool {
         guard !allUsers.contains(where: { $0.email == user.email }) else {
@@ -63,14 +60,44 @@ final class UserDataModel {
         }
 
         allUsers.append(user)
-        persistAllUsers()
         setCurrentUser(user)
+
+        Task {
+            await insertUserInSupabase(user)
+        }
         return true
     }
 
     func authenticate(email: String, password: String) -> User? {
-        allUsers.first {
-            $0.email == email && $0.password == password
+        // Try local cache first
+        if let cached = allUsers.first(where: { $0.email == email && $0.password == password }) {
+            return cached
+        }
+        return nil
+    }
+
+    /// Async version that queries Supabase directly.
+    func authenticateAsync(email: String, password: String) async -> User? {
+        do {
+            let rows: [UserRow] = try await supabase
+                .from(SupabaseTable.users)
+                .select()
+                .eq("email", value: email)
+                .eq("password", value: password)
+                .execute()
+                .value
+            guard let row = rows.first else { return nil }
+            let user = row.toUser()
+            // Update cache
+            await MainActor.run {
+                if !self.allUsers.contains(where: { $0.id == user.id }) {
+                    self.allUsers.append(user)
+                }
+            }
+            return user
+        } catch {
+            print("❌ Supabase auth error: \(error.localizedDescription)")
+            return nil
         }
     }
 
@@ -79,15 +106,15 @@ final class UserDataModel {
     }
 
     func getSampleUserForQuickSignIn() -> User? {
-        // Returns the first sample user who has complete onboarding data
-        // This user can be logged in directly without going through onboarding
         allUsers.first { user in
-            user.confidenceLevel != nil && 
+            user.confidenceLevel != nil &&
             user.englishLevel != nil &&
             user.interests != nil &&
             !user.interests!.isEmpty
         }
     }
+
+    // MARK: - Field Updaters
 
     func updateLastSeen() {
         guard var user = currentUser else { return }
@@ -96,23 +123,16 @@ final class UserDataModel {
     }
 
     func addCallRecordID(_ id: UUID) {
-        guard var user = currentUser else { return }
-        user.callRecordIDs.append(id)
-        updateCurrentUser(user)
+        // No longer stored on user — call_records table has user_id FK.
+        // Keep SessionManager refresh for UI updates.
         SessionManager.shared.refreshSession()
     }
 
     func addRoleplayID(_ id: UUID) {
-        guard var user = currentUser else { return }
-        user.roleplayIDs.append(id)
-        updateCurrentUser(user)
         SessionManager.shared.refreshSession()
     }
 
     func addJamSessionID(_ id: UUID) {
-        guard var user = currentUser else { return }
-        user.jamSessionIDs.append(id)
-        updateCurrentUser(user)
         SessionManager.shared.refreshSession()
     }
 
@@ -128,57 +148,119 @@ final class UserDataModel {
         updateCurrentUser(user)
     }
 
+    // MARK: - Supabase Operations
 
-
-    private func upsertUser(_ user: User) {
-        if let index = allUsers.firstIndex(where: { $0.id == user.id }) {
-            allUsers[index] = user
-        } else {
-            allUsers.append(user)
+    private func loadAllUsersFromSupabase() async {
+        do {
+            let rows: [UserRow] = try await supabase
+                .from(SupabaseTable.users)
+                .select()
+                .execute()
+                .value
+            let users = rows.map { $0.toUser() }
+            await MainActor.run {
+                self.allUsers = users
+            }
+        } catch {
+            print("❌ Failed to load users from Supabase: \(error.localizedDescription)")
+            // Fallback: seed sample users if the table is empty
+            await seedSampleUsersIfNeeded()
         }
-        persistAllUsers()
     }
 
+    private func restoreCurrentUser() async {
+        guard let idString = UserDefaults.standard.string(forKey: currentUserIDKey),
+              let id = UUID(uuidString: idString) else {
+            // No stored session — try to pick a sample user
+            await MainActor.run {
+                self.currentUser = self.allUsers.last
+            }
+            return
+        }
 
-    private func persistAllUsers() {
-        let encoder = JSONEncoder()
-        guard let data = try? encoder.encode(allUsers) else { return }
-        try? data.write(to: usersArchiveURL, options: [.atomic])
+        // Try local cache
+        if let cached = allUsers.first(where: { $0.id == id }) {
+            await MainActor.run { self.currentUser = cached }
+            return
+        }
+
+        // Fetch from Supabase
+        do {
+            let rows: [UserRow] = try await supabase
+                .from(SupabaseTable.users)
+                .select()
+                .eq("id", value: id.uuidString)
+                .execute()
+                .value
+            if let row = rows.first {
+                let user = row.toUser()
+                await MainActor.run {
+                    self.currentUser = user
+                    if !self.allUsers.contains(where: { $0.id == user.id }) {
+                        self.allUsers.append(user)
+                    }
+                }
+            }
+        } catch {
+            print("❌ Failed to restore user from Supabase: \(error.localizedDescription)")
+        }
     }
 
-    private func persistCurrentUser() {
-        let encoder = JSONEncoder()
-        guard let data = try? encoder.encode(currentUser) else { return }
-        try? data.write(to: currentUserArchiveURL, options: [.atomic])
+    private func insertUserInSupabase(_ user: User) async {
+        do {
+            let row = UserRow(from: user)
+            try await supabase
+                .from(SupabaseTable.users)
+                .insert(row)
+                .execute()
+        } catch {
+            print("❌ Failed to insert user: \(error.localizedDescription)")
+        }
     }
 
-    private func loadAllUsersFromDisk() {
-        guard let data = try? Data(contentsOf: usersArchiveURL) else { return }
-        let decoder = JSONDecoder()
-        allUsers = (try? decoder.decode([User].self, from: data)) ?? []
+    private func updateUserInSupabase(_ user: User) async {
+        do {
+            let row = UserRow(from: user)
+            try await supabase
+                .from(SupabaseTable.users)
+                .update(row)
+                .eq("id", value: user.id.uuidString)
+                .execute()
+        } catch {
+            print("❌ Failed to update user: \(error.localizedDescription)")
+        }
     }
 
-    private func loadCurrentUserFromDisk() {
-        guard let data = try? Data(contentsOf: currentUserArchiveURL) else { return }
-        let decoder = JSONDecoder()
-        currentUser = try? decoder.decode(User.self, from: data)
-    }
+    // MARK: - Sample Data Seeding
 
-    private func deletePersistedCurrentUser() {
-        try? FileManager.default.removeItem(at: currentUserArchiveURL)
-    }
+    private func seedSampleUsersIfNeeded() async {
+        // Check if table is actually empty
+        do {
+            let rows: [UserRow] = try await supabase
+                .from(SupabaseTable.users)
+                .select()
+                .limit(1)
+                .execute()
+                .value
+            guard rows.isEmpty else { return }
+        } catch {
+            // If we can't even query, don't seed
+            return
+        }
 
+        let sampleUsers = loadSampleUsers()
+        for user in sampleUsers {
+            await insertUserInSupabase(user)
+        }
 
-
-    private func loadSampleUsersIfNeeded() {
-        guard allUsers.isEmpty else { return }
-
-        allUsers = loadSampleUsers()
-        persistAllUsers()
-
-        if currentUser == nil {
-            currentUser = allUsers.last
-            persistCurrentUser()
+        await MainActor.run {
+            self.allUsers = sampleUsers
+            if self.currentUser == nil {
+                self.currentUser = sampleUsers.last
+                if let id = sampleUsers.last?.id {
+                    UserDefaults.standard.set(id.uuidString, forKey: self.currentUserIDKey)
+                }
+            }
         }
     }
 
@@ -238,4 +320,3 @@ final class UserDataModel {
         ]
     }
 }
-

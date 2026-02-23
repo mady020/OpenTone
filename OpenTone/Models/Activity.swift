@@ -1,7 +1,10 @@
 import Foundation
 
 struct Activity: Equatable, Codable {
-    let id: UUID
+    private(set) var id: UUID
+    
+    /// Override the auto-generated UUID (used when loading from Supabase).
+    mutating func setID(_ newID: UUID) { id = newID }
     let type: ActivityType
     let title: String
     let date: Date

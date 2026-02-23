@@ -1,55 +1,23 @@
 import Foundation
+internal import PostgREST
+import Supabase
 
 @MainActor
 class JamSessionDataModel {
 
     static let shared = JamSessionDataModel()
 
-    private let documentsDirectory = FileManager.default.urls(
-        for: .documentDirectory,
-        in: .userDomainMask
-    ).first!
-
-    private var activeSessionURL: URL {
-        documentsDirectory
-            .appendingPathComponent("active_jam_session")
-            .appendingPathExtension("json")
-    }
-
-    private var completedSessionsURL: URL {
-        documentsDirectory
-            .appendingPathComponent("completed_jam_sessions")
-            .appendingPathExtension("json")
-    }
-
-    private var savedSessionURL: URL {
-        documentsDirectory
-            .appendingPathComponent("saved_jam_session")
-            .appendingPathExtension("json")
-    }
-
     private var activeSession: JamSession?
     private var completedSessions: [JamSession] = []
 
-    private let encoder: JSONEncoder = {
-        let e = JSONEncoder()
-        e.dateEncodingStrategy = .iso8601
-        e.outputFormatting = .prettyPrinted
-        return e
-    }()
-
-    private let decoder: JSONDecoder = {
-        let d = JSONDecoder()
-        d.dateDecodingStrategy = .iso8601
-        return d
-    }()
-
     private init() {
-        loadActiveSession()
-        loadCompletedSessions()
+        Task {
+            await loadCompletedSessions()
+        }
     }
 
-    /// Creates a new session with a random topic, stores it as active.
+    // MARK: - Start Session
+
     @discardableResult
     func startNewSession() -> JamSession? {
         guard let user = UserDataModel.shared.getCurrentUser() else { return nil }
@@ -66,11 +34,11 @@ class JamSessionDataModel {
         )
 
         activeSession = session
-        persistActiveSession()
+        let captured = session
+        Task { await upsertSessionInSupabase(captured) }
         return session
     }
 
-    // Alias kept for backward compatibility.
     @discardableResult
     func startJamSession(
         phase: JamPhase = .preparing,
@@ -79,7 +47,8 @@ class JamSessionDataModel {
         return startNewSession()
     }
 
-    //  Active Session
+    // MARK: - Active Session
+
     func getActiveSession() -> JamSession? {
         activeSession
     }
@@ -88,43 +57,42 @@ class JamSessionDataModel {
         activeSession != nil
     }
 
-    //  Session Updates
-    /// Update the active session in-memory and persist to disk.
+    // MARK: - Session Updates
+
     func updateActiveSession(_ updated: JamSession) {
         guard let current = activeSession, current.id == updated.id else { return }
 
         activeSession = updated
-        persistActiveSession()
+        let captured = updated
+        Task { await upsertSessionInSupabase(captured) }
 
-        // If the session just completed, archive it.
         if current.phase != .completed && updated.phase == .completed {
             archiveCompletedSession(updated)
         }
     }
 
-    /// Transition the active session into the speaking phase.
     func beginSpeakingPhase() {
         guard var session = activeSession else { return }
         session.phase = .speaking
         session.startedSpeakingAt = Date()
-        session.secondsLeft = 30   // speaking timer
+        session.secondsLeft = 30
         activeSession = session
-        persistActiveSession()
+        let captured = session
+        Task { await upsertSessionInSupabase(captured) }
     }
 
-    /// Continue the current session (no-op if nil). Returns the session.
     @discardableResult
     func continueSession() -> JamSession? {
         return activeSession
     }
 
-    /// Continue the active session, optionally adding bonus seconds.
     @discardableResult
     func continueActiveSession() -> JamSession? {
         return activeSession
     }
 
-    /// Regenerate a new random topic for the current active session.
+    // MARK: - Regenerate Topic
+
     @discardableResult
     func regenerateTopicForActiveSession() -> JamSession? {
         guard var session = activeSession else { return nil }
@@ -136,11 +104,11 @@ class JamSessionDataModel {
         session.startedPrepAt = Date()
 
         activeSession = session
-        persistActiveSession()
+        let captured = session
+        Task { await upsertSessionInSupabase(captured) }
         return session
     }
 
-    /// Regenerate using Gemini AI. Returns the updated session via completion.
     func regenerateTopicWithAI(completion: @escaping (JamSession?) -> Void) {
         guard var session = activeSession else {
             completion(nil)
@@ -155,10 +123,10 @@ class JamSessionDataModel {
                 session.secondsLeft = 30
                 session.startedPrepAt = Date()
                 self.activeSession = session
-                self.persistActiveSession()
+                let captured = session
+                await self.upsertSessionInSupabase(captured)
                 completion(session)
             } catch {
-                // Fallback to hardcoded generation
                 print("⚠️ Gemini JAM topic generation failed: \(error.localizedDescription). Using fallback.")
                 let fallback = self.regenerateTopicForActiveSession()
                 completion(fallback)
@@ -166,7 +134,6 @@ class JamSessionDataModel {
         }
     }
 
-    /// Start a new session using Gemini AI for topic generation.
     func startNewSessionWithAI(completion: @escaping (JamSession?) -> Void) {
         guard let user = UserDataModel.shared.getCurrentUser() else {
             completion(nil)
@@ -186,10 +153,10 @@ class JamSessionDataModel {
                 )
 
                 self.activeSession = session
-                self.persistActiveSession()
+                let captured = session
+                await self.upsertSessionInSupabase(captured)
                 completion(session)
             } catch {
-                // Fallback to hardcoded
                 print("⚠️ Gemini topic generation failed: \(error.localizedDescription). Using fallback.")
                 let session = self.startNewSession()
                 completion(session)
@@ -197,62 +164,79 @@ class JamSessionDataModel {
         }
     }
 
-    //  Save & Exit
-    /// Save the current session to disk for later resumption, then clear active.
+    // MARK: - Save & Exit
+
     func saveSessionForLater() {
         guard let session = activeSession else { return }
-        if let data = try? encoder.encode(session) {
-            try? data.write(to: savedSessionURL, options: .atomic)
-        }
+        let captured = session
+
+        // Update in-memory cache so dashboard sees it immediately
+        _savedSessionCache = captured
+        _hasSavedSessionCached = true
+
         activeSession = nil
-        clearActiveSessionFile()
-    }
 
-    /// Check if there is a previously saved (paused) session.
-    func hasSavedSession() -> Bool {
-        FileManager.default.fileExists(atPath: savedSessionURL.path)
-    }
-
-    /// Peek at the saved session without making it active.
-    func getSavedSession() -> JamSession? {
-        guard let data = try? Data(contentsOf: savedSessionURL),
-              let session = try? decoder.decode(JamSession.self, from: data) else {
-            return nil
+        Task {
+            await upsertSessionInSupabase(captured, isSaved: true)
         }
-        return session
     }
 
-    /// Resume a previously saved session, making it active again.
+    func hasSavedSession() -> Bool {
+        // Check in-memory cache of completed sessions for a saved one
+        // For a synchronous check, we rely on a cached flag.
+        return _hasSavedSessionCached
+    }
+
+    private var _hasSavedSessionCached: Bool = false
+
+    func getSavedSession() -> JamSession? {
+        return _savedSessionCache
+    }
+
+    private var _savedSessionCache: JamSession?
+
+    /// Load saved session from Supabase (call at app launch or when checking).
+    func refreshSavedSession() {
+        Task {
+            await loadSavedSession()
+        }
+    }
+
     @discardableResult
     func resumeSavedSession() -> JamSession? {
-        guard let data = try? Data(contentsOf: savedSessionURL),
-              let session = try? decoder.decode(JamSession.self, from: data) else {
-            return nil
+        guard let saved = _savedSessionCache else { return nil }
+        activeSession = saved
+        _savedSessionCache = nil
+        _hasSavedSessionCached = false
+
+        let captured = saved
+        Task {
+            await upsertSessionInSupabase(captured, isSaved: false)
         }
-        activeSession = session
-        persistActiveSession()
-        deleteSavedSession()
-        return session
+        return saved
     }
 
-    /// Delete the saved session file without loading it.
     func deleteSavedSession() {
-        try? FileManager.default.removeItem(at: savedSessionURL)
+        _savedSessionCache = nil
+        _hasSavedSessionCached = false
     }
 
-    /// Discard the active session entirely (no save).
     func cancelJamSession() {
+        if let session = activeSession {
+            Task {
+                await deleteSessionFromSupabase(session.id)
+            }
+        }
         activeSession = nil
-        clearActiveSessionFile()
     }
 
-    // Completed Sessions
+    // MARK: - Completed Sessions
 
     func getCompletedSessions() -> [JamSession] {
         completedSessions
     }
 
-    //  Hints
+    // MARK: - Hints
 
     func generateSpeakingHints() -> [String] {
         let allHints = [
@@ -270,52 +254,83 @@ class JamSessionDataModel {
         return Array(allHints.shuffled().prefix(3))
     }
 
-    // Private Persistence Helpers
+    // MARK: - Supabase Operations
 
-    private func persistActiveSession() {
-        guard let session = activeSession,
-              let data = try? encoder.encode(session) else { return }
-        try? data.write(to: activeSessionURL, options: .atomic)
-    }
-
-    private func clearActiveSessionFile() {
-        try? FileManager.default.removeItem(at: activeSessionURL)
-    }
-
-    private func loadActiveSession() {
-        guard let data = try? Data(contentsOf: activeSessionURL),
-              let session = try? decoder.decode(JamSession.self, from: data) else {
-            activeSession = nil
-            return
-        }
-        // Don't resume completed sessions
-        if session.phase == .completed {
-            activeSession = nil
-            clearActiveSessionFile()
-        } else {
-            activeSession = session
+    /// Upsert a captured session snapshot. Never reads from `activeSession`.
+    private func upsertSessionInSupabase(_ session: JamSession, isSaved: Bool = false) async {
+        do {
+            let row = JamSessionRow(from: session, isSaved: isSaved)
+            try await supabase
+                .from(SupabaseTable.jamSessions)
+                .upsert(row)
+                .execute()
+        } catch {
+            print("❌ Failed to upsert jam session: \(error.localizedDescription)")
         }
     }
 
-    private func loadCompletedSessions() {
-        guard let data = try? Data(contentsOf: completedSessionsURL),
-              let sessions = try? decoder.decode([JamSession].self, from: data) else {
+    private func loadSavedSession() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
+
+        do {
+            let rows: [JamSessionRow] = try await supabase
+                .from(SupabaseTable.jamSessions)
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .eq("is_saved", value: true)
+                .limit(1)
+                .execute()
+                .value
+
+            if let row = rows.first {
+                _savedSessionCache = row.toJamSession()
+                _hasSavedSessionCached = true
+            } else {
+                _savedSessionCache = nil
+                _hasSavedSessionCached = false
+            }
+        } catch {
+            print("❌ Failed to load saved session: \(error.localizedDescription)")
+        }
+    }
+
+    private func loadCompletedSessions() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
+
+        do {
+            let rows: [JamSessionRow] = try await supabase
+                .from(SupabaseTable.jamSessions)
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .eq("phase", value: "completed")
+                .order("ended_at", ascending: false)
+                .execute()
+                .value
+            completedSessions = rows.map { $0.toJamSession() }
+        } catch {
+            print("❌ Failed to load completed jam sessions: \(error.localizedDescription)")
             completedSessions = []
-            return
         }
-        completedSessions = sessions
+
+        // Also load any saved session
+        await loadSavedSession()
     }
 
-    private func saveCompletedSessions() {
-        guard let data = try? encoder.encode(completedSessions) else { return }
-        try? data.write(to: completedSessionsURL, options: .atomic)
+    private func deleteSessionFromSupabase(_ id: UUID) async {
+        do {
+            try await supabase
+                .from(SupabaseTable.jamSessions)
+                .delete()
+                .eq("id", value: id.uuidString)
+                .execute()
+        } catch {
+            print("❌ Failed to delete jam session: \(error.localizedDescription)")
+        }
     }
 
     private func archiveCompletedSession(_ session: JamSession) {
         completedSessions.append(session)
-        saveCompletedSessions()
 
-        // Log to history
         let duration: Int
         if let start = session.startedSpeakingAt, let end = session.endedAt {
             duration = Int(end.timeIntervalSince(start))
@@ -338,10 +353,9 @@ class JamSessionDataModel {
         SessionProgressManager.shared.markCompleted(.twoMinJam, topic: session.topic)
 
         activeSession = nil
-        clearActiveSessionFile()
     }
 
-    // Topic Generation
+    // MARK: - Topic Generation
 
     private func generateRandomTopic() -> String {
         JamSession.availableTopics.randomElement() ?? "General Topic"

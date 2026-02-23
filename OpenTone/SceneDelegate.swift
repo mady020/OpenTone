@@ -36,14 +36,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
-        // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
+        // Refresh saved session caches from Supabase when returning to foreground
+        JamSessionDataModel.shared.refreshSavedSession()
+        RoleplaySessionDataModel.shared.refreshSavedSession()
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         // Auto-save any active JAM session so the user can continue from the Dashboard
         if JamSessionDataModel.shared.hasActiveSession() {
             JamSessionDataModel.shared.saveSessionForLater()
+        }
+        // Auto-save any active roleplay session
+        if RoleplaySessionDataModel.shared.getActiveSession() != nil {
+            RoleplaySessionDataModel.shared.saveSessionForLater()
         }
     }
 

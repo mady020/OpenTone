@@ -1,47 +1,20 @@
 import Foundation
+internal import PostgREST
+import Supabase
 
 @MainActor
 class RoleplaySessionDataModel {
 
     static let shared = RoleplaySessionDataModel()
 
-    private let documentsDirectory = FileManager.default.urls(
-        for: .documentDirectory,
-        in: .userDomainMask
-    ).first!
-
-    private var savedSessionURL: URL {
-        documentsDirectory
-            .appendingPathComponent("saved_roleplay_session")
-            .appendingPathExtension("json")
-    }
-
-    private var savedScenarioURL: URL {
-        documentsDirectory
-            .appendingPathComponent("saved_roleplay_scenario")
-            .appendingPathExtension("json")
-    }
-
-    private let encoder: JSONEncoder = {
-        let e = JSONEncoder()
-        e.dateEncodingStrategy = .iso8601
-        e.outputFormatting = .prettyPrinted
-        return e
-    }()
-
-    private let decoder: JSONDecoder = {
-        let d = JSONDecoder()
-        d.dateDecodingStrategy = .iso8601
-        return d
-    }()
-
     private init() {}
 
     private(set) var activeSession: RoleplaySession?
     var activeScenario: RoleplayScenario?
 
-    func startSession(scenarioId: UUID) -> RoleplaySession? {
+    // MARK: - Start
 
+    func startSession(scenarioId: UUID) -> RoleplaySession? {
         guard let user = UserDataModel.shared.getCurrentUser() else {
             return nil
         }
@@ -56,12 +29,21 @@ class RoleplaySessionDataModel {
 
         UserDataModel.shared.addRoleplayID(newSession.id)
 
+        let captured = newSession
+        Task {
+            await upsertSessionInSupabase(captured)
+        }
+
         return newSession
     }
+
+    // MARK: - Read
 
     func getActiveSession() -> RoleplaySession? {
         return activeSession
     }
+
+    // MARK: - Update
 
     func updateSession(_ updated: RoleplaySession, scenario: RoleplayScenario) {
         guard let current = activeSession,
@@ -71,6 +53,12 @@ class RoleplaySessionDataModel {
 
         activeSession = updated
         activeScenario = scenario
+
+        // Capture BEFORE any potential nil-out below
+        let captured = updated
+        Task {
+            await upsertSessionInSupabase(captured)
+        }
 
         if current.status != .completed && updated.status == .completed {
 
@@ -94,82 +82,129 @@ class RoleplaySessionDataModel {
 
             activeSession = nil
             activeScenario = nil
-            // Clear any saved session since this one completed
             deleteSavedSession()
         }
     }
 
-    //  Save & Exit
+    // MARK: - Save & Exit
 
-    /// Save the current session + scenario to disk for later resumption, then clear active.
     func saveSessionForLater() {
-        guard let session = activeSession,
-              let scenario = activeScenario else { return }
+        guard var session = activeSession else { return }
 
-        var pausedSession = session
-        pausedSession.status = .paused
+        // Capture + mark paused BEFORE nilling
+        session.status = .paused
+        let captured = session
 
-        if let data = try? encoder.encode(pausedSession) {
-            try? data.write(to: savedSessionURL, options: .atomic)
-        }
-        if let data = try? encoder.encode(scenario) {
-            try? data.write(to: savedScenarioURL, options: .atomic)
-        }
+        // Update in-memory cache so dashboard sees it immediately
+        _savedSessionCache = captured
+        _savedScenarioCache = activeScenario
+        _hasSavedSessionCached = true
 
         activeSession = nil
         activeScenario = nil
+
+        Task {
+            await upsertSessionInSupabase(captured, isSaved: true)
+        }
     }
 
-    /// Check if there is a previously saved (paused) session.
     func hasSavedSession() -> Bool {
-        FileManager.default.fileExists(atPath: savedSessionURL.path)
+        return _hasSavedSessionCached
     }
 
-    /// Peek at the saved session without making it active.
+    private var _hasSavedSessionCached: Bool = false
+    private var _savedSessionCache: RoleplaySession?
+    private var _savedScenarioCache: RoleplayScenario?
+
     func getSavedSession() -> RoleplaySession? {
-        guard let data = try? Data(contentsOf: savedSessionURL),
-              let session = try? decoder.decode(RoleplaySession.self, from: data) else {
-            return nil
-        }
-        return session
+        return _savedSessionCache
     }
 
-    /// Peek at the saved scenario.
     func getSavedScenario() -> RoleplayScenario? {
-        guard let data = try? Data(contentsOf: savedScenarioURL),
-              let scenario = try? decoder.decode(RoleplayScenario.self, from: data) else {
-            return nil
-        }
-        return scenario
+        return _savedScenarioCache
     }
 
-    /// Resume a previously saved session, making it active again.
+    /// Load saved session info from Supabase (call at app launch or when checking).
+    func refreshSavedSession() {
+        Task {
+            await loadSavedSession()
+        }
+    }
+
     @discardableResult
     func resumeSavedSession() -> (RoleplaySession, RoleplayScenario)? {
-        guard let sessionData = try? Data(contentsOf: savedSessionURL),
-              let session = try? decoder.decode(RoleplaySession.self, from: sessionData),
-              let scenarioData = try? Data(contentsOf: savedScenarioURL),
-              let scenario = try? decoder.decode(RoleplayScenario.self, from: scenarioData) else {
-            return nil
-        }
+        guard let session = _savedSessionCache,
+              let scenario = _savedScenarioCache else { return nil }
 
         var resumed = session
         resumed.status = .inProgress
 
         activeSession = resumed
         activeScenario = scenario
-        deleteSavedSession()
+
+        _savedSessionCache = nil
+        _savedScenarioCache = nil
+        _hasSavedSessionCached = false
+
+        let captured = resumed
+        Task {
+            await upsertSessionInSupabase(captured, isSaved: false)
+        }
+
         return (resumed, scenario)
     }
 
-    /// Delete saved session files.
     func deleteSavedSession() {
-        try? FileManager.default.removeItem(at: savedSessionURL)
-        try? FileManager.default.removeItem(at: savedScenarioURL)
+        _savedSessionCache = nil
+        _savedScenarioCache = nil
+        _hasSavedSessionCached = false
     }
 
     func cancelSession() {
         activeSession = nil
         activeScenario = nil
+    }
+
+    // MARK: - Supabase Operations
+
+    /// Upsert a captured session snapshot. Never reads from `activeSession`.
+    private func upsertSessionInSupabase(_ session: RoleplaySession, isSaved: Bool = false) async {
+        do {
+            let row = RoleplaySessionRow(from: session, isSaved: isSaved)
+            try await supabase
+                .from(SupabaseTable.roleplaySessions)
+                .upsert(row)
+                .execute()
+        } catch {
+            print("❌ Failed to upsert roleplay session: \(error.localizedDescription)")
+        }
+    }
+
+    private func loadSavedSession() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
+
+        do {
+            let rows: [RoleplaySessionRow] = try await supabase
+                .from(SupabaseTable.roleplaySessions)
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .eq("is_saved", value: true)
+                .limit(1)
+                .execute()
+                .value
+
+            if let row = rows.first {
+                let session = row.toRoleplaySession()
+                _savedSessionCache = session
+                _savedScenarioCache = RoleplayScenarioDataModel.shared.getScenario(by: session.scenarioId)
+                _hasSavedSessionCached = true
+            } else {
+                _savedSessionCache = nil
+                _savedScenarioCache = nil
+                _hasSavedSessionCached = false
+            }
+        } catch {
+            print("❌ Failed to load saved roleplay session: \(error.localizedDescription)")
+        }
     }
 }

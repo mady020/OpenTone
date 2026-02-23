@@ -1,32 +1,32 @@
 import Foundation
+internal import PostgREST
+import Supabase
 
 @MainActor
 class StreakDataModel {
 
     static let shared = StreakDataModel()
 
-    private let documentsDirectory = FileManager.default.urls(
-        for: .documentDirectory, in: .userDomainMask
-    ).first!
-    private let streakURL: URL
-    private let sessionsURL: URL
-
     private var sessions: [CompletedSession] = []
     private var streak: Streak?
 
     private init() {
-        streakURL = documentsDirectory.appendingPathComponent("streak.json")
-        sessionsURL = documentsDirectory.appendingPathComponent("sessions.json")
-        loadStreak()
-        loadSessions()
+        Task {
+            await loadData()
+        }
     }
+
+    // MARK: - Streak Read/Write
+
     func getStreak() -> Streak? {
         return streak
     }
 
     func updateStreak(_ updatedStreak: Streak) {
         streak = updatedStreak
-        saveStreak()
+        Task {
+            await saveStreakToSupabase()
+        }
     }
 
     func incrementStreak() {
@@ -40,7 +40,7 @@ class StreakDataModel {
         } else {
             streak = Streak(commitment: 0, currentCount: 1, longestCount: 1, lastActiveDate: Date())
         }
-        saveStreak()
+        Task { await saveStreakToSupabase() }
     }
 
     func resetStreak() {
@@ -50,49 +50,21 @@ class StreakDataModel {
         } else {
             streak = Streak(commitment: 0, currentCount: 0, longestCount: 0, lastActiveDate: nil)
         }
-        saveStreak()
+        Task { await saveStreakToSupabase() }
     }
 
     func deleteStreak() {
         streak = nil
-        try? FileManager.default.removeItem(at: streakURL)
+        Task { await saveStreakToSupabase() }
     }
 
-    private func loadStreak() {
-        if let data = try? Data(contentsOf: streakURL),
-           let decoded = try? JSONDecoder().decode(Streak.self, from: data) {
-            streak = decoded
-        } else {
-            streak = Streak(commitment: 0, currentCount: 0, longestCount: 0, lastActiveDate: nil)
-        }
-    }
+    // MARK: - Completed Sessions
 
-    private func saveStreak() {
-        guard let streak = streak else { return }
-        if let data = try? JSONEncoder().encode(streak) {
-            try? data.write(to: streakURL)
-        }
-    }
-    private func loadSessions() {
-        guard let data = try? Data(contentsOf: sessionsURL),
-              let decoded = try? JSONDecoder().decode([CompletedSession].self, from: data)
-        else {
-            sessions = []
-            return
-        }
-        sessions = decoded
-    }
-
-    private func saveSessions() {
-        if let data = try? JSONEncoder().encode(sessions) {
-            try? data.write(to: sessionsURL)
-        }
-    }
-
-    /// Append a pre-built session (used by SampleDataSeeder)
     func addSession(_ session: CompletedSession) {
         sessions.append(session)
-        saveSessions()
+        Task {
+            await insertCompletedSessionInSupabase(session)
+        }
     }
 
     func logSession(title: String,
@@ -113,7 +85,9 @@ class StreakDataModel {
         )
 
         sessions.append(session)
-        saveSessions()
+        Task {
+            await insertCompletedSessionInSupabase(session)
+        }
         updateStreakForToday()
     }
 
@@ -144,6 +118,7 @@ class StreakDataModel {
 
         return (totalWeek, bestDay)
     }
+
     func updateStreakForToday() {
         let today = Calendar.current.startOfDay(for: Date())
 
@@ -170,6 +145,94 @@ class StreakDataModel {
             streak = Streak(commitment: 0, currentCount: 1, longestCount: 1, lastActiveDate: today)
         }
 
-        saveStreak()
+        Task { await saveStreakToSupabase() }
+    }
+
+    // MARK: - Supabase Operations
+
+    private func loadData() async {
+        await loadStreakFromSupabase()
+        await loadSessionsFromSupabase()
+    }
+
+    private func loadStreakFromSupabase() async {
+        guard let user = UserDataModel.shared.getCurrentUser() else {
+            streak = Streak(commitment: 0, currentCount: 0, longestCount: 0, lastActiveDate: nil)
+            return
+        }
+
+        // Streak is stored as columns on the users table
+        streak = user.streak ?? Streak(commitment: 0, currentCount: 0, longestCount: 0, lastActiveDate: nil)
+    }
+
+    private func saveStreakToSupabase() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id,
+              let streak = streak else { return }
+
+        struct StreakUpdate: Codable {
+            let streakCommitment: Int
+            let streakCurrent: Int
+            let streakLongest: Int
+            let streakLastActive: Date?
+
+            enum CodingKeys: String, CodingKey {
+                case streakCommitment = "streak_commitment"
+                case streakCurrent    = "streak_current"
+                case streakLongest    = "streak_longest"
+                case streakLastActive = "streak_last_active"
+            }
+        }
+
+        let update = StreakUpdate(
+            streakCommitment: streak.commitment,
+            streakCurrent: streak.currentCount,
+            streakLongest: streak.longestCount,
+            streakLastActive: streak.lastActiveDate
+        )
+
+        do {
+            try await supabase
+                .from(SupabaseTable.users)
+                .update(update)
+                .eq("id", value: userId.uuidString)
+                .execute()
+        } catch {
+            print("❌ Failed to save streak: \(error.localizedDescription)")
+        }
+    }
+
+    private func loadSessionsFromSupabase() async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else {
+            sessions = []
+            return
+        }
+
+        do {
+            let rows: [CompletedSessionRow] = try await supabase
+                .from(SupabaseTable.completedSessions)
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .order("date", ascending: false)
+                .execute()
+                .value
+            sessions = rows.map { $0.toCompletedSession() }
+        } catch {
+            print("❌ Failed to load completed sessions: \(error.localizedDescription)")
+            sessions = []
+        }
+    }
+
+    private func insertCompletedSessionInSupabase(_ session: CompletedSession) async {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id else { return }
+
+        do {
+            let row = CompletedSessionRow(from: session, userId: userId)
+            try await supabase
+                .from(SupabaseTable.completedSessions)
+                .insert(row)
+                .execute()
+        } catch {
+            print("❌ Failed to insert completed session: \(error.localizedDescription)")
+        }
     }
 }

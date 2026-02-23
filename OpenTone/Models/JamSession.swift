@@ -10,8 +10,11 @@ struct JamSession: Identifiable, Equatable, Codable {
         "The Evolution of Education"
     ]
 
-    let id: UUID
+    private(set) var id: UUID
     let userId: UUID
+    
+    /// Override the auto-generated UUID (used when loading from Supabase).
+    mutating func setID(_ newID: UUID) { id = newID }
 
     var topic: String
     var suggestions: [String]
