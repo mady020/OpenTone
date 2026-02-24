@@ -76,7 +76,12 @@ class RoleplayChatViewController: UIViewController {
         AudioManager.shared.onFinalTranscription = { [weak self] text in
             print("🎤 USER SAID:", text)
             self?.userResponded(text)
-            self?.updateMicUI(isRecording: false)
+        }
+
+        AudioManager.shared.onRecordingStateChanged = { [weak self] isRecording in
+            DispatchQueue.main.async {
+                self?.updateMicUI(isRecording: isRecording)
+            }
         }
     }
     
@@ -301,25 +306,23 @@ class RoleplayChatViewController: UIViewController {
     }
 
     private func parseGeminiResponse(_ response: String) -> (String, [String]) {
-        let lines = response.components(separatedBy: "\n")
-        var messageLines: [String] = []
+        var messageText = response
         var suggestions: [String] = []
 
-        for line in lines {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.hasPrefix("SUGGESTIONS:") {
-                let jsonPart = String(trimmed.dropFirst("SUGGESTIONS:".count))
-                    .trimmingCharacters(in: .whitespaces)
-                if let data = jsonPart.data(using: .utf8),
-                   let parsed = try? JSONSerialization.jsonObject(with: data) as? [String] {
-                    suggestions = parsed
-                }
-            } else if !trimmed.isEmpty {
-                messageLines.append(trimmed)
+        if let range = response.range(of: "SUGGESTIONS:") {
+            messageText = String(response[..<range.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            let jsonString = String(response[range.upperBound...])
+                .replacingOccurrences(of: "```json", with: "", options: .caseInsensitive)
+                .replacingOccurrences(of: "```", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if let data = jsonString.data(using: .utf8),
+               let parsed = try? JSONSerialization.jsonObject(with: data) as? [String] {
+                suggestions = parsed
             }
         }
 
-        let messageText = messageLines.joined(separator: " ")
         return (messageText.isEmpty ? response : messageText, suggestions)
     }
 
@@ -364,7 +367,6 @@ class RoleplayChatViewController: UIViewController {
         // Stop any ongoing recording while TTS plays
         if AudioManager.shared.isRecording {
             AudioManager.shared.stopRecording()
-            updateMicUI(isRecording: false)
         }
 
         let session = AVAudioSession.sharedInstance()
@@ -392,7 +394,6 @@ class RoleplayChatViewController: UIViewController {
             speechSynthesizer.stopSpeaking(at: .immediate)
             if AudioManager.shared.isRecording {
                 AudioManager.shared.stopRecording()
-                updateMicUI(isRecording: false)
             }
         }
     }
@@ -414,10 +415,8 @@ class RoleplayChatViewController: UIViewController {
 
         if AudioManager.shared.isRecording {
             AudioManager.shared.stopRecording()
-            updateMicUI(isRecording: false)
         } else {
             AudioManager.shared.startRecording()
-            updateMicUI(isRecording: true)
         }
     }
 
@@ -438,6 +437,10 @@ class RoleplayChatViewController: UIViewController {
 
     
     private func userResponded(_ text: String) {
+        
+        // Prevent empty messages from blowing up the UI and crashing Gemini
+        let cleanedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanedText.isEmpty else { return }
 
         guard !isProcessingResponse else { return }
         isProcessingResponse = true
@@ -614,7 +617,6 @@ class RoleplayChatViewController: UIViewController {
 
         if AudioManager.shared.isRecording {
             AudioManager.shared.stopRecording()
-            updateMicUI(isRecording: false)
         }
 
         let alert = UIAlertController(

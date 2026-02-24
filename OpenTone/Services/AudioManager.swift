@@ -11,10 +11,16 @@ final class AudioManager {
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
 
-    private(set) var isRecording = false
+    private(set) var isRecording = false {
+        didSet {
+            onRecordingStateChanged?(isRecording)
+        }
+    }
     private(set) var isMuted = false
+    private var currentTranscription: String = ""
 
     var onFinalTranscription: ((String) -> Void)?
+    var onRecordingStateChanged: ((Bool) -> Void)?
 
     private init() {}
 
@@ -64,6 +70,7 @@ final class AudioManager {
     private func beginRecording() {
 
         isRecording = true
+        currentTranscription = ""
 
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.record, mode: .measurement, options: [.duckOthers])
@@ -85,13 +92,15 @@ final class AudioManager {
             guard let self else { return }
 
             if let result {
-                let text = result.bestTranscription.formattedString
-                print("🗣 LIVE:", text)
+                self.currentTranscription = result.bestTranscription.formattedString
+                print("🗣 LIVE:", self.currentTranscription)
 
                 if result.isFinal {
-                    print("✅ FINAL:", text)
-                    self.onFinalTranscription?(text)
-                    self.cleanup()
+                    print("✅ FINAL:", self.currentTranscription)
+                    if self.isRecording {
+                        self.onFinalTranscription?(self.currentTranscription)
+                        self.cleanup()
+                    }
                 }
             }
 
@@ -106,12 +115,22 @@ final class AudioManager {
         guard isRecording else { return }
         isRecording = false
         request?.endAudio()
+
+        let finalSpeech = currentTranscription.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !finalSpeech.isEmpty {
+            onFinalTranscription?(finalSpeech)
+        }
+
+        cleanup()
     }
 
     private func cleanup() {
-        audioEngine.stop()
+        if audioEngine.isRunning {
+             audioEngine.stop()
+        }
         audioEngine.inputNode.removeTap(onBus: 0)
         request = nil
+        task?.cancel()
         task = nil
         isRecording = false
     }
