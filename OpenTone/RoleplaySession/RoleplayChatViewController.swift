@@ -52,10 +52,7 @@ class RoleplayChatViewController: UIViewController {
 
     private let speechSynthesizer = AVSpeechSynthesizer()
 
-    // MARK: - Gemini conversation history (for this roleplay)
-
-    private var geminiHistory: [GeminiService.Message] = []
-    private var geminiTurnCount = 0
+    // MARK: - Scripted roleplay (primary mode — no Gemini)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -125,7 +122,9 @@ class RoleplayChatViewController: UIViewController {
 
         if !didLoadChat {
             didLoadChat = true
-            startGeminiRoleplay()
+            // Scripted mode is the default — deterministic and instant.
+            isScriptedMode = true
+            loadCurrentStep()
         }
     }
 
@@ -459,8 +458,6 @@ class RoleplayChatViewController: UIViewController {
 
         if isScriptedMode {
             handleScriptedResponse(text)
-        } else {
-            handleGeminiUserResponse(text)
         }
     }
 
@@ -665,13 +662,11 @@ class RoleplayChatViewController: UIViewController {
         messages.removeAll()
         currentWrongStreak = 0
         totalWrongAttempts = 0
-        geminiHistory.removeAll()
-        geminiTurnCount = 0
-        isScriptedMode = false
+        isScriptedMode = true
 
         tableView.reloadData()
 
-        startGeminiRoleplay()
+        loadCurrentStep()
     }
 
     private func presentScoreScreen() {

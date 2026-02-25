@@ -7,6 +7,10 @@ struct ProgressCellData {
     let todayMinutes: Int
     let dailyGoalMinutes: Int
     let weeklyMinutes: [Int]   // 7 values, Mon → Sun
+    /// Optional rolling speech profile from BackendSpeechService
+    var speechProfile: UserSpeechProfile? = nil
+    /// Optional WPM delta from last session
+    var lastWpmDelta: Double? = nil
 }
 
 // MARK: - Redesigned Progress Cell (fully programmatic)
@@ -102,6 +106,26 @@ final class ProgressCell: UICollectionViewCell {
         return b
     }()
 
+    // ── Speech Coach Score + Delta ──
+
+    private let coachingScoreLabel: UILabel = {
+        let l = UILabel()
+        l.font = .systemFont(ofSize: 12, weight: .semibold)
+        l.textAlignment = .right
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.isHidden = true
+        return l
+    }()
+
+    private let lastDeltaLabel: UILabel = {
+        let l = UILabel()
+        l.font = .systemFont(ofSize: 11, weight: .regular)
+        l.textAlignment = .right
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.isHidden = true
+        return l
+    }()
+
     // MARK: - Bar data cache
 
     private var barHostViews: [UIView] = []
@@ -150,6 +174,8 @@ final class ProgressCell: UICollectionViewCell {
         streakContainer.addSubview(flameLabel)
         streakContainer.addSubview(streakCountLabel)
         contentView.addSubview(greetingLabel)
+        contentView.addSubview(coachingScoreLabel)
+        contentView.addSubview(lastDeltaLabel)
         contentView.addSubview(ringContainer)
         ringContainer.addSubview(percentLabel)
         ringContainer.addSubview(goalSubLabel)
@@ -199,6 +225,14 @@ final class ProgressCell: UICollectionViewCell {
             seeProgressButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             seeProgressButton.heightAnchor.constraint(equalToConstant: 40),
             seeProgressButton.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -14),
+
+            // Coaching score — top right, below greeting
+            coachingScoreLabel.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 2),
+            coachingScoreLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            // Delta — below coaching score
+            lastDeltaLabel.topAnchor.constraint(equalTo: coachingScoreLabel.bottomAnchor, constant: 1),
+            lastDeltaLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
         ])
 
         seeProgressButton.addTarget(self, action: #selector(seeProgressTapped), for: .touchUpInside)
@@ -350,6 +384,23 @@ final class ProgressCell: UICollectionViewCell {
                 : .systemFont(ofSize: 10, weight: .medium)
             lbl.textColor = i == todayIdx ? AppColors.primary : .secondaryLabel
         }
+
+        // ── Coaching score + delta (only if speech profile available) ──
+        if let profile = data.speechProfile, profile.sessionsCount > 0 {
+            let overall = Int((profile.fluencyScore + profile.confidenceScore + profile.clarityScore) / 3.0)
+            coachingScoreLabel.text = "Speech score: \(overall)%"
+            coachingScoreLabel.isHidden = false
+        } else {
+            coachingScoreLabel.isHidden = true
+        }
+
+        if let delta = data.lastWpmDelta, abs(delta) >= 1 {
+            let arrow = delta > 0 ? "↑" : "↓"
+            lastDeltaLabel.text = "\(arrow) \(abs(Int(delta))) WPM since last session"
+            lastDeltaLabel.isHidden = false
+        } else {
+            lastDeltaLabel.isHidden = true
+        }
     }
 
     // MARK: - Dynamic colors
@@ -362,6 +413,8 @@ final class ProgressCell: UICollectionViewCell {
         streakCountLabel.textColor = AppColors.streakBadgeText
 
         greetingLabel.textColor = .secondaryLabel
+        coachingScoreLabel.textColor = AppColors.primary
+        lastDeltaLabel.textColor = .secondaryLabel
         percentLabel.textColor = AppColors.textPrimary
         goalSubLabel.textColor = .secondaryLabel
 

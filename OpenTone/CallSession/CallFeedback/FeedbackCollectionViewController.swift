@@ -2,17 +2,23 @@ import UIKit
 
 class FeedbackCollectionViewController: UICollectionViewController {
 
-    /// Optional feedback data — populated after Gemini analysis.
+    /// Optional feedback data — populated after backend analysis.
     var feedback: Feedback?
 
-    /// Raw transcript passed from the speaking session.
+    /// Raw transcript passed from the speaking session (fallback only).
     var transcript: String?
+    /// Supabase Storage URL of the recorded audio (primary input for /analyze).
+    var audioURL: String?
     /// Topic the user was speaking about.
     var topic: String?
     /// Duration the user was speaking (seconds).
     var speakingDuration: Double = 30.0
+    /// Session UUID (used to persist results to Supabase).
+    var sessionId: String = ""
+    /// User UUID.
+    var userId: String = ""
 
-    /// Whether we are currently loading feedback from Gemini.
+    /// Whether we are currently loading feedback from the backend.
     private var isLoadingFeedback = false
 
     @IBOutlet weak var exitButton: UIButton!
@@ -26,10 +32,9 @@ class FeedbackCollectionViewController: UICollectionViewController {
         // Replace the storyboard nav button with a proper xmark button
         setupExitButton()
 
-        // If we have a transcript but no feedback yet, fetch from Gemini
-        if feedback == nil, let transcript = transcript {
-            fetchGeminiFeedback(transcript: transcript)
-        }
+        // If we have no pre-computed feedback, call the backend
+        if feedback == nil {
+            fetchBackendFeedback()
     }
 
     private func setupExitButton() {
@@ -55,27 +60,34 @@ class FeedbackCollectionViewController: UICollectionViewController {
         navigationController?.popToRootViewController(animated: true)
     }
 
-    // MARK: - Gemini Feedback
+    // MARK: - Backend Speech Coaching
 
-    private func fetchGeminiFeedback(transcript: String) {
+    private func fetchBackendFeedback() {
         isLoadingFeedback = true
         collectionView.reloadData()
 
-        let topicText = topic ?? "General Topic"
-        let duration = speakingDuration
+        let capturedAudioURL  = audioURL ?? ""
+        let capturedUserId    = userId
+        let capturedSessionId = sessionId
+        let capturedTranscript = transcript ?? ""
+        let capturedDuration  = speakingDuration
 
         Task {
             do {
-                let result = try await GeminiService.shared.generateJamFeedback(
-                    transcript: transcript,
-                    topic: topicText,
-                    durationSeconds: duration
+                guard !capturedAudioURL.isEmpty else {
+                    throw BackendSpeechService.BackendError.noAudioURL
+                }
+                let response = try await BackendSpeechService.shared.analyze(
+                    audioURL:  capturedAudioURL,
+                    userId:    capturedUserId,
+                    sessionId: capturedSessionId
                 )
-                self.feedback = result
+                self.feedback = BackendSpeechService.toFeedback(response)
             } catch {
-                print("⚠️ Gemini feedback failed: \(error.localizedDescription)")
-                // Build a basic local feedback if Gemini fails
-                self.feedback = buildLocalFeedback(transcript: transcript, duration: duration)
+                print("⚠️ Backend analysis failed: \(error.localizedDescription)")
+                // Graceful fallback: local metrics from transcript
+                let t = capturedTranscript
+                self.feedback = buildLocalFeedback(transcript: t, duration: capturedDuration)
             }
             self.isLoadingFeedback = false
             self.collectionView.reloadData()
@@ -161,21 +173,36 @@ class FeedbackCollectionViewController: UICollectionViewController {
                     fillerProgress: 0,
                     wpmValue: "...",
                     wpmProgress: 0,
-                    pausesValue: "Analyzing...",
+                    pausesValue: "Analysing…",
                     pausesProgress: 0
                 )
             } else if let fb = feedback {
-                let mins = Int(fb.durationInSeconds) / 60
-                let secs = Int(fb.durationInSeconds) % 60
+                // --- Coaching-aware labels (never show raw numbers) ---
+                let fluency    = fb.coaching?.scores.fluency    ?? 50.0
+                let confidence = fb.coaching?.scores.confidence ?? 50.0
+                let clarity    = fb.coaching?.scores.clarity    ?? 50.0
+
+                let fluencyLabel    = "Fluency \(Int(fluency))%"
+                let confidenceLabel: String = {
+                    let wpm = Int(fb.wordsPerMinute)
+                    if wpm > 0 { return "\(wpm) WPM — " + (wpm >= 130 && wpm <= 150 ? "great pace" : wpm < 130 ? "pick up pace" : "slow down") }
+                    return "Confidence \(Int(confidence))%"
+                }()
+                let clarityLabel: String = {
+                    if let delta = fb.progress?.deltas.fillersDescription { return delta }
+                    return "Clarity \(Int(clarity))%"
+                }()
+                let progressLabel = fb.progress?.weeklySummary ?? fb.comments
+
                 cell.configure(
-                    speechValue: String(format: "%d:%02d", mins, secs),
-                    speechProgress: min(Float(fb.durationInSeconds) / 120.0, 1.0),
-                    fillerValue: "\(fb.fillerWordCount ?? 0) fillers",
-                    fillerProgress: min(Float(fb.fillerWordCount ?? 0) / 10.0, 1.0),
-                    wpmValue: "\(Int(fb.wordsPerMinute)) WPM",
-                    wpmProgress: min(Float(fb.wordsPerMinute) / 150.0, 1.0),
-                    pausesValue: fb.pauseCount != nil ? "\(fb.pauseCount!) pauses" : fb.comments,
-                    pausesProgress: min(Float(fb.pauseCount ?? 2) / 10.0, 1.0)
+                    speechValue: fluencyLabel,
+                    speechProgress: Float(fluency / 100.0),
+                    fillerValue: clarityLabel,
+                    fillerProgress: Float(clarity / 100.0),
+                    wpmValue: confidenceLabel,
+                    wpmProgress: Float(confidence / 100.0),
+                    pausesValue: progressLabel,
+                    pausesProgress: min(Float(fb.pauseCount ?? 0) / 10.0, 1.0)
                 )
             } else {
                 cell.configure(
@@ -198,14 +225,20 @@ class FeedbackCollectionViewController: UICollectionViewController {
             ) as! FeedbackMistakeCell
 
             if isLoadingFeedback {
-                cell.configure(original: "Analyzing your speech...", correction: "", explanation: "Please wait while we review your performance.")
+                cell.configure(
+                    original: "Analysing your speech…",
+                    correction: "",
+                    explanation: "Please wait while we review your performance."
+                )
             } else if let mistakes = feedback?.mistakes, !mistakes.isEmpty, indexPath.item < mistakes.count {
-                let mistake = mistakes[indexPath.item]
-                cell.configure(original: mistake.original, correction: mistake.correction, explanation: mistake.explanation)
+                let m = mistakes[indexPath.item]
+                // original = issue title, correction = suggestion, explanation = strength
+                cell.configure(original: m.original, correction: m.correction, explanation: m.explanation)
             } else if let summary = feedback?.aiFeedbackSummary, !summary.isEmpty {
-                cell.configure(original: "✨ Great job!", correction: "No major mistakes found.", explanation: summary)
+                cell.configure(original: "✨ Great session!", correction: "Keep going.", explanation: summary)
             } else {
-                cell.configure(original: "✨ Nice work!", correction: "No mistakes detected.", explanation: feedback?.comments ?? "Keep practicing to improve!")
+                let strength = feedback?.coaching?.strengths.first ?? "Keep practising to improve!"
+                cell.configure(original: "✨ Good effort!", correction: "No major issues detected.", explanation: strength)
             }
             return cell
             

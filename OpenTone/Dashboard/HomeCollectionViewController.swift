@@ -27,6 +27,14 @@ class HomeCollectionViewController: UICollectionViewController {
     var savedRoleplaySession: RoleplaySession?
     var savedRoleplayScenario: RoleplayScenario?
 
+    /// Cached speech profile fetched from BackendSpeechService on each appearance.
+    private var cachedSpeechProfile: UserSpeechProfile?
+    /// WPM delta stored after the last /analyze call (read from UserDefaults).
+    private var lastWpmDelta: Double? {
+        let v = UserDefaults.standard.double(forKey: "opentone.lastWpmDelta")
+        return v == 0 ? nil : v
+    }
+
     /// Whether we have any saved session (jam or roleplay) to continue. At most 1.
     private var hasSavedSession: Bool {
         savedJamSession != nil || (savedRoleplaySession != nil && savedRoleplayScenario != nil)
@@ -110,9 +118,22 @@ class HomeCollectionViewController: UICollectionViewController {
         syncFromSession()
         collectionView.setCollectionViewLayout(createLayout(), animated: false)
         collectionView.reloadData()
+        fetchSpeechProfile()
     }
 
-    
+    private func fetchSpeechProfile() {
+        guard let userId = UserDataModel.shared.getCurrentUser()?.id.uuidString, !userId.isEmpty else { return }
+        Task {
+            do {
+                let profile = try await BackendSpeechService.shared.fetchProfile(userId: userId)
+                self.cachedSpeechProfile = profile
+                self.collectionView.reloadSections(IndexSet(integer: DashboardSection.progress.rawValue))
+            } catch {
+                print("[Dashboard] Speech profile fetch failed (non-fatal): \(error.localizedDescription)")
+            }
+        }
+    }
+
     private func syncFromSession() {
         guard let user = SessionManager.shared.currentUser else { return }
 
@@ -154,7 +175,9 @@ class HomeCollectionViewController: UICollectionViewController {
             streakDays: streakDays,
             todayMinutes: todayMinutes,
             dailyGoalMinutes: dailyGoal,
-            weeklyMinutes: weeklyMinutes
+            weeklyMinutes: weeklyMinutes,
+            speechProfile: cachedSpeechProfile,
+            lastWpmDelta: lastWpmDelta
         )
     }
 
@@ -652,34 +675,17 @@ extension HomeCollectionViewController {
                 })
                 alert.addAction(UIAlertAction(title: "Go Back", style: .cancel))
                 present(alert, animated: true)
-            }else{
-                
-                // Check for API key before launching Talk to AI
-                guard GeminiAPIKeyManager.shared.hasAPIKey else {
-                    let alert = UIAlertController(
-                        title: "Gemini API Key Required",
-                        message: "Add your Gemini API key in Settings to use Talk to AI.",
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "Go to Settings", style: .default) { [weak self] _ in
-                        let settingsVC = SettingsViewController()
-                        self?.navigationController?.pushViewController(settingsVC, animated: true)
-                    })
-                    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-                    present(alert, animated: true)
-                    return
-                }
-
+            } else {
+                // AI Speech Coach — launches the AI call flow
+                // BackendSpeechService handles analysis; no Gemini key required.
                 let storyboard = UIStoryboard(name: "AICall", bundle: nil)
-
                 guard let scoreVC = storyboard.instantiateInitialViewController() else {
-                    print("CallStoryBoard initial is not NavigationController")
+                    print("AICall storyboard initial VC not found")
                     return
                 }
                 scoreVC.modalPresentationStyle = .fullScreen
                 scoreVC.modalTransitionStyle = .crossDissolve
                 present(scoreVC, animated: true)
-    
             }
 
         case .recommended:

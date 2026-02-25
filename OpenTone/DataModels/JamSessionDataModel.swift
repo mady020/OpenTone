@@ -120,60 +120,8 @@ class JamSessionDataModel {
         return session
     }
 
-    func regenerateTopicWithAI(completion: @escaping (JamSession?) -> Void) {
-        guard var session = activeSession else {
-            completion(nil)
-            return
-        }
-
-        Task {
-            do {
-                let result = try await GeminiService.shared.generateJamTopic()
-                session.topic = result.topic
-                session.suggestions = result.hints
-                session.secondsLeft = 30
-                session.startedPrepAt = Date()
-                self.activeSession = session
-                let captured = session
-                await self.upsertSessionInSupabase(captured)
-                completion(session)
-            } catch {
-                print("⚠️ Gemini JAM topic generation failed: \(error.localizedDescription). Using fallback.")
-                let fallback = self.regenerateTopicForActiveSession()
-                completion(fallback)
-            }
-        }
-    }
-
-    func startNewSessionWithAI(completion: @escaping (JamSession?) -> Void) {
-        guard let user = UserDataModel.shared.getCurrentUser() else {
-            completion(nil)
-            return
-        }
-
-        Task {
-            do {
-                let result = try await GeminiService.shared.generateJamTopic()
-
-                let session = JamSession(
-                    userId: user.id,
-                    topic: result.topic,
-                    suggestions: result.hints,
-                    phase: .preparing,
-                    secondsLeft: 30
-                )
-
-                self.activeSession = session
-                let captured = session
-                await self.upsertSessionInSupabase(captured)
-                completion(session)
-            } catch {
-                print("⚠️ Gemini topic generation failed: \(error.localizedDescription). Using fallback.")
-                let session = self.startNewSession()
-                completion(session)
-            }
-        }
-    }
+    // regenerateTopicWithAI and startNewSessionWithAI removed.
+    // The local fallbacks (generateRandomTopic / generateSuggestions) are now the default.
 
     // MARK: - Save & Exit
 

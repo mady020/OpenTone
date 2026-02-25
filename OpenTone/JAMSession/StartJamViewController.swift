@@ -462,7 +462,7 @@ extension StartJamViewController: TimerManagerDelegate {
         guard !didFinishSpeech else { return }
         didFinishSpeech = true
 
-        // Capture the final transcript (accumulated + partial)
+        // Capture the final transcript (accumulated + partial) as fallback
         let transcript = getFinalTranscript()
         stopRecording()
 
@@ -485,10 +485,33 @@ extension StartJamViewController: TimerManagerDelegate {
         let vc = storyboard.instantiateViewController(withIdentifier: "Feedback") as! FeedbackCollectionViewController
         vc.navigationItem.hidesBackButton = true
 
-        // Pass transcript and topic for Gemini analysis
-        vc.transcript = transcript
-        vc.topic = session.topic
+        // --- Pass data for BackendSpeechService /analyze ---
+        // audioURL: set after Supabase Storage upload (below).
+        // Transcript is passed as fallback if upload/network fails.
+        vc.transcript     = transcript
+        vc.topic          = session.topic
         vc.speakingDuration = speakingDuration
+        vc.sessionId      = session.id.uuidString
+        vc.userId         = UserDataModel.shared.getCurrentUser()?.id.uuidString ?? ""
+
+        // Upload the last recorded audio file to Supabase Storage.
+        // AudioManager.shared.lastRecordingURL holds the temp file path.
+        if let localURL = AudioManager.shared.lastRecordingURL {
+            Task {
+                do {
+                    let storagePath = "recordings/\(session.id.uuidString).m4a"
+                    let data = try Data(contentsOf: localURL)
+                    let pubURL = try await supabase
+                        .storage
+                        .from("audio")
+                        .upload(path: storagePath, file: data, options: FileOptions(contentType: "audio/m4a"))
+                    vc.audioURL = pubURL
+                } catch {
+                    print("⚠️ Audio upload failed (will use transcript fallback): \(error.localizedDescription)")
+                    // audioURL stays nil → FeedbackCollectionViewController uses local fallback
+                }
+            }
+        }
 
         tabBarController?.tabBar.isHidden = false
         navigationController?.pushViewController(vc, animated: true)

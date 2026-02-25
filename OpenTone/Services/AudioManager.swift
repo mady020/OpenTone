@@ -11,6 +11,12 @@ final class AudioManager {
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
 
+    // MARK: - File Recording (for backend /analyze upload)
+
+    private var audioRecorder: AVAudioRecorder?
+    /// URL of the most recently completed recording file. Available after stopRecording().
+    private(set) var lastRecordingURL: URL?
+
     private(set) var isRecording = false {
         didSet {
             onRecordingStateChanged?(isRecording)
@@ -76,6 +82,8 @@ final class AudioManager {
         try? session.setCategory(.record, mode: .measurement, options: [.duckOthers])
         try? session.setActive(true, options: .notifyOthersOnDeactivation)
 
+        // --- SFSpeech pipeline (live transcript) ---
+
         request = SFSpeechAudioBufferRecognitionRequest()
         request?.shouldReportPartialResults = true
 
@@ -109,6 +117,22 @@ final class AudioManager {
                 self.cleanup()
             }
         }
+
+        // --- AVAudioRecorder parallel file recording ---
+
+        let tmpURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("m4a")
+
+        let settings: [String: Any] = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 44100,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue,
+        ]
+
+        audioRecorder = try? AVAudioRecorder(url: tmpURL, settings: settings)
+        audioRecorder?.record()
     }
 
     func stopRecording() {
@@ -120,6 +144,11 @@ final class AudioManager {
         if !finalSpeech.isEmpty {
             onFinalTranscription?(finalSpeech)
         }
+
+        // Finalise the file recording
+        audioRecorder?.stop()
+        lastRecordingURL = audioRecorder?.url
+        audioRecorder = nil
 
         cleanup()
     }
