@@ -53,6 +53,10 @@ class RoleplayChatViewController: UIViewController {
     private let speechSynthesizer = AVSpeechSynthesizer()
 
     // MARK: - Scripted roleplay (primary mode — no Gemini)
+    // Gemini roleplay methods remain available as a fallback path.
+
+    private var geminiHistory: [GeminiService.Message] = []
+    private var geminiTurnCount = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()

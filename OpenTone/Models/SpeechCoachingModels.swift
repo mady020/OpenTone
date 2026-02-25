@@ -1,18 +1,21 @@
 import Foundation
 
-// MARK: - Word Timestamp
+// MARK: - Request
 
-struct WordTimestamp: Codable {
-    let word: String
-    let timestamp: Double
-}
+struct AnalyzeRequest: Encodable {
+    let audioURL: String?
+    let transcript: String?
+    let durationS: Double?
+    let userId: String
+    let sessionId: String
 
-// MARK: - Pause Example
-
-struct PauseExample: Codable {
-    let start: Double
-    let end: Double
-    let duration: Double
+    enum CodingKeys: String, CodingKey {
+        case audioURL   = "audio_url"
+        case transcript = "transcript"
+        case durationS  = "duration_s"
+        case userId     = "user_id"
+        case sessionId  = "session_id"
+    }
 }
 
 // MARK: - Metrics
@@ -27,42 +30,38 @@ struct SpeechMetrics: Codable {
     let avgPauseS: Double
     let veryLongPauses: Int
     let repetitions: Int
-    let fillerExamples: [WordTimestamp]
+    let fillerExamples: [FillerExample]
     let pauseExamples: [PauseExample]
 
     enum CodingKeys: String, CodingKey {
         case wpm, fillers, pauses, repetitions
-        case totalWords         = "total_words"
-        case durationS          = "duration_s"
-        case fillerRatePerMin   = "filler_rate_per_min"
-        case avgPauseS          = "avg_pause_s"
-        case veryLongPauses     = "very_long_pauses"
-        case fillerExamples     = "filler_examples"
-        case pauseExamples      = "pause_examples"
+        case totalWords        = "total_words"
+        case durationS         = "duration_s"
+        case fillerRatePerMin  = "filler_rate_per_min"
+        case avgPauseS         = "avg_pause_s"
+        case veryLongPauses    = "very_long_pauses"
+        case fillerExamples    = "filler_examples"
+        case pauseExamples     = "pause_examples"
     }
 }
 
-// MARK: - Coaching Scores
-
-struct CoachingScores: Codable {
-    let fluency: Double
-    let confidence: Double
-    let clarity: Double
-}
-
-// MARK: - Evidence
-
-struct EvidenceItem: Codable {
-    let type: String          // "filler" | "pause" | "repetition"
+struct FillerExample: Codable {
+    let word: String
     let timestamp: Double
-    let text: String
 }
 
-// MARK: - Coaching Result
+struct PauseExample: Codable {
+    let start: Double
+    let end: Double
+    let duration: Double
+}
+
+// MARK: - Coaching
 
 struct SpeechCoaching: Codable {
     let scores: CoachingScores
     let primaryIssue: String
+    let primaryIssueTitle: String
     let secondaryIssues: [String]
     let strengths: [String]
     let suggestions: [String]
@@ -70,55 +69,32 @@ struct SpeechCoaching: Codable {
 
     enum CodingKeys: String, CodingKey {
         case scores, strengths, suggestions, evidence
-        case primaryIssue    = "primary_issue"
-        case secondaryIssues = "secondary_issues"
+        case primaryIssue      = "primary_issue"
+        case primaryIssueTitle = "primary_issue_title"
+        case secondaryIssues   = "secondary_issues"
     }
+}
 
-    /// Human-readable title for the primary issue
-    var primaryIssueTitle: String {
-        switch primaryIssue {
-        case "too_many_fillers":    return "Too many filler words"
-        case "speaking_too_slow":   return "Speaking pace — too slow"
-        case "speaking_too_fast":   return "Speaking pace — too fast"
-        case "long_pauses":         return "Pausing mid-thought"
-        case "word_repetitions":    return "Repeated words"
-        default:                    return "Great delivery!"
-        }
-    }
+struct CoachingScores: Codable {
+    let fluency: Double
+    let confidence: Double
+    let clarity: Double
+
+    /// 0–100 overall composite
+    var overall: Double { (fluency + confidence + clarity) / 3.0 }
+}
+
+struct EvidenceItem: Codable {
+    let type: String        // "filler" | "pause" | "repetition"
+    let timestamp: Double
+    let text: String        // e.g. "00:14 — \"um\""
 }
 
 // MARK: - Progress
 
-struct ProgressDeltas: Codable {
-    let wpm: Double
-    let fillers: Double
-    let pauses: Double
-    let fluencyScore: Double
-
-    enum CodingKeys: String, CodingKey {
-        case wpm, fillers, pauses
-        case fluencyScore = "fluency_score"
-    }
-
-    var wpmDescription: String {
-        if abs(wpm) < 1 { return nil ?? "" }
-        let arrow = wpm > 0 ? "↑" : "↓"
-        return "\(arrow) \(abs(Int(wpm))) WPM"
-    }
-
-    var fillersDescription: String? {
-        guard abs(fillers) >= 0.5 else { return nil }
-        if fillers > 0 {
-            return "↓ \(String(format: "%.1f", fillers)) fewer fillers/min"
-        } else {
-            return "↑ \(String(format: "%.1f", abs(fillers))) more fillers/min"
-        }
-    }
-}
-
 struct SpeechProgress: Codable {
-    let deltas: ProgressDeltas
-    let overallDirection: String    // "improving" | "declining" | "stable"
+    let deltas: Deltas
+    let overallDirection: String  // "improving" | "declining" | "mixed"
     let weeklySummary: String
 
     enum CodingKeys: String, CodingKey {
@@ -127,12 +103,30 @@ struct SpeechProgress: Codable {
         case weeklySummary    = "weekly_summary"
     }
 
-    var directionEmoji: String {
+    var directionArrow: String {
         switch overallDirection {
-        case "improving": return "📈"
-        case "declining": return "📉"
-        default:          return "➡️"
+        case "improving": return "↑"
+        case "declining": return "↓"
+        default:          return "→"
         }
+    }
+}
+
+struct Deltas: Codable {
+    let wpm: Double
+    let fillers: Double
+    let pauses: Double
+
+    var fillersDescription: String? {
+        guard abs(fillers) >= 0.1 else { return nil }
+        let dir = fillers > 0 ? "fewer" : "more"
+        return String(format: "%.1f \(dir) fillers/min", abs(fillers))
+    }
+
+    var wpmDescription: String? {
+        guard abs(wpm) >= 1 else { return nil }
+        let dir = wpm > 0 ? "faster" : "slower"
+        return String(format: "%+.0f WPM (\(dir))", wpm)
     }
 }
 
@@ -157,23 +151,18 @@ struct UserSpeechProfile: Codable {
     let confidenceScore: Double
     let clarityScore: Double
     let sessionsCount: Int
-    let lastSessionAt: String?
 
     enum CodingKeys: String, CodingKey {
-        case userId          = "user_id"
-        case avgWpm          = "avg_wpm"
-        case avgFillerRate   = "avg_filler_rate"
-        case avgPause        = "avg_pause"
-        case avgRepetition   = "avg_repetition"
-        case fluencyScore    = "fluency_score"
-        case confidenceScore = "confidence_score"
-        case clarityScore    = "clarity_score"
-        case sessionsCount   = "sessions_count"
-        case lastSessionAt   = "last_session_at"
+        case userId           = "user_id"
+        case avgWpm           = "avg_wpm"
+        case avgFillerRate    = "avg_filler_rate"
+        case avgPause         = "avg_pause"
+        case avgRepetition    = "avg_repetition"
+        case fluencyScore     = "fluency_score"
+        case confidenceScore  = "confidence_score"
+        case clarityScore     = "clarity_score"
+        case sessionsCount    = "sessions_count"
     }
 
-    /// Average of three coaching scores (0–100)
-    var overallScore: Double {
-        (fluencyScore + confidenceScore + clarityScore) / 3.0
-    }
+    var overallScore: Double { (fluencyScore + confidenceScore + clarityScore) / 3.0 }
 }

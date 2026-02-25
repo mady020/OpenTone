@@ -48,16 +48,7 @@ class StartJamViewController: UIViewController {
         super.viewDidLoad()
         timerManager.delegate = self
         navigationItem.hidesBackButton = true
-
-        // Custom back button that triggers exit alert
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(backButtonTapped)
-        )
-        backButton.tintColor = AppColors.primary
-        navigationItem.leftBarButtonItem = backButton
+        // No back button — user must use the exit button
 
         // Load topic from active session
         if let session = JamSessionDataModel.shared.getActiveSession() {
@@ -186,32 +177,30 @@ class StartJamViewController: UIViewController {
     // MARK: - Actions
 
     @IBAction func micTapped(_ sender: UIButton) {
-        // Toggle UI state
         isMicOn.toggle()
-
         if isMicOn {
-            // Start a new recognition session (if we had paused before, we resume by starting a new session)
             startRecording()
-            sender.setImage(UIImage(systemName: "mic.fill"), for: .normal)
-            sender.tintColor = AppColors.primary
-                sender.backgroundColor = AppColors.primaryLight
-                sender.layer.borderColor = AppColors.primary.cgColor
-                sender.layer.borderWidth = 2
-                sender.layer.shadowOpacity = 0.15
-                sender.layer.shadowRadius = 6
-                sender.layer.shadowOffset = CGSize(width: 0, height: 2)
         } else {
-            // Pause: stop feeding audio; the recognition handler will finalize current partial and append it
             pauseRecording()
-            sender.setImage(UIImage(systemName: "mic.slash.fill"), for: .normal)
-            sender.tintColor = .systemRed
-                sender.backgroundColor = UIColor.systemRed.withAlphaComponent(0.12)
-                sender.layer.borderColor = UIColor.systemRed.cgColor
-                sender.layer.borderWidth = 2
-                sender.layer.shadowOpacity = 0.10
-                sender.layer.shadowRadius = 4
-                sender.layer.shadowOffset = CGSize(width: 0, height: 1)
         }
+        updateMicButton(isActive: isMicOn)
+    }
+
+    private func updateMicButton(isActive: Bool) {
+        let imageName = isActive ? "mic.fill" : "mic.slash.fill"
+        let tint      = isActive ? AppColors.primary : UIColor.systemRed
+        let bg        = isActive ? AppColors.primaryLight : UIColor.systemRed.withAlphaComponent(0.12)
+        let border    = isActive ? AppColors.primary.cgColor : UIColor.systemRed.cgColor
+
+        micButton.setImage(UIImage(systemName: imageName), for: .normal)
+        micButton.tintColor        = tint
+        micButton.backgroundColor  = bg
+        micButton.layer.borderColor  = border
+        micButton.layer.borderWidth  = 2
+        micButton.layer.cornerRadius = micButton.bounds.height / 2
+        micButton.layer.shadowOpacity = 0.15
+        micButton.layer.shadowRadius  = 6
+        micButton.layer.shadowOffset  = CGSize(width: 0, height: 2)
     }
 
     @IBAction func hintTapped(_ sender: UIButton) {
@@ -385,20 +374,14 @@ class StartJamViewController: UIViewController {
     /// Pause the current session: stop feeding audio and signal end-of-audio to the recognizer.
     /// The recognition handler will receive a final result and append it to accumulatedTranscript.
     private func pauseRecording() {
-        // If not running, nothing to do
         if audioEngine.isRunning {
             audioEngine.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
         }
-
-        // Signal the current recognition request that audio has ended. This allows the handler
-        // to emit a final result which will be appended to accumulatedTranscript.
+        // Signal end-of-audio so recognition can emit a final result
         recognitionRequest?.endAudio()
-
-        // Do not cancel the recognitionTask here — allow it to finish and call its completion block.
-        // Just update UI state:
-        isMicOn = false
-        updateMicButtonAppearance()
+        // NOTE: do NOT update isMicOn or mic button UI here.
+        // Mic UI only changes on explicit user tap via micTapped().
     }
 
     /// Stop everything and invalidate tasks (called when leaving screen or finishing)
@@ -406,19 +389,12 @@ class StartJamViewController: UIViewController {
         if audioEngine.isRunning {
             audioEngine.stop()
         }
-
-        // Clean audio tap if present
         audioEngine.inputNode.removeTap(onBus: 0)
-
-        // Ask the recognizer to finalize; then cancel to free resources
         recognitionRequest?.endAudio()
         recognitionTask?.cancel()
-
         recognitionRequest = nil
         recognitionTask = nil
-
-        isMicOn = false
-        updateMicButtonAppearance()
+        // Do not touch mic button UI — screen is leaving
     }
 
     private func updateMicButtonAppearance() {
@@ -485,33 +461,12 @@ extension StartJamViewController: TimerManagerDelegate {
         let vc = storyboard.instantiateViewController(withIdentifier: "Feedback") as! FeedbackCollectionViewController
         vc.navigationItem.hidesBackButton = true
 
-        // --- Pass data for BackendSpeechService /analyze ---
-        // audioURL: set after Supabase Storage upload (below).
-        // Transcript is passed as fallback if upload/network fails.
-        vc.transcript     = transcript
-        vc.topic          = session.topic
+        vc.transcript       = transcript
+        vc.topic            = session.topic
         vc.speakingDuration = speakingDuration
-        vc.sessionId      = session.id.uuidString
-        vc.userId         = UserDataModel.shared.getCurrentUser()?.id.uuidString ?? ""
-
-        // Upload the last recorded audio file to Supabase Storage.
-        // AudioManager.shared.lastRecordingURL holds the temp file path.
-        if let localURL = AudioManager.shared.lastRecordingURL {
-            Task {
-                do {
-                    let storagePath = "recordings/\(session.id.uuidString).m4a"
-                    let data = try Data(contentsOf: localURL)
-                    let pubURL = try await supabase
-                        .storage
-                        .from("audio")
-                        .upload(path: storagePath, file: data, options: FileOptions(contentType: "audio/m4a"))
-                    vc.audioURL = pubURL
-                } catch {
-                    print("⚠️ Audio upload failed (will use transcript fallback): \(error.localizedDescription)")
-                    // audioURL stays nil → FeedbackCollectionViewController uses local fallback
-                }
-            }
-        }
+        vc.sessionId        = session.id.uuidString
+        vc.userId           = UserDataModel.shared.getCurrentUser()?.id.uuidString ?? "demo"
+        // audioURL is nil in demo mode — backend uses transcript fallback
 
         tabBarController?.tabBar.isHidden = false
         navigationController?.pushViewController(vc, animated: true)

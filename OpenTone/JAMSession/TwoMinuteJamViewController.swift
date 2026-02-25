@@ -150,20 +150,9 @@ final class TwoMinuteJamViewController: UIViewController, UITabBarControllerDele
     }
 
     private func startNewSession() {
-        // Show a loading indicator while Gemini generates a topic
-        let hud = UIActivityIndicatorView(style: .large)
-        hud.color = AppColors.primary
-        hud.center = view.center
-        hud.startAnimating()
-        view.addSubview(hud)
-        view.isUserInteractionEnabled = false
-
-        JamSessionDataModel.shared.startNewSessionWithAI { [weak self] _ in
-            guard let self = self else { return }
-            hud.removeFromSuperview()
-            self.view.isUserInteractionEnabled = true
-            self.navigateToPrepare(resetTimer: true)
-        }
+        // Local topic generation is instant — no spinner needed.
+        JamSessionDataModel.shared.startNewSession()
+        navigateToPrepare(resetTimer: true)
     }
 
     private func navigateToPrepare(resetTimer: Bool) {

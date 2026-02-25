@@ -6,69 +6,118 @@ final class BackendSpeechService {
 
     static let shared = BackendSpeechService()
 
-    // MARK: - Configuration
-    // Update this to your deployed backend URL.
-    // For local dev: "http://localhost:8000"
-    // For staging/production: "https://your-backend.example.com"
     private let baseURL: String = {
-        if let url = Bundle.main.object(forInfoDictionaryKey: "BackendBaseURL") as? String,
-           !url.isEmpty {
+        if let url = Bundle.main.object(forInfoDictionaryKey: "BackendBaseURL") as? String, !url.isEmpty {
             return url
         }
         return "http://localhost:8000"
     }()
 
     enum BackendError: LocalizedError {
-        case invalidURL
         case networkError(Error)
         case httpError(Int, String)
         case decodingError(String)
-        case noAudioURL
+        case noInput
 
         var errorDescription: String? {
             switch self {
-            case .invalidURL:               return "Invalid backend URL."
             case .networkError(let e):      return "Network error: \(e.localizedDescription)"
             case .httpError(let c, let b):  return "Backend error (\(c)): \(b)"
-            case .decodingError(let m):     return "Response parse error: \(m)"
-            case .noAudioURL:               return "No audio URL provided for analysis."
+            case .decodingError(let m):     return "Parse error: \(m)"
+            case .noInput:                  return "No audio or transcript available."
             }
         }
     }
 
     private let session = URLSession.shared
-    private lazy var decoder: JSONDecoder = JSONDecoder()
-
+    private var decoder: JSONDecoder { JSONDecoder() }
     private init() {}
 
-    // MARK: - POST /analyze
+    // MARK: - POST /analyze/audio  (multipart — Whisper path)
 
-    /// Analyse a speech recording and return coaching + progress feedback.
-    /// - Parameters:
-    ///   - audioURL: Supabase Storage public URL of the recorded audio file.
-    ///   - userId: Authenticated user UUID string.
-    ///   - sessionId: JAM session UUID string (for Supabase upsert).
+    /// Upload raw .m4a to the backend so Whisper transcribes it with real word timestamps.
+    func analyzeAudio(
+        fileURL:   URL,
+        userId:    String,
+        sessionId: String
+    ) async throws -> SpeechAnalysisResponse {
+        guard let url = URL(string: "\(baseURL)/analyze/audio") else {
+            throw BackendError.httpError(0, "Invalid URL")
+        }
+
+        let boundary = "OpenTone-\(UUID().uuidString)"
+        var request  = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 180  // Whisper can take 30–90 s on first run
+
+        let audioData = try Data(contentsOf: fileURL)
+        request.httpBody = buildMultipart(
+            boundary:  boundary,
+            audio:     audioData,
+            userId:    userId,
+            sessionId: sessionId
+        )
+
+        return try await fetchDecoded(request)
+    }
+
+    private func buildMultipart(boundary: String, audio: Data, userId: String, sessionId: String) -> Data {
+        var body = Data()
+        let crlf = "\r\n"
+        let dash = "--"
+
+        func appendText(_ name: String, _ value: String) {
+            body.append("\(dash)\(boundary)\(crlf)".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"\(name)\"\(crlf)\(crlf)".data(using: .utf8)!)
+            body.append(value.data(using: .utf8)!)
+            body.append(crlf.data(using: .utf8)!)
+        }
+
+        appendText("user_id",    userId)
+        appendText("session_id", sessionId)
+
+        // Audio file field
+        body.append("\(dash)\(boundary)\(crlf)".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"audio.m4a\"\(crlf)".data(using: .utf8)!)
+        body.append("Content-Type: audio/m4a\(crlf)\(crlf)".data(using: .utf8)!)
+        body.append(audio)
+        body.append(crlf.data(using: .utf8)!)
+
+        body.append("\(dash)\(boundary)\(dash)\(crlf)".data(using: .utf8)!)
+        return body
+    }
+
+    // MARK: - POST /analyze  (JSON transcript fallback)
+
+    /// Analyze speech — prefers audio URL, falls back to transcript+duration.
     func analyze(
-        audioURL: String,
+        audioURL: String?,
+        transcript: String?,
+        durationS: Double,
         userId: String,
         sessionId: String
     ) async throws -> SpeechAnalysisResponse {
 
-        guard !audioURL.isEmpty else { throw BackendError.noAudioURL }
+        guard (audioURL != nil && !(audioURL!.isEmpty)) || (transcript != nil && !(transcript!.isEmpty)) else {
+            throw BackendError.noInput
+        }
 
-        let endpoint = "\(baseURL)/analyze"
-        guard let url = URL(string: endpoint) else { throw BackendError.invalidURL }
+        let body = AnalyzeRequest(
+            audioURL:   audioURL?.isEmpty == false ? audioURL : nil,
+            transcript: transcript?.isEmpty == false ? transcript : nil,
+            durationS:  durationS,
+            userId:     userId,
+            sessionId:  sessionId
+        )
 
-        let body: [String: String] = [
-            "audio_url":  audioURL,
-            "user_id":    userId,
-            "session_id": sessionId,
-        ]
-
+        guard let url = URL(string: "\(baseURL)/analyze") else {
+            throw BackendError.httpError(0, "Invalid URL")
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 120   // Whisper can take a while
+        request.timeoutInterval = 120
         request.httpBody = try JSONEncoder().encode(body)
 
         return try await fetchDecoded(request)
@@ -76,33 +125,27 @@ final class BackendSpeechService {
 
     // MARK: - GET /user/profile
 
-    /// Fetch the rolling speech profile for a user.
     func fetchProfile(userId: String) async throws -> UserSpeechProfile {
-        let endpoint = "\(baseURL)/user/profile?user_id=\(userId)"
-        guard let url = URL(string: endpoint) else { throw BackendError.invalidURL }
-
+        guard let url = URL(string: "\(baseURL)/user/profile?user_id=\(userId)") else {
+            throw BackendError.httpError(0, "Invalid URL")
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.timeoutInterval = 10
-
         return try await fetchDecoded(request)
     }
 
     // MARK: - POST /tts
 
-    /// Synthesise coaching text via Kokoro TTS.
-    /// Returns raw WAV data suitable for AVAudioPlayer.
     func tts(text: String) async throws -> Data {
-        let endpoint = "\(baseURL)/tts"
-        guard let url = URL(string: endpoint) else { throw BackendError.invalidURL }
-
-        let body = ["text": text]
+        guard let url = URL(string: "\(baseURL)/tts") else {
+            throw BackendError.httpError(0, "Invalid URL")
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 30
-        request.httpBody = try JSONEncoder().encode(body)
-
+        request.httpBody = try JSONEncoder().encode(["text": text])
         let (data, response) = try await session.data(for: request)
         try validateHTTP(response: response, data: data)
         return data
@@ -118,12 +161,11 @@ final class BackendSpeechService {
             throw BackendError.networkError(error)
         }
         try validateHTTP(response: response, data: data)
-
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
             let raw = String(data: data, encoding: .utf8) ?? "<binary>"
-            throw BackendError.decodingError("Could not decode \(T.self): \(error). Raw: \(raw.prefix(200))")
+            throw BackendError.decodingError("\(error). Raw: \(raw.prefix(300))")
         }
     }
 
@@ -140,42 +182,36 @@ final class BackendSpeechService {
 
 extension BackendSpeechService {
 
-    /// Convert a SpeechAnalysisResponse into the existing Feedback model
-    /// so all existing UI cells keep working without modification.
-    static func toFeedback(_ response: SpeechAnalysisResponse) -> Feedback {
-        let coaching = response.coaching
-        let metrics  = response.metrics
+    /// Bridge backend response → existing Feedback model so nav flow is unchanged.
+    static func toFeedback(_ r: SpeechAnalysisResponse) -> Feedback {
+        // Persist WPM delta for ProgressCell
+        UserDefaults.standard.set(r.progress.deltas.wpm, forKey: "opentone.lastWpmDelta")
 
-        // Map coaching evidence to SpeechMistake for reuse in FeedbackMistakeCell
-        let mistakes: [SpeechMistake] = coaching.suggestions.prefix(5).map { suggestion in
+        let mistakes: [SpeechMistake] = r.coaching.suggestions.prefix(5).enumerated().map { i, s in
             SpeechMistake(
-                original:    coaching.primaryIssueTitle,
-                correction:  suggestion,
-                explanation: coaching.strengths.first ?? ""
+                original:    r.coaching.primaryIssueTitle,
+                correction:  s,
+                explanation: r.coaching.strengths.first ?? ""
             )
         }
 
-        // Persist WPM delta so ProgressCell can show "↑ +8 WPM" on dashboard
-        let wpmDelta = response.progress.deltas.wpm
-        UserDefaults.standard.set(wpmDelta, forKey: "opentone.lastWpmDelta")
-
         return Feedback(
-            comments:         coaching.strengths.first ?? "Keep practising!",
-            rating:           _ratingFrom(fluency: coaching.scores.fluency),
-            wordsPerMinute:   metrics.wpm,
-            durationInSeconds: metrics.durationS,
-            totalWords:       metrics.totalWords,
-            transcript:       response.transcript,
-            fillerWordCount:  metrics.fillers,
-            pauseCount:       metrics.pauses,
-            mistakes:         mistakes,
-            aiFeedbackSummary: response.progress.weeklySummary,
-            coaching:         coaching,
-            progress:         response.progress
+            comments:          r.coaching.strengths.first ?? "Keep practising!",
+            rating:            _rating(fluency: r.coaching.scores.fluency),
+            wordsPerMinute:    r.metrics.wpm,
+            durationInSeconds: r.metrics.durationS,
+            totalWords:        r.metrics.totalWords,
+            transcript:        r.transcript,
+            fillerWordCount:   r.metrics.fillers,
+            pauseCount:        r.metrics.pauses,
+            mistakes:          mistakes,
+            aiFeedbackSummary: r.progress.weeklySummary,
+            coaching:          r.coaching,
+            progress:          r.progress
         )
     }
 
-    private static func _ratingFrom(fluency: Double) -> SessionFeedbackRating {
+    private static func _rating(fluency: Double) -> SessionFeedbackRating {
         switch fluency {
         case 85...: return .excellent
         case 65...: return .good
