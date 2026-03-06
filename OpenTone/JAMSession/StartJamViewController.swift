@@ -350,12 +350,9 @@ extension StartJamViewController: TimerManagerDelegate {
         } else {
             speakingDuration = 30.0
         }
-
-        let storyboard = UIStoryboard(name: "CallStoryBoard", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "Feedback") as! FeedbackCollectionViewController
-        vc.navigationItem.hidesBackButton = true
-
-        vc.transcript       = nil // Let the backend compute the transcript
+          
+        let vc =  FeedbackCollectionViewController(coder: )
+        vc.transcript       = nil
         vc.topic            = session.topic
         vc.speakingDuration = speakingDuration
         vc.sessionId        = session.id.uuidString
