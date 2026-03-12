@@ -49,21 +49,24 @@ class RoleplaysCell: UICollectionViewCell {
         gradientLayer.cornerRadius = 20
         layer.insertSublayer(gradientLayer, at: 0)
 
-        // Icon
-        contentView.addSubview(iconImageView)
-        contentView.addSubview(titleLabel)
+        // Stack View for centering
+        let stackView = UIStackView(arrangedSubviews: [iconImageView, titleLabel])
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentView.addSubview(stackView)
+        titleLabel.textAlignment = .center
 
         NSLayoutConstraint.activate([
-            // Icon: top-left area
-            iconImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 18),
-            iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             iconImageView.widthAnchor.constraint(equalToConstant: 32),
             iconImageView.heightAnchor.constraint(equalToConstant: 32),
-
-            // Title: bottom-left
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            
+            // StackView: center in cell
+            stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
         ])
     }
 

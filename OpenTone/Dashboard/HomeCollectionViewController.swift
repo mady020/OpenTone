@@ -651,7 +651,7 @@ extension HomeCollectionViewController {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(0.5),
-                heightDimension: .absolute(160)
+                heightDimension: .absolute(120)
             )
         )
 
@@ -660,7 +660,7 @@ extension HomeCollectionViewController {
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(0.93),
-                heightDimension: .absolute(160)
+                heightDimension: .absolute(120)
             ),
             subitems: [item, item]
         )

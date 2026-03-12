@@ -17,6 +17,7 @@ class RoleplaysViewController: UIViewController {
 
         setupSearchController()
         setupCollectionView()
+        setupCollectionViewLayout()
 
         view.backgroundColor = AppColors.screenBackground
         collectionView.backgroundColor = AppColors.screenBackground
@@ -54,11 +55,6 @@ class RoleplaysViewController: UIViewController {
         navigationController?.pushViewController(profileVC, animated: true)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        setupCollectionViewLayout()
-    }
-
     func setupCollectionView() {
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -69,20 +65,13 @@ class RoleplaysViewController: UIViewController {
     func setupCollectionViewLayout() {
         let layout = UICollectionViewFlowLayout()
 
-        let padding: CGFloat = 16
-        let spacing: CGFloat = 16
-
-        let totalSpacing = padding * 2 + spacing
-        let itemWidth = (collectionView.frame.width - totalSpacing) / 2
-
-        layout.itemSize = CGSize(width: itemWidth, height: 160)
         layout.minimumLineSpacing = 18
-        layout.minimumInteritemSpacing = spacing
+        layout.minimumInteritemSpacing = 16
         layout.sectionInset = UIEdgeInsets(
             top: 16,
-            left: padding,
+            left: 16,
             bottom: 20,
-            right: padding
+            right: 16
         )
 
         collectionView.collectionViewLayout = layout
@@ -121,7 +110,7 @@ extension RoleplaysViewController: UISearchControllerDelegate {
 
 // MARK: - UICollectionView
 
-extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return filteredRoleplays.count
@@ -142,6 +131,16 @@ extension RoleplaysViewController: UICollectionViewDataSource, UICollectionViewD
                        gradientColors: style.gradientColors)
 
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let padding: CGFloat = 16
+        let spacing: CGFloat = 16
+        let totalSpacing = padding * 2 + spacing
+        let itemWidth = (collectionView.frame.width - totalSpacing) / 2
+        return CGSize(width: itemWidth, height: 120)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

@@ -732,6 +732,326 @@ let scenarios: [RoleplayScenario] = [
             )
 
         ]
-    )
+    ),
 
+    
+    RoleplayScenario(
+        id: UUID(uuidString: "77777777-7777-7777-7777-777777777777")!,
+        title: "Coffee Shop",
+        description: "Practice ordering coffee, snacks, and chatting with the barista.",
+        imageURL: "CoffeeShop",
+        category: .restaurant,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 3,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Hi! What can I get for you today?", replyOptions: ["I'd like a cappuccino, please.", "Can I get a large iced latte?", "What do you recommend?", "Just a drip coffee for me."]),
+            RoleplayMessage(speaker: .npc, text: "Sure thing. Would you like anything to eat with that?", replyOptions: ["Yes, a chocolate croissant.", "No, just the drink.", "Do you have gluten-free muffins?", "I'll take a blueberry bagel."]),
+            RoleplayMessage(speaker: .npc, text: "Got it. Is that for here or to go?", replyOptions: ["To go.", "For here, please.", "I'll be staying.", "Can you put it in a to-go cup, but I'll sit down?"]),
+            RoleplayMessage(speaker: .npc, text: "Alright. That will be $6.50. You can pay with card or cash.", replyOptions: ["I'll use my card.", "Here’s a ten-dollar bill.", "Do you take mobile pay?", "Keep the change."]),
+            RoleplayMessage(speaker: .npc, text: "Thank you! I'll have that right out for you at the end of the counter.", replyOptions: ["Thanks!", "Great, I'll wait over there.", "Perfect.", "Have a good day!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "88888888-8888-8888-8888-888888888888")!,
+        title: "Doctor's Appointment",
+        description: "Checking in at the clinic and describing your symptoms.",
+        imageURL: "DoctorAppointment",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Good morning. Do you have an appointment?", replyOptions: ["Yes, under John Smith.", "I have an appointment at 10 AM.", "No, I'm a walk-in. Is that okay?", "Yes, I booked it online yesterday."]),
+            RoleplayMessage(speaker: .npc, text: "I see it. Please fill out this form and have a seat.", replyOptions: ["Sure, I'll do that now.", "Do I need a pen?", "How long is the wait?", "I filled this out online, do I still need to?"]),
+            RoleplayMessage(speaker: .npc, text: "The doctor will see you now. What seems to be the problem today?", replyOptions: ["I've had a bad cough for a week.", "My stomach has been hurting.", "I just need a general check-up.", "I hurt my ankle running."]),
+            RoleplayMessage(speaker: .npc, text: "I see. Are you taking any medications currently?", replyOptions: ["No, nothing.", "Just some over-the-counter painkillers.", "Yes, I take blood pressure medication.", "I take multivitamins."]),
+            RoleplayMessage(speaker: .npc, text: "Okay, we're going to order some tests. The nurse will draw blood shortly.", replyOptions: ["Okay, sounds good.", "Will that hurt?", "How long do results take?", "Can I eat after the test?"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "99999999-9999-9999-9999-999999999999")!,
+        title: "Asking for Directions",
+        description: "Practice getting around the city by asking locals for directions.",
+        imageURL: "Directions",
+        category: .travel,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 4,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Excuse me, are you lost? Do you need help?", replyOptions: ["Yes, can you tell me where the train station is?", "I'm looking for the art museum.", "Do you know where the nearest ATM is?", "Yes, I'm trying to find Main Street."]),
+            RoleplayMessage(speaker: .npc, text: "Oh, the train station is just a few blocks away. You need to go straight down this road.", replyOptions: ["Go straight, then what?", "How far is it?", "Is it a long walk?", "Can I take a bus from here?"]),
+            RoleplayMessage(speaker: .npc, text: "It's about a five-minute walk. Once you see the big park, turn left.", replyOptions: ["Turn left at the park. Got it.", "Is the park on the left or right side?", "Thank you so much!", "Will I be able to see it from the corner?"]),
+            RoleplayMessage(speaker: .npc, text: "Yes, you can't miss it. It's a huge building with a clock tower.", replyOptions: ["Perfect, I appreciate the help.", "Thanks! Have a great day.", "That sounds easy enough.", "You've been very helpful."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!,
+        title: "Lost Luggage",
+        description: "Report missing baggage at the airport service desk.",
+        imageURL: "LostLuggage",
+        category: .travel,
+        difficulty: .advanced,
+        estimatedTimeMinutes: 7,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Baggage Services, how can I help you?", replyOptions: ["My suitcase didn't arrive on the carousel.", "I can't find my bags.", "I need to file a missing luggage report.", "Where do oversized bags come out?"]),
+            RoleplayMessage(speaker: .npc, text: "I'm sorry to hear that. Can I see your boarding pass and baggage tag receipts?", replyOptions: ["Here they are.", "I think I lost the receipts.", "I only have my boarding pass.", "Sure, let me find them."]),
+            RoleplayMessage(speaker: .npc, text: "Could you describe the bag for me? What color and brand is it?", replyOptions: ["It's a large black Samsonite suitcase.", "A medium-sized red duffel bag.", "It's blue with a bright yellow tag.", "A hard-shell silver case."]),
+            RoleplayMessage(speaker: .npc, text: "We will trace it immediately. Can we get an address to deliver it to once we find it?", replyOptions: ["Yes, I'm staying at the Marriott downtown.", "Can I just come back to pick it up?", "I live locally, here's my address.", "How long will this take?"]),
+            RoleplayMessage(speaker: .npc, text: "Usually it arrives on the next flight. We will call you as soon as it lands.", replyOptions: ["Okay, here is my phone number.", "Do you offer compensation for essentials?", "Thank you for your help.", "I hope it turns up soon."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!,
+        title: "Small Talk at a Party",
+        description: "Making casual conversation with strangers at a social gathering.",
+        imageURL: "PartyTalk",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 5,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Hi! I don't think we've met. I'm Alex.", replyOptions: ["Hi Alex, I'm Sarah. Nice to meet you.", "Hey, nice to meet you. I'm Mark.", "Hello! Are you a friend of the host?", "Great party, isn't it? I'm Lisa."]),
+            RoleplayMessage(speaker: .npc, text: "Nice to meet you. So, how do you know the host?", replyOptions: ["We went to college together.", "We work in the same office.", "I'm actually a friend of their roommate.", "We met at a networking event a while back."]),
+            RoleplayMessage(speaker: .npc, text: "Oh, that's cool! I'm an old friend from high school. What do you do for work?", replyOptions: ["I'm a software engineer.", "I work in marketing.", "I'm currently studying biology.", "I'm a teacher."]),
+            RoleplayMessage(speaker: .npc, text: "Wow, that sounds really interesting! Is it a challenging job?", replyOptions: ["Yes, it can be, but I love it.", "It has its moments.", "Not too bad, usually keeps me busy.", "It's quite demanding, to be honest."]),
+            RoleplayMessage(speaker: .npc, text: "I can imagine. Anyways, I'm going to grab a drink. It was lovely talking to you!", replyOptions: ["You too! See you around.", "Catch you later!", "Grab me one too, if you don't mind!", "Nice speaking with you."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!,
+        title: "Tech Support Call",
+        description: "Call customer service because your internet is down.",
+        imageURL: "TechSupport",
+        category: .custom,
+        difficulty: .advanced,
+        estimatedTimeMinutes: 6,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Thank you for calling Technical Support. This is Sarah. How can I assist you?", replyOptions: ["My internet is not working.", "My router is flashing red.", "I have no Wi-Fi connection.", "My download speed is extremely slow."]),
+            RoleplayMessage(speaker: .npc, text: "I'm sorry to hear that. Can I have your account number or phone number?", replyOptions: ["My phone number is 555-1234.", "My account number is 987654321.", "I don't know my account number.", "Can you look it up by my name?"]),
+            RoleplayMessage(speaker: .npc, text: "Thank you. I see your account. Have you tried restarting your router?", replyOptions: ["Yes, I disconnected it for a minute.", "No, how do I do that?", "I restarted it but it didn't help.", "Let me try that now."]),
+            RoleplayMessage(speaker: .npc, text: "I see an outage in your area that our technicians are fixing. It should be up in two hours.", replyOptions: ["Ah, that makes sense. Thank you.", "Will I be compensated for the downtime?", "Is there any way to fix it sooner?", "Okay, I'll wait it out."]),
+            RoleplayMessage(speaker: .npc, text: "Is there anything else I can assist you with today?", replyOptions: ["No, that's all. Thanks.", "When does my billing cycle end?", "Can I upgrade my speed?", "Nope, have a good day."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD")!,
+        title: "Gym Membership",
+        description: "Ask about gym prices, facilities, and getting a membership.",
+        imageURL: "GymMembership",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 5,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Welcome to FitZone! Are you looking to sign up for a membership today?", replyOptions: ["Yes, I'm interested in joining.", "I just want some information first.", "How much is your monthly fee?", "Can I look around the gym?"]),
+            RoleplayMessage(speaker: .npc, text: "Our standard membership is $40 a month. It includes all equipment and locker rooms.", replyOptions: ["Does it include fitness classes?", "Is there an joining fee?", "Can I cancel anytime?", "Do you have a personal trainer?"]),
+            RoleplayMessage(speaker: .npc, text: "Classes are $10 extra per month. And yes, there's a $20 sign-up fee.", replyOptions: ["Okay, I'll take the standard membership.", "I want the classes included too.", "Are there any student discounts?", "Can I try a day pass first?"]),
+            RoleplayMessage(speaker: .npc, text: "Great. I just need to scan your ID and get a card on file.", replyOptions: ["Here is my driver's license and credit card.", "Can I pay in cash?", "How soon can I start working out?", "Sure, here you go."]),
+            RoleplayMessage(speaker: .npc, text: "You're all set! Here is your key fob. You can start right now if you want.", replyOptions: ["Awesome, thanks!", "Where are the locker rooms?", "Do I need to swipe this every time?", "Great, I'll go change."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE")!,
+        title: "Return an Item",
+        description: "Return a defective piece of clothing to a department store.",
+        imageURL: "ReturnItem",
+        category: .groceryShopping,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 4,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Next in line! How can I help you today?", replyOptions: ["I'd like to return this shirt.", "This sweater has a tear in it.", "I need to exchange this for a different size.", "I bought this yesterday but it doesn't fit."]),
+            RoleplayMessage(speaker: .npc, text: "Do you have the receipt with you?", replyOptions: ["Yes, here it is.", "No, I threw it away.", "I have the digital receipt on my phone.", "It was a gift."]),
+            RoleplayMessage(speaker: .npc, text: "Okay, since it's within 30 days, we can do a full refund. Did you want that on the original card?", replyOptions: ["Yes, please.", "Can I get store credit instead?", "Can I get cash back?", "Actually, I want to exchange it."]),
+            RoleplayMessage(speaker: .npc, text: "Please go ahead and insert or tap your card on the terminal.", replyOptions: ["Tapping it now.", "Done.", "Did it go through?", "One second."]),
+            RoleplayMessage(speaker: .npc, text: "Alright, your return is processed. The money should show up in 3 to 5 business days.", replyOptions: ["Thank you very much.", "Do I need to sign anything?", "Perfect, have a good day.", "Thanks for the help."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")!,
+        title: "Renting an Apartment",
+        description: "Talk to a real estate agent about viewing and renting a flat.",
+        imageURL: "RentingApartment",
+        category: .custom,
+        difficulty: .advanced,
+        estimatedTimeMinutes: 7,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Hello, this is City Real Estate. Which property are you calling about?", replyOptions: ["I'm calling about the 2-bedroom on Elm Street.", "Do you have any studio apartments available?", "I want to schedule a viewing.", "I saw your listing online."]),
+            RoleplayMessage(speaker: .npc, text: "Ah, the Elm Street property. Yes, the rent is $1,800 a month. When do you want to move in?", replyOptions: ["The first of next month.", "As soon as possible.", "In about two weeks.", "I'm flexible."]),
+            RoleplayMessage(speaker: .npc, text: "Are you employed full-time? We require income to be 3x the monthly rent.", replyOptions: ["Yes, I work full-time.", "I am a student with a guarantor.", "I work freelance, but I can show bank statements.", "Yes."]),
+            RoleplayMessage(speaker: .npc, text: "Good. Are there any pets moving in with you?", replyOptions: ["No pets.", "I have a small dog.", "Does a cat count?", "Are pets allowed?"]),
+            RoleplayMessage(speaker: .npc, text: "Pets are fine with an additional deposit. I have an opening tomorrow at 3 PM to show you the place. Does that work?", replyOptions: ["3 PM is perfect.", "Can we do 5 PM instead?", "Is the weekend possible?", "Yes, I will be there."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!,
+        title: "Pharmacy Visit",
+        description: "Ask a pharmacist for advice on cold medication and prescriptions.",
+        imageURL: "Pharmacy",
+        category: .groceryShopping,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 3,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Hi there. Picking up a prescription or do you need a recommendation?", replyOptions: ["I need something for a sore throat.", "I'm picking up a prescription for Sarah.", "Do you have allergy medicine?", "Where are the band-aids?"]),
+            RoleplayMessage(speaker: .npc, text: "For a sore throat, I recommend these lozenges and some ibuprofen. Are you allergic to any medicines?", replyOptions: ["No, no allergies.", "I'm allergic to penicillin.", "Only allergic to pollen.", "I don't think so."]),
+            RoleplayMessage(speaker: .npc, text: "Okay, these will work perfectly. Do you need anything else?", replyOptions: ["No, that's it.", "Where can I find cough syrup?", "Do you sell vitamins?", "That's all for today."]),
+            RoleplayMessage(speaker: .npc, text: "You can pay for those right here at this register. It comes to $12.", replyOptions: ["Here's twenty.", "I'll use Apple Pay.", "Can I use my rewards card?", "Here you go."]),
+            RoleplayMessage(speaker: .npc, text: "Thank you. Feel better soon!", replyOptions: ["Thanks!", "I hope so.", "Have a good one.", "I appreciate it."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1")!,
+        title: "Bank Account Opening",
+        description: "Visit a bank to open a new savings account and ask about interest rates.",
+        imageURL: "BankAccount",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Good morning! Welcome to City Bank. How can I help you today?", replyOptions: ["I'd like to open a savings account.", "I need information about your accounts.", "Can I open an account without an appointment?", "What documents do I need to open an account?"]),
+            RoleplayMessage(speaker: .npc, text: "Sure! We have a few options. Would you prefer a basic savings account or a premium one?", replyOptions: ["What's the difference between them?", "I'll go with the basic one.", "What are the interest rates?", "Which one has no minimum balance?"]),
+            RoleplayMessage(speaker: .npc, text: "The basic account has no minimum balance and offers 3% interest. I'll need your ID and proof of address.", replyOptions: ["Here is my ID and a utility bill.", "Can I use my passport?", "I have all my documents here.", "Do I need to bring anything else?"]),
+            RoleplayMessage(speaker: .npc, text: "Perfect. I'll set up your account now. Would you like a debit card as well?", replyOptions: ["Yes, please.", "Is there an annual fee for the card?", "Can I get a contactless card?", "How long will it take to arrive?"]),
+            RoleplayMessage(speaker: .npc, text: "Your account is now active! Here is your account number. The debit card will arrive in 5-7 days.", replyOptions: ["Thank you so much!", "Can I set up online banking too?", "Where is the nearest ATM?", "Great, I appreciate your help."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2")!,
+        title: "Booking a Cab",
+        description: "Practice calling or hailing a cab and giving directions to your destination.",
+        imageURL: "BookingCab",
+        category: .travel,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 4,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Hello! Where would you like to go?", replyOptions: ["To the airport, please.", "Can you take me to Central Mall?", "I need to go to 45 Oak Street.", "How much to go downtown?"]),
+            RoleplayMessage(speaker: .npc, text: "Sure, that'll take about 20 minutes. Do you have a preferred route?", replyOptions: ["Take the highway, it's faster.", "Any route is fine.", "Avoid the highway, please.", "Whichever has less traffic."]),
+            RoleplayMessage(speaker: .npc, text: "No problem. Would you like me to turn on the AC?", replyOptions: ["Yes, please.", "No, I'm fine.", "Just a little, thanks.", "Can you open the window instead?"]),
+            RoleplayMessage(speaker: .npc, text: "We're almost there. It's on your left side, right?", replyOptions: ["Yes, right here is perfect.", "A little further, please.", "Can you stop after the signal?", "Drop me at the main gate."]),
+            RoleplayMessage(speaker: .npc, text: "Here we are. The fare is $18.", replyOptions: ["Here you go, keep the change.", "Can I pay by card?", "Do you have change for a fifty?", "Thanks for the ride!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3")!,
+        title: "Library Visit",
+        description: "Practice asking about books, library cards, and borrowing policies.",
+        imageURL: "LibraryVisit",
+        category: .custom,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 4,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Welcome to the public library! Can I help you find something?", replyOptions: ["I'm looking for books on science fiction.", "Where is the children's section?", "I'd like to get a library card.", "Do you have today's newspaper?"]),
+            RoleplayMessage(speaker: .npc, text: "For a library card, I just need your ID and proof of residence. It's completely free!", replyOptions: ["Great, here's my ID.", "How many books can I borrow at a time?", "Is there a fee for late returns?", "Can I also borrow audiobooks?"]),
+            RoleplayMessage(speaker: .npc, text: "You can borrow up to 5 books for 14 days. Late returns are $0.25 per day.", replyOptions: ["That's reasonable.", "Can I renew books online?", "What if I lose a book?", "Perfect, I'll sign up."]),
+            RoleplayMessage(speaker: .npc, text: "Here is your library card. The fiction section is on the second floor.", replyOptions: ["Thank you so much!", "Do you have a reading room?", "Is there free Wi-Fi here?", "Can I also use the computers?"]),
+            RoleplayMessage(speaker: .npc, text: "Yes, the reading room is upstairs and Wi-Fi is free. Enjoy your visit!", replyOptions: ["Thanks, I will!", "This is wonderful.", "I'll definitely come back.", "Have a great day!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4")!,
+        title: "Noise Complaint",
+        description: "Politely talk to a neighbor about noise at night.",
+        imageURL: "NoiseComplaint",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 5,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Oh, hi! Can I help you with something?", replyOptions: ["Hi, I'm your neighbor from next door.", "Hey, I wanted to talk about last night.", "Sorry to bother you, but I need to discuss something.", "Hi there, do you have a minute?"]),
+            RoleplayMessage(speaker: .npc, text: "Oh sure, what's up?", replyOptions: ["The music was quite loud last night.", "I could hear a lot of noise from your apartment.", "I couldn't sleep because of the party.", "Would it be possible to keep the volume down after 10 PM?"]),
+            RoleplayMessage(speaker: .npc, text: "Oh, I'm really sorry about that! We had some friends over and lost track of time.", replyOptions: ["I understand, it happens.", "No worries, just wanted to let you know.", "Maybe just a heads-up next time?", "I appreciate you understanding."]),
+            RoleplayMessage(speaker: .npc, text: "Absolutely, we'll keep it down in the future. Again, really sorry.", replyOptions: ["Thanks, I appreciate it.", "No hard feelings.", "Maybe we can exchange numbers in case it happens again?", "That's all I needed. Have a good day."]),
+            RoleplayMessage(speaker: .npc, text: "Sounds good. And hey, you're welcome to join next time!", replyOptions: ["Ha, I might take you up on that!", "Thanks, that's kind of you.", "I'll think about it!", "Have a good one!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5")!,
+        title: "Parent-Teacher Meeting",
+        description: "Discuss your child's progress with their teacher.",
+        imageURL: "ParentTeacher",
+        category: .custom,
+        difficulty: .advanced,
+        estimatedTimeMinutes: 7,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Good evening! You must be Aarav's parent. Please, have a seat.", replyOptions: ["Good evening. Yes, I'm Aarav's mother.", "Hello, thank you for meeting with me.", "Hi, I wanted to know how Aarav is doing.", "Good evening. How is my child performing?"]),
+            RoleplayMessage(speaker: .npc, text: "Aarav is a very bright student. He does well in math and science, but struggles a bit with reading.", replyOptions: ["What can we do to improve his reading?", "Does he participate in class?", "Is he getting along with other students?", "Should I hire a tutor?"]),
+            RoleplayMessage(speaker: .npc, text: "I'd suggest 20 minutes of daily reading at home. Also, he's very popular with classmates!", replyOptions: ["That's great to hear.", "We'll start a reading routine.", "Does the school have a reading program?", "Any book recommendations?"]),
+            RoleplayMessage(speaker: .npc, text: "We do have an after-school reading club on Wednesdays. I think he'd enjoy it.", replyOptions: ["I'll sign him up.", "What time does it end?", "Is there a fee?", "That sounds perfect for him."]),
+            RoleplayMessage(speaker: .npc, text: "Great! Feel free to reach out anytime. It was lovely meeting you.", replyOptions: ["Thank you for your time.", "I really appreciate your feedback.", "We'll work on the reading at home.", "Have a good evening!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "F6F6F6F6-F6F6-F6F6-F6F6-F6F6F6F6F6F6")!,
+        title: "Train Ticket Booking",
+        description: "Practice buying train tickets at the station counter.",
+        imageURL: "TrainTicket",
+        category: .travel,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 4,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Next, please. Where would you like to travel?", replyOptions: ["One ticket to Mumbai, please.", "I need two tickets to Delhi.", "What's the next train to Jaipur?", "How much is a ticket to Bangalore?"]),
+            RoleplayMessage(speaker: .npc, text: "The next express leaves in 45 minutes. Would you like first class or standard?", replyOptions: ["Standard is fine.", "How much is first class?", "Is there a sleeper option?", "I'll take first class."]),
+            RoleplayMessage(speaker: .npc, text: "Standard is $25 one-way. First class is $45. Which platform does it depart from?", replyOptions: ["I'll go with standard.", "Two standard tickets, please.", "Which platform is it?", "Can I book a round trip?"]),
+            RoleplayMessage(speaker: .npc, text: "Platform 3. The train departs at 4:15 PM. Don't forget your ticket.", replyOptions: ["Thank you!", "Is there a waiting room?", "Where can I grab a coffee before the train?", "How long is the journey?"]),
+            RoleplayMessage(speaker: .npc, text: "The journey is about 3 hours. There's a café on Platform 1. Have a safe trip!", replyOptions: ["Thanks, have a great day!", "I'll check out the café.", "Appreciate your help.", "See you!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "A7A7A7A7-A7A7-A7A7-A7A7-A7A7A7A7A7A7")!,
+        title: "Emergency Call",
+        description: "Practice reporting an emergency clearly and calmly over the phone.",
+        imageURL: "EmergencyCall",
+        category: .custom,
+        difficulty: .advanced,
+        estimatedTimeMinutes: 5,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "911, what is your emergency?", replyOptions: ["There's been a car accident.", "I need an ambulance, someone fainted.", "I want to report a fire in my building.", "Someone broke into our house."]),
+            RoleplayMessage(speaker: .npc, text: "Stay calm. Can you tell me your exact location?", replyOptions: ["I'm at the corner of Main and 5th.", "45 Elm Street, Apartment 12B.", "Near the Central Park entrance.", "I'm not sure of the address, but I can describe it."]),
+            RoleplayMessage(speaker: .npc, text: "Help is on the way. Is anyone injured?", replyOptions: ["Yes, one person is hurt.", "No injuries, but people are scared.", "I'm not sure, I can't get close.", "Yes, they need medical attention."]),
+            RoleplayMessage(speaker: .npc, text: "Stay on the line with me. Are you in a safe place?", replyOptions: ["Yes, I moved away from the area.", "I'm standing nearby watching.", "Not really, should I move?", "Yes, I'm inside a shop."]),
+            RoleplayMessage(speaker: .npc, text: "Emergency services should be there in a few minutes. You did great calling this in.", replyOptions: ["Thank you.", "I can hear the sirens now.", "Should I stay here?", "Thanks for the help."])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "B8B8B8B8-B8B8-B8B8-B8B8-B8B8B8B8B8B8")!,
+        title: "Salon Haircut",
+        description: "Describe the haircut you want and chat with the hairstylist.",
+        imageURL: "SalonHaircut",
+        category: .custom,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 4,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Hey! Welcome. Do you have an appointment?", replyOptions: ["No, I'm a walk-in. Is that okay?", "Yes, under the name Priya.", "I booked for 3 PM.", "No appointment. How long is the wait?"]),
+            RoleplayMessage(speaker: .npc, text: "No worries, we can take you now. What are you looking for today?", replyOptions: ["Just a trim, please.", "I want to try something new.", "Can you suggest a style for my face shape?", "I'd like it shorter on the sides."]),
+            RoleplayMessage(speaker: .npc, text: "Sure! How short do you want the sides? Fade, or just a little shorter?", replyOptions: ["A light fade, please.", "Just a little shorter, nothing drastic.", "I'll show you a picture.", "Whatever you think looks good."]),
+            RoleplayMessage(speaker: .npc, text: "Looking great so far. Would you like any product in your hair?", replyOptions: ["Yes, some gel would be nice.", "No, I prefer it natural.", "What do you recommend?", "Just a little wax, please."]),
+            RoleplayMessage(speaker: .npc, text: "All done! That'll be $20. You look fantastic.", replyOptions: ["Thank you, I love it!", "Here's $25, keep the change.", "Can I pay by card?", "You did an amazing job!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "C9C9C9C9-C9C9-C9C9-C9C9-C9C9C9C9C9C9")!,
+        title: "Car Rental",
+        description: "Rent a car for a road trip and learn about insurance options.",
+        imageURL: "CarRental",
+        category: .travel,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Welcome to DriveEasy Rentals! How can I help you?", replyOptions: ["I'd like to rent a car for 3 days.", "What SUVs do you have available?", "I need a car for a weekend trip.", "Do you have any economy cars?"]),
+            RoleplayMessage(speaker: .npc, text: "We have a compact sedan for $45/day and an SUV for $75/day. Both include unlimited mileage.", replyOptions: ["I'll take the sedan.", "Does the SUV have GPS?", "Is insurance included?", "Are there any current promotions?"]),
+            RoleplayMessage(speaker: .npc, text: "Insurance is optional. Basic coverage is $12/day and full coverage is $20/day.", replyOptions: ["I'll go with basic coverage.", "Full coverage, please.", "Does my credit card cover it?", "I'll skip the insurance."]),
+            RoleplayMessage(speaker: .npc, text: "I'll need your driver's license and a credit card for the deposit.", replyOptions: ["Here they are.", "How much is the deposit?", "Can I use a debit card?", "Sure, one moment."]),
+            RoleplayMessage(speaker: .npc, text: "You're all set! The car is in spot B7. Please return it with a full tank.", replyOptions: ["Got it, thank you!", "Where is the nearest gas station?", "What if I return it late?", "Thanks for your help!"])
+        ]
+    ),
+    RoleplayScenario(
+        id: UUID(uuidString: "D0D0D0D0-D0D0-D0D0-D0D0-D0D0D0D0D0D0")!,
+        title: "Post Office Visit",
+        description: "Send a package and buy stamps at the post office.",
+        imageURL: "PostOffice",
+        category: .custom,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 4,
+        script: [
+            RoleplayMessage(speaker: .npc, text: "Hello! What can I do for you today?", replyOptions: ["I need to send this package.", "I'd like to buy some stamps.", "How much does it cost to ship internationally?", "I need to pick up a registered letter."]),
+            RoleplayMessage(speaker: .npc, text: "Let me weigh that for you. Where is it going?", replyOptions: ["It's going to New York.", "Shipping to London, UK.", "It's a domestic package to Chennai.", "To my parents in Bangalore."]),
+            RoleplayMessage(speaker: .npc, text: "That'll be $14 for standard delivery or $22 for express. Express arrives in 2 days.", replyOptions: ["I'll go with express.", "Standard is fine.", "How long does standard take?", "Can I track the package?"]),
+            RoleplayMessage(speaker: .npc, text: "Yes, you'll get a tracking number. Please fill out this form with the sender and recipient details.", replyOptions: ["Sure, here you go.", "Do I need to declare the contents?", "Can I insure the package?", "Is there a fragile label?"]),
+            RoleplayMessage(speaker: .npc, text: "All done! Here's your receipt and tracking number. Have a great day!", replyOptions: ["Thank you!", "How do I track it online?", "Thanks, you too!", "I appreciate your help."])
+        ]
+    )
 ]
