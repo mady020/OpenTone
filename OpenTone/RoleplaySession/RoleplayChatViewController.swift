@@ -226,7 +226,7 @@ class RoleplayChatViewController: UIViewController {
 
         llmHistory.append(LLMMessage(role: .user, text: text))
 
-        let baseURL = "http://localhost:11434"
+        let baseURL = "http://44.221.98.186:11434"
         guard let url = URL(string: "\(baseURL)/api/generate") else {
             throw URLError(.badURL)
         }

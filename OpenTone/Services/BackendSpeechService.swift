@@ -10,7 +10,7 @@ final class BackendSpeechService {
         if let url = Bundle.main.object(forInfoDictionaryKey: "BackendBaseURL") as? String, !url.isEmpty {
             return url
         }
-        return "http://localhost:8000"
+        return "http://44.221.98.186:8000"
     }()
 
     enum BackendError: LocalizedError {

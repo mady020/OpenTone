@@ -12,8 +12,6 @@
 	<string>We use your microphone to transcribe your speech during conversations.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
