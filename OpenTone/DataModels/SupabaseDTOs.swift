@@ -108,6 +108,7 @@ extension UserRow {
             roleplayIDs: [],     // not stored in users table; counts derived from activities
             jamSessionIDs: [],   // not stored in users table; counts derived from activities
             friends: friendIds ?? [],
+            createdAt: createdAt,
             goal: goal
         )
         // Override the auto-generated UUID with the one from the database

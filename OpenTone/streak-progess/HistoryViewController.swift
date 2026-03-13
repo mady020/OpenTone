@@ -23,9 +23,9 @@ class HistoryViewController: UIViewController {
         tableView.estimatedRowHeight = 100
         tableView.separatorStyle = .none
 
-        // Setup Header View Layout
-        headerView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: 150)
-        tableView.tableHeaderView = headerView
+        // Setup header in compact mode first, then resize to content.
+        headerView.clearStats()
+        applyHeaderLayout()
 
         setupSearchController()
         setupNavigation()
@@ -36,6 +36,11 @@ class HistoryViewController: UIViewController {
         fetchProgressData()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        applyHeaderLayoutIfNeeded()
+    }
+
     private func fetchProgressData() {
         Task {
             do {
@@ -43,15 +48,37 @@ class HistoryViewController: UIViewController {
                 let profile = try await BackendSpeechService.shared.fetchProfile(userId: userId)
                 await MainActor.run {
                     self.headerView.configure(with: profile)
-                    // Re-layout header if needed
-                    self.headerView.setNeedsLayout()
-                    self.headerView.layoutIfNeeded()
-                    self.tableView.tableHeaderView = self.headerView
+                    self.applyHeaderLayout()
                 }
             } catch {
                 print("⚠️ Failed to load progress data for history: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.headerView.clearStats()
+                    self.applyHeaderLayout()
+                }
             }
         }
+    }
+
+    private func applyHeaderLayout() {
+        let width = tableView.bounds.width
+        guard width > 0 else { return }
+
+        let height = headerView.requiredHeight(for: width)
+        headerView.frame = CGRect(x: 0, y: 0, width: width, height: height)
+        tableView.tableHeaderView = headerView
+    }
+
+    private func applyHeaderLayoutIfNeeded() {
+        guard let current = tableView.tableHeaderView else { return }
+        let width = tableView.bounds.width
+        guard width > 0 else { return }
+
+        let expectedHeight = headerView.requiredHeight(for: width)
+        let needsResize = abs(current.frame.height - expectedHeight) > 0.5 || abs(current.frame.width - width) > 0.5
+        guard needsResize else { return }
+
+        applyHeaderLayout()
     }
 
     private func setupNavigation() {

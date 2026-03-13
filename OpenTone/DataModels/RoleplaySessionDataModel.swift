@@ -84,7 +84,7 @@ class RoleplaySessionDataModel {
                 title: scenario.title,
                 topic: scenario.description,
                 duration: duration,
-                imageURL: scenario.imageURL,
+                imageURL: "theatermasks.fill",
                 xpEarned: updated.xpEarned,
                 isCompleted: true,
                 scenarioId: scenario.id

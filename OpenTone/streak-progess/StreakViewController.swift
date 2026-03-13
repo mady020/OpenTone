@@ -21,6 +21,7 @@ class StreakViewController: UIViewController {
 
     @IBAction func historyButtonTapped(_ sender: UIButton) {
         guard let selectedIndex = selectedWeekdayIndex else { return }
+        guard isDayEnabled(index: selectedIndex) else { return }
         let selectedDate = dateForWeekday(at: selectedIndex)
 
         let realSessions = StreakDataModel.shared.sessions(for: selectedDate)
@@ -184,9 +185,17 @@ class StreakViewController: UIViewController {
 
     func isDayEnabled(index: Int) -> Bool {
         let calendar = Calendar.current
-        let today = Date()
-        let date = dateForWeekday(at: index)
-        return calendar.compare(date, to: today, toGranularity: .day) != .orderedDescending
+        let todayStart = calendar.startOfDay(for: Date())
+        let dayStart = calendar.startOfDay(for: dateForWeekday(at: index))
+
+        // If createdAt is unavailable (e.g. local temp user), default to today only.
+        let createdStart = SessionManager.shared.currentUser?.createdAt
+            .map { calendar.startOfDay(for: $0) }
+            ?? todayStart
+
+        let isNotFuture = dayStart <= todayStart
+        let isAfterAccountCreation = dayStart >= createdStart
+        return isNotFuture && isAfterAccountCreation
     }
 
     // MARK: - Animations

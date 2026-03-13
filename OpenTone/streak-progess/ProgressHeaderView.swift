@@ -30,6 +30,9 @@ class ProgressHeaderView: UIView {
         return sv
     }()
 
+    private var statsTopConstraint: NSLayoutConstraint?
+    private var statsBottomConstraint: NSLayoutConstraint?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -47,6 +50,9 @@ class ProgressHeaderView: UIView {
         addSubview(subtitleLabel)
         addSubview(statsStack)
 
+        statsTopConstraint = statsStack.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 24)
+        statsBottomConstraint = statsStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
+
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
@@ -56,11 +62,14 @@ class ProgressHeaderView: UIView {
             subtitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             subtitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
 
-            statsStack.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 24),
             statsStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             statsStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            statsStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
+            statsTopConstraint!,
+            statsBottomConstraint!
         ])
+
+        // Default to compact layout until stats are loaded.
+        setShowsStats(false)
     }
 
     func configure(with profile: UserSpeechProfile) {
@@ -75,6 +84,29 @@ class ProgressHeaderView: UIView {
         statsStack.addArrangedSubview(wpmCard)
         statsStack.addArrangedSubview(fluCard)
         statsStack.addArrangedSubview(filCard)
+
+        setShowsStats(true)
+    }
+
+    func clearStats() {
+        statsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        setShowsStats(false)
+    }
+
+    func requiredHeight(for width: CGFloat) -> CGFloat {
+        let target = CGSize(width: width, height: UIView.layoutFittingCompressedSize.height)
+        let size = systemLayoutSizeFitting(
+            target,
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        return ceil(size.height)
+    }
+
+    private func setShowsStats(_ show: Bool) {
+        statsStack.isHidden = !show
+        statsTopConstraint?.constant = show ? 24 : 0
+        statsBottomConstraint?.constant = show ? -20 : -8
     }
 
     private func createStatCard(title: String, value: String) -> UIView {

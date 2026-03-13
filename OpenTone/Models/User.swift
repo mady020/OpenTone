@@ -26,6 +26,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
     var roleplayIDs: [UUID]
     var jamSessionIDs: [UUID]
     var friendsIDs: [UUID]
+    var createdAt: Date?
     
     init(
         name: String,
@@ -45,6 +46,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
         roleplayIDs: [UUID] = [],
         jamSessionIDs: [UUID] = [],
         friends: [UUID] = [],
+        createdAt: Date? = nil,
         goal: Int = 0
     ) {
         self.id = UUID()
@@ -65,6 +67,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
         self.roleplayIDs = roleplayIDs
         self.jamSessionIDs = jamSessionIDs
         self.friendsIDs = friends
+        self.createdAt = createdAt
         self.goal = goal
     }
     
@@ -92,6 +95,7 @@ struct User: Identifiable, Codable, CustomStringConvertible{
         parts.append("roleplays: \(roleplayIDs.count)")
         parts.append("jam sessions: \(jamSessionIDs.count)")
         parts.append("friends: \(friendsIDs.count)")
+        parts.append("created at: \(createdAt?.description ?? "N/A")")
         return parts.joined(separator: "\n")
     }
 

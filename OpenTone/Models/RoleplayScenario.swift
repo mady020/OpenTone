@@ -5,7 +5,6 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
     let id: UUID
     let title: String
     let description: String
-    let imageURL: String
     let category: RoleplayCategory
     let difficulty: RoleplayDifficulty
     let estimatedTimeMinutes: Int
@@ -17,7 +16,6 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
         id: UUID = UUID(),
         title: String,
         description: String,
-        imageURL: String,
         category: RoleplayCategory,
         difficulty: RoleplayDifficulty,
         estimatedTimeMinutes: Int,
@@ -26,7 +24,6 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
         self.id = id
         self.title = title
         self.description = description
-        self.imageURL = imageURL
         self.category = category
         self.difficulty = difficulty
         self.estimatedTimeMinutes = estimatedTimeMinutes
