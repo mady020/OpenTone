@@ -673,7 +673,7 @@ class RoleplayChatViewController: UIViewController {
 
         Task {
             do {
-                try await OnDeviceTTSService.shared.speak(text: text, volumeBoost: 1.22)
+                try await OnDeviceTTSService.shared.speak(text: text, volumeBoost: 1.5)
 
                 await MainActor.run {
                     self.isSpeaking = false

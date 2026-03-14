@@ -38,9 +38,12 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
             try await loadModel()
             let voice = mapVoice(voiceName)
             let audioURL = try await synthesizeToFile(text: cleanedText, voice: voice, volumeBoost: volumeBoost)
+            logger.info("Supertonic synthesized file: \(audioURL.path, privacy: .public)")
             try await playAudioFile(audioURL)
+            logger.info("Supertonic playback finished")
         } catch {
-            logger.error("Supertonic synthesis failed: \(error.localizedDescription, privacy: .public)")
+            logger.error("Supertonic path failed, falling back to AVSpeechSynthesizer: \(error.localizedDescription, privacy: .public)")
+            print("OnDeviceTTSService: Supertonic failed -> \(error.localizedDescription)")
             try await speakWithSystemFallback(cleanedText)
         }
     }
@@ -117,7 +120,7 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
 
     private func configurePlaybackSession() throws {
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers, .defaultToSpeaker])
+        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         try session.setActive(true)
     }
 
@@ -154,7 +157,7 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
     @MainActor
     private func speakWithSystemFallback(_ text: String) async throws {
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers, .defaultToSpeaker])
+        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         try session.setActive(true)
 
         if fallbackSynthesizer.isSpeaking {

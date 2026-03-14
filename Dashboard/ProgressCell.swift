@@ -188,7 +188,7 @@ final class ProgressCell: UICollectionViewCell {
         contentView.addSubview(weekStack)
         contentView.addSubview(seeProgressButton)
 
-        let ringSize: CGFloat = 100
+        let ringSize: CGFloat = 110
 
         NSLayoutConstraint.activate([
             // Streak badge

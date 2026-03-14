@@ -33,15 +33,29 @@ final class TTSService {
         sampleRate = textToSpeech.sampleRate
     }
 
-    func synthesize(text: String, nfe: Int, voice: Voice, language: Language, volumeBoost: Float = 1.0) async throws -> URL {
-        // Load style for the selected voice
-        let styleURL = try Self.locateVoiceStyleURL(voice: voice)
-        let style = try loadVoiceStyle([styleURL.path], verbose: false)
+    func synthesize(text: String, nfe: Int, voice: Voice, language: Language, volumeBoost: Float = 1.5) async throws -> URL {
+        // Load style for the selected voice, falling back if a style file is malformed.
+        let style = try Self.loadVoiceStyleWithFallback(voice: voice)
 
         // 2) Synthesize via packed TextToSpeech component
         let (wav, duration) = try textToSpeech.call(text, language.rawValue, style, nfe)
-        let audioSeconds = Double(duration)
-        let wavLenSample = min(Int(Double(sampleRate) * audioSeconds), wav.count)
+        let predictedSamples = Int(Double(sampleRate) * Double(duration))
+        let wavLenSample: Int
+        if predictedSamples > 0 {
+            wavLenSample = min(predictedSamples, wav.count)
+        } else {
+            // Some model/runtime combos can report zero/invalid duration while waveform exists.
+            wavLenSample = wav.count
+        }
+
+        guard wavLenSample > 0 else {
+            throw NSError(
+                domain: "TTS",
+                code: -103,
+                userInfo: [NSLocalizedDescriptionKey: "Supertonic produced empty audio waveform."]
+            )
+        }
+
         let wavOut = Array(wav[0..<wavLenSample])
         let clampedBoost = max(0.8, min(volumeBoost, 1.5))
         let boostedWav = wavOut.map { sample in
@@ -62,6 +76,7 @@ final class TTSService {
         func dirHasRequiredFiles(_ dir: URL) -> Bool {
             let required = [
                 "tts.json",
+                "unicode_indexer.json",
                 "duration_predictor.onnx",
                 "text_encoder.onnx",
                 "vector_estimator.onnx",
@@ -88,9 +103,7 @@ final class TTSService {
         )
     }
 
-    private static func locateVoiceStyleURL(voice: Voice) throws -> URL {
-        // Prefer M1/F1 defaults; search common subdirectories
-        let fileName = (voice == .male) ? "M1" : "F1"
+    private static func locateVoiceStyleURL(fileName: String) -> URL? {
         let bundle = Bundle.main
         let candidates: [URL?] = [
             bundle.url(forResource: fileName, withExtension: "json", subdirectory: "voice_styles"),
@@ -109,10 +122,31 @@ final class TTSService {
             let file = folder2.appendingPathComponent("\(fileName).json")
             if FileManager.default.fileExists(atPath: file.path) { return file }
         }
+        return nil
+    }
+
+    private static func loadVoiceStyleWithFallback(voice: Voice) throws -> Style {
+        let preferred = (voice == .male) ? ["M1", "F1"] : ["F1", "M1"]
+        var lastError: Error?
+
+        for name in preferred {
+            guard let url = locateVoiceStyleURL(fileName: name) else { continue }
+            do {
+                return try loadVoiceStyle([url.path], verbose: false)
+            } catch {
+                lastError = error
+                print("TTSService: style \(name).json failed to load, trying fallback. Error: \(error.localizedDescription)")
+            }
+        }
+
+        if let lastError {
+            throw lastError
+        }
+
         throw NSError(
             domain: "TTS",
             code: -102,
-            userInfo: [NSLocalizedDescriptionKey: "Could not find the voice style JSON (\(fileName).json) in the bundle. Ensure voice_styles folder is included in Copy Bundle Resources."]
+            userInfo: [NSLocalizedDescriptionKey: "Could not find any valid voice style JSON in the bundle (expected M1.json/F1.json)."]
         )
     }
 }

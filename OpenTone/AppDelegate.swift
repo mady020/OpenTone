@@ -20,8 +20,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Warm up on-device TTS early so first spoken response is faster.
         Task {
-            if (try? await OnDeviceTTSService.shared.preload()) != nil {
+            do {
+                try await OnDeviceTTSService.shared.preload()
                 print("OnDeviceTTSService: model preloaded")
+            } catch {
+                print("OnDeviceTTSService: preload failed - \(error.localizedDescription)")
             }
         }
         return true
