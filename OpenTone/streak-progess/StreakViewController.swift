@@ -236,7 +236,6 @@ class StreakViewController: UIViewController {
         comparisonLabel.textColor = .secondaryLabel
         insightsCardView.backgroundColor = AppColors.primary
         weeklyInsightsTitleLabel.textColor = .white
-        bestDayLabel.textColor = UIColor.white.withAlphaComponent(0.8)
         totalWeekTimeLabel.textColor = .white
         growthRangeControl.backgroundColor = UIColor.white.withAlphaComponent(0.14)
         growthRangeControl.selectedSegmentTintColor = UIColor.white.withAlphaComponent(0.95)
@@ -309,7 +308,6 @@ class StreakViewController: UIViewController {
         bestDay.numberOfLines = 1
         bestDay.lineBreakMode = .byTruncatingTail
         bestDayLabel = bestDay
-        insightsCardView.addSubview(bestDay)
 
         let totalWeek = UILabel()
         totalWeek.translatesAutoresizingMaskIntoConstraints = false
@@ -324,11 +322,7 @@ class StreakViewController: UIViewController {
             weeklyInsightsTitleLabel.leadingAnchor.constraint(equalTo: insightsCardView.leadingAnchor, constant: 20),
             weeklyInsightsTitleLabel.trailingAnchor.constraint(equalTo: insightsCardView.trailingAnchor, constant: -20),
 
-            bestDay.topAnchor.constraint(equalTo: weeklyInsightsTitleLabel.bottomAnchor, constant: 8),
-            bestDay.leadingAnchor.constraint(equalTo: insightsCardView.leadingAnchor, constant: 20),
-            bestDay.trailingAnchor.constraint(equalTo: insightsCardView.trailingAnchor, constant: -20),
-
-            totalWeek.topAnchor.constraint(equalTo: bestDay.bottomAnchor, constant: 6),
+            totalWeek.topAnchor.constraint(equalTo: weeklyInsightsTitleLabel.bottomAnchor, constant: 10),
             totalWeek.leadingAnchor.constraint(equalTo: insightsCardView.leadingAnchor, constant: 20),
             totalWeek.trailingAnchor.constraint(equalTo: insightsCardView.trailingAnchor, constant: -20)
         ])
@@ -651,14 +645,6 @@ class StreakViewController: UIViewController {
 
         let totalWeekMinutes = totalsByDay.values.reduce(0, +)
         totalWeekTimeLabel.text = String(format: "This week: %.1fh", Double(totalWeekMinutes) / 60)
-
-        if let bestDay = totalsByDay.max(by: { $0.value < $1.value })?.key, totalsByDay[bestDay]! > 0 {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEEE"
-            bestDayLabel.text = "Best day: \(formatter.string(from: bestDay))"
-        } else {
-            bestDayLabel.text = "No activity yet"
-        }
     }
 
     func updateNavigationDateTitle(for date: Date = Date()) {
