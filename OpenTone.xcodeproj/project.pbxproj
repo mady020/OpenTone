@@ -140,7 +140,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2610;
-				LastUpgradeCheck = 2610;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					3FAE41F02EC43B5E00FADCC1 = {
 						CreatedOnToolsVersion = 26.1;
@@ -345,6 +345,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -403,6 +404,7 @@
 				MTL_FAST_MATH = YES;
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};

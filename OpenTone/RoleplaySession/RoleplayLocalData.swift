@@ -1,1057 +1,831 @@
-
 import Foundation
 
+private func line(_ text: String, _ replyOptions: [String]) -> RoleplayMessage {
+    RoleplayMessage(speaker: .npc, text: text, replyOptions: replyOptions)
+}
 
 let scenarios: [RoleplayScenario] = [
+    // MARK: - Professional Track (10)
+
     RoleplayScenario(
         id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
-        title: "Grocery Shopping",
-        description: "Practice asking for items, prices, and payment at a grocery store.",
-        imageURL: "GroceryShopping",
-        category: .groceryShopping,
-        difficulty: .intermediate,
-        estimatedTimeMinutes: 5,
-        script: [
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Where can I find the milk?",
-                replyOptions: [
-                    "I am looking for milk, could you point me to the right section?",
-                    "How much does a bottle of milk cost here?",
-                    "Can you help me locate dairy products?",
-                    "Is the milk fresh today?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "The milk is in the dairy section next to the eggs.",
-                replyOptions: [
-                    "Great, thanks!",
-                    "Can you show me directions on a map?",
-                    "Do you have plant-based milk as well?",
-                    "Can I pay by card at checkout?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "If you need plant-based milk, it's right beside the regular milk.",
-                replyOptions: [
-                    "Amazing! I’ll check that out.",
-                    "Do you have any offers on almond or oat milk?",
-                    "Which one is best for coffee?",
-                    "I want lactose-free milk, do you have that?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Yes, we have lactose-free milk on the top shelf.",
-                replyOptions: [
-                    "Thank you! I’ll grab one.",
-                    "How long does it stay fresh?",
-                    "Is it more expensive than regular milk?",
-                    "Are there smaller packs available?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "You can check the price on the shelf label.",
-                replyOptions: [
-                    "Perfect, I’ll take a look.",
-                    "Do you have a loyalty program?",
-                    "Where can I get a shopping basket?",
-                    "What time does the store close?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Baskets are available near the entrance, and yes, we close at 10 PM.",
-                replyOptions: [
-                    "Thanks for the info!",
-                    "Where do I find the checkout counters?",
-                    "Can I self-scan the products?",
-                    "Do you have a bakery section as well?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Checkout counters are straight ahead, and the bakery is on your left.",
-                replyOptions: [
-                    "I’ll grab some bread too!",
-                    "Is there someone at the bakery to assist with slicing?",
-                    "Do you have gluten-free bread?",
-                    "Are there fresh cakes available?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Yes, fresh cakes arrive every morning, and the staff can assist you at the bakery.",
-                replyOptions: [
-                    "Nice! I’ll check them out.",
-                    "Do you have any seasonal items?",
-                    "Where can I find snacks or chips?",
-                    "Is there a section for cold drinks?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Snacks are in aisle 5 and cold drinks are near the checkout refrigerators.",
-                replyOptions: [
-                    "Wonderful, thank you so much!",
-                    "Do you also have a pharmacy section?",
-                    "Where are the cleaning supplies?",
-                    "Can I ask for home delivery?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "We do provide home delivery—please ask at the service desk near the entrance.",
-                replyOptions: [
-                    "Thanks! That’s very helpful.",
-                    "I’ll sign up for delivery later.",
-                    "Can I get assistance loading groceries into my car?",
-                    "Do you sell gift cards?"
-                ]
-            )
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "22222222-2222-2222-2222-222222222222")!,
-        title: "Making Friends",
-        description: "Practice starting conversations, finding common interests, and building friendships.",
-        imageURL: "MakingFriends",
-        category: .custom,
-        difficulty: .intermediate,
-        estimatedTimeMinutes: 6,
-        script: [
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Hi, I haven't seen you here before.",
-                replyOptions: [
-                    "Hi! I'm new here.",
-                    "Hello! Nice to meet you.",
-                    "Yeah, I just joined recently.",
-                    "Hey! How are you?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Oh nice! What brings you here?",
-                replyOptions: [
-                    "I recently moved to this area.",
-                    "I just joined this place.",
-                    "I came with a friend.",
-                    "I was curious and wanted to check it out."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "That’s great. What do you usually do in your free time?",
-                replyOptions: [
-                    "I like watching movies and series.",
-                    "I enjoy playing sports.",
-                    "I usually read or listen to music.",
-                    "I like exploring new places."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Oh nice! What kind of movies do you like?",
-                replyOptions: [
-                    "I enjoy action and thrillers.",
-                    "I like romantic movies.",
-                    "Comedy is my favorite.",
-                    "I enjoy documentaries."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "That’s interesting. Do you watch movies alone or with friends?",
-                replyOptions: [
-                    "Mostly with friends.",
-                    "Usually alone.",
-                    "It depends on the movie.",
-                    "Both, actually."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Cool! Are you from this city?",
-                replyOptions: [
-                    "Yes, I grew up here.",
-                    "No, I moved here recently.",
-                    "I’m here for studies.",
-                    "I’m here for work."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "How are you finding the city so far?",
-                replyOptions: [
-                    "I really like it here.",
-                    "It's still new to me.",
-                    "People seem friendly.",
-                    "I'm still exploring."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "That’s good to hear. Have you made any friends yet?",
-                replyOptions: [
-                    "Not many, but I'm trying.",
-                    "Yes, a few already.",
-                    "Not yet, honestly.",
-                    "I'm hoping to make some soon."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Well, it was really nice talking to you.",
-                replyOptions: [
-                    "Nice talking to you too!",
-                    "I enjoyed this conversation.",
-                    "Hope we meet again.",
-                    "Let’s talk again sometime."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Would you like to stay in touch?",
-                replyOptions: [
-                    "Sure, that would be great!",
-                    "Yes, why not?",
-                    "Of course!",
-                    "I’d like that."
-                ]
-            )
-        ]
-    )
-,
-    RoleplayScenario(
-        id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
-        title: "Airport Check-in",
-        description: "Practice check-in conversation at an airport counter.",
-        imageURL: "AirportCheck-in",
-        category: .travel,
-        difficulty: .advanced,
-        estimatedTimeMinutes: 7,
-        script: [
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Good morning. May I see your passport and ticket, please?",
-                replyOptions: [
-                    "Sure, here you go.",
-                    "Yes, one moment please.",
-                    "Here are my passport and ticket.",
-                    "I have my ticket on my phone."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Thank you. Where are you flying today?",
-                replyOptions: [
-                    "I’m flying to New York.",
-                    "My destination is London.",
-                    "I’m going to Dubai.",
-                    "I have a connecting flight to Paris."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Is this a one-way ticket or a round trip?",
-                replyOptions: [
-                    "It’s a round-trip ticket.",
-                    "One-way ticket.",
-                    "I’ll be returning next week.",
-                    "I have a return flight booked."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Do you have any luggage to check in?",
-                replyOptions: [
-                    "Yes, I have one suitcase.",
-                    "I have two bags to check in.",
-                    "No, just hand luggage.",
-                    "Only a carry-on bag."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Please place your luggage on the scale.",
-                replyOptions: [
-                    "Sure.",
-                    "Okay, here it is.",
-                    "One moment.",
-                    "Is this fine?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Your bag is slightly overweight.",
-                replyOptions: [
-                    "How much extra do I need to pay?",
-                    "Can I remove some items?",
-                    "Is there any allowance?",
-                    "Can I transfer items to my carry-on?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Would you like to pay the extra fee or rearrange your luggage?",
-                replyOptions: [
-                    "I’ll rearrange my luggage.",
-                    "I’ll pay the extra fee.",
-                    "Can you tell me the charges?",
-                    "I’ll remove some items."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Do you prefer a window seat or an aisle seat?",
-                replyOptions: [
-                    "I’d prefer a window seat.",
-                    "An aisle seat, please.",
-                    "Any seat is fine.",
-                    "Do you have extra legroom seats?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Would you like to add priority boarding?",
-                replyOptions: [
-                    "Yes, please.",
-                    "No, thank you.",
-                    "What are the benefits?",
-                    "Is there an extra charge?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Here is your boarding pass. Boarding starts at 9:30 AM.",
-                replyOptions: [
-                    "Thank you.",
-                    "Which gate should I go to?",
-                    "What time does boarding close?",
-                    "Where is the security check?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Your gate number is 24B, and security is straight ahead.",
-                replyOptions: [
-                    "Thanks for your help.",
-                    "How long will security take?",
-                    "Is there a lounge nearby?",
-                    "Where can I find restrooms?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Have a pleasant flight!",
-                replyOptions: [
-                    "Thank you very much!",
-                    "Have a nice day.",
-                    "Thanks, goodbye!",
-                    "See you next time."
-                ]
-            )
-        ]
-    )
-,
-    RoleplayScenario(
-        id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
-        title: "Ordering Food",
-        description: "Practice ordering food at a restaurant.",
-        imageURL: "OrderingFood",
-        category: .restaurant,
-        difficulty: .beginner,
-        estimatedTimeMinutes: 4,
-        script: [
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Welcome! May I take your order?",
-                replyOptions: [
-                    "Yes, please.",
-                    "Sure.",
-                    "One moment, please.",
-                    "Can I see the menu first?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Here is the menu. Let me know if you need any help.",
-                replyOptions: [
-                    "Thank you.",
-                    "I appreciate it.",
-                    "Thanks.",
-                    "Sure."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Would you like something to drink?",
-                replyOptions: [
-                    "Yes, I’ll have water.",
-                    "A soft drink, please.",
-                    "I’d like a coffee.",
-                    "No, thank you."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Are you ready to place your order?",
-                replyOptions: [
-                    "Yes, I am.",
-                    "Almost, give me a moment.",
-                    "Yes, I’d like to order now.",
-                    "I need a little more time."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "What would you like to have?",
-                replyOptions: [
-                    "I’ll have the pasta.",
-                    "I’d like the grilled chicken.",
-                    "I’ll order a vegetarian dish.",
-                    "I’d like today’s special."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Would you like any sides with that?",
-                replyOptions: [
-                    "Yes, fries please.",
-                    "A side salad, please.",
-                    "No sides for me.",
-                    "What do you recommend?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "How would you like your food prepared?",
-                replyOptions: [
-                    "Medium, please.",
-                    "Well done.",
-                    "Lightly cooked.",
-                    "No special preference."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Alright, I’ll place your order now.",
-                replyOptions: [
-                    "Thank you.",
-                    "Sounds good.",
-                    "Great.",
-                    "Perfect."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Your food will be served shortly.",
-                replyOptions: [
-                    "Thank you!",
-                    "I appreciate it.",
-                    "Looking forward to it.",
-                    "Thanks a lot."
-                ]
-            )
-        ]
-    )
-,
-    RoleplayScenario(
-        id: UUID(uuidString: "55555555-5555-5555-5555-555555555555")!,
-        title: "Job Interview",
-        description: "Practice answering common interview questions.",
-        imageURL: "JobInterview",
+        title: "Behavioral Job Interview",
+        description: "Practice structured interview answers with clear examples, measurable impact, and thoughtful follow-up questions.",
         category: .interview,
         difficulty: .advanced,
         estimatedTimeMinutes: 8,
         script: [
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Good morning. Please have a seat.",
-                replyOptions: [
-                    "Good morning, thank you.",
-                    "Thank you for having me.",
-                    "Nice to meet you.",
-                    "Good morning."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Can you tell me a little about yourself?",
-                replyOptions: [
-                    "I'm a motivated and hardworking individual.",
-                    "I recently graduated and enjoy learning new skills.",
-                    "I have experience relevant to this role.",
-                    "I'm passionate about my career."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Why do you want to work for our company?",
-                replyOptions: [
-                    "I admire your company culture.",
-                    "Your work aligns with my skills.",
-                    "I see growth opportunities here.",
-                    "I respect your organization."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "What are your strengths?",
-                replyOptions: [
-                    "I'm a good communicator.",
-                    "I adapt quickly to new environments.",
-                    "I'm very organized.",
-                    "I'm a team player."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "What is one of your weaknesses?",
-                replyOptions: [
-                    "I sometimes focus too much on details.",
-                    "I am learning to delegate better.",
-                    "I used to be shy, but I'm improving.",
-                    "I take time to adjust initially."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Where do you see yourself in five years?",
-                replyOptions: [
-                    "Growing professionally in this field.",
-                    "Taking on more responsibilities.",
-                    "Developing leadership skills.",
-                    "Working with a great team."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Do you have any questions for us?",
-                replyOptions: [
-                    "What does a typical day look like?",
-                    "What are the growth opportunities?",
-                    "How do you measure success?",
-                    "What is the next step?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Thank you for coming in today. We’ll be in touch.",
-                replyOptions: [
-                    "Thank you for your time.",
-                    "I appreciate the opportunity.",
-                    "Looking forward to hearing from you.",
-                    "Have a great day."
-                ]
-            )
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "66666666-6666-6666-6666-666666666666")!,
-        title: "Hotel Booking",
-        description: "Practice booking a hotel room, asking about facilities, pricing, and check-in details.",
-        imageURL: "HotelBooking",
-        category: .travel,
-        difficulty: .intermediate,
-        estimatedTimeMinutes: 6,
-        script: [
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Good evening! Welcome to our hotel. How may I help you?",
-                replyOptions: [
-                    "Hi, I would like to book a room.",
-                    "Hello, I need accommodation for tonight.",
-                    "Good evening, do you have any rooms available?",
-                    "I want to check availability for a room."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Sure. How many nights will you be staying?",
-                replyOptions: [
-                    "I will be staying for two nights.",
-                    "Just one night.",
-                    "Three nights, please.",
-                    "I’m not sure yet."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "How many guests will be staying in the room?",
-                replyOptions: [
-                    "Just one person.",
-                    "Two adults.",
-                    "Two adults and one child.",
-                    "I will be alone."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Would you like a single room or a double room?",
-                replyOptions: [
-                    "A single room, please.",
-                    "I would prefer a double room.",
-                    "Any room is fine.",
-                    "What is the difference between them?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Our double room costs ₹3,500 per night and includes breakfast.",
-                replyOptions: [
-                    "That sounds good.",
-                    "Is breakfast complimentary?",
-                    "Do you have any discounts available?",
-                    "Is there a cheaper option?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Yes, breakfast is included, and we also have free Wi-Fi.",
-                replyOptions: [
-                    "Great! Does the room have air conditioning?",
-                    "Is room service available?",
-                    "Do you have a swimming pool?",
-                    "Is Wi-Fi available in the rooms?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Yes, all rooms are air-conditioned and room service is available 24/7.",
-                replyOptions: [
-                    "Perfect, I’ll take the room.",
-                    "That sounds comfortable.",
-                    "Can I see the room first?",
-                    "Do you have a gym facility?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Sure. May I please see your ID for check-in?",
-                replyOptions: [
-                    "Here is my ID.",
-                    "Sure, here you go.",
-                    "Is a passport acceptable?",
-                    "I have my ID on my phone."
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Thank you. How would you like to make the payment?",
-                replyOptions: [
-                    "I’ll pay by card.",
-                    "Can I pay in cash?",
-                    "Is UPI accepted?",
-                    "Can I pay at checkout?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Your room is on the third floor. Here is your key card.",
-                replyOptions: [
-                    "Thank you very much.",
-                    "What time is breakfast served?",
-                    "What is the check-out time?",
-                    "Can I get help with my luggage?"
-                ]
-            ),
-
-            RoleplayMessage(
-                speaker: .npc,
-                text: "Breakfast is served from 7 AM to 10 AM, and check-out is at 11 AM.",
-                replyOptions: [
-                    "That’s perfect, thank you.",
-                    "Can I request a late check-out?",
-                    "Is there a wake-up call service?",
-                    "Who should I contact for assistance?"
-                ]
-            )
-
+            line("Tell me about yourself in under one minute.", [
+                "I am a backend engineer with five years of fintech experience focused on reliability.",
+                "I lead API delivery and improve incident prevention across platform teams.",
+                "My strength is converting ambiguous requirements into stable, user-focused systems.",
+                "I build and support customer-facing features end to end."
+            ]),
+            line("Describe a time you influenced people without formal authority.", [
+                "I aligned three teams around one SLA by publishing risk updates and milestones.",
+                "I used data from production incidents to secure cross-team priority changes.",
+                "I facilitated a decision session and documented trade-offs and owners.",
+                "I proved the approach in one pilot service, then scaled it across teams."
+            ]),
+            line("How do you handle conflicting deadlines?", [
+                "I clarify business impact, define options, and agree on trade-offs early.",
+                "I negotiate scope first so quality does not collapse near deadline.",
+                "I document assumptions and escalate only with proposed alternatives.",
+                "I sequence high-risk tasks first to avoid late surprises."
+            ]),
+            line("Tell me about a mistake and what you changed.", [
+                "I once under-communicated risk, so now I maintain a visible weekly risk log.",
+                "I shipped with weak alerting once, then added SLO alarms and runbooks.",
+                "I underestimated integration complexity, so now I gate work with design reviews.",
+                "I optimized too early, and now I start with user outcomes and baselines."
+            ]),
+            line("What questions do you have for us?", [
+                "How do you define success for this role in the first 90 days?",
+                "What are the key risks this team needs this hire to address?",
+                "How does this role partner with product and design in decision-making?",
+                "What growth paths are realistic for strong performers here?"
+            ])
         ]
     ),
 
-    
     RoleplayScenario(
-        id: UUID(uuidString: "77777777-7777-7777-7777-777777777777")!,
-        title: "Coffee Shop",
-        description: "Practice ordering coffee, snacks, and chatting with the barista.",
-        imageURL: "CoffeeShop",
-        category: .restaurant,
+        id: UUID(uuidString: "22222222-2222-2222-2222-222222222222")!,
+        title: "Team Introduction on Day One",
+        description: "Practice introducing yourself in a new team with clear role scope, strengths, and collaboration preferences.",
+        category: .custom,
         difficulty: .beginner,
-        estimatedTimeMinutes: 3,
+        estimatedTimeMinutes: 5,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Hi! What can I get for you today?", replyOptions: ["I'd like a cappuccino, please.", "Can I get a large iced latte?", "What do you recommend?", "Just a drip coffee for me."]),
-            RoleplayMessage(speaker: .npc, text: "Sure thing. Would you like anything to eat with that?", replyOptions: ["Yes, a chocolate croissant.", "No, just the drink.", "Do you have gluten-free muffins?", "I'll take a blueberry bagel."]),
-            RoleplayMessage(speaker: .npc, text: "Got it. Is that for here or to go?", replyOptions: ["To go.", "For here, please.", "I'll be staying.", "Can you put it in a to-go cup, but I'll sit down?"]),
-            RoleplayMessage(speaker: .npc, text: "Alright. That will be $6.50. You can pay with card or cash.", replyOptions: ["I'll use my card.", "Here’s a ten-dollar bill.", "Do you take mobile pay?", "Keep the change."]),
-            RoleplayMessage(speaker: .npc, text: "Thank you! I'll have that right out for you at the end of the counter.", replyOptions: ["Thanks!", "Great, I'll wait over there.", "Perfect.", "Have a good day!"])
+            line("Welcome. Could you introduce yourself to the team?", [
+                "Hi everyone, I am Maya, joining as a product analyst for onboarding metrics.",
+                "I am Rahul, new mobile engineer focused on performance and release quality.",
+                "I am Ana, joining customer success to support implementation and adoption.",
+                "I am David, a UX designer working on first-time user experience."
+            ]),
+            line("What experience from your previous role is most relevant here?", [
+                "I built reporting workflows that reduced manual analysis time.",
+                "I ran release-readiness reviews for cross-functional launches.",
+                "I translated client feedback into practical product changes.",
+                "I improved design-to-engineering handoffs with clearer specs."
+            ]),
+            line("How do you prefer to collaborate with teammates?", [
+                "I prefer clear written context before meetings and concise follow-ups.",
+                "I value direct feedback and visible ownership of action items.",
+                "I like short weekly syncs with clear decisions and next steps.",
+                "I work best with early feedback loops before final delivery."
+            ]),
+            line("What will you focus on in your first two weeks?", [
+                "I will learn current goals, key metrics, and active priorities.",
+                "I will meet core partners and map blockers in our workflow.",
+                "I will review user feedback and identify one quick improvement.",
+                "I will understand tools and process so I can contribute quickly."
+            ]),
+            line("What do you need from us to start strong?", [
+                "A shortlist of key docs and owners would help a lot.",
+                "Access to dashboards and release history would speed up onboarding.",
+                "A brief architecture walkthrough would provide useful context.",
+                "A team buddy for the first sprint would be very helpful."
+            ])
         ]
     ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
+        title: "Weekly Project Status Update",
+        description: "Practice concise project updates that include progress, blockers, risk level, and clear support requests.",
+        category: .custom,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 5,
+        script: [
+            line("Give us a short status update on onboarding.", [
+                "Development is 70 percent complete and QA starts tomorrow.",
+                "Core flow is done in staging and analytics validation is in progress.",
+                "We completed three key tasks and are preparing stakeholder review.",
+                "Timeline is on track with one dependency under review."
+            ]),
+            line("What changed since last week?", [
+                "We shipped account verification to staging and fixed two major bugs.",
+                "We merged API updates and finalized acceptance criteria.",
+                "We improved first-screen performance and reduced load time.",
+                "We closed legal review items and updated rollout checklist."
+            ]),
+            line("Any blockers?", [
+                "Analytics schema access is still pending and blocks final instrumentation.",
+                "Design approval for one edge case is delayed.",
+                "No critical blockers, but QA bandwidth is tight next sprint.",
+                "A dependency team changed an endpoint and we are validating impact."
+            ]),
+            line("What is the risk level this week?", [
+                "Medium risk: timeline is stable, but dependency resolution is urgent.",
+                "Low risk if schema access is approved within one day.",
+                "Medium-high risk for analytics quality until end-to-end checks complete.",
+                "Low scope risk, medium release-readiness risk due to test coverage gaps."
+            ]),
+            line("What support do you need from leadership?", [
+                "Please unblock analytics schema approval today.",
+                "Please prioritize QA regression support for this release.",
+                "We need final security sign-off on one open item.",
+                "Please align the dependency team on API contract freeze."
+            ])
+        ]
+    ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "55555555-5555-5555-5555-555555555555")!,
+        title: "Clarifying Requirements with Product Manager",
+        description: "Practice asking clear clarifying questions to avoid ambiguity and reduce rework before implementation starts.",
+        category: .custom,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 5,
+        script: [
+            line("Before development starts, what do you need clarified?", [
+                "Which user segment is in scope for this release?",
+                "What is the primary success metric for launch?",
+                "Are there legal or compliance constraints we must support?",
+                "What should happen when required user data is missing?"
+            ]),
+            line("Which assumptions should we validate first?", [
+                "Whether fewer steps increase completion without harming verification quality.",
+                "Whether reminder messages improve completion in week one.",
+                "Whether optional profile fields should stay optional at launch.",
+                "Which failure cases are most common in current funnel data."
+            ]),
+            line("How should edge cases be handled in the spec?", [
+                "I will document expected behavior for each edge case explicitly.",
+                "I will define fallback states for timeouts and duplicate submissions.",
+                "I will separate must-haves from deferred edge-case handling.",
+                "I will include clear error message and recovery expectations."
+            ]),
+            line("What do you need from me to finalize requirements?", [
+                "A ranked list of must-have versus optional outcomes.",
+                "Acceptance criteria with concrete valid and invalid examples.",
+                "Agreement on latency, accessibility, and analytics expectations.",
+                "Decision owners for unresolved questions before sprint planning."
+            ]),
+            line("How will you align the team after this?", [
+                "I will post a written decision summary with owners and deadlines.",
+                "I will update tickets with scope boundaries and open risks.",
+                "I will share a one-page implementation brief before planning.",
+                "I will run a short walkthrough to confirm everyone is aligned."
+            ])
+        ]
+    ),
+
     RoleplayScenario(
         id: UUID(uuidString: "88888888-8888-8888-8888-888888888888")!,
-        title: "Doctor's Appointment",
-        description: "Checking in at the clinic and describing your symptoms.",
-        imageURL: "DoctorAppointment",
+        title: "Disagreeing Professionally in a Design Review",
+        description: "Practice challenging ideas respectfully using evidence, alternatives, and shared goals.",
         category: .custom,
         difficulty: .intermediate,
         estimatedTimeMinutes: 6,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Good morning. Do you have an appointment?", replyOptions: ["Yes, under John Smith.", "I have an appointment at 10 AM.", "No, I'm a walk-in. Is that okay?", "Yes, I booked it online yesterday."]),
-            RoleplayMessage(speaker: .npc, text: "I see it. Please fill out this form and have a seat.", replyOptions: ["Sure, I'll do that now.", "Do I need a pen?", "How long is the wait?", "I filled this out online, do I still need to?"]),
-            RoleplayMessage(speaker: .npc, text: "The doctor will see you now. What seems to be the problem today?", replyOptions: ["I've had a bad cough for a week.", "My stomach has been hurting.", "I just need a general check-up.", "I hurt my ankle running."]),
-            RoleplayMessage(speaker: .npc, text: "I see. Are you taking any medications currently?", replyOptions: ["No, nothing.", "Just some over-the-counter painkillers.", "Yes, I take blood pressure medication.", "I take multivitamins."]),
-            RoleplayMessage(speaker: .npc, text: "Okay, we're going to order some tests. The nurse will draw blood shortly.", replyOptions: ["Okay, sounds good.", "Will that hurt?", "How long do results take?", "Can I eat after the test?"])
+            line("You seem concerned about this proposal. What is your concern?", [
+                "I support the goal, but this approach increases operational risk.",
+                "I think this solves today\'s issue but creates long-term maintenance cost.",
+                "I see scaling limitations that may impact reliability later.",
+                "I am worried rollback safety is not strong enough yet."
+            ]),
+            line("Can you make that risk specific?", [
+                "This creates a single failure point for checkout traffic.",
+                "The dependency contract is unstable and may fail at runtime.",
+                "The rollout plan has no safe fallback if error rates spike.",
+                "We are coupling two systems that need independent scaling."
+            ]),
+            line("What alternative do you recommend?", [
+                "Release behind a feature flag with measurable stop criteria.",
+                "Ship read-only support first, then enable writes after validation.",
+                "Pilot in one region before global rollout.",
+                "Isolate risky logic in a separate component first."
+            ]),
+            line("How does that affect timeline?", [
+                "It may add one sprint but significantly lowers production risk.",
+                "We can keep the date by reducing lower-value scope.",
+                "Minor delay, but better release confidence and less rework.",
+                "We can parallelize testing to reduce schedule impact."
+            ]),
+            line("What do you need from the team to proceed?", [
+                "Agreement on go/no-go launch criteria.",
+                "A short decision meeting with trade-offs documented.",
+                "Priority QA support for failure-mode testing.",
+                "Product alignment on phased customer communication."
+            ])
         ]
     ),
+
     RoleplayScenario(
         id: UUID(uuidString: "99999999-9999-9999-9999-999999999999")!,
-        title: "Asking for Directions",
-        description: "Practice getting around the city by asking locals for directions.",
-        imageURL: "Directions",
-        category: .travel,
-        difficulty: .beginner,
-        estimatedTimeMinutes: 4,
+        title: "Receiving Tough Feedback from Your Manager",
+        description: "Practice receiving critical feedback calmly, clarifying expectations, and committing to measurable improvement.",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Excuse me, are you lost? Do you need help?", replyOptions: ["Yes, can you tell me where the train station is?", "I'm looking for the art museum.", "Do you know where the nearest ATM is?", "Yes, I'm trying to find Main Street."]),
-            RoleplayMessage(speaker: .npc, text: "Oh, the train station is just a few blocks away. You need to go straight down this road.", replyOptions: ["Go straight, then what?", "How far is it?", "Is it a long walk?", "Can I take a bus from here?"]),
-            RoleplayMessage(speaker: .npc, text: "It's about a five-minute walk. Once you see the big park, turn left.", replyOptions: ["Turn left at the park. Got it.", "Is the park on the left or right side?", "Thank you so much!", "Will I be able to see it from the corner?"]),
-            RoleplayMessage(speaker: .npc, text: "Yes, you can't miss it. It's a huge building with a clock tower.", replyOptions: ["Perfect, I appreciate the help.", "Thanks! Have a great day.", "That sounds easy enough.", "You've been very helpful."])
+            line("I want to discuss concerns about your project communication.", [
+                "Thank you for raising this. I want to understand and improve quickly.",
+                "I appreciate the feedback. Could you share specific examples?",
+                "Understood. I am open to this and want to align with expectations.",
+                "I hear you. Please walk me through the biggest gaps."
+            ]),
+            line("Two stakeholder updates were late and caused surprise.", [
+                "That is fair. I should have escalated risk earlier.",
+                "I understand the impact and take responsibility for that gap.",
+                "I see how that created confusion. I will correct it immediately.",
+                "Thank you for being direct. I agree this needs improvement."
+            ]),
+            line("What will you change going forward?", [
+                "I will send weekly written updates with blockers, risk, and owners.",
+                "I will escalate medium or higher risks within 24 hours.",
+                "I will align expectations at sprint start and mid-sprint.",
+                "I will maintain a visible risk log for stakeholders."
+            ]),
+            line("How will we measure improvement?", [
+                "No stakeholder surprises on timeline or scope for the next two sprints.",
+                "All updates are on time with explicit next steps.",
+                "Risk changes are communicated within one business day.",
+                "Cross-team blockers are surfaced earlier with clear owners."
+            ]),
+            line("What support do you need from me?", [
+                "A quick weekly review of my update format would help.",
+                "Feedback after my next stakeholder meeting would be valuable.",
+                "Examples of strong updates used by senior leads would help me calibrate.",
+                "Please flag early if my communication still misses expectations."
+            ])
         ]
     ),
+
     RoleplayScenario(
         id: UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!,
-        title: "Lost Luggage",
-        description: "Report missing baggage at the airport service desk.",
-        imageURL: "LostLuggage",
-        category: .travel,
-        difficulty: .advanced,
-        estimatedTimeMinutes: 7,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Baggage Services, how can I help you?", replyOptions: ["My suitcase didn't arrive on the carousel.", "I can't find my bags.", "I need to file a missing luggage report.", "Where do oversized bags come out?"]),
-            RoleplayMessage(speaker: .npc, text: "I'm sorry to hear that. Can I see your boarding pass and baggage tag receipts?", replyOptions: ["Here they are.", "I think I lost the receipts.", "I only have my boarding pass.", "Sure, let me find them."]),
-            RoleplayMessage(speaker: .npc, text: "Could you describe the bag for me? What color and brand is it?", replyOptions: ["It's a large black Samsonite suitcase.", "A medium-sized red duffel bag.", "It's blue with a bright yellow tag.", "A hard-shell silver case."]),
-            RoleplayMessage(speaker: .npc, text: "We will trace it immediately. Can we get an address to deliver it to once we find it?", replyOptions: ["Yes, I'm staying at the Marriott downtown.", "Can I just come back to pick it up?", "I live locally, here's my address.", "How long will this take?"]),
-            RoleplayMessage(speaker: .npc, text: "Usually it arrives on the next flight. We will call you as soon as it lands.", replyOptions: ["Okay, here is my phone number.", "Do you offer compensation for essentials?", "Thank you for your help.", "I hope it turns up soon."])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!,
-        title: "Small Talk at a Party",
-        description: "Making casual conversation with strangers at a social gathering.",
-        imageURL: "PartyTalk",
+        title: "Client Kickoff Meeting",
+        description: "Practice starting a client project with clear goals, scope boundaries, communication cadence, and next steps.",
         category: .custom,
         difficulty: .intermediate,
-        estimatedTimeMinutes: 5,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Hi! I don't think we've met. I'm Alex.", replyOptions: ["Hi Alex, I'm Sarah. Nice to meet you.", "Hey, nice to meet you. I'm Mark.", "Hello! Are you a friend of the host?", "Great party, isn't it? I'm Lisa."]),
-            RoleplayMessage(speaker: .npc, text: "Nice to meet you. So, how do you know the host?", replyOptions: ["We went to college together.", "We work in the same office.", "I'm actually a friend of their roommate.", "We met at a networking event a while back."]),
-            RoleplayMessage(speaker: .npc, text: "Oh, that's cool! I'm an old friend from high school. What do you do for work?", replyOptions: ["I'm a software engineer.", "I work in marketing.", "I'm currently studying biology.", "I'm a teacher."]),
-            RoleplayMessage(speaker: .npc, text: "Wow, that sounds really interesting! Is it a challenging job?", replyOptions: ["Yes, it can be, but I love it.", "It has its moments.", "Not too bad, usually keeps me busy.", "It's quite demanding, to be honest."]),
-            RoleplayMessage(speaker: .npc, text: "I can imagine. Anyways, I'm going to grab a drink. It was lovely talking to you!", replyOptions: ["You too! See you around.", "Catch you later!", "Grab me one too, if you don't mind!", "Nice speaking with you."])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!,
-        title: "Tech Support Call",
-        description: "Call customer service because your internet is down.",
-        imageURL: "TechSupport",
-        category: .custom,
-        difficulty: .advanced,
         estimatedTimeMinutes: 6,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Thank you for calling Technical Support. This is Sarah. How can I assist you?", replyOptions: ["My internet is not working.", "My router is flashing red.", "I have no Wi-Fi connection.", "My download speed is extremely slow."]),
-            RoleplayMessage(speaker: .npc, text: "I'm sorry to hear that. Can I have your account number or phone number?", replyOptions: ["My phone number is 555-1234.", "My account number is 987654321.", "I don't know my account number.", "Can you look it up by my name?"]),
-            RoleplayMessage(speaker: .npc, text: "Thank you. I see your account. Have you tried restarting your router?", replyOptions: ["Yes, I disconnected it for a minute.", "No, how do I do that?", "I restarted it but it didn't help.", "Let me try that now."]),
-            RoleplayMessage(speaker: .npc, text: "I see an outage in your area that our technicians are fixing. It should be up in two hours.", replyOptions: ["Ah, that makes sense. Thank you.", "Will I be compensated for the downtime?", "Is there any way to fix it sooner?", "Okay, I'll wait it out."]),
-            RoleplayMessage(speaker: .npc, text: "Is there anything else I can assist you with today?", replyOptions: ["No, that's all. Thanks.", "When does my billing cycle end?", "Can I upgrade my speed?", "Nope, have a good day."])
+            line("Can you summarize our shared objective for phase one?", [
+                "Launch the reporting dashboard by Q3 with agreed adoption targets.",
+                "Reduce manual reporting effort by 40 percent in the first release.",
+                "Deliver trusted visibility for operations decisions across key teams.",
+                "Release stable core workflows before scaling to all regions."
+            ]),
+            line("What is in scope and out of scope for this phase?", [
+                "Core dashboard metrics are in scope; advanced forecasting is phase two.",
+                "Web dashboard is in scope; mobile support is deferred.",
+                "Two integrations are included now; remaining systems later.",
+                "Role-based access is included; custom exports are phase two."
+            ]),
+            line("How should we handle change requests?", [
+                "Review weekly, then assess timeline and budget impact transparently.",
+                "Log every request with business value and trade-offs.",
+                "Escalate urgent changes with documented impact and approval.",
+                "Use a light change-control process with a 48-hour response window."
+            ]),
+            line("What communication rhythm do you propose?", [
+                "Weekly progress call plus written recap with decisions and blockers.",
+                "Twice-weekly async updates and one live decision checkpoint.",
+                "A fixed Thursday review with owners and next-week goals.",
+                "Shared project board with clear status and deadlines."
+            ]),
+            line("What are immediate next steps after this meeting?", [
+                "Send kickoff summary, confirm owners, and schedule discovery interviews.",
+                "Share draft milestone plan by Friday for your sign-off.",
+                "Publish risk register and communication plan within one day.",
+                "Set up first requirements workshop with all core stakeholders."
+            ])
         ]
     ),
-    RoleplayScenario(
-        id: UUID(uuidString: "DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD")!,
-        title: "Gym Membership",
-        description: "Ask about gym prices, facilities, and getting a membership.",
-        imageURL: "GymMembership",
-        category: .custom,
-        difficulty: .intermediate,
-        estimatedTimeMinutes: 5,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Welcome to FitZone! Are you looking to sign up for a membership today?", replyOptions: ["Yes, I'm interested in joining.", "I just want some information first.", "How much is your monthly fee?", "Can I look around the gym?"]),
-            RoleplayMessage(speaker: .npc, text: "Our standard membership is $40 a month. It includes all equipment and locker rooms.", replyOptions: ["Does it include fitness classes?", "Is there an joining fee?", "Can I cancel anytime?", "Do you have a personal trainer?"]),
-            RoleplayMessage(speaker: .npc, text: "Classes are $10 extra per month. And yes, there's a $20 sign-up fee.", replyOptions: ["Okay, I'll take the standard membership.", "I want the classes included too.", "Are there any student discounts?", "Can I try a day pass first?"]),
-            RoleplayMessage(speaker: .npc, text: "Great. I just need to scan your ID and get a card on file.", replyOptions: ["Here is my driver's license and credit card.", "Can I pay in cash?", "How soon can I start working out?", "Sure, here you go."]),
-            RoleplayMessage(speaker: .npc, text: "You're all set! Here is your key fob. You can start right now if you want.", replyOptions: ["Awesome, thanks!", "Where are the locker rooms?", "Do I need to swipe this every time?", "Great, I'll go change."])
-        ]
-    ),
+
     RoleplayScenario(
         id: UUID(uuidString: "EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE")!,
-        title: "Return an Item",
-        description: "Return a defective piece of clothing to a department store.",
-        imageURL: "ReturnItem",
-        category: .groceryShopping,
-        difficulty: .beginner,
-        estimatedTimeMinutes: 4,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Next in line! How can I help you today?", replyOptions: ["I'd like to return this shirt.", "This sweater has a tear in it.", "I need to exchange this for a different size.", "I bought this yesterday but it doesn't fit."]),
-            RoleplayMessage(speaker: .npc, text: "Do you have the receipt with you?", replyOptions: ["Yes, here it is.", "No, I threw it away.", "I have the digital receipt on my phone.", "It was a gift."]),
-            RoleplayMessage(speaker: .npc, text: "Okay, since it's within 30 days, we can do a full refund. Did you want that on the original card?", replyOptions: ["Yes, please.", "Can I get store credit instead?", "Can I get cash back?", "Actually, I want to exchange it."]),
-            RoleplayMessage(speaker: .npc, text: "Please go ahead and insert or tap your card on the terminal.", replyOptions: ["Tapping it now.", "Done.", "Did it go through?", "One second."]),
-            RoleplayMessage(speaker: .npc, text: "Alright, your return is processed. The money should show up in 3 to 5 business days.", replyOptions: ["Thank you very much.", "Do I need to sign anything?", "Perfect, have a good day.", "Thanks for the help."])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")!,
-        title: "Renting an Apartment",
-        description: "Talk to a real estate agent about viewing and renting a flat.",
-        imageURL: "RentingApartment",
+        title: "Negotiating Scope and Timeline",
+        description: "Practice negotiating scope trade-offs with a client while preserving quality, trust, and delivery confidence.",
         category: .custom,
         difficulty: .advanced,
         estimatedTimeMinutes: 7,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Hello, this is City Real Estate. Which property are you calling about?", replyOptions: ["I'm calling about the 2-bedroom on Elm Street.", "Do you have any studio apartments available?", "I want to schedule a viewing.", "I saw your listing online."]),
-            RoleplayMessage(speaker: .npc, text: "Ah, the Elm Street property. Yes, the rent is $1,800 a month. When do you want to move in?", replyOptions: ["The first of next month.", "As soon as possible.", "In about two weeks.", "I'm flexible."]),
-            RoleplayMessage(speaker: .npc, text: "Are you employed full-time? We require income to be 3x the monthly rent.", replyOptions: ["Yes, I work full-time.", "I am a student with a guarantor.", "I work freelance, but I can show bank statements.", "Yes."]),
-            RoleplayMessage(speaker: .npc, text: "Good. Are there any pets moving in with you?", replyOptions: ["No pets.", "I have a small dog.", "Does a cat count?", "Are pets allowed?"]),
-            RoleplayMessage(speaker: .npc, text: "Pets are fine with an additional deposit. I have an opening tomorrow at 3 PM to show you the place. Does that work?", replyOptions: ["3 PM is perfect.", "Can we do 5 PM instead?", "Is the weekend possible?", "Yes, I will be there."])
+            line("We need full scope by the original date. Can you commit?", [
+                "I want to meet your goals, and we need to discuss trade-offs to protect quality.",
+                "We can deliver core value by that date with phased scope.",
+                "If all items remain in scope, we need to align on a revised timeline.",
+                "I recommend prioritizing highest business-value items first."
+            ]),
+            line("Why can\'t you just add more people and move faster?", [
+                "Late staffing usually increases coordination overhead and delivery risk.",
+                "Ramp-up time reduces short-term velocity for complex systems.",
+                "Speed without alignment often creates defects and rework.",
+                "We can accelerate selected tracks, but not all dependencies at once."
+            ]),
+            line("What plan do you propose?", [
+                "Phase one: dashboard, alerts, exports. Phase two: advanced forecasting.",
+                "Keep date by reducing lower-value customization in release one.",
+                "Deliver 80 percent now and schedule remaining scope in next sprint.",
+                "Use two milestones with checkpoint reviews and acceptance criteria."
+            ]),
+            line("How will this still meet our business commitments?", [
+                "Phase-one scope directly maps to your top three business outcomes.",
+                "We will review success metrics weekly with your stakeholders.",
+                "High-visibility reporting ensures leadership can track value immediately.",
+                "We will escalate issues within 24 hours with clear impact notes."
+            ]),
+            line("What do you need from us today?", [
+                "Priority ranking and sign-off on deferred items.",
+                "One decision-maker for rapid scope approvals.",
+                "Agreement on milestone acceptance criteria.",
+                "Confirmation of workflows that are business-critical for phase one."
+            ])
         ]
     ),
+
     RoleplayScenario(
         id: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!,
-        title: "Pharmacy Visit",
-        description: "Ask a pharmacist for advice on cold medication and prescriptions.",
-        imageURL: "Pharmacy",
-        category: .groceryShopping,
-        difficulty: .beginner,
-        estimatedTimeMinutes: 3,
+        title: "Executive Presentation with Q&A",
+        description: "Practice presenting recommendations to leadership and handling challenging questions with concise evidence-based responses.",
+        category: .custom,
+        difficulty: .advanced,
+        estimatedTimeMinutes: 8,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Hi there. Picking up a prescription or do you need a recommendation?", replyOptions: ["I need something for a sore throat.", "I'm picking up a prescription for Sarah.", "Do you have allergy medicine?", "Where are the band-aids?"]),
-            RoleplayMessage(speaker: .npc, text: "For a sore throat, I recommend these lozenges and some ibuprofen. Are you allergic to any medicines?", replyOptions: ["No, no allergies.", "I'm allergic to penicillin.", "Only allergic to pollen.", "I don't think so."]),
-            RoleplayMessage(speaker: .npc, text: "Okay, these will work perfectly. Do you need anything else?", replyOptions: ["No, that's it.", "Where can I find cough syrup?", "Do you sell vitamins?", "That's all for today."]),
-            RoleplayMessage(speaker: .npc, text: "You can pay for those right here at this register. It comes to $12.", replyOptions: ["Here's twenty.", "I'll use Apple Pay.", "Can I use my rewards card?", "Here you go."]),
-            RoleplayMessage(speaker: .npc, text: "Thank you. Feel better soon!", replyOptions: ["Thanks!", "I hope so.", "Have a good one.", "I appreciate it."])
+            line("You have five minutes. What is your recommendation?", [
+                "I recommend prioritizing retention improvements over acquisition next quarter.",
+                "We should improve onboarding first because churn is highest in week one.",
+                "My recommendation is a phased rollout balancing impact and risk.",
+                "We should consolidate tools to reduce cost and improve speed."
+            ]),
+            line("What evidence supports that?", [
+                "Cohort data shows a 12 percent retention improvement with reduced onboarding friction.",
+                "Pilot users activated faster and created fewer support tickets.",
+                "Cost model shows payback within two quarters under conservative assumptions.",
+                "Internal experiments indicate this has the strongest expected ROI."
+            ]),
+            line("What are the top risks?", [
+                "Adoption risk is primary; we include change management in phase one.",
+                "Dependency alignment risk is mitigated by milestone gates.",
+                "Capacity risk exists, so lower-value items are de-scoped.",
+                "Data-quality risk is addressed with parallel validation."
+            ]),
+            line("Why now instead of next quarter?", [
+                "Delay extends known losses and increases customer churn risk.",
+                "The current renewal cycle makes timing especially valuable.",
+                "We already have validated groundwork and team readiness.",
+                "Competing initiatives have lower impact than this option."
+            ]),
+            line("What decision do you need today?", [
+                "Approval for phase-one scope, budget, and sponsor ownership.",
+                "Go decision on timeline and launch criteria.",
+                "Confirmation to reallocate capacity from lower-impact work.",
+                "Agreement on success metrics and review cadence."
+            ])
         ]
     ),
+
     RoleplayScenario(
         id: UUID(uuidString: "A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1")!,
-        title: "Bank Account Opening",
-        description: "Visit a bank to open a new savings account and ask about interest rates.",
-        imageURL: "BankAccount",
-        category: .custom,
-        difficulty: .intermediate,
-        estimatedTimeMinutes: 6,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Good morning! Welcome to City Bank. How can I help you today?", replyOptions: ["I'd like to open a savings account.", "I need information about your accounts.", "Can I open an account without an appointment?", "What documents do I need to open an account?"]),
-            RoleplayMessage(speaker: .npc, text: "Sure! We have a few options. Would you prefer a basic savings account or a premium one?", replyOptions: ["What's the difference between them?", "I'll go with the basic one.", "What are the interest rates?", "Which one has no minimum balance?"]),
-            RoleplayMessage(speaker: .npc, text: "The basic account has no minimum balance and offers 3% interest. I'll need your ID and proof of address.", replyOptions: ["Here is my ID and a utility bill.", "Can I use my passport?", "I have all my documents here.", "Do I need to bring anything else?"]),
-            RoleplayMessage(speaker: .npc, text: "Perfect. I'll set up your account now. Would you like a debit card as well?", replyOptions: ["Yes, please.", "Is there an annual fee for the card?", "Can I get a contactless card?", "How long will it take to arrive?"]),
-            RoleplayMessage(speaker: .npc, text: "Your account is now active! Here is your account number. The debit card will arrive in 5-7 days.", replyOptions: ["Thank you so much!", "Can I set up online banking too?", "Where is the nearest ATM?", "Great, I appreciate your help."])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2")!,
-        title: "Booking a Cab",
-        description: "Practice calling or hailing a cab and giving directions to your destination.",
-        imageURL: "BookingCab",
-        category: .travel,
-        difficulty: .beginner,
-        estimatedTimeMinutes: 4,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Hello! Where would you like to go?", replyOptions: ["To the airport, please.", "Can you take me to Central Mall?", "I need to go to 45 Oak Street.", "How much to go downtown?"]),
-            RoleplayMessage(speaker: .npc, text: "Sure, that'll take about 20 minutes. Do you have a preferred route?", replyOptions: ["Take the highway, it's faster.", "Any route is fine.", "Avoid the highway, please.", "Whichever has less traffic."]),
-            RoleplayMessage(speaker: .npc, text: "No problem. Would you like me to turn on the AC?", replyOptions: ["Yes, please.", "No, I'm fine.", "Just a little, thanks.", "Can you open the window instead?"]),
-            RoleplayMessage(speaker: .npc, text: "We're almost there. It's on your left side, right?", replyOptions: ["Yes, right here is perfect.", "A little further, please.", "Can you stop after the signal?", "Drop me at the main gate."]),
-            RoleplayMessage(speaker: .npc, text: "Here we are. The fare is $18.", replyOptions: ["Here you go, keep the change.", "Can I pay by card?", "Do you have change for a fifty?", "Thanks for the ride!"])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3")!,
-        title: "Library Visit",
-        description: "Practice asking about books, library cards, and borrowing policies.",
-        imageURL: "LibraryVisit",
-        category: .custom,
-        difficulty: .beginner,
-        estimatedTimeMinutes: 4,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Welcome to the public library! Can I help you find something?", replyOptions: ["I'm looking for books on science fiction.", "Where is the children's section?", "I'd like to get a library card.", "Do you have today's newspaper?"]),
-            RoleplayMessage(speaker: .npc, text: "For a library card, I just need your ID and proof of residence. It's completely free!", replyOptions: ["Great, here's my ID.", "How many books can I borrow at a time?", "Is there a fee for late returns?", "Can I also borrow audiobooks?"]),
-            RoleplayMessage(speaker: .npc, text: "You can borrow up to 5 books for 14 days. Late returns are $0.25 per day.", replyOptions: ["That's reasonable.", "Can I renew books online?", "What if I lose a book?", "Perfect, I'll sign up."]),
-            RoleplayMessage(speaker: .npc, text: "Here is your library card. The fiction section is on the second floor.", replyOptions: ["Thank you so much!", "Do you have a reading room?", "Is there free Wi-Fi here?", "Can I also use the computers?"]),
-            RoleplayMessage(speaker: .npc, text: "Yes, the reading room is upstairs and Wi-Fi is free. Enjoy your visit!", replyOptions: ["Thanks, I will!", "This is wonderful.", "I'll definitely come back.", "Have a great day!"])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4")!,
-        title: "Noise Complaint",
-        description: "Politely talk to a neighbor about noise at night.",
-        imageURL: "NoiseComplaint",
-        category: .custom,
-        difficulty: .intermediate,
-        estimatedTimeMinutes: 5,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Oh, hi! Can I help you with something?", replyOptions: ["Hi, I'm your neighbor from next door.", "Hey, I wanted to talk about last night.", "Sorry to bother you, but I need to discuss something.", "Hi there, do you have a minute?"]),
-            RoleplayMessage(speaker: .npc, text: "Oh sure, what's up?", replyOptions: ["The music was quite loud last night.", "I could hear a lot of noise from your apartment.", "I couldn't sleep because of the party.", "Would it be possible to keep the volume down after 10 PM?"]),
-            RoleplayMessage(speaker: .npc, text: "Oh, I'm really sorry about that! We had some friends over and lost track of time.", replyOptions: ["I understand, it happens.", "No worries, just wanted to let you know.", "Maybe just a heads-up next time?", "I appreciate you understanding."]),
-            RoleplayMessage(speaker: .npc, text: "Absolutely, we'll keep it down in the future. Again, really sorry.", replyOptions: ["Thanks, I appreciate it.", "No hard feelings.", "Maybe we can exchange numbers in case it happens again?", "That's all I needed. Have a good day."]),
-            RoleplayMessage(speaker: .npc, text: "Sounds good. And hey, you're welcome to join next time!", replyOptions: ["Ha, I might take you up on that!", "Thanks, that's kind of you.", "I'll think about it!", "Have a good one!"])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5")!,
-        title: "Parent-Teacher Meeting",
-        description: "Discuss your child's progress with their teacher.",
-        imageURL: "ParentTeacher",
+        title: "High-Pressure Incident Communication",
+        description: "Practice delivering clear incident updates under pressure, including knowns, unknowns, mitigation, and external communication.",
         category: .custom,
         difficulty: .advanced,
         estimatedTimeMinutes: 7,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Good evening! You must be Aarav's parent. Please, have a seat.", replyOptions: ["Good evening. Yes, I'm Aarav's mother.", "Hello, thank you for meeting with me.", "Hi, I wanted to know how Aarav is doing.", "Good evening. How is my child performing?"]),
-            RoleplayMessage(speaker: .npc, text: "Aarav is a very bright student. He does well in math and science, but struggles a bit with reading.", replyOptions: ["What can we do to improve his reading?", "Does he participate in class?", "Is he getting along with other students?", "Should I hire a tutor?"]),
-            RoleplayMessage(speaker: .npc, text: "I'd suggest 20 minutes of daily reading at home. Also, he's very popular with classmates!", replyOptions: ["That's great to hear.", "We'll start a reading routine.", "Does the school have a reading program?", "Any book recommendations?"]),
-            RoleplayMessage(speaker: .npc, text: "We do have an after-school reading club on Wednesdays. I think he'd enjoy it.", replyOptions: ["I'll sign him up.", "What time does it end?", "Is there a fee?", "That sounds perfect for him."]),
-            RoleplayMessage(speaker: .npc, text: "Great! Feel free to reach out anytime. It was lovely meeting you.", replyOptions: ["Thank you for your time.", "I really appreciate your feedback.", "We'll work on the reading at home.", "Have a good evening!"])
+            line("We have a Sev-1 outage. Give me a 30-second update.", [
+                "Checkout is degraded for 40 percent of traffic; mitigation is active and next update is in 15 minutes.",
+                "Impact is limited to two regions; incident commander and responders are assigned.",
+                "Root cause is not confirmed yet, but rollback is underway.",
+                "Service is partially restored in one region while global safety checks continue."
+            ]),
+            line("What is known versus unknown right now?", [
+                "Known: latency spike started after deployment. Unknown: exact dependency trigger.",
+                "Known: read traffic is stable. Unknown: write-path failure at peak load.",
+                "Known: rollback reduced errors. Unknown: cache behavior contribution.",
+                "Known: customer complaints rising. Unknown: full recovery duration."
+            ]),
+            line("What is the immediate mitigation plan?", [
+                "Complete rollback, cap non-essential traffic, and monitor error budget recovery.",
+                "Shift traffic to healthy region and disable failing feature flag.",
+                "Run controlled restart with guarded concurrency limits.",
+                "Canary hotfix at 5 percent after staging validation."
+            ]),
+            line("How are we communicating externally?", [
+                "Status page updates every 20 minutes with approved support messaging.",
+                "Account teams have a consistent impact summary and ETA guidance.",
+                "We are sharing verified facts and avoiding speculation.",
+                "A post-incident summary will be published after stability is confirmed."
+            ]),
+            line("What happens after recovery?", [
+                "Run a blameless postmortem with action owners and deadlines.",
+                "Add detection controls and test them in incident drills.",
+                "Strengthen rollout policy with stricter pre-launch gates.",
+                "Report lessons learned and prevention milestones to leadership."
+            ])
         ]
     ),
+
+    // MARK: - Generic Track (10, students and young adults)
+
     RoleplayScenario(
-        id: UUID(uuidString: "F6F6F6F6-F6F6-F6F6-F6F6-F6F6F6F6F6F6")!,
-        title: "Train Ticket Booking",
-        description: "Practice buying train tickets at the station counter.",
-        imageURL: "TrainTicket",
-        category: .travel,
-        difficulty: .beginner,
-        estimatedTimeMinutes: 4,
-        script: [
-            RoleplayMessage(speaker: .npc, text: "Next, please. Where would you like to travel?", replyOptions: ["One ticket to Mumbai, please.", "I need two tickets to Delhi.", "What's the next train to Jaipur?", "How much is a ticket to Bangalore?"]),
-            RoleplayMessage(speaker: .npc, text: "The next express leaves in 45 minutes. Would you like first class or standard?", replyOptions: ["Standard is fine.", "How much is first class?", "Is there a sleeper option?", "I'll take first class."]),
-            RoleplayMessage(speaker: .npc, text: "Standard is $25 one-way. First class is $45. Which platform does it depart from?", replyOptions: ["I'll go with standard.", "Two standard tickets, please.", "Which platform is it?", "Can I book a round trip?"]),
-            RoleplayMessage(speaker: .npc, text: "Platform 3. The train departs at 4:15 PM. Don't forget your ticket.", replyOptions: ["Thank you!", "Is there a waiting room?", "Where can I grab a coffee before the train?", "How long is the journey?"]),
-            RoleplayMessage(speaker: .npc, text: "The journey is about 3 hours. There's a café on Platform 1. Have a safe trip!", replyOptions: ["Thanks, have a great day!", "I'll check out the café.", "Appreciate your help.", "See you!"])
-        ]
-    ),
-    RoleplayScenario(
-        id: UUID(uuidString: "A7A7A7A7-A7A7-A7A7-A7A7-A7A7A7A7A7A7")!,
-        title: "Emergency Call",
-        description: "Practice reporting an emergency clearly and calmly over the phone.",
-        imageURL: "EmergencyCall",
+        id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
+        title: "Campus Group Project Kickoff",
+        description: "Practice setting goals, dividing tasks, and agreeing communication norms in a student group project meeting.",
         category: .custom,
-        difficulty: .advanced,
+        difficulty: .beginner,
         estimatedTimeMinutes: 5,
         script: [
-            RoleplayMessage(speaker: .npc, text: "911, what is your emergency?", replyOptions: ["There's been a car accident.", "I need an ambulance, someone fainted.", "I want to report a fire in my building.", "Someone broke into our house."]),
-            RoleplayMessage(speaker: .npc, text: "Stay calm. Can you tell me your exact location?", replyOptions: ["I'm at the corner of Main and 5th.", "45 Elm Street, Apartment 12B.", "Near the Central Park entrance.", "I'm not sure of the address, but I can describe it."]),
-            RoleplayMessage(speaker: .npc, text: "Help is on the way. Is anyone injured?", replyOptions: ["Yes, one person is hurt.", "No injuries, but people are scared.", "I'm not sure, I can't get close.", "Yes, they need medical attention."]),
-            RoleplayMessage(speaker: .npc, text: "Stay on the line with me. Are you in a safe place?", replyOptions: ["Yes, I moved away from the area.", "I'm standing nearby watching.", "Not really, should I move?", "Yes, I'm inside a shop."]),
-            RoleplayMessage(speaker: .npc, text: "Emergency services should be there in a few minutes. You did great calling this in.", replyOptions: ["Thank you.", "I can hear the sirens now.", "Should I stay here?", "Thanks for the help."])
+            line("Let\'s start the project kickoff. How should we organize this?", [
+                "Let\'s agree on scope first, then divide tasks by strengths.",
+                "We can define milestones today and assign one owner per deliverable.",
+                "Let\'s align on grading criteria before planning task details.",
+                "I suggest setting deadlines first, then mapping responsibilities."
+            ]),
+            line("What role would you like to take?", [
+                "I can lead research and summarize key sources.",
+                "I can handle slide structure and final presentation flow.",
+                "I can coordinate timeline and make sure tasks stay on track.",
+                "I can handle data analysis and visuals."
+            ]),
+            line("How should we communicate between meetings?", [
+                "A group chat for quick updates and one shared doc for decisions.",
+                "Two check-ins per week with short status notes.",
+                "Let\'s post blockers early so we can help each other.",
+                "Use one task board so deadlines are visible to everyone."
+            ]),
+            line("What should be done by next week?", [
+                "Complete topic research and finalize outline.",
+                "Draft slide one to five and share for feedback.",
+                "Confirm sources and build initial bibliography.",
+                "Agree on speaking parts and rehearsal date."
+            ]),
+            line("Great. How do we close this meeting?", [
+                "I\'ll send a recap with owners and deadlines tonight.",
+                "Let\'s confirm next meeting time now.",
+                "We\'ll track progress in the shared board before Friday.",
+                "If anyone is blocked, post in chat within 24 hours."
+            ])
         ]
     ),
+
     RoleplayScenario(
-        id: UUID(uuidString: "B8B8B8B8-B8B8-B8B8-B8B8-B8B8B8B8B8B8")!,
-        title: "Salon Haircut",
-        description: "Describe the haircut you want and chat with the hairstylist.",
-        imageURL: "SalonHaircut",
+        id: UUID(uuidString: "66666666-6666-6666-6666-666666666666")!,
+        title: "Asking a Professor for Clarification",
+        description: "Practice politely asking for clarification on assignment instructions, grading criteria, and expectations.",
         category: .custom,
         difficulty: .beginner,
-        estimatedTimeMinutes: 4,
+        estimatedTimeMinutes: 5,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Hey! Welcome. Do you have an appointment?", replyOptions: ["No, I'm a walk-in. Is that okay?", "Yes, under the name Priya.", "I booked for 3 PM.", "No appointment. How long is the wait?"]),
-            RoleplayMessage(speaker: .npc, text: "No worries, we can take you now. What are you looking for today?", replyOptions: ["Just a trim, please.", "I want to try something new.", "Can you suggest a style for my face shape?", "I'd like it shorter on the sides."]),
-            RoleplayMessage(speaker: .npc, text: "Sure! How short do you want the sides? Fade, or just a little shorter?", replyOptions: ["A light fade, please.", "Just a little shorter, nothing drastic.", "I'll show you a picture.", "Whatever you think looks good."]),
-            RoleplayMessage(speaker: .npc, text: "Looking great so far. Would you like any product in your hair?", replyOptions: ["Yes, some gel would be nice.", "No, I prefer it natural.", "What do you recommend?", "Just a little wax, please."]),
-            RoleplayMessage(speaker: .npc, text: "All done! That'll be $20. You look fantastic.", replyOptions: ["Thank you, I love it!", "Here's $25, keep the change.", "Can I pay by card?", "You did an amazing job!"])
+            line("What would you like clarified about the assignment?", [
+                "Could you clarify the expected depth of analysis in section two?",
+                "I want to confirm whether outside sources are required or optional.",
+                "Could you explain how the rubric weighs structure versus originality?",
+                "I am unsure about the expected format for the final submission."
+            ]),
+            line("What have you understood so far?", [
+                "I understand the topic and deadline, but not the evidence requirements.",
+                "I understand the format, but I am unsure about citation style.",
+                "I understand the case study, but not how detailed conclusions should be.",
+                "I understand the word limit, but I need clarity on appendices."
+            ]),
+            line("How will this clarification help you?", [
+                "It will help me focus effort on the right evaluation criteria.",
+                "It will reduce rework and help me submit a stronger final draft.",
+                "It will ensure my structure aligns with your expectations.",
+                "It will help me prioritize the most important evidence."
+            ]),
+            line("Do you need feedback before final submission?", [
+                "Yes, could I share a brief outline for quick feedback next week?",
+                "Yes, I would appreciate feedback on whether my argument direction is appropriate.",
+                "A short check on my thesis statement would be very helpful.",
+                "If possible, feedback on my source quality would help."
+            ]),
+            line("How will you follow up after this conversation?", [
+                "I will send a short summary of what I understood for confirmation.",
+                "I will adjust my plan and start drafting based on this guidance.",
+                "I will update my outline and check it against the rubric.",
+                "I will submit the draft checkpoint by the date you suggested."
+            ])
         ]
     ),
+
     RoleplayScenario(
-        id: UUID(uuidString: "C9C9C9C9-C9C9-C9C9-C9C9-C9C9C9C9C9C9")!,
-        title: "Car Rental",
-        description: "Rent a car for a road trip and learn about insurance options.",
-        imageURL: "CarRental",
-        category: .travel,
+        id: UUID(uuidString: "77777777-7777-7777-7777-777777777777")!,
+        title: "Making Plans and Rescheduling Politely",
+        description: "Practice making plans clearly and rescheduling respectfully when conflicts arise.",
+        category: .custom,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 5,
+        script: [
+            line("Are you free to meet for study prep this week?", [
+                "Yes, I am free Wednesday evening after 6 PM.",
+                "I can meet Thursday afternoon if that works for you.",
+                "I am available tomorrow, but only for one hour.",
+                "I can do Friday morning before class."
+            ]),
+            line("I just got a conflict. Can we reschedule?", [
+                "No problem, thanks for letting me know early.",
+                "Sure, what alternate time works best for you?",
+                "That\'s fine. I can move it to Thursday if needed.",
+                "Thanks for the update. Let\'s pick a new time now."
+            ]),
+            line("Could we move it to next week instead?", [
+                "Yes, Monday at 5 PM works for me.",
+                "Next week is okay; Tuesday evening is best for me.",
+                "I can do next week if we confirm by tonight.",
+                "Yes, let\'s schedule for Wednesday and lock it now."
+            ]),
+            line("How should we make sure we both remember?", [
+                "I\'ll send a calendar invite right now.",
+                "Let\'s confirm in chat one day before meeting.",
+                "I\'ll share a reminder with location and agenda.",
+                "Let\'s pin the plan in our group conversation."
+            ]),
+            line("Great, anything else before we close?", [
+                "I\'ll also share what topics we should review before meeting.",
+                "I\'ll bring notes so we can use the time efficiently.",
+                "If timing changes again, I\'ll message you early.",
+                "Perfect, thanks for being flexible."
+            ])
+        ]
+    ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!,
+        title: "Requesting an Assignment Extension",
+        description: "Practice asking for an extension professionally with accountability, context, and a realistic revised deadline.",
+        category: .custom,
         difficulty: .intermediate,
         estimatedTimeMinutes: 6,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Welcome to DriveEasy Rentals! How can I help you?", replyOptions: ["I'd like to rent a car for 3 days.", "What SUVs do you have available?", "I need a car for a weekend trip.", "Do you have any economy cars?"]),
-            RoleplayMessage(speaker: .npc, text: "We have a compact sedan for $45/day and an SUV for $75/day. Both include unlimited mileage.", replyOptions: ["I'll take the sedan.", "Does the SUV have GPS?", "Is insurance included?", "Are there any current promotions?"]),
-            RoleplayMessage(speaker: .npc, text: "Insurance is optional. Basic coverage is $12/day and full coverage is $20/day.", replyOptions: ["I'll go with basic coverage.", "Full coverage, please.", "Does my credit card cover it?", "I'll skip the insurance."]),
-            RoleplayMessage(speaker: .npc, text: "I'll need your driver's license and a credit card for the deposit.", replyOptions: ["Here they are.", "How much is the deposit?", "Can I use a debit card?", "Sure, one moment."]),
-            RoleplayMessage(speaker: .npc, text: "You're all set! The car is in spot B7. Please return it with a full tank.", replyOptions: ["Got it, thank you!", "Where is the nearest gas station?", "What if I return it late?", "Thanks for your help!"])
+            line("What do you want to request regarding your assignment?", [
+                "I would like to request a short extension due to an unexpected medical issue.",
+                "I am requesting a 48-hour extension because of two overlapping exam deadlines.",
+                "I need a brief extension to submit work that meets course standards.",
+                "I am asking for extra time and can explain my updated completion plan."
+            ]),
+            line("Can you explain your situation clearly?", [
+                "I had a documented health issue this week that reduced my study time significantly.",
+                "A required lab submission moved unexpectedly and overlapped this deadline.",
+                "I underestimated required data collection and want to submit accurate work.",
+                "I can provide details and supporting documentation if needed."
+            ]),
+            line("What new deadline are you proposing?", [
+                "I can submit by Monday 5 PM with full references and final edits.",
+                "A two-day extension will allow me to complete analysis properly.",
+                "I can deliver a complete draft tomorrow and final version the day after.",
+                "I propose submitting by Friday noon and sharing progress before then."
+            ]),
+            line("How will you ensure this does not repeat?", [
+                "I am revising my schedule and setting earlier checkpoints for major tasks.",
+                "I will flag potential conflicts sooner and request support earlier.",
+                "I will complete outline and research phases earlier in future assignments.",
+                "I will use a weekly planning review to avoid late deadline risk."
+            ]),
+            line("How should we close this conversation?", [
+                "Thank you for considering this. I will confirm the agreed date in writing.",
+                "I appreciate your flexibility and will submit by the revised deadline.",
+                "I will share a progress update before final submission.",
+                "Thanks for your time. I will follow the plan we discussed."
+            ])
         ]
     ),
+
     RoleplayScenario(
-        id: UUID(uuidString: "D0D0D0D0-D0D0-D0D0-D0D0-D0D0D0D0D0D0")!,
-        title: "Post Office Visit",
-        description: "Send a package and buy stamps at the post office.",
-        imageURL: "PostOffice",
+        id: UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!,
+        title: "Roommate Conflict About Shared Responsibilities",
+        description: "Practice resolving a roommate issue respectfully by discussing impact, boundaries, and a concrete agreement.",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
+        script: [
+            line("You wanted to talk about apartment responsibilities. What is the issue?", [
+                "I feel cleaning tasks have become uneven over the last two weeks.",
+                "We agreed on chores, but the schedule has not been followed.",
+                "I am finding it hard to focus because shared spaces stay messy.",
+                "I want us to reset expectations in a fair way."
+            ]),
+            line("Can you explain the impact without blaming?", [
+                "When dishes pile up, it affects my routine and stress level.",
+                "I spend extra time cleaning before studying, which is difficult.",
+                "I want a solution that works for both of us, not an argument.",
+                "I care about keeping the apartment manageable for everyone."
+            ]),
+            line("What solution do you suggest?", [
+                "Let\'s create a simple weekly rota and rotate harder tasks fairly.",
+                "We can split chores by preference but keep equal total effort.",
+                "Let\'s set two quick cleanup checkpoints during the week.",
+                "We can use a shared checklist so expectations are clear."
+            ]),
+            line("How will we handle missed tasks?", [
+                "If someone misses, they should swap or complete within 24 hours.",
+                "Let\'s flag conflicts early and agree replacements in chat.",
+                "We can review the system weekly and adjust if needed.",
+                "No blame, just quick communication and follow-through."
+            ]),
+            line("How do we close this constructively?", [
+                "Thanks for discussing this openly. I\'ll share the rota tonight.",
+                "I appreciate this. Let\'s start the new plan from Monday.",
+                "Let\'s check in next week to see if this is working.",
+                "I\'m glad we talked. This should make things easier for both of us."
+            ])
+        ]
+    ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD")!,
+        title: "Customer Support for a Broken App Subscription",
+        description: "Practice explaining a service problem clearly and working with support to reach a practical resolution.",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
+        script: [
+            line("Thanks for contacting support. How can I help today?", [
+                "My subscription renewed, but premium features are still locked.",
+                "I was charged twice this month and need help resolving billing.",
+                "My account shows active, but the app asks me to subscribe again.",
+                "I cannot access my paid features after updating the app."
+            ]),
+            line("Can you share details so I can check your account?", [
+                "Sure, I\'ll provide the email, transaction ID, and screenshot.",
+                "I can share the receipt and exact time the charge occurred.",
+                "I have payment confirmation and my account profile details ready.",
+                "I can send a screen recording showing the issue flow."
+            ]),
+            line("I found the issue. We can restore access now.", [
+                "Great, please restore access and confirm once complete.",
+                "Thank you. Could you also check whether duplicate charges are reversed?",
+                "Please let me know how long the fix will take.",
+                "Can you explain what caused this so I can avoid it next time?"
+            ]),
+            line("Would you like additional help with anything else?", [
+                "Yes, I need confirmation email after resolution.",
+                "Please share next steps if the issue returns.",
+                "Could you provide a case number for tracking?",
+                "No, this resolves the main issue. Thank you."
+            ]),
+            line("Thanks for your patience. Your case is now updated.", [
+                "Thanks for the support and clear follow-up.",
+                "I appreciate the quick resolution.",
+                "Great, I\'ll verify in the app now.",
+                "Thanks, this was very helpful."
+            ])
+        ]
+    ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")!,
+        title: "Returning a Faulty Purchase",
+        description: "Practice requesting a refund or exchange calmly with clear evidence and polite negotiation.",
+        category: .restaurant,
+        difficulty: .beginner,
+        estimatedTimeMinutes: 5,
+        script: [
+            line("How can I help you at the returns desk today?", [
+                "I bought these headphones yesterday, but the left side is not working.",
+                "I would like to return this item because it is defective.",
+                "I need an exchange because this product fails after charging.",
+                "I want to discuss refund options for a faulty purchase."
+            ]),
+            line("Do you have a receipt or proof of purchase?", [
+                "Yes, here is the receipt and payment confirmation.",
+                "I have the digital receipt on my phone.",
+                "I can share my order number and card transaction details.",
+                "Yes, I purchased it with my student account."
+            ]),
+            line("Would you prefer a refund, exchange, or store credit?", [
+                "I would prefer an exchange for the same model.",
+                "A refund to my original payment method is best.",
+                "Store credit is fine if it can be used immediately.",
+                "Could I upgrade and pay the difference instead?"
+            ]),
+            line("I can process that now. Anything else you need?", [
+                "Please confirm the return timeline and email receipt.",
+                "Could you confirm how long the refund usually takes?",
+                "Can you note the defect in case quality team needs details?",
+                "No, that covers everything. Thank you."
+            ]),
+            line("Done. Your request has been processed.", [
+                "Great, thank you for your help today.",
+                "I appreciate the quick support.",
+                "Thanks for handling this smoothly.",
+                "Perfect, have a good day."
+            ])
+        ]
+    ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "F6F6F6F6-F6F6-F6F6-F6F6-F6F6F6F6F6F6")!,
+        title: "First-Time Networking at a Student Event",
+        description: "Practice introducing yourself, asking meaningful questions, and ending with a clear follow-up.",
         category: .custom,
         difficulty: .beginner,
-        estimatedTimeMinutes: 4,
+        estimatedTimeMinutes: 5,
         script: [
-            RoleplayMessage(speaker: .npc, text: "Hello! What can I do for you today?", replyOptions: ["I need to send this package.", "I'd like to buy some stamps.", "How much does it cost to ship internationally?", "I need to pick up a registered letter."]),
-            RoleplayMessage(speaker: .npc, text: "Let me weigh that for you. Where is it going?", replyOptions: ["It's going to New York.", "Shipping to London, UK.", "It's a domestic package to Chennai.", "To my parents in Bangalore."]),
-            RoleplayMessage(speaker: .npc, text: "That'll be $14 for standard delivery or $22 for express. Express arrives in 2 days.", replyOptions: ["I'll go with express.", "Standard is fine.", "How long does standard take?", "Can I track the package?"]),
-            RoleplayMessage(speaker: .npc, text: "Yes, you'll get a tracking number. Please fill out this form with the sender and recipient details.", replyOptions: ["Sure, here you go.", "Do I need to declare the contents?", "Can I insure the package?", "Is there a fragile label?"]),
-            RoleplayMessage(speaker: .npc, text: "All done! Here's your receipt and tracking number. Have a great day!", replyOptions: ["Thank you!", "How do I track it online?", "Thanks, you too!", "I appreciate your help."])
+            line("Hi, we have not met before. What are you studying?", [
+                "I am studying computer science and interested in product development.",
+                "I am in business analytics and exploring internships in data roles.",
+                "I study media and I\'m interested in communication strategy.",
+                "I am in engineering and focused on sustainable design projects."
+            ]),
+            line("What kind of opportunities are you looking for?", [
+                "I am looking for internships where I can work on real user problems.",
+                "I want experience in cross-functional teams and practical project work.",
+                "I am hoping to find mentors and entry-level opportunities.",
+                "I am interested in research assistant roles this semester."
+            ]),
+            line("What projects are you currently proud of?", [
+                "I built a small app that tracks study habits and weekly goals.",
+                "I led a class project where we improved survey response rates.",
+                "I created a design portfolio focused on accessibility improvements.",
+                "I built a dashboard for student event participation data."
+            ]),
+            line("Would you like to stay in touch after this event?", [
+                "Yes, I\'d appreciate that. I can connect on LinkedIn today.",
+                "Definitely. I\'ll send a short message with my details.",
+                "That would be great. Could we set up a short follow-up chat?",
+                "Yes, I would like to learn more about your experience."
+            ]),
+            line("Great meeting you. Any final note before we move on?", [
+                "Thanks for the conversation. I\'ll follow up by tomorrow.",
+                "I appreciate your advice and would like to keep in touch.",
+                "Great to meet you. I\'ll share my portfolio link later.",
+                "Thanks, this was really useful."
+            ])
+        ]
+    ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "A7A7A7A7-A7A7-A7A7-A7A7-A7A7A7A7A7A7")!,
+        title: "Giving Advice to a Stressed Friend",
+        description: "Practice empathetic listening and practical advice without being dismissive or judgmental.",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
+        script: [
+            line("I am overwhelmed with classes and deadlines. I do not know where to start.", [
+                "I\'m sorry you\'re feeling this way. Do you want to talk through what\'s most urgent?",
+                "That sounds really hard. Let\'s break it into smaller steps together.",
+                "I hear you. Would it help to prioritize one task for today first?",
+                "Thanks for sharing this. You do not have to handle it alone."
+            ]),
+            line("I keep procrastinating and then panic at night.", [
+                "That cycle is exhausting. A short timed study block might help restart momentum.",
+                "Would a simple plan with two realistic goals for today feel manageable?",
+                "Maybe we can set a 25-minute focus session and check in after.",
+                "Could we remove one non-essential commitment this week to reduce pressure?"
+            ]),
+            line("I also feel guilty asking for help.", [
+                "Asking for help is a strength, not a failure.",
+                "You deserve support, especially when workload is heavy.",
+                "Reaching out early can prevent things from becoming worse.",
+                "Many people need support at this stage; you are not alone."
+            ]),
+            line("What should I do first after this conversation?", [
+                "List deadlines, choose top two priorities, and start the easiest one now.",
+                "Send one message for support and schedule one focused study block.",
+                "Prepare a short plan for tomorrow before going to sleep.",
+                "Take a short break, then spend 30 minutes on your highest-impact task."
+            ]),
+            line("Thanks. Can we check in later this week?", [
+                "Absolutely. Let\'s check in Friday and review what worked.",
+                "Of course. Message me tonight after your first study block.",
+                "Yes, I\'m here for you. We\'ll adjust the plan together.",
+                "Definitely. You are doing the right thing by taking this step."
+            ])
+        ]
+    ),
+
+    RoleplayScenario(
+        id: UUID(uuidString: "B8B8B8B8-B8B8-B8B8-B8B8-B8B8B8B8B8B8")!,
+        title: "Fixing Miscommunication in a Group Chat",
+        description: "Practice resolving misunderstandings in text-based group communication with clarity and professionalism.",
+        category: .custom,
+        difficulty: .intermediate,
+        estimatedTimeMinutes: 6,
+        script: [
+            line("There seems to be confusion about who was responsible for yesterday\'s task.", [
+                "I think we had different interpretations. Let\'s clarify responsibilities now.",
+                "I may have communicated unclearly. I\'d like to reset expectations.",
+                "I understand the confusion. Let\'s align on owners and deadlines.",
+                "Thanks for raising this. Let\'s focus on solution instead of blame."
+            ]),
+            line("What exactly should have happened?", [
+                "I was expected to draft slides, while review ownership was still unclear.",
+                "The message said \"team update\" but did not assign one final owner.",
+                "I completed my part, but handoff timing was not explicit.",
+                "We did not confirm who would submit the final document."
+            ]),
+            line("How do we avoid this problem next time?", [
+                "Let\'s assign one owner per task and confirm in one summary message.",
+                "Use a checklist with due dates and initials for each item.",
+                "After decisions, post a recap with action items and deadlines.",
+                "Let\'s avoid ambiguous terms like \"someone\" or \"team\" for ownership."
+            ]),
+            line("What should we do right now to recover?", [
+                "I can complete the missing section in the next hour.",
+                "Let\'s split remaining tasks and confirm who submits final version.",
+                "I\'ll post a revised plan now and tag each owner.",
+                "We can do a quick 10-minute call to finalize next steps."
+            ]),
+            line("How should we close this thread?", [
+                "I\'ll share a clear recap with owners, deadlines, and submission plan.",
+                "Thanks everyone. Let\'s confirm completion by 8 PM.",
+                "I appreciate the quick alignment. We\'re back on track now.",
+                "Great, we have a plan. I\'ll post progress updates as we execute."
+            ])
         ]
     )
 ]

@@ -55,12 +55,12 @@ final class SampleDataSeeder {
         let sessionData: [(daysAgo: Int, title: String, subtitle: String,
                            topic: String, duration: Int, xp: Int, icon: String)] = [
             (0, "2 Min Session", "You completed a session", "My Favorite Hobby", 2, 15, "mic.fill"),
-            (0, "Roleplay", "You completed a session", "Grocery Shopping", 12, 25, "theatermasks.fill"),
+            (0, "Roleplay", "You completed a session", "Campus Group Project Kickoff", 12, 25, "theatermasks.fill"),
             (1, "2 Min Session", "You completed a session", "Climate Change", 2, 15, "mic.fill"),
-            (2, "Roleplay", "You completed a session", "Job Interview", 15, 25, "theatermasks.fill"),
+            (2, "Roleplay", "You completed a session", "Behavioral Job Interview", 15, 25, "theatermasks.fill"),
             (2, "2 Min Session", "You completed a session", "Dream Vacation", 2, 15, "mic.fill"),
             (4, "2 Min Session", "You completed a session", "Favorite Movie", 2, 15, "mic.fill"),
-            (4, "Roleplay", "You completed a session", "Hotel Booking", 14, 25, "theatermasks.fill"),
+            (4, "Roleplay", "You completed a session", "Requesting an Assignment Extension", 14, 25, "theatermasks.fill"),
             (5, "2 Min Session", "You completed a session", "Space Exploration", 2, 15, "mic.fill"),
         ]
 
@@ -91,10 +91,10 @@ final class SampleDataSeeder {
         let activities: [(type: ActivityType, topic: String, duration: Int,
                           xp: Int, image: String, daysAgo: Int)] = [
             (.jam, "Climate Change", 2, 15, "Jam", 1),
-            (.roleplay, "Job Interview", 15, 25, "JobInterview", 2),
+            (.roleplay, "Behavioral Job Interview", 15, 25, "theatermasks.fill", 2),
             (.jam, "Dream Vacation", 2, 15, "Jam", 2),
             (.jam, "Favorite Movie", 2, 15, "Jam", 4),
-            (.roleplay, "Hotel Booking", 14, 25, "HotelBooking", 4),
+            (.roleplay, "Campus Group Project Kickoff", 14, 25, "theatermasks.fill", 4),
             (.jam, "Space Exploration", 2, 15, "Jam", 5),
         ]
 
