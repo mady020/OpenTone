@@ -239,14 +239,16 @@ final class ProfileStoryboardCollectionViewController: UICollectionViewControlle
     }
     
     @objc private func didTapLogout() {
-        SessionManager.shared.logout()
+        Task { @MainActor in
+            await SessionManager.shared.logoutAsync()
 
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyboard.instantiateInitialViewController()!
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateInitialViewController()!
 
-        guard let window = view.window else { return }
-        window.rootViewController = vc
-        window.makeKeyAndVisible()
+            guard let window = self.view.window else { return }
+            window.rootViewController = vc
+            window.makeKeyAndVisible()
+        }
     }
 
 

@@ -278,5 +278,23 @@ final class AudioManager {
             hasInputTapInstalled = false
         }
     }
+
+    func resetForLogout() {
+        if isRecording {
+            stopRecording(autoTranscribe: false)
+        } else {
+            cleanup()
+        }
+
+        audioRecorder = nil
+        lastRecordingURL = nil
+        currentTranscription = ""
+        isMuted = false
+        isStartRecordingPending = false
+
+        onAudioBuffer = nil
+        onFinalTranscription = nil
+        onRecordingStateChanged = nil
+    }
 }
 

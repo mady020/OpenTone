@@ -6,6 +6,7 @@ final class AuthSessionLifecycleTests: XCTestCase {
 
     private let currentUserIDKey = "currentUserID"
     private let lastWpmDeltaKey = "opentone.lastWpmDelta"
+    private let appThemePreferenceKey = "app_theme_preference"
 
     override func setUp() {
         super.setUp()
@@ -13,6 +14,7 @@ final class AuthSessionLifecycleTests: XCTestCase {
 
         UserDefaults.standard.removeObject(forKey: currentUserIDKey)
         UserDefaults.standard.removeObject(forKey: lastWpmDeltaKey)
+        UserDefaults.standard.removeObject(forKey: appThemePreferenceKey)
 
         // Initialize singletons under a deterministic no-session test state.
         _ = UserDataModel.shared
@@ -28,6 +30,7 @@ final class AuthSessionLifecycleTests: XCTestCase {
         SessionManager.shared.refreshSession()
         UserDefaults.standard.removeObject(forKey: currentUserIDKey)
         UserDefaults.standard.removeObject(forKey: lastWpmDeltaKey)
+        UserDefaults.standard.removeObject(forKey: appThemePreferenceKey)
         super.tearDown()
     }
 
@@ -78,6 +81,18 @@ final class AuthSessionLifecycleTests: XCTestCase {
         SessionManager.shared.login(user: user)
         UserDefaults.standard.set(1.5, forKey: lastWpmDeltaKey)
 
+        let userId = user.id.uuidString
+        let feedbackProfileKey = "opentone.feedback.profile.\(userId)"
+        let feedbackSuggestionsKey = "opentone.feedback.recentSuggestions.\(userId)"
+        let sampleSeedKey = "SampleDataSeeder.hasSeeded.\(userId)"
+        let dailyGoalKey = "opentone.dailyGoalAchievement.\(userId).2026-03-16"
+
+        UserDefaults.standard.set(Data([0x01, 0x02]), forKey: feedbackProfileKey)
+        UserDefaults.standard.set(["Tip 1", "Tip 2"], forKey: feedbackSuggestionsKey)
+        UserDefaults.standard.set(true, forKey: sampleSeedKey)
+        UserDefaults.standard.set(true, forKey: dailyGoalKey)
+        UserDefaults.standard.set(2, forKey: appThemePreferenceKey)
+
         await SessionManager.shared.logoutAsync()
 
         XCTAssertTrue(signOutCalled)
@@ -85,6 +100,11 @@ final class AuthSessionLifecycleTests: XCTestCase {
         XCTAssertNil(SessionManager.shared.currentUser)
         XCTAssertNil(UserDefaults.standard.object(forKey: currentUserIDKey))
         XCTAssertNil(UserDefaults.standard.object(forKey: lastWpmDeltaKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: feedbackProfileKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: feedbackSuggestionsKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: sampleSeedKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: dailyGoalKey))
+        XCTAssertEqual(UserDefaults.standard.integer(forKey: appThemePreferenceKey), 2)
     }
 
     private func makeUser(name: String, email: String) -> User {

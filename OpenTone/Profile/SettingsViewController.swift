@@ -171,16 +171,18 @@ final class SettingsViewController: UIViewController {
     }
 
     private func performLogout() {
-        SessionManager.shared.logout()
+        Task { @MainActor in
+            await SessionManager.shared.logoutAsync()
 
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let vc = storyboard.instantiateInitialViewController(),
-              let window = view.window else { return }
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            guard let vc = storyboard.instantiateInitialViewController(),
+                  let window = self.view.window else { return }
 
-        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
-            window.rootViewController = vc
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+                window.rootViewController = vc
+            }
+            window.makeKeyAndVisible()
         }
-        window.makeKeyAndVisible()
     }
 
     private func confirmDeleteAccount() {

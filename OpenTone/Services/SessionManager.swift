@@ -46,17 +46,54 @@ final class SessionManager {
     }
 
     func logoutAsync() async {
+        let outgoingUser = currentUser
+
         do {
             try await SupabaseAuth.signOut()
         } catch {
             print("❌ Supabase sign out failed: \(error.localizedDescription)")
         }
 
+        clearUserScopedDefaults(for: outgoingUser)
+        clearUserScopedFiles(for: outgoingUser)
+        AudioManager.shared.resetForLogout()
+
         currentUser = nil
         UserDataModel.shared.deleteCurrentUser()
         // Clear cached speech coaching data so the next user starts fresh
         UserDefaults.standard.removeObject(forKey: "opentone.lastWpmDelta")
         reloadAllDataModels()
+    }
+
+    private func clearUserScopedDefaults(for user: User?) {
+        guard let userId = user?.id.uuidString else { return }
+
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "opentone.feedback.profile.\(userId)")
+        defaults.removeObject(forKey: "opentone.feedback.recentSuggestions.\(userId)")
+        defaults.removeObject(forKey: "SampleDataSeeder.hasSeeded.\(userId)")
+
+        let dailyGoalPrefix = "opentone.dailyGoalAchievement.\(userId)."
+        let keys = defaults.dictionaryRepresentation().keys
+        for key in keys where key.hasPrefix(dailyGoalPrefix) {
+            defaults.removeObject(forKey: key)
+        }
+    }
+
+    private func clearUserScopedFiles(for user: User?) {
+        guard let avatarName = user?.avatar,
+              avatarName.hasPrefix("custom_avatar_") else {
+            return
+        }
+
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return
+        }
+
+        let avatarURL = documentsURL.appendingPathComponent(avatarName)
+        if FileManager.default.fileExists(atPath: avatarURL.path) {
+            try? FileManager.default.removeItem(at: avatarURL)
+        }
     }
 
     func hasAuthenticatedAPIAccess() async -> Bool {
