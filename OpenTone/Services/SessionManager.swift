@@ -72,6 +72,7 @@ final class SessionManager {
         defaults.removeObject(forKey: "opentone.feedback.profile.\(userId)")
         defaults.removeObject(forKey: "opentone.feedback.recentSuggestions.\(userId)")
         defaults.removeObject(forKey: "SampleDataSeeder.hasSeeded.\(userId)")
+        defaults.removeObject(forKey: "opentone.onboarding.interestsDraft.\(userId)")
 
         let dailyGoalPrefix = "opentone.dailyGoalAchievement.\(userId)."
         let keys = defaults.dictionaryRepresentation().keys

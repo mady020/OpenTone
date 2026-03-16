@@ -166,12 +166,20 @@ final class LoginViewController: UIViewController {
     }
 
     private func routeAfterLogin() {
-        guard let user = SessionManager.shared.currentUser else { return }
-
-        if user.confidenceLevel == nil {
-            goToUserInfo()
-        } else {
+        let destination = OnboardingDestinationResolver.destination(for: SessionManager.shared.currentUser)
+        switch destination {
+        case .dashboard:
             goToDashboard()
+        case .userInfo:
+            goToOnboardingScreen("UserInfoScreen")
+        case .confidence:
+            goToOnboardingScreen("ConfidenceScreen")
+        case .interestsIntro:
+            goToOnboardingScreen("InterestsIntro")
+        case .commitment:
+            goToOnboardingScreen("CommitmentScreen")
+        case .login:
+            break
         }
     }
 
@@ -188,10 +196,10 @@ final class LoginViewController: UIViewController {
         view.window?.makeKeyAndVisible()
     }
 
-    private func goToUserInfo() {
+    private func goToOnboardingScreen(_ identifier: String) {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let userInfoVC = storyboard.instantiateViewController(
-            withIdentifier: "UserInfoScreen"
+            withIdentifier: identifier
         )
 
         let nav = UINavigationController(rootViewController: userInfoVC)

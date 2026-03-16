@@ -85,11 +85,13 @@ final class AuthSessionLifecycleTests: XCTestCase {
         let feedbackProfileKey = "opentone.feedback.profile.\(userId)"
         let feedbackSuggestionsKey = "opentone.feedback.recentSuggestions.\(userId)"
         let sampleSeedKey = "SampleDataSeeder.hasSeeded.\(userId)"
+        let onboardingDraftKey = "opentone.onboarding.interestsDraft.\(userId)"
         let dailyGoalKey = "opentone.dailyGoalAchievement.\(userId).2026-03-16"
 
         UserDefaults.standard.set(Data([0x01, 0x02]), forKey: feedbackProfileKey)
         UserDefaults.standard.set(["Tip 1", "Tip 2"], forKey: feedbackSuggestionsKey)
         UserDefaults.standard.set(true, forKey: sampleSeedKey)
+        UserDefaults.standard.set(Data([0x03]), forKey: onboardingDraftKey)
         UserDefaults.standard.set(true, forKey: dailyGoalKey)
         UserDefaults.standard.set(2, forKey: appThemePreferenceKey)
 
@@ -103,6 +105,7 @@ final class AuthSessionLifecycleTests: XCTestCase {
         XCTAssertNil(UserDefaults.standard.object(forKey: feedbackProfileKey))
         XCTAssertNil(UserDefaults.standard.object(forKey: feedbackSuggestionsKey))
         XCTAssertNil(UserDefaults.standard.object(forKey: sampleSeedKey))
+        XCTAssertNil(UserDefaults.standard.object(forKey: onboardingDraftKey))
         XCTAssertNil(UserDefaults.standard.object(forKey: dailyGoalKey))
         XCTAssertEqual(UserDefaults.standard.integer(forKey: appThemePreferenceKey), 2)
     }

@@ -22,6 +22,7 @@ final class OnboardingInterestsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        restoreSelections()
         setupUI()
         setupCollectionView()
         updateContinueState()
@@ -29,8 +30,17 @@ final class OnboardingInterestsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        restoreSelections()
         updateContinueState()
         collectionView.reloadData()
+    }
+
+    private func restoreSelections() {
+        if let committed = SessionManager.shared.currentUser?.interests, !committed.isEmpty {
+            selectedItems = committed
+            return
+        }
+        InterestSelectionStore.shared.loadDraftForCurrentUser()
     }
     private func setupUI() {
         view.backgroundColor = AppColors.screenBackground

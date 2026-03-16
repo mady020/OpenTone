@@ -41,6 +41,7 @@ final class InterestsViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = AppColors.screenBackground
+        restoreSelections()
         filteredItems = allItems
 
         setupSearchBar()
@@ -51,8 +52,17 @@ final class InterestsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        restoreSelections()
         updateContinueState()
         collectionView.reloadData()
+    }
+
+    private func restoreSelections() {
+        if let committed = SessionManager.shared.currentUser?.interests, !committed.isEmpty {
+            selectedInterests = committed
+            return
+        }
+        InterestSelectionStore.shared.loadDraftForCurrentUser()
     }
 
     private func setupSearchBar() {

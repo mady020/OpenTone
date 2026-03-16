@@ -298,7 +298,7 @@ final class SignupViewController: UIViewController {
             }
 
             SessionManager.shared.login(user: user)
-            goToUserInfo()
+            routeAfterAuth()
         }
     }
 
@@ -336,7 +336,25 @@ final class SignupViewController: UIViewController {
             }
 
             SessionManager.shared.login(user: user)
-            goToUserInfo()
+            routeAfterAuth()
+        }
+    }
+
+    private func routeAfterAuth() {
+        let destination = OnboardingDestinationResolver.destination(for: SessionManager.shared.currentUser)
+        switch destination {
+        case .dashboard:
+            goToDashboard()
+        case .userInfo:
+            goToOnboardingScreen("UserInfoScreen")
+        case .confidence:
+            goToOnboardingScreen("ConfidenceScreen")
+        case .interestsIntro:
+            goToOnboardingScreen("InterestsIntro")
+        case .commitment:
+            goToOnboardingScreen("CommitmentScreen")
+        case .login:
+            break
         }
     }
 
@@ -381,10 +399,10 @@ final class SignupViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    private func goToUserInfo() {
+    private func goToOnboardingScreen(_ identifier: String) {
         let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
         let userInfoVC = storyboard.instantiateViewController(
-            withIdentifier: "UserInfoScreen"
+            withIdentifier: identifier
         )
 
         let nav = UINavigationController(rootViewController: userInfoVC)

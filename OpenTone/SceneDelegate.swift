@@ -37,32 +37,42 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @objc private func handleSessionLoaded() {
         guard let window = self.window else { return }
 
-        let user = SessionManager.shared.currentUser
-
-        if let user = user {
-            if user.confidenceLevel == nil {
-                // To Onboarding
-                let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
-                let userInfoVC = storyboard.instantiateViewController(withIdentifier: "UserInfoScreen")
-                let nav = UINavigationController(rootViewController: userInfoVC)
-                nav.modalPresentationStyle = .fullScreen
-                window.rootViewController = nav
-            } else {
-                // To Dashboard
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let tabBarVC = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
-                tabBarVC.modalPresentationStyle = .fullScreen
-                window.rootViewController = tabBarVC
-            }
-        } else {
-            // To Login
+        let destination = OnboardingDestinationResolver.destination(for: SessionManager.shared.currentUser)
+        switch destination {
+        case .login:
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             if let initialVC = storyboard.instantiateInitialViewController() {
                 window.rootViewController = initialVC
             }
+
+        case .userInfo:
+            setOnboardingRoot(window: window, identifier: "UserInfoScreen")
+
+        case .confidence:
+            setOnboardingRoot(window: window, identifier: "ConfidenceScreen")
+
+        case .interestsIntro:
+            setOnboardingRoot(window: window, identifier: "InterestsIntro")
+
+        case .commitment:
+            setOnboardingRoot(window: window, identifier: "CommitmentScreen")
+
+        case .dashboard:
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let tabBarVC = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
+            tabBarVC.modalPresentationStyle = .fullScreen
+            window.rootViewController = tabBarVC
         }
         
         UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil)
+    }
+
+    private func setOnboardingRoot(window: UIWindow, identifier: String) {
+        let storyboard = UIStoryboard(name: "UserOnboarding", bundle: nil)
+        let onboardingVC = storyboard.instantiateViewController(withIdentifier: identifier)
+        let nav = UINavigationController(rootViewController: onboardingVC)
+        nav.modalPresentationStyle = .fullScreen
+        window.rootViewController = nav
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
