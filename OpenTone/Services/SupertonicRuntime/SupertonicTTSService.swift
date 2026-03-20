@@ -1,6 +1,4 @@
 import Foundation
-import OnnxRuntimeBindings
-
 final class TTSService {
     enum Voice { case male, female }
     enum Language: String, CaseIterable {

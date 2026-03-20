@@ -31,14 +31,15 @@ xcuserdata/
 Secrets.xcconfig
 
 # ==============================
-# CocoaPods / Carthage / Fastlane (uncomment if used)
+# CocoaPods / Carthage / Fastlane
 # ==============================
-# Pods/
+Pods/
 # Carthage/
 # fastlane/report.xml
 # fastlane/Preview.html
 # fastlane/screenshots/
 # fastlane/test_output/
+
 
 # ==============================
 # Python / Backend
