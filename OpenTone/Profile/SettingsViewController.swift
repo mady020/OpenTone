@@ -490,15 +490,70 @@ extension SettingsViewController: UITableViewDelegate {
             showEditField(for: indexPath.row)
 
         case .about:
-            if indexPath.row == 1 || indexPath.row == 2 {
-                // Placeholder for Privacy Policy / Terms
-                let alert = UIAlertController(
-                    title: sections[indexPath.section][indexPath.row].title,
-                    message: "This feature will be available soon.",
-                    preferredStyle: .alert
-                )
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                present(alert, animated: true)
+            if indexPath.row == 1 {
+                let vc = LegalViewController()
+                vc.docTitle = "Privacy Policy"
+                vc.contentText = """
+                Privacy Policy for OpenTone
+                
+                Last Updated: March 2026
+                
+                Welcome to OpenTone! Your privacy is critically important to us.
+                
+                1. Information We Collect
+                - Account Information: When you create an account, we collect your name, email address, age, and country.
+                - Usage Data: We track your streaks, activity history, jam sessions, and roleplay progress to enhance your experience.
+                - Voice & Audio Data: When using Jam Sessions or Roleplay Sessions, your voice is processed to provide AI-generated feedback and coaching. Audio is processed temporarily and not stored permanently unless explicitly saved by you.
+                
+                2. How We Use Your Data
+                - To provide AI-enabled feedback on your language proficiency.
+                - To maintain your streak and progression statistics.
+                - To improve our core ML speech-coaching models.
+                
+                3. Data Sharing
+                We do not sell your personal data. We use secure third-party services (like Supabase for database hosting and language models for AI analysis) strictly to operate the App.
+                
+                4. Account Deletion
+                You can permanently delete your account and all associated data at any time via the Settings screen.
+                
+                Contact us at opentone.privacy@gmail.com for any questions.
+                
+                Or read our full Privacy Policy online at:
+                https://www.opentone.in/privacy
+                """
+                navigationController?.pushViewController(vc, animated: true)
+            } else if indexPath.row == 2 {
+                let vc = LegalViewController()
+                vc.docTitle = "Terms of Service"
+                vc.contentText = """
+                Terms of Service for OpenTone
+                
+                Last Updated: March 2026
+                
+                1. Acceptance of Terms
+                By using OpenTone, you agree to these Terms of Service. If you do not agree, please do not use the app.
+                
+                2. Description of Service
+                OpenTone is an AI-powered communication and language coaching platform offering features such as Jam Sessions and Roleplay Scenarios.
+                
+                3. User Conduct
+                You agree to use OpenTone constructively. Any abusive language, harassment, or inappropriate behavior during Roleplay or Call Sessions may result in account termination.
+                
+                4. AI Feedback
+                OpenTone uses advanced AI models to provide speech feedback. While we strive for accuracy, the feedback is for educational purposes only and should not be considered professional or certified language evaluation.
+                
+                5. Intellectual Property
+                All content, features, and functionality of OpenTone are owned by us and are protected by copyright laws.
+                
+                6. Termination
+                We reserve the right to suspend or terminate your account without notice if you violate these terms.
+                
+                Contact us at opentone.support@gmail.com for help.
+                
+                Or visit our support page online at:
+                https://www.opentone.in/support
+                """
+                navigationController?.pushViewController(vc, animated: true)
             }
 
         case .actions:
@@ -511,5 +566,41 @@ extension SettingsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         50 // HIG minimum 44pt touch target + padding
+    }
+}
+
+// MARK: - LegalViewController
+
+final class LegalViewController: UIViewController {
+
+    let textContentView = UITextView()
+
+    var docTitle: String = ""
+    var contentText: String = ""
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = docTitle
+        view.backgroundColor = AppColors.screenBackground
+        navigationItem.largeTitleDisplayMode = .never
+
+        textContentView.isEditable = false
+        textContentView.isSelectable = true
+        textContentView.dataDetectorTypes = .link
+        textContentView.font = .systemFont(ofSize: 15, weight: .regular)
+        textContentView.textColor = AppColors.textPrimary
+        textContentView.backgroundColor = AppColors.screenBackground
+        textContentView.text = contentText
+        textContentView.textContainerInset = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        
+        textContentView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(textContentView)
+
+        NSLayoutConstraint.activate([
+            textContentView.topAnchor.constraint(equalTo: view.topAnchor),
+            textContentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            textContentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            textContentView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
 }
