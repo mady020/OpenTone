@@ -32,11 +32,13 @@ class ForgotPasswordViewController: UIViewController {
             } else if title.contains("reset") || title.contains("send") {
                 UIHelper.stylePrimaryButton(button)
                 self.resetButton = button
+                button.addTarget(self, action: #selector(resetPasswordTapped), for: .touchUpInside)
             } else {
                 // Determine based on context or leave as is if unknown, 
                 // but for this screen, the other button is likely the primary action.
                 UIHelper.stylePrimaryButton(button)
                 self.resetButton = button
+                button.addTarget(self, action: #selector(resetPasswordTapped), for: .touchUpInside)
             }
         }
         
@@ -89,5 +91,35 @@ class ForgotPasswordViewController: UIViewController {
         emailContainer.addSubview(emailIcon)
         emailField.leftView = emailContainer
         emailField.leftViewMode = .always
+    }
+
+    @objc private func resetPasswordTapped() {
+        guard let email = emailField.text, !email.isEmpty else { return }
+        
+        if let button = resetButton {
+            UIHelper.setButtonState(button, enabled: false)
+        }
+        
+        Task { @MainActor in
+            do {
+                try await SupabaseAuth.resetPassword(email: email)
+                
+                let alert = UIAlertController(
+                    title: "Check your email",
+                    message: "If an account exists for \(email), you will receive a password reset link shortly.",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                    self.navigationController?.popViewController(animated: true)
+                })
+                self.present(alert, animated: true)
+                
+            } catch {
+                if let button = self.resetButton {
+                    UIHelper.setButtonState(button, enabled: true)
+                }
+                UIHelper.showError(message: error.localizedDescription, on: self.emailField, in: self.view, nextView: self.resetButton)
+            }
+        }
     }
 }

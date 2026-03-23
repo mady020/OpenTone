@@ -2,27 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>SUPABASE_URL</key>
-	<string>$(SUPABASE_URL)</string>
-	<key>SUPABASE_KEY</key>
-	<string>$(SUPABASE_KEY)</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>We use your microphone to transcribe your speech during conversations.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>We use your microphone to transcribe your speech during conversations.</string>
+	<key>AICallAllowFallbackOnPrimaryFailure</key>
+	<true/>
+	<key>AICallFallbackProviders</key>
+	<string></string>
+	<key>AICallPrimaryProvider</key>
+	<string>backend</string>
+	<key>AICallRequirePrimaryProvider</key>
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>AICallPrimaryProvider</key>
-	<string>backend</string>
-	<key>AICallFallbackProviders</key>
-	<string></string>
-	<key>AICallRequirePrimaryProvider</key>
-	<true/>
-	<key>AICallAllowFallbackOnPrimaryFailure</key>
-	<true/>
+	<key>SUPABASE_KEY</key>
+	<string>$(SUPABASE_KEY)</string>
+	<key>SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

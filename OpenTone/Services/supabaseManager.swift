@@ -54,6 +54,7 @@ enum SupabaseAuth {
     static var hasActiveSessionOverride: (() async -> Bool)?
     static var accessTokenOverride: (() async -> String?)?
     static var updatePasswordOverride: ((String, String) async throws -> Void)?
+    static var resetPasswordOverride: ((String) async throws -> Void)?
 
     static func signIn(email: String, password: String) async throws -> (id: UUID, email: String?) {
         if let override = signInOverride {
@@ -114,8 +115,16 @@ enum SupabaseAuth {
             return
         }
 
-        _ = try await supabase.auth.signIn(email: email, password: currentPassword)
+        // Just use the active session to update the password directly.
         try await supabase.auth.update(user: UserAttributes(password: newPassword))
+    }
+
+    static func resetPassword(email: String) async throws {
+        if let override = resetPasswordOverride {
+            try await override(email)
+            return
+        }
+        try await supabase.auth.resetPasswordForEmail(email)
     }
 }
 

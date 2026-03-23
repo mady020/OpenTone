@@ -122,10 +122,15 @@ class HomeCollectionViewController: UICollectionViewController {
 
         let work = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
+            
+            let oldSessionState = self.hasSavedSession
+            let oldTaskState = self.hasUnfinishedLastTask
+            
             self.syncFromSession()
 
             guard self.isViewLoaded else { return }
-            if fullReload {
+            
+            if fullReload || oldSessionState != self.hasSavedSession || oldTaskState != self.hasUnfinishedLastTask {
                 self.collectionView.reloadData()
             } else {
                 self.collectionView.reloadSections(IndexSet(integer: DashboardSection.progress.rawValue))

@@ -8,10 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0CBCAB422F4370B500CC26D6 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0CBCAB412F4370B500CC26D6 /* IQKeyboardManagerSwift */; };
-		8EA5F936741CA3D1DA3FD91A /* Pods_OpenTone.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEABB1509C74FB9EF0E9B519 /* Pods_OpenTone.framework */; };
 		9813ABB52F4C164A00B2CA3B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9813ABB42F4C164A00B2CA3B /* Supabase */; };
 		984B25FA2F63DB8500E62D81 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		984B25FB2F63DB8500E62D81 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		987268E32F70FF3B00B80CFC /* Pods_OpenTone.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEABB1509C74FB9EF0E9B519 /* Pods_OpenTone.framework */; };
+		987268E42F70FF3B00B80CFC /* Pods_OpenTone.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BEABB1509C74FB9EF0E9B519 /* Pods_OpenTone.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		98AEF9242F63E71C0007DA1A /* whisper in Frameworks */ = {isa = PBXBuildFile; productRef = 79D4C9C24FAC68D652C03869 /* whisper */; };
 		98CC6DEE2F63D8640072C60A /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		98CC6DEF2F63D8640072C60A /* whisper in Frameworks */ = {isa = PBXBuildFile; productRef = 0471BD0DEFCB420B35967BF6 /* whisper */; };
@@ -25,6 +26,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				987268E42F70FF3B00B80CFC /* Pods_OpenTone.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -70,10 +72,10 @@
 				984B25FA2F63DB8500E62D81 /* (null) in Frameworks */,
 				98CC6DF02F63D8640072C60A /* (null) in Frameworks */,
 				98CC6DEF2F63D8640072C60A /* whisper in Frameworks */,
+				987268E32F70FF3B00B80CFC /* Pods_OpenTone.framework in Frameworks */,
 				98CC6DEE2F63D8640072C60A /* (null) in Frameworks */,
 				9813ABB52F4C164A00B2CA3B /* Supabase in Frameworks */,
 				0CBCAB422F4370B500CC26D6 /* IQKeyboardManagerSwift in Frameworks */,
-				8EA5F936741CA3D1DA3FD91A /* Pods_OpenTone.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,14 +242,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XMS7FL5N6N;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 89PWJP4L2U;
 				DISABLE_LIBRARY_VALIDATION = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OpenTone/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We use your microphone to transcribe your speech during conversations.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We use your microphone to transcribe your speech during conversations.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -259,9 +264,10 @@
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sudosquad.OpenTone;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chitkarauniversity.opentone;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = openToneProv;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -287,14 +293,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XMS7FL5N6N;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 89PWJP4L2U;
 				DISABLE_LIBRARY_VALIDATION = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OpenTone/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We use your microphone to transcribe your speech during conversations.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We use your microphone to transcribe your speech during conversations.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -306,9 +315,10 @@
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sudosquad.OpenTone;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chitkarauniversity.opentone;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = openToneProv;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
