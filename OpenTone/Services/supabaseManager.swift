@@ -55,6 +55,7 @@ enum SupabaseAuth {
     static var accessTokenOverride: (() async -> String?)?
     static var updatePasswordOverride: ((String, String) async throws -> Void)?
     static var resetPasswordOverride: ((String) async throws -> Void)?
+    static var deleteAccountOverride: (() async throws -> Void)?
 
     static func signIn(email: String, password: String) async throws -> (id: UUID, email: String?) {
         if let override = signInOverride {
@@ -125,6 +126,14 @@ enum SupabaseAuth {
             return
         }
         try await supabase.auth.resetPasswordForEmail(email)
+    }
+
+    static func deleteAccount() async throws {
+        if let override = deleteAccountOverride {
+            try await override()
+            return
+        }
+        try await supabase.rpc("delete_user_account").execute()
     }
 }
 

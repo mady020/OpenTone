@@ -221,22 +221,31 @@ final class SettingsViewController: UIViewController {
     }
 
     private func performDeleteAccount() {
-        // Delete all user data
-        UserDataModel.shared.deleteCurrentUser()
-        SessionManager.shared.logout()
+        Task { @MainActor in
+            do {
+                // Delete user from backend (auth.users and related tables via trigger/RPC)
+                try await SupabaseAuth.deleteAccount()
+                
+                // Delete all user data locally
+                UserDataModel.shared.deleteCurrentUser()
+                SessionManager.shared.logout()
 
-        // Clear related data
-        StreakDataModel.shared.deleteStreak()
-        HistoryDataModel.shared.clearHistory()
+                // Clear related data locally
+                StreakDataModel.shared.deleteStreak()
+                HistoryDataModel.shared.clearHistory()
 
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let vc = storyboard.instantiateInitialViewController(),
-              let window = view.window else { return }
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                guard let vc = storyboard.instantiateInitialViewController(),
+                      let window = self.view.window else { return }
 
-        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
-            window.rootViewController = vc
+                UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+                    window.rootViewController = vc
+                }
+                window.makeKeyAndVisible()
+            } catch {
+                self.showAlert(title: "Account Deletion Failed", message: error.localizedDescription)
+            }
         }
-        window.makeKeyAndVisible()
     }
 
     private func showEditField(for row: Int) {

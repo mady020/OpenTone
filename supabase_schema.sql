@@ -5,7 +5,7 @@
 
 -- 1. USERS TABLE
 CREATE TABLE IF NOT EXISTS users (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id            UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name          TEXT NOT NULL,
   email         TEXT UNIQUE NOT NULL,
   country_name  TEXT,
@@ -150,3 +150,15 @@ CREATE POLICY completed_sessions_own_all ON completed_sessions FOR ALL USING (au
 
 DROP POLICY IF EXISTS roleplay_sessions_own_all ON roleplay_sessions;
 CREATE POLICY roleplay_sessions_own_all ON roleplay_sessions FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- 9. RPC Functions
+CREATE OR REPLACE FUNCTION delete_user_account()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Securely deletes the currently authenticated user from auth.users
+  DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$;
