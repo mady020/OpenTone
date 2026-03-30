@@ -9,6 +9,7 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
     let difficulty: RoleplayDifficulty
     let estimatedTimeMinutes: Int
     let script: [RoleplayMessage]
+    let relatedInterests: [String]
     var previewLines: [RoleplayMessage] {
         Array(script.prefix(2))
     }
@@ -19,7 +20,8 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
         category: RoleplayCategory,
         difficulty: RoleplayDifficulty,
         estimatedTimeMinutes: Int,
-        script: [RoleplayMessage]
+        script: [RoleplayMessage],
+        relatedInterests: [String] = []
     ) {
         self.id = id
         self.title = title
@@ -28,6 +30,7 @@ struct RoleplayScenario: Identifiable, Codable, Equatable {
         self.difficulty = difficulty
         self.estimatedTimeMinutes = estimatedTimeMinutes
         self.script = script
+        self.relatedInterests = relatedInterests
     }
 
     static func == (lhs: RoleplayScenario, rhs: RoleplayScenario) -> Bool {

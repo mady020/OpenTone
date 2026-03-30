@@ -50,7 +50,8 @@ class HomeCollectionViewController: UICollectionViewController {
         super.viewDidLoad()
 
         syncFromSession()
-        recommendedScenarios = RoleplayScenarioDataModel.shared.getAll()
+        let userInterests = SessionManager.shared.currentUser?.interests
+        recommendedScenarios = RoleplayScenarioDataModel.shared.getRecommended(for: userInterests)
 
         collectionView.register(
             DashboardHeaderView.self,
