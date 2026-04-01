@@ -8,6 +8,4 @@
 #ifndef OpenTone_Bridging_Header_h
 #define OpenTone_Bridging_Header_h
 
-@import onnxruntime_objc;
-
 #endif /* OpenTone_Bridging_Header_h */

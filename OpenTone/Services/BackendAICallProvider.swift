@@ -37,9 +37,14 @@ final class BackendAICallProvider: AICallLLMProvider {
             ? "Could you say that again?"
             : response.text
 
+        let correctedAssistantText = UtteranceCorrectionService.shared.applyCorrectionIfNeeded(
+            userText: input.transcript,
+            assistantText: aiText
+        )
+
         return AICallTurnResult(
             userTranscript: input.transcript,
-            assistantText: aiText,
+            assistantText: correctedAssistantText,
             metrics: nil,
             provider: id
         )

@@ -153,6 +153,7 @@ class RoleplayChatViewController: UIViewController {
 
     private var llmHistory: [LLMMessage] = []
     private var roleplayTurnCount = 0  // reused for LLM turn tracking
+    private var pendingUserCorrection: UtteranceCorrection?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -586,15 +587,23 @@ class RoleplayChatViewController: UIViewController {
     private func handleLLMResponse(_ response: String) {
         roleplayTurnCount += 1
         let (messageText, suggestions) = parseLLMResponse(response)
+        let correctedMessage = applyPendingCorrection(to: messageText)
 
-        messages.append(ChatMessage(sender: .app, text: messageText, suggestions: nil))
+        messages.append(ChatMessage(sender: .app, text: correctedMessage, suggestions: nil))
 
         if !suggestions.isEmpty {
             messages.append(ChatMessage(sender: .suggestions, text: "", suggestions: suggestions))
         }
 
         reloadTableSafely()
-        speakText(messageText)
+        speakText(correctedMessage)
+    }
+
+    private func applyPendingCorrection(to assistantText: String) -> String {
+        defer { pendingUserCorrection = nil }
+        guard let correction = pendingUserCorrection else { return assistantText }
+        let correctionLine = UtteranceCorrectionService.shared.correctionPrefix(for: correction)
+        return "\(correctionLine) \(assistantText)"
     }
 
     private func parseLLMResponse(_ response: String) -> (String, [String]) {
@@ -764,6 +773,8 @@ class RoleplayChatViewController: UIViewController {
     // MARK: - LLM response flow
 
     private func handleLLMUserResponse(_ text: String) {
+        pendingUserCorrection = UtteranceCorrectionService.shared.firstCorrection(in: text)
+
         // Show thinking indicator
         messages.append(ChatMessage(sender: .app, text: "…", suggestions: nil))
         reloadTableSafely()
@@ -791,6 +802,7 @@ class RoleplayChatViewController: UIViewController {
                     if messages.last?.text == "…" {
                         messages.removeLast()
                     }
+                    pendingUserCorrection = nil
                     messages.append(ChatMessage(
                         sender: .app,
                         text: "Sorry, something went wrong. Please try again.",
@@ -855,10 +867,45 @@ class RoleplayChatViewController: UIViewController {
             currentWrongStreak = 0
             advanceSession()
         } else {
-            handleWrongAttempt(expected: expected)
+            let correctionHint = scriptedCorrectionHint(for: text, expected: expected)
+            handleWrongAttempt(expected: expected, correctionHint: correctionHint)
             isProcessingResponse = false
             currentState = .idle
         }
+    }
+
+    private func scriptedCorrectionHint(for userText: String, expected: [String]) -> String? {
+        if let correction = UtteranceCorrectionService.shared.firstCorrection(in: userText) {
+            return UtteranceCorrectionService.shared.correctionPrefix(for: correction)
+        }
+
+        guard let closest = closestExpectedReply(to: userText, expected: expected) else {
+            return nil
+        }
+
+        return "Try this phrasing: \"\(closest)\"."
+    }
+
+    private func closestExpectedReply(to input: String, expected: [String]) -> String? {
+        let inputWords = Set(normalize(input).split(separator: " ").map(String.init))
+        guard !inputWords.isEmpty else { return expected.first }
+
+        var bestOption: String?
+        var bestScore = -1.0
+
+        for option in expected {
+            let optionWords = Set(normalize(option).split(separator: " ").map(String.init))
+            guard !optionWords.isEmpty else { continue }
+            let overlap = Double(inputWords.intersection(optionWords).count)
+            let denom = Double(optionWords.count)
+            let score = overlap / max(1.0, denom)
+            if score > bestScore {
+                bestScore = score
+                bestOption = option
+            }
+        }
+
+        return bestOption
     }
 
     private func advanceSession() {
@@ -894,12 +941,19 @@ class RoleplayChatViewController: UIViewController {
     }
 
 
-    private func handleWrongAttempt(expected: [String]) {
+    private func handleWrongAttempt(expected: [String], correctionHint: String?) {
         currentWrongStreak += 1
         totalWrongAttempts += 1
 
+        let feedbackText: String
+        if let correctionHint, !correctionHint.isEmpty {
+            feedbackText = "\(correctionHint)\nNow try one of the options below."
+        } else {
+            feedbackText = "Not quite. Try one of the options below."
+        }
+
         messages.append(
-            ChatMessage(sender: .app, text: "Not quite 🤏\nTry one of the options below!", suggestions: nil)
+            ChatMessage(sender: .app, text: feedbackText, suggestions: nil)
         )
         messages.append(
             ChatMessage(sender: .suggestions, text: "", suggestions: expected)

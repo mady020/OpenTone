@@ -11,9 +11,16 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
 
         let metrics = buildMetrics(from: cleanedTranscript, durationS: input.durationS, turnSummaries: input.turnSummaries)
         let profileBefore = loadProfile(for: input.userId)
-        let analysis = classify(transcript: cleanedTranscript, metrics: metrics)
+        let pronunciationInsights = OnDevicePronunciationAnalyzer.shared.analyze(transcript: cleanedTranscript)
+        let analysis = classify(transcript: cleanedTranscript, metrics: metrics, pronunciationIssueCount: pronunciationInsights.count)
 
-        let coaching = buildCoaching(analysis: analysis, metrics: metrics, mode: input.mode, userId: input.userId)
+        let coaching = buildCoaching(
+            analysis: analysis,
+            metrics: metrics,
+            mode: input.mode,
+            userId: input.userId,
+            pronunciationInsights: pronunciationInsights
+        )
         let progress = buildProgress(current: metrics, currentScores: coaching.scores, previous: profileBefore)
 
         let updatedProfile = profileBefore.updated(with: metrics, overallScore: coaching.scores.overall)
@@ -124,7 +131,7 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
         let lowConfidenceCapture: Bool
     }
 
-    private func classify(transcript: String, metrics: SpeechMetrics) -> AnalysisResult {
+    private func classify(transcript: String, metrics: SpeechMetrics, pronunciationIssueCount: Int) -> AnalysisResult {
         let words = tokenizedWords(from: transcript)
 
         let tooSlow = metrics.wpm > 0 && metrics.wpm < 105
@@ -148,6 +155,7 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
         if tooSlow || tooFast { issueScores.append(("timing", Int(abs(metrics.wpm - 140) / 5.0))) }
         if incompletePhrase { issueScores.append(("incomplete", 10)) }
         if lowConfidenceCapture { issueScores.append(("low_confidence", 12)) }
+        if pronunciationIssueCount > 0 { issueScores.append(("pronunciation", 7 + (pronunciationIssueCount * 3))) }
 
         let primaryIssueKey = issueScores.sorted { $0.1 > $1.1 }.first?.0 ?? "variation"
         let secondaryIssueKeys = issueScores.sorted { $0.1 > $1.1 }.dropFirst().map { $0.0 }
@@ -179,7 +187,13 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
         )
     }
 
-    private func buildCoaching(analysis: AnalysisResult, metrics: SpeechMetrics, mode: FeedbackSessionMode, userId: String) -> SpeechCoaching {
+    private func buildCoaching(
+        analysis: AnalysisResult,
+        metrics: SpeechMetrics,
+        mode: FeedbackSessionMode,
+        userId: String,
+        pronunciationInsights: [PronunciationInsight]
+    ) -> SpeechCoaching {
         let scores = coachingScores(metrics: metrics, analysis: analysis)
 
         var suggestions = suggestionTemplates(for: analysis.primaryIssueKey, metrics: metrics)
@@ -199,10 +213,15 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
             suggestions.append("Some parts were hard to capture clearly. Try speaking slightly louder and facing the mic directly.")
         }
 
+        if !pronunciationInsights.isEmpty {
+            suggestions.append(contentsOf: OnDevicePronunciationAnalyzer.shared.suggestions(from: pronunciationInsights))
+        }
+
         suggestions = Array(suggestions.uniquedPreservingOrder().prefix(6))
         suggestions = dedupeWithRecentHistory(suggestions, userId: userId)
 
-        let evidence = makeEvidence(metrics: metrics, primaryIssue: analysis.primaryIssueKey)
+        var evidence = makeEvidence(metrics: metrics, primaryIssue: analysis.primaryIssueKey)
+        evidence.append(contentsOf: OnDevicePronunciationAnalyzer.shared.evidenceItems(from: pronunciationInsights))
 
         return SpeechCoaching(
             scores: scores,
@@ -267,6 +286,12 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
                 "Use slightly stronger volume on sentence beginnings for clearer capture.",
                 "Record one short test sentence before the full jam to confirm audio quality."
             ]
+        case "pronunciation":
+            return [
+                "Repeat key words at a slower tempo and keep vowels clearly separated.",
+                "Use minimal-pair drills for common confusions like /v/ vs /w/ and /l/ vs /r/.",
+                "Record one sentence twice: first carefully, then naturally, while keeping target sounds stable."
+            ]
         default:
             return [
                 "Your variation was mostly natural. Keep building consistency over the next two sessions.",
@@ -283,6 +308,7 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
         case "timing": return "Timing Drift"
         case "incomplete": return "Incomplete Phrases"
         case "low_confidence": return "Low-Confidence Capture"
+        case "pronunciation": return "Pronunciation Precision"
         default: return "Harmless Variation"
         }
     }
@@ -299,6 +325,8 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
             return "Some ideas ended before completion, reducing clarity of your message."
         case "low_confidence":
             return "Audio confidence looked low for parts of the session, so interpretation should be cautious."
+        case "pronunciation":
+            return "Some word-level sound substitutions were detected; targeted phoneme practice can improve clarity."
         default:
             return "Variation looked mostly natural and not a critical speaking error."
         }

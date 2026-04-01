@@ -14,7 +14,7 @@ final class AICallOrchestrator {
         let order = providerOrder()
 
         guard let primaryProvider = providers[policy.primary], primaryProvider.isAvailable() else {
-            if policy.requirePrimary {
+            if policy.requirePrimary && !policy.allowFallbackOnPrimaryFailure {
                 throw AICallOrchestratorError.providerUnavailable(policy.primary)
             }
             return try await tryFallbackStartSession(input: input, order: Array(order.dropFirst()))
@@ -34,7 +34,7 @@ final class AICallOrchestrator {
         let order = providerOrder()
 
         guard let primaryProvider = providers[policy.primary], primaryProvider.isAvailable() else {
-            if policy.requirePrimary {
+            if policy.requirePrimary && !policy.allowFallbackOnPrimaryFailure {
                 throw AICallOrchestratorError.providerUnavailable(policy.primary)
             }
             return try await tryFallbackTurn(input: input, order: Array(order.dropFirst()))

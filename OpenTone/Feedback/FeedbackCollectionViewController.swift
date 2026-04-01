@@ -582,6 +582,21 @@ class FeedbackCollectionViewController: UIViewController {
             }
         }
 
+        let pronunciationWords = response.coaching.evidence
+            .filter { $0.type == "phoneme" }
+            .compactMap { phonemeObservedFragment(from: $0.text) }
+
+        for word in Set(pronunciationWords) where !word.isEmpty {
+            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: word))\\b"
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            regex.matches(in: displayText, options: [], range: fullRange).forEach { match in
+                attributed.addAttributes([
+                    .foregroundColor: UIColor.systemGreen,
+                    .backgroundColor: UIColor.systemGreen.withAlphaComponent(0.15),
+                ], range: match.range)
+            }
+        }
+
         for range in paceRiskRanges(in: displayText, wpm: response.metrics.wpm) {
             attributed.addAttributes([
                 .underlineStyle: NSUnderlineStyle.patternDot.union(.single).rawValue,
@@ -631,6 +646,10 @@ class FeedbackCollectionViewController: UIViewController {
             entries.append("🟣 Dotted underline: dense fast segment that may reduce clarity.")
         }
 
+        if response.coaching.evidence.contains(where: { $0.type == "phoneme" }) {
+            entries.append("🟩 Pronunciation cue: likely sound substitution on this word.")
+        }
+
         if entries.isEmpty {
             entries.append("No major mistake markers detected in this transcript.")
         }
@@ -640,13 +659,21 @@ class FeedbackCollectionViewController: UIViewController {
 
     private func transcriptMistakeTotals(from response: SpeechAnalysisResponse) -> String {
         let paceAlerts = paceRiskRanges(in: response.transcript, wpm: response.metrics.wpm).count
+        let pronunciationAlerts = response.coaching.evidence.filter { $0.type == "phoneme" }.count
         let paceText = paceAlerts > 0 ? "⚡ Pace alerts: \(paceAlerts)" : "⚡ Pace alerts: 0"
         return [
             "🟧 Fillers: \(response.metrics.fillers)",
             "🔵 Pauses: \(response.metrics.pauses)",
             "🔴 Repetitions: \(response.metrics.repetitions)",
+            "🟩 Pronunciation alerts: \(pronunciationAlerts)",
             paceText,
         ].joined(separator: "   •   ")
+    }
+
+    private func phonemeObservedFragment(from text: String) -> String? {
+        guard let arrowRange = text.range(of: "->") else { return nil }
+        let observed = text[..<arrowRange.lowerBound].trimmingCharacters(in: .whitespacesAndNewlines)
+        return observed.isEmpty ? nil : observed
     }
 
     private func scoreDescriptor(_ value: Double) -> String {

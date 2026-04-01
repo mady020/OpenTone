@@ -6,7 +6,7 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
     static let shared = OnDeviceTTSService()
 
     private let logger = Logger(subsystem: "com.sudosquad.OpenTone", category: "TTS")
-    private let synthesisQueue = DispatchQueue(label: "com.sudosquad.opentone.supertonic", qos: .userInitiated)
+    private let synthesisQueue = DispatchQueue(label: "com.sudosquad.opentone.localtts", qos: .userInitiated)
 
     private var tts: TTSService?
     private var modelLoadingTask: Task<Void, Error>?
@@ -38,12 +38,12 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
             try await loadModel()
             let voice = mapVoice(voiceName)
             let audioURL = try await synthesizeToFile(text: cleanedText, voice: voice, volumeBoost: volumeBoost)
-            logger.info("Supertonic synthesized file: \(audioURL.path, privacy: .public)")
+            logger.info("On-device synthesized file: \(audioURL.path, privacy: .public)")
             try await playAudioFile(audioURL)
-            logger.info("Supertonic playback finished")
+            logger.info("On-device playback finished")
         } catch {
-            logger.error("Supertonic path failed, falling back to AVSpeechSynthesizer: \(error.localizedDescription, privacy: .public)")
-            print("OnDeviceTTSService: Supertonic failed -> \(error.localizedDescription)")
+            logger.error("On-device synthesis failed, falling back to AVSpeechSynthesizer: \(error.localizedDescription, privacy: .public)")
+            print("OnDeviceTTSService: local synthesis failed -> \(error.localizedDescription)")
             try await speakWithSystemFallback(cleanedText)
         }
     }
@@ -90,10 +90,10 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
 
                     do {
                         self.tts = try TTSService()
-                        self.logger.info("Supertonic model initialized")
+                        self.logger.info("Local TTS engine initialized")
                         continuation.resume()
                     } catch {
-                        self.logger.error("Supertonic model init failed: \(error.localizedDescription, privacy: .public)")
+                        self.logger.error("Local TTS engine init failed: \(error.localizedDescription, privacy: .public)")
                         continuation.resume(throwing: error)
                     }
                 }
@@ -207,7 +207,7 @@ enum OnDeviceTTSError: LocalizedError {
         case .emptyText:
             return "Cannot synthesize empty text."
         case .engineNotInitialized:
-            return "Supertonic TTS engine is not initialized."
+            return "Local TTS engine is not initialized."
         case .deallocated:
             return "OnDeviceTTSService was deallocated unexpectedly."
         }

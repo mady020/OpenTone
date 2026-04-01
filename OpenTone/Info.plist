@@ -5,11 +5,11 @@
 	<key>AICallAllowFallbackOnPrimaryFailure</key>
 	<true/>
 	<key>AICallFallbackProviders</key>
-	<string></string>
+	<string>appleintelligence</string>
 	<key>AICallPrimaryProvider</key>
 	<string>backend</string>
 	<key>AICallRequirePrimaryProvider</key>
-	<true/>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

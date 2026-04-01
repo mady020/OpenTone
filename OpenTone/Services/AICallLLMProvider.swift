@@ -2,6 +2,16 @@ import Foundation
 
 enum AICallProviderID: String {
     case backend
+    case appleIntelligence = "appleintelligence"
+
+    var displayName: String {
+        switch self {
+        case .backend:
+            return "Backend Cloud AI"
+        case .appleIntelligence:
+            return "Apple Intelligence (On-Device)"
+        }
+    }
 }
 
 struct AICallStartInput {
@@ -59,14 +69,18 @@ struct AICallProviderPolicy {
 
         let allowFallback = (UserDefaults.standard.object(forKey: "opentone.aiCall.allowFallbackOnPrimaryFailure") as? Bool)
             ?? (Bundle.main.object(forInfoDictionaryKey: "AICallAllowFallbackOnPrimaryFailure") as? Bool)
-            ?? false
+            ?? true
 
         let primary = AICallProviderID(rawValue: primaryRaw) ?? .backend
-        let fallbacks = fallbackRaw
+        var fallbacks = fallbackRaw
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .compactMap { AICallProviderID(rawValue: $0) }
             .filter { $0 != primary }
+
+        if fallbacks.isEmpty {
+            fallbacks = [primary == .backend ? .appleIntelligence : .backend]
+        }
 
         return AICallProviderPolicy(
             primary: primary,
@@ -84,9 +98,9 @@ enum AICallOrchestratorError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .providerUnavailable(let id):
-            return "\(id.rawValue.capitalized) provider is unavailable."
+            return "\(id.displayName) provider is unavailable."
         case .providerFailed(let id, let message):
-            return "\(id.rawValue.capitalized) provider failed: \(message)"
+            return "\(id.displayName) provider failed: \(message)"
         }
     }
 }
@@ -95,7 +109,8 @@ enum AICallProviderFactory {
 
     static func makeOrchestrator(policy: AICallProviderPolicy = .fromConfig()) -> AICallOrchestrator {
         let providers: [AICallProviderID: AICallLLMProvider] = [
-            .backend: BackendAICallProvider()
+            .backend: BackendAICallProvider(),
+            .appleIntelligence: AppleIntelligenceAICallProvider()
         ]
 
         return AICallOrchestrator(policy: policy, providers: providers)
