@@ -1,4 +1,5 @@
 import UIKit
+import AVFoundation
 
 /// Full-screen pronunciation practice view controller.
 /// Shows target phrase → records user → shows per-word scored results.
@@ -8,22 +9,38 @@ final class PronunciationPracticeViewController: UIViewController {
 
     private let sessionController = PronunciationSessionController()
     private let difficultWordsStore = DifficultWordsStore.shared
+    private let progressStore = PronunciationPracticeProgressStore.shared
     private var collectionView: UICollectionView!
     private var currentPhrase: String = ""
-    private var showTechnicalDetails = false
     private var activeDrillPhrase: String?
     private var difficultWords: [DifficultWordEntry] = []
+    private var progress = PronunciationPracticeProgress.empty
+    private var lastProgressUpdate: PronunciationPracticeProgressStore.ProgressUpdate?
+    private var recordingPlayer: AVAudioPlayer?
 
     // Section model
     private enum Section: Int, CaseIterable {
         case phrase = 0
         case controls
         case score
+        case momentum
         case priorityIssues
         case wordResults
         case prosody
         case feedback
         case difficultWords
+    }
+
+    private var visibleSections: [Section] {
+        if hasResults {
+            return [.phrase, .controls, .score]
+        }
+        return [.phrase, .controls]
+    }
+
+    private func sectionForIndex(_ index: Int) -> Section? {
+        guard visibleSections.indices.contains(index) else { return nil }
+        return visibleSections[index]
     }
 
     // MARK: - Lifecycle
@@ -46,18 +63,20 @@ final class PronunciationPracticeViewController: UIViewController {
             target: self,
             action: #selector(newPhraseTapped)
         )
-        let detailsItem = UIBarButtonItem(
-            title: "Show Details",
-            style: .plain,
-            target: self,
-            action: #selector(toggleTechnicalDetailsTapped)
-        )
-        navigationItem.rightBarButtonItems = [newPhraseItem, detailsItem]
+        navigationItem.rightBarButtonItems = [newPhraseItem]
 
         sessionController.delegate = self
         setupCollectionView()
+        refreshProgress()
         refreshDifficultWords()
         loadNewPhrase()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent || isBeingDismissed {
+            stopRecordedAudioPlayback()
+        }
     }
 
     // MARK: - Setup
@@ -72,6 +91,7 @@ final class PronunciationPracticeViewController: UIViewController {
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "PhraseCell")
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "ControlCell")
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "ScoreCell")
+        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "MomentumCell")
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "IssueCell")
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "WordCell")
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "ProsodyCell")
@@ -87,13 +107,15 @@ final class PronunciationPracticeViewController: UIViewController {
 
     private func createLayout() -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else {
+            guard let self,
+                  let section = self.sectionForIndex(sectionIndex) else {
                 return Self.listSection()
             }
             switch section {
             case .phrase:      return Self.phraseSection()
             case .controls:    return Self.controlsSection()
             case .score:       return Self.scoreSection()
+            case .momentum:    return Self.listSection()
             case .priorityIssues: return Self.listSection()
             case .wordResults: return Self.wordGridSection()
             case .prosody:     return Self.listSection()
@@ -120,11 +142,11 @@ final class PronunciationPracticeViewController: UIViewController {
     private static func controlsSection() -> NSCollectionLayoutSection {
         let item = NSCollectionLayoutItem(layoutSize: .init(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(100)
+            heightDimension: .estimated(180)
         ))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(100)
+            heightDimension: .estimated(180)
         ), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = .init(top: 8, leading: 16, bottom: 16, trailing: 16)
@@ -200,9 +222,14 @@ final class PronunciationPracticeViewController: UIViewController {
         difficultWords = difficultWordsStore.all()
     }
 
+    private func refreshProgress() {
+        progress = progressStore.load()
+    }
+
     // MARK: - Actions
 
     @objc private func dismissTapped() {
+        stopRecordedAudioPlayback()
         sessionController.cancelRecording()
         if presentingViewController != nil {
             dismiss(animated: true)
@@ -212,17 +239,13 @@ final class PronunciationPracticeViewController: UIViewController {
     }
 
     @objc private func newPhraseTapped() {
+        stopRecordedAudioPlayback()
         sessionController.reset()
         loadNewPhrase()
     }
 
-    @objc private func toggleTechnicalDetailsTapped() {
-        showTechnicalDetails.toggle()
-        navigationItem.rightBarButtonItems?.last?.title = showTechnicalDetails ? "Hide Details" : "Show Details"
-        collectionView.reloadData()
-    }
-
     @objc private func recordTapped() {
+        stopRecordedAudioPlayback()
         switch sessionController.state {
         case .idle, .results, .error:
             sessionController.startRecording()
@@ -234,10 +257,54 @@ final class PronunciationPracticeViewController: UIViewController {
         collectionView.reloadData()
     }
 
-    @objc private func retryTapped() {
-        sessionController.reset()
-        sessionController.prepareSession(expectedText: currentPhrase)
-        collectionView.reloadData()
+    @objc private func hearSentenceTapped() {
+        hearPhrase(currentPhrase)
+    }
+
+    @objc private func playMyRecordingTapped() {
+        guard sessionController.state != .recording,
+              sessionController.state != .analyzing else {
+            return
+        }
+
+        if let player = recordingPlayer, player.isPlaying {
+            stopRecordedAudioPlayback()
+            collectionView.reloadData()
+            return
+        }
+
+        guard let url = AudioManager.shared.lastRecordingURL else {
+            let alert = UIAlertController(
+                title: "No Recording Yet",
+                message: "Record once and you can replay your own audio here.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+
+        do {
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.delegate = self
+            player.prepareToPlay()
+            player.play()
+            recordingPlayer = player
+            collectionView.reloadData()
+        } catch {
+            let alert = UIAlertController(
+                title: "Playback Error",
+                message: "Could not play your recording. Please record again.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+        }
+    }
+
+    private func stopRecordedAudioPlayback() {
+        recordingPlayer?.stop()
+        recordingPlayer = nil
     }
 
     private func startDrill(for phrase: String) {
@@ -297,66 +364,85 @@ final class PronunciationPracticeViewController: UIViewController {
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         cell.contentView.backgroundColor = .clear
 
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
+        let recordButton = UIButton(type: .system)
+        recordButton.translatesAutoresizingMaskIntoConstraints = false
 
-        var config = UIButton.Configuration.filled()
-        config.cornerStyle = .capsule
+        var recordConfig = UIButton.Configuration.filled()
+        recordConfig.cornerStyle = .capsule
 
         switch sessionController.state {
         case .idle, .error, .results:
-            config.title = "  Start Recording"
-            config.image = UIImage(systemName: "mic.fill")
-            config.baseBackgroundColor = AppColors.primary
-            config.baseForegroundColor = .white
-            button.addTarget(self, action: #selector(recordTapped), for: .touchUpInside)
+            recordConfig.title = "  Start Recording"
+            recordConfig.image = UIImage(systemName: "mic.fill")
+            recordConfig.baseBackgroundColor = AppColors.primary
+            recordConfig.baseForegroundColor = .white
+            recordButton.addTarget(self, action: #selector(recordTapped), for: .touchUpInside)
 
         case .recording:
-            config.title = "  Stop & Analyze"
-            config.image = UIImage(systemName: "stop.fill")
-            config.baseBackgroundColor = .systemRed
-            config.baseForegroundColor = .white
-            button.addTarget(self, action: #selector(recordTapped), for: .touchUpInside)
+            recordConfig.title = "  Stop & Analyze"
+            recordConfig.image = UIImage(systemName: "stop.fill")
+            recordConfig.baseBackgroundColor = .systemRed
+            recordConfig.baseForegroundColor = .white
+            recordButton.addTarget(self, action: #selector(recordTapped), for: .touchUpInside)
 
         case .analyzing:
-            config.title = "  Analyzing..."
-            config.image = UIImage(systemName: "waveform")
-            config.baseBackgroundColor = .systemGray3
-            config.baseForegroundColor = .white
-            button.isEnabled = false
+            recordConfig.title = "  Analyzing..."
+            recordConfig.image = UIImage(systemName: "waveform")
+            recordConfig.baseBackgroundColor = .systemGray3
+            recordConfig.baseForegroundColor = .white
+            recordButton.isEnabled = false
         }
 
-        button.configuration = config
-        cell.contentView.addSubview(button)
+        recordButton.configuration = recordConfig
 
+        let hearButton = UIButton(type: .system)
+        hearButton.translatesAutoresizingMaskIntoConstraints = false
+        var hearConfig = UIButton.Configuration.tinted()
+        hearConfig.title = "Hear Correct Sentence"
+        hearConfig.image = UIImage(systemName: "speaker.wave.2.fill")
+        hearConfig.baseBackgroundColor = AppColors.primary.withAlphaComponent(0.12)
+        hearConfig.baseForegroundColor = AppColors.primary
+        hearConfig.cornerStyle = .capsule
+        hearButton.configuration = hearConfig
+        hearButton.addTarget(self, action: #selector(hearSentenceTapped), for: .touchUpInside)
+
+        let myRecordingButton = UIButton(type: .system)
+        myRecordingButton.translatesAutoresizingMaskIntoConstraints = false
+        var myRecordingConfig = UIButton.Configuration.tinted()
+        let isPlaying = recordingPlayer?.isPlaying == true
+        myRecordingConfig.title = isPlaying ? "Stop My Recording" : "Play My Recording"
+        myRecordingConfig.image = UIImage(systemName: isPlaying ? "stop.fill" : "play.circle.fill")
+        myRecordingConfig.baseBackgroundColor = AppColors.primary.withAlphaComponent(0.12)
+        myRecordingConfig.baseForegroundColor = AppColors.primary
+        myRecordingConfig.cornerStyle = .capsule
+        myRecordingButton.configuration = myRecordingConfig
+        myRecordingButton.isEnabled = AudioManager.shared.lastRecordingURL != nil
+            && sessionController.state != .recording
+            && sessionController.state != .analyzing
+        myRecordingButton.addTarget(self, action: #selector(playMyRecordingTapped), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [recordButton, hearButton, myRecordingButton])
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        cell.contentView.addSubview(stack)
         NSLayoutConstraint.activate([
-            button.centerXAnchor.constraint(equalTo: cell.contentView.centerXAnchor),
-            button.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 8),
-            button.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -8),
-            button.heightAnchor.constraint(equalToConstant: 52),
-            button.widthAnchor.constraint(greaterThanOrEqualToConstant: 200)
+            stack.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 8),
+            stack.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor),
+            stack.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -8),
+
+            recordButton.heightAnchor.constraint(equalToConstant: 52),
+            recordButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 220),
+
+            hearButton.heightAnchor.constraint(equalToConstant: 40),
+            hearButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 220),
+
+            myRecordingButton.heightAnchor.constraint(equalToConstant: 40),
+            myRecordingButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 220)
         ])
-
-        // Show retry button if we have results
-        if sessionController.state == .results {
-            let retry = UIButton(type: .system)
-            retry.translatesAutoresizingMaskIntoConstraints = false
-            var retryConfig = UIButton.Configuration.tinted()
-            retryConfig.title = "Try Again"
-            retryConfig.image = UIImage(systemName: "arrow.counterclockwise")
-            retryConfig.baseBackgroundColor = AppColors.primary.withAlphaComponent(0.12)
-            retryConfig.baseForegroundColor = AppColors.primary
-            retryConfig.cornerStyle = .capsule
-            retry.configuration = retryConfig
-            retry.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
-            cell.contentView.addSubview(retry)
-
-            NSLayoutConstraint.activate([
-                retry.centerXAnchor.constraint(equalTo: cell.contentView.centerXAnchor),
-                retry.topAnchor.constraint(equalTo: button.bottomAnchor, constant: 8),
-                retry.heightAnchor.constraint(equalToConstant: 40)
-            ])
-        }
     }
 
     private func configureScoreCell(_ cell: UICollectionViewCell) {
@@ -370,15 +456,24 @@ final class PronunciationPracticeViewController: UIViewController {
         let score = Int(result.overallScore.rounded())
         let color = scoreColor(for: result.overallScore)
 
+        let statusLabel = UILabel()
+        statusLabel.text = progressStateTitle(for: result.overallScore)
+        statusLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        statusLabel.textColor = color
+        statusLabel.textAlignment = .center
+
         let scoreLabel = UILabel()
         scoreLabel.text = "\(score)"
         scoreLabel.font = .systemFont(ofSize: 48, weight: .bold)
         scoreLabel.textColor = color
+        scoreLabel.textAlignment = .center
 
         let descLabel = UILabel()
-        descLabel.text = scoreDescriptor(result.overallScore)
+        descLabel.text = encouragementLine(for: result.overallScore)
         descLabel.font = .systemFont(ofSize: 15, weight: .medium)
-        descLabel.textColor = .secondaryLabel
+        descLabel.textColor = AppColors.textPrimary
+        descLabel.numberOfLines = 0
+        descLabel.textAlignment = .center
 
         let progress = UIProgressView(progressViewStyle: .default)
         progress.progress = result.overallScore / 100
@@ -386,26 +481,16 @@ final class PronunciationPracticeViewController: UIViewController {
         progress.trackTintColor = AppColors.cardBackground
 
         let transcriptLabel = UILabel()
-        transcriptLabel.text = "You said: \"\(result.transcribedText)\""
+        let cleanedTranscript = result.transcribedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        transcriptLabel.text = cleanedTranscript.isEmpty
+            ? "You said: (speech not detected clearly)"
+            : "You said: \"\(cleanedTranscript)\""
         transcriptLabel.font = .systemFont(ofSize: 13)
         transcriptLabel.textColor = .tertiaryLabel
         transcriptLabel.numberOfLines = 2
+        transcriptLabel.textAlignment = .center
 
-        var arranged: [UIView] = [scoreLabel, descLabel, progress, transcriptLabel]
-
-        if showTechnicalDetails {
-            let detail = UILabel()
-            detail.font = .systemFont(ofSize: 12)
-            detail.textColor = .secondaryLabel
-            let model = result.diagnostics.acousticModelUsed
-            if model.lowercased().contains("placeholder") {
-                detail.text = "Details: fallback acoustic model in use (lower precision)."
-            } else {
-                detail.text = "Details: model \(model), \(result.diagnostics.processingTimeMs.rounded()) ms."
-            }
-            detail.numberOfLines = 0
-            arranged.append(detail)
-        }
+        let arranged: [UIView] = [statusLabel, scoreLabel, descLabel, progress, transcriptLabel]
 
         let stack = UIStackView(arrangedSubviews: arranged)
         stack.axis = .vertical
@@ -423,6 +508,51 @@ final class PronunciationPracticeViewController: UIViewController {
         ])
     }
 
+    private func configureMomentumCell(_ cell: UICollectionViewCell) {
+        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+        cell.contentView.backgroundColor = AppColors.cardBackground
+        cell.contentView.layer.cornerRadius = 12
+        cell.contentView.clipsToBounds = true
+
+        let streakText = "🔥 Streak: \(progress.currentStreak)d"
+        let xpText = "⭐ XP: \(progress.totalXP)"
+        let badgeText = latestBadgeLine(from: progress)
+
+        let topLabel = UILabel()
+        topLabel.text = "\(streakText)   •   \(xpText)"
+        topLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        topLabel.textColor = AppColors.textPrimary
+
+        let midLabel = UILabel()
+        if let update = lastProgressUpdate {
+            midLabel.text = "\(update.xpEarned) XP earned this try. Keep the streak going!"
+        } else {
+            midLabel.text = "Practice daily to build streak and unlock badges."
+        }
+        midLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        midLabel.textColor = .secondaryLabel
+        midLabel.numberOfLines = 0
+
+        let bottomLabel = UILabel()
+        bottomLabel.text = badgeText
+        bottomLabel.font = .systemFont(ofSize: 12)
+        bottomLabel.textColor = AppColors.primary
+        bottomLabel.numberOfLines = 0
+
+        let stack = UIStackView(arrangedSubviews: [topLabel, midLabel, bottomLabel])
+        stack.axis = .vertical
+        stack.spacing = 6
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        cell.contentView.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 12),
+            stack.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 12),
+            stack.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -12),
+            stack.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -12)
+        ])
+    }
+
     private func configurePriorityIssuesCell(_ cell: UICollectionViewCell) {
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         cell.contentView.backgroundColor = AppColors.cardBackground
@@ -433,7 +563,7 @@ final class PronunciationPracticeViewController: UIViewController {
         let topIssues = importantIssueLines(from: result)
 
         let titleLabel = UILabel()
-        titleLabel.text = "Top Focus Areas (1–3)"
+        titleLabel.text = "Focus On These 1-2 Wins"
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.textColor = AppColors.textPrimary
 
@@ -444,7 +574,7 @@ final class PronunciationPracticeViewController: UIViewController {
         bodyLabel.numberOfLines = 0
 
         let helper = UILabel()
-        helper.text = "Tap any word card below for examples and optional technical details."
+        helper.text = "Fixing these first gives the biggest score jump."
         helper.font = .systemFont(ofSize: 12)
         helper.textColor = .secondaryLabel
         helper.numberOfLines = 0
@@ -490,7 +620,13 @@ final class PronunciationPracticeViewController: UIViewController {
         scoreLabel.textColor = color
         scoreLabel.textAlignment = .center
 
-        let stack = UIStackView(arrangedSubviews: [wordLabel, scoreLabel])
+        let hintLabel = UILabel()
+        hintLabel.text = "Tap for quick practice"
+        hintLabel.font = .systemFont(ofSize: 10, weight: .medium)
+        hintLabel.textColor = .secondaryLabel
+        hintLabel.textAlignment = .center
+
+        let stack = UIStackView(arrangedSubviews: [wordLabel, scoreLabel, hintLabel])
         stack.axis = .vertical
         stack.alignment = .center
         stack.spacing = 2
@@ -514,13 +650,22 @@ final class PronunciationPracticeViewController: UIViewController {
         guard let result = sessionController.lastResult else { return }
 
         let prosody = result.prosody
-        let scoreText = "Prosody: \(Int(prosody.overallScore.rounded()))/100"
-        let confText = prosody.confidence == .low ? " (tentative)" : ""
+        let scoreText = "Speech flow: \(Int(prosody.overallScore.rounded()))/100"
+        let coaching: String
+        if prosody.overallScore >= 80 {
+            coaching = "Nice rhythm and pacing."
+        } else if prosody.overallScore >= 65 {
+            coaching = "Almost there. Keep a steady pace and clear stress."
+        } else {
+            coaching = "Try slower pacing with stronger word beats."
+        }
+        let confText = prosody.confidence == .low ? " (quick estimate)" : ""
 
         let label = UILabel()
-        label.text = "\(scoreText)\(confText)"
+        label.text = "\(scoreText)\(confText)\n\(coaching)"
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.textColor = AppColors.textPrimary
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
 
         cell.contentView.addSubview(label)
@@ -596,49 +741,105 @@ final class PronunciationPracticeViewController: UIViewController {
         cell.contentView.layer.cornerRadius = 12
         cell.contentView.clipsToBounds = true
 
-        let items = prioritizedFeedbackItems()
-        guard index < items.count else { return }
-        let item = items[index]
+        guard index == 0,
+              let result = sessionController.lastResult else { return }
+        let focusWords = topFocusWords(from: result)
 
-        let icon: String
-        switch item.level {
-        case .info: icon = "ℹ️"
-        case .suggestion: icon = "💡"
-        case .warning: icon = "⚠️"
-        case .critical: icon = "🔴"
-        }
+        let titleLabel = UILabel()
+        titleLabel.text = "Focus Card"
+        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        titleLabel.textColor = AppColors.textPrimary
 
         let messageLabel = UILabel()
-        messageLabel.text = "\(icon) \(plainEnglish(item.message))"
+        if focusWords.isEmpty {
+            messageLabel.text = "Nice job. No major blockers right now. Keep this pace."
+        } else {
+            let lines = focusWords.enumerated().map { idx, word in
+                "\(idx + 1). \(plainIssue(for: word))"
+            }
+            messageLabel.text = lines.joined(separator: "\n")
+        }
         messageLabel.font = .systemFont(ofSize: 14)
         messageLabel.textColor = AppColors.textPrimary
         messageLabel.numberOfLines = 0
 
-        var arranged: [UIView] = [messageLabel]
+        let microcopy = UILabel()
+        microcopy.text = "One focused repeat now gives the biggest improvement."
+        microcopy.font = .systemFont(ofSize: 12, weight: .medium)
+        microcopy.textColor = .secondaryLabel
+        microcopy.numberOfLines = 0
 
-        if let tip = item.actionTip {
-            let tipLabel = UILabel()
-            tipLabel.text = "→ \(plainEnglish(tip))"
-            tipLabel.font = .systemFont(ofSize: 13, weight: .medium)
-            tipLabel.textColor = AppColors.primary
-            tipLabel.numberOfLines = 0
-            arranged.append(tipLabel)
+        let actions = UIStackView()
+        actions.axis = .vertical
+        actions.spacing = 8
+        actions.alignment = .leading
+        actions.translatesAutoresizingMaskIntoConstraints = false
+
+        if let primary = focusWords.first {
+            let practiceButton = UIButton(type: .system)
+            var practiceConfig = UIButton.Configuration.filled()
+            practiceConfig.title = "Practice \(primary.word)"
+            practiceConfig.cornerStyle = .capsule
+            practiceConfig.baseBackgroundColor = AppColors.primary
+            practiceConfig.baseForegroundColor = .white
+            practiceButton.configuration = practiceConfig
+            practiceButton.addTarget(self, action: #selector(practicePrimaryFocusTapped), for: .touchUpInside)
+            actions.addArrangedSubview(practiceButton)
+
+            let saveButton = UIButton(type: .system)
+            var saveConfig = UIButton.Configuration.tinted()
+            saveConfig.title = "Save \(primary.word)"
+            saveConfig.cornerStyle = .capsule
+            saveConfig.baseBackgroundColor = AppColors.primary.withAlphaComponent(0.12)
+            saveConfig.baseForegroundColor = AppColors.primary
+            saveButton.configuration = saveConfig
+            saveButton.addTarget(self, action: #selector(savePrimaryFocusTapped), for: .touchUpInside)
+            actions.addArrangedSubview(saveButton)
         }
 
-        if showTechnicalDetails,
-           let hint = item.phonemeHint,
-           !hint.isEmpty {
-            let detailLabel = UILabel()
-            detailLabel.text = "Details: \(hint)"
-            detailLabel.font = .systemFont(ofSize: 12)
-            detailLabel.textColor = .secondaryLabel
-            detailLabel.numberOfLines = 0
-            arranged.append(detailLabel)
+        let replayButton = UIButton(type: .system)
+        var replayConfig = UIButton.Configuration.tinted()
+        replayConfig.title = "Replay Sentence"
+        replayConfig.cornerStyle = .capsule
+        replayConfig.baseBackgroundColor = AppColors.primary.withAlphaComponent(0.12)
+        replayConfig.baseForegroundColor = AppColors.primary
+        replayButton.configuration = replayConfig
+        replayButton.addTarget(self, action: #selector(replaySentenceFromFocusTapped), for: .touchUpInside)
+        actions.addArrangedSubview(replayButton)
+
+        if !focusWords.isEmpty {
+            let wordsLabel = UILabel()
+            wordsLabel.text = "Tap word for quick actions"
+            wordsLabel.font = .systemFont(ofSize: 12, weight: .medium)
+            wordsLabel.textColor = .secondaryLabel
+            actions.addArrangedSubview(wordsLabel)
+
+            let chips = UIStackView()
+            chips.axis = .horizontal
+            chips.spacing = 6
+            chips.alignment = .center
+            chips.distribution = .fillProportionally
+
+            for (idx, word) in focusWords.enumerated() {
+                let chip = UIButton(type: .system)
+                var chipConfig = UIButton.Configuration.tinted()
+                chipConfig.title = word.word
+                chipConfig.cornerStyle = .capsule
+                chipConfig.baseBackgroundColor = scoreColor(for: word.score).withAlphaComponent(0.15)
+                chipConfig.baseForegroundColor = AppColors.textPrimary
+                chip.configuration = chipConfig
+                chip.tag = idx
+                chip.addTarget(self, action: #selector(focusWordChipTapped(_:)), for: .touchUpInside)
+                chips.addArrangedSubview(chip)
+            }
+
+            actions.addArrangedSubview(chips)
         }
 
-        let stack = UIStackView(arrangedSubviews: arranged)
+        let stack = UIStackView(arrangedSubviews: [titleLabel, messageLabel, microcopy, actions])
         stack.axis = .vertical
-        stack.spacing = 4
+        stack.alignment = .leading
+        stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         cell.contentView.addSubview(stack)
@@ -663,10 +864,10 @@ final class PronunciationPracticeViewController: UIViewController {
 
     private func scoreDescriptor(_ score: Float) -> String {
         switch score {
-        case 85...: return "Excellent"
-        case 70..<85: return "Good"
-        case 55..<70: return "Needs Practice"
-        default: return "Keep Trying"
+        case 85...: return "Nice Job"
+        case 70..<85: return "Almost There"
+        case 55..<70: return "Focus On One Sound"
+        default: return "One Sound At A Time"
         }
     }
 
@@ -674,27 +875,32 @@ final class PronunciationPracticeViewController: UIViewController {
         switch section {
         case .phrase, .controls: return nil
         case .score: return "Score"
-        case .priorityIssues: return "Most Important Issues"
+        case .momentum: return "Momentum"
+        case .priorityIssues: return "Biggest Improvement"
         case .wordResults: return "Word Breakdown"
-        case .prosody: return "Rhythm & Stress"
-        case .feedback: return "Actionable Tips"
+        case .prosody: return "Flow"
+        case .feedback: return "Focus"
         case .difficultWords: return "Difficult Words Bucket"
         }
     }
 
     private func importantIssueLines(from result: PronunciationAssessmentResult) -> [String] {
-        let problematic = result.wordScores
-            .filter { $0.hasIssue }
-            .sorted { $0.score < $1.score }
-        let top = Array(problematic.prefix(3))
+        let top = topFocusWords(from: result)
 
         if top.isEmpty {
-            return ["1. Nice work. Your main sounds were clear in this attempt."]
+            return ["1. Nice job. No major pronunciation blockers right now."]
         }
 
         return top.enumerated().map { index, wordScore in
             "\(index + 1). \(plainIssue(for: wordScore))"
         }
+    }
+
+    private func topFocusWords(from result: PronunciationAssessmentResult) -> [WordPronunciationScore] {
+        let problematic = result.wordScores
+            .filter { $0.hasIssue }
+            .sorted { $0.score < $1.score }
+        return Array(problematic.prefix(2))
     }
 
     private func plainIssue(for wordScore: WordPronunciationScore) -> String {
@@ -703,34 +909,110 @@ final class PronunciationPracticeViewController: UIViewController {
         let weak = wordScore.phoneScores.filter { $0.category == .weak }.count
 
         if substituted > 0 {
-            return "In \"\(wordScore.word)\", one sound came out as a different sound. Try saying it slowly, then at normal speed."
+            return "\"\(wordScore.word)\" had one sound swap. Slow it down once, then say it naturally."
         }
         if missing > 0 {
-            return "In \"\(wordScore.word)\", one sound was dropped. Say each part clearly before speeding up."
+            return "\"\(wordScore.word)\" dropped a sound. Say every part clearly once."
         }
         if weak > 0 {
-            return "In \"\(wordScore.word)\", a sound was soft or unclear. Hold the key vowel slightly longer."
+            return "\"\(wordScore.word)\" sounded soft. Hold the key vowel a little longer."
         }
         if let issue = wordScore.primaryIssue,
            !issue.isEmpty {
-            return "In \"\(wordScore.word)\": \(plainEnglish(issue))"
+            return "\"\(wordScore.word)\": \(plainEnglish(issue))"
         }
-        return "In \"\(wordScore.word)\", keep practicing for a cleaner sound."
+        return "\"\(wordScore.word)\" needs one more clean repeat."
     }
 
     private func plainEnglish(_ text: String) -> String {
         var simplified = text
-        simplified = simplified.replacingOccurrences(of: "/[^/]+/", with: "sound", options: .regularExpression)
+        simplified = simplified.replacingOccurrences(of: "/[^/]+/", with: "", options: .regularExpression)
         simplified = simplified.replacingOccurrences(of: "came through as", with: "sounded like")
         simplified = simplified.replacingOccurrences(of: "Substitution", with: "Sound swap")
-        simplified = simplified.replacingOccurrences(of: "Primary stress", with: "Main syllable stress")
-        simplified = simplified.replacingOccurrences(of: "prosody", with: "rhythm")
+        simplified = simplified.replacingOccurrences(of: "Primary stress", with: "Main beat")
+        simplified = simplified.replacingOccurrences(of: "prosody", with: "speech flow")
+        simplified = simplified.replacingOccurrences(of: "phoneme", with: "sound")
+        simplified = simplified.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+        simplified = simplified.replacingOccurrences(of: "sound sound", with: "sound")
+        simplified = simplified.replacingOccurrences(of: "sound sounded", with: "sounded")
+        simplified = simplified.trimmingCharacters(in: .whitespacesAndNewlines)
+        if simplified.isEmpty { return "Focus on one sound at a time." }
         return simplified
     }
 
-    private func prioritizedFeedbackItems() -> [PronunciationFeedbackEngine.UserFeedbackItem] {
-        guard let feedback = sessionController.lastFeedback else { return [] }
-        return Array(feedback.userFeedback.prefix(3))
+    private func currentFocusWords() -> [WordPronunciationScore] {
+        guard let result = sessionController.lastResult else { return [] }
+        return topFocusWords(from: result)
+    }
+
+    @objc private func practicePrimaryFocusTapped() {
+        if let primary = currentFocusWords().first {
+            startDrill(for: primary.word)
+        } else {
+            startDrill(for: currentPhrase)
+        }
+    }
+
+    @objc private func savePrimaryFocusTapped() {
+        guard let primary = currentFocusWords().first else { return }
+        saveWordToBucket(primary)
+    }
+
+    @objc private func replaySentenceFromFocusTapped() {
+        hearPhrase(currentPhrase)
+    }
+
+    @objc private func focusWordChipTapped(_ sender: UIButton) {
+        let words = currentFocusWords()
+        guard sender.tag >= 0, sender.tag < words.count else { return }
+        showWordDetail(words[sender.tag])
+    }
+
+    private func progressStateTitle(for score: Float) -> String {
+        switch score {
+        case 85...: return "Nice job"
+        case 70..<85: return "Almost there"
+        default: return "Focus on this one sound"
+        }
+    }
+
+    private func encouragementLine(for score: Float) -> String {
+        switch score {
+        case 85...:
+            return "Great clarity. Keep this smooth pace."
+        case 70..<85:
+            return "You are close. Clean up one word and you jump up."
+        case 55..<70:
+            return "You are improving. Fix one top word first."
+        default:
+            return "You can do this. One clean word at a time."
+        }
+    }
+
+    private func latestBadgeLine(from progress: PronunciationPracticeProgress) -> String {
+        guard let latest = progress.unlockedBadges.last else {
+            return "🏅 Badge: Keep practicing to unlock your first badge."
+        }
+        return "🏅 Badge unlocked: \(latest.icon) \(latest.title)"
+    }
+
+    private func exampleLine(for word: String) -> String {
+        "Try this: 'I can say \(word) clearly.'"
+    }
+
+    private func showBadgeCelebration(_ badges: [PracticeBadge]) {
+        guard !badges.isEmpty else { return }
+        let message = badges
+            .map { "\($0.icon) \($0.title)" }
+            .joined(separator: "\n")
+
+        let alert = UIAlertController(
+            title: "Badge Unlocked!",
+            message: "\(message)\n\nNice work. Keep your streak alive!",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Awesome", style: .default))
+        present(alert, animated: true)
     }
 
     private func progressLine(for entry: DifficultWordEntry) -> String {
@@ -801,25 +1083,26 @@ final class PronunciationPracticeViewController: UIViewController {
 extension PronunciationPracticeViewController: UICollectionViewDataSource {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        hasResults ? Section.allCases.count : 2  // phrase + controls only when no results
+        visibleSections.count
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let sec = Section(rawValue: section) else { return 0 }
+        guard let sec = sectionForIndex(section) else { return 0 }
         switch sec {
         case .phrase: return 1
         case .controls: return 1
         case .score: return hasResults ? 1 : 0
+        case .momentum: return hasResults ? 1 : 0
         case .priorityIssues: return hasResults ? 1 : 0
         case .wordResults: return sessionController.lastResult?.wordScores.count ?? 0
         case .prosody: return hasResults ? 1 : 0
-        case .feedback: return prioritizedFeedbackItems().count
+        case .feedback: return hasResults ? 1 : 0
         case .difficultWords: return hasResults ? max(1, difficultWords.count) : 0
         }
     }
 
     func collectionView(_ cv: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let section = Section(rawValue: indexPath.section) else {
+        guard let section = sectionForIndex(indexPath.section) else {
             return cv.dequeueReusableCell(withReuseIdentifier: "PhraseCell", for: indexPath)
         }
 
@@ -835,6 +1118,10 @@ extension PronunciationPracticeViewController: UICollectionViewDataSource {
         case .score:
             let cell = cv.dequeueReusableCell(withReuseIdentifier: "ScoreCell", for: indexPath)
             configureScoreCell(cell)
+            return cell
+        case .momentum:
+            let cell = cv.dequeueReusableCell(withReuseIdentifier: "MomentumCell", for: indexPath)
+            configureMomentumCell(cell)
             return cell
         case .priorityIssues:
             let cell = cv.dequeueReusableCell(withReuseIdentifier: "IssueCell", for: indexPath)
@@ -867,7 +1154,7 @@ extension PronunciationPracticeViewController: UICollectionViewDataSource {
         )
         header.subviews.forEach { $0.removeFromSuperview() }
 
-        if let section = Section(rawValue: indexPath.section),
+        if let section = sectionForIndex(indexPath.section),
            let title = sectionTitle(for: section) {
             let label = UILabel()
             label.text = title
@@ -890,7 +1177,7 @@ extension PronunciationPracticeViewController: UICollectionViewDataSource {
 extension PronunciationPracticeViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let section = Section(rawValue: indexPath.section) else { return }
+        guard let section = sectionForIndex(indexPath.section) else { return }
 
         switch section {
         case .wordResults:
@@ -907,37 +1194,24 @@ extension PronunciationPracticeViewController: UICollectionViewDelegate {
     }
 
     private func showWordDetail(_ wordScore: WordPronunciationScore) {
-        let summary = plainIssue(for: wordScore)
+        let summary = "\(plainIssue(for: wordScore))\n\nExample: \(exampleLine(for: wordScore.word))"
         let alert = UIAlertController(
             title: "\(wordScore.word) • \(Int(wordScore.score.rounded()))/100",
             message: summary,
             preferredStyle: .alert
         )
 
+        alert.addAction(UIAlertAction(title: "Replay Word", style: .default) { [weak self] _ in
+            self?.hearPhrase(wordScore.word)
+        })
+        alert.addAction(UIAlertAction(title: "Practice Now", style: .default) { [weak self] _ in
+            self?.startDrill(for: wordScore.word)
+        })
         alert.addAction(UIAlertAction(title: "Save to Difficult Words", style: .default) { [weak self] _ in
             self?.saveWordToBucket(wordScore)
         })
-        alert.addAction(UIAlertAction(title: "Hear Correct Pronunciation", style: .default) { [weak self] _ in
-            self?.hearPhrase(wordScore.word)
-        })
-        alert.addAction(UIAlertAction(title: "Practice This Word", style: .default) { [weak self] _ in
-            self?.startDrill(for: wordScore.word)
-        })
-        alert.addAction(UIAlertAction(title: "Show Technical Details", style: .default) { [weak self] _ in
-            self?.showTechnicalWordDetail(wordScore)
-        })
         alert.addAction(UIAlertAction(title: "Close", style: .cancel))
 
-        present(alert, animated: true)
-    }
-
-    private func showTechnicalWordDetail(_ wordScore: WordPronunciationScore) {
-        let alert = UIAlertController(
-            title: "Technical Details • \(wordScore.word)",
-            message: technicalDetailText(for: wordScore),
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Close", style: .cancel))
         present(alert, animated: true)
     }
 
@@ -954,14 +1228,6 @@ extension PronunciationPracticeViewController: UICollectionViewDelegate {
         alert.addAction(UIAlertAction(title: "Practice Drill", style: .default) { [weak self] _ in
             self?.startDrill(for: entry.phrase)
         })
-        if let technicalHint = entry.technicalHint,
-           !technicalHint.isEmpty {
-            alert.addAction(UIAlertAction(title: "Show Details", style: .default) { [weak self] _ in
-                let detail = UIAlertController(title: "Technical Details", message: technicalHint, preferredStyle: .alert)
-                detail.addAction(UIAlertAction(title: "Close", style: .cancel))
-                self?.present(detail, animated: true)
-            })
-        }
         alert.addAction(UIAlertAction(title: "Remove", style: .destructive) { [weak self] _ in
             self?.difficultWordsStore.remove(id: entry.id)
             self?.refreshDifficultWords()
@@ -996,17 +1262,58 @@ extension PronunciationPracticeViewController: PronunciationSessionController.De
         feedback: PronunciationFeedbackEngine.FeedbackOutput
     ) {
         recordDrillProgressIfNeeded(result: result)
+        let update = progressStore.recordPractice(
+            overallScore: result.overallScore,
+            difficultWordsCount: topFocusWords(from: result).count
+        )
+        progress = update.progress
+        lastProgressUpdate = update
         refreshDifficultWords()
         collectionView.reloadData()
     }
 
     func sessionDidFail(_ error: Error) {
+        let title: String
+        if let pError = error as? PronunciationError {
+            switch pError {
+            case .noSpeechDetected:
+                title = "We Could Not Hear You"
+            case .offTargetSpeech:
+                title = "Different Sentence Detected"
+            case .microphoneAccessDenied:
+                title = "Microphone Not Available"
+            default:
+                title = "Analysis Error"
+            }
+        } else {
+            title = "Analysis Error"
+        }
+
         let alert = UIAlertController(
-            title: "Analysis Error",
+            title: title,
             message: error.localizedDescription,
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+}
+
+// MARK: - AVAudioPlayerDelegate
+
+extension PronunciationPracticeViewController: AVAudioPlayerDelegate {
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if recordingPlayer === player {
+            recordingPlayer = nil
+            collectionView.reloadData()
+        }
+    }
+
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        if recordingPlayer === player {
+            recordingPlayer = nil
+            collectionView.reloadData()
+        }
     }
 }

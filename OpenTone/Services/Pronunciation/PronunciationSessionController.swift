@@ -67,8 +67,19 @@ final class PronunciationSessionController {
     func startRecording() {
         guard state == .idle || state == .results else { return }
 
-        audioManager.startRecording()
-        state = .recording
+        lastResult = nil
+        lastFeedback = nil
+
+        audioManager.startRecording { [weak self] started in
+            guard let self else { return }
+            if started {
+                self.state = .recording
+            } else {
+                let error = PronunciationError.microphoneAccessDenied
+                self.state = .error(error.localizedDescription)
+                self.delegate?.sessionDidFail(error)
+            }
+        }
     }
 
     func stopRecordingAndAnalyze() {

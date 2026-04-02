@@ -56,6 +56,8 @@ final class PronunciationScoringService {
             throw PronunciationError.audioTooShort
         }
 
+        let hasSpeechEnergy = hasSpeechLikeEnergy(samples)
+
         // 3. Transcribe audio
         let transcriptionResult: TranscriptionResult
         do {
@@ -69,6 +71,18 @@ final class PronunciationScoringService {
                 isFinal: true,
                 source: "fallback"
             )
+        }
+
+        if !hasSpeechEnergy && transcriptionResult.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            throw PronunciationError.noSpeechDetected
+        }
+
+        let transcriptText = transcriptionResult.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !transcriptText.isEmpty {
+            let matchScore = transcriptMatchScore(expected: expectedText, spoken: transcriptText)
+            if matchScore < 0.30 {
+                throw PronunciationError.offTargetSpeech
+            }
         }
 
         // 4. Extract acoustic features
@@ -162,6 +176,64 @@ final class PronunciationScoringService {
         return Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
     }
 
+    private func hasSpeechLikeEnergy(_ samples: [Float]) -> Bool {
+        guard !samples.isEmpty else { return false }
+
+        var sumSquares: Float = 0
+        var peak: Float = 0
+        for sample in samples {
+            let absVal = abs(sample)
+            sumSquares += sample * sample
+            if absVal > peak {
+                peak = absVal
+            }
+        }
+
+        let rms = sqrt(sumSquares / Float(samples.count))
+
+        let windowSize = 400 // 25ms @ 16kHz
+        var activeWindows = 0
+        var totalWindows = 0
+
+        var idx = 0
+        while idx < samples.count {
+            let end = min(idx + windowSize, samples.count)
+            let window = samples[idx..<end]
+            let meanAbs = window.reduce(Float(0)) { $0 + abs($1) } / Float(max(window.count, 1))
+            if meanAbs > 0.004 {
+                activeWindows += 1
+            }
+            totalWindows += 1
+            idx += windowSize
+        }
+
+        let activityRatio = totalWindows > 0 ? Float(activeWindows) / Float(totalWindows) : 0
+        return peak > 0.015 || rms > 0.0035 || activityRatio > 0.06
+    }
+
+    private func transcriptMatchScore(expected: String, spoken: String) -> Float {
+        let expectedWords = normalizedWordSet(from: expected)
+        let spokenWords = normalizedWordSet(from: spoken)
+
+        guard !expectedWords.isEmpty, !spokenWords.isEmpty else { return 0 }
+
+        let overlap = expectedWords.intersection(spokenWords).count
+        return Float(overlap) / Float(expectedWords.count)
+    }
+
+    private func normalizedWordSet(from text: String) -> Set<String> {
+        let cleaned = text
+            .lowercased()
+            .replacingOccurrences(of: "[^a-z0-9\\s]", with: " ", options: .regularExpression)
+
+        let words = cleaned
+            .split(separator: " ")
+            .map(String.init)
+            .filter { $0.count > 1 }
+
+        return Set(words)
+    }
+
     // MARK: - Word Score Aggregation
 
     private func buildWordScores(
@@ -222,6 +294,9 @@ final class PronunciationScoringService {
 enum PronunciationError: LocalizedError {
     case emptyExpectedText
     case audioTooShort
+    case noSpeechDetected
+    case offTargetSpeech
+    case microphoneAccessDenied
     case featureExtractionFailed
     case assessmentFailed(String)
 
@@ -229,6 +304,9 @@ enum PronunciationError: LocalizedError {
         switch self {
         case .emptyExpectedText: return "Expected text cannot be empty"
         case .audioTooShort: return "Audio recording is too short for analysis"
+        case .noSpeechDetected: return "We could not hear clear speech. Please speak a little louder and try again."
+        case .offTargetSpeech: return "You read a different sentence. Please read the target phrase shown on screen."
+        case .microphoneAccessDenied: return "Microphone access is unavailable. Please enable mic permission and try again."
         case .featureExtractionFailed: return "Failed to extract acoustic features"
         case .assessmentFailed(let msg): return "Pronunciation assessment failed: \(msg)"
         }
