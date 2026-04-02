@@ -11,16 +11,53 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
 
         let metrics = buildMetrics(from: cleanedTranscript, durationS: input.durationS, turnSummaries: input.turnSummaries)
         let profileBefore = loadProfile(for: input.userId)
-        let pronunciationInsights = OnDevicePronunciationAnalyzer.shared.analyze(transcript: cleanedTranscript)
+
+        // Run pronunciation analysis — acoustic if audio available, text-only otherwise
+        let pronunciationInsights: [PronunciationInsight]
+        var assessmentResult: PronunciationAssessmentResult?
+
+        if let audioURL = input.audioURL, let expectedText = input.expectedText, !expectedText.isEmpty {
+            let (insights, result) = await OnDevicePronunciationAnalyzer.shared.analyzeWithAcoustics(
+                transcript: cleanedTranscript,
+                audioURL: audioURL,
+                expectedText: expectedText
+            )
+            pronunciationInsights = insights
+            assessmentResult = result
+        } else {
+            pronunciationInsights = OnDevicePronunciationAnalyzer.shared.analyze(transcript: cleanedTranscript)
+        }
+
         let analysis = classify(transcript: cleanedTranscript, metrics: metrics, pronunciationIssueCount: pronunciationInsights.count)
 
-        let coaching = buildCoaching(
+        var coaching = buildCoaching(
             analysis: analysis,
             metrics: metrics,
             mode: input.mode,
             userId: input.userId,
             pronunciationInsights: pronunciationInsights
         )
+
+        // Merge acoustic pronunciation score into coaching scores
+        if let result = assessmentResult {
+            coaching = SpeechCoaching(
+                scores: CoachingScores(
+                    fluency: coaching.scores.fluency,
+                    confidence: coaching.scores.confidence,
+                    clarity: coaching.scores.clarity,
+                    pronunciation: Double(result.overallScore)
+                ),
+                primaryIssue: coaching.primaryIssue,
+                primaryIssueTitle: coaching.primaryIssueTitle,
+                secondaryIssues: coaching.secondaryIssues,
+                strengths: coaching.strengths,
+                suggestions: coaching.suggestions,
+                evidence: coaching.evidence,
+                llmCoaching: coaching.llmCoaching,
+                pronunciationDetail: result
+            )
+        }
+
         let progress = buildProgress(current: metrics, currentScores: coaching.scores, previous: profileBefore)
 
         let updatedProfile = profileBefore.updated(with: metrics, overallScore: coaching.scores.overall)

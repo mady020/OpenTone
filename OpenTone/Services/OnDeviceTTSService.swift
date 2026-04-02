@@ -17,6 +17,9 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
     private var fallbackPlaybackContinuation: CheckedContinuation<Void, Never>?
     private let fallbackSynthesizer = AVSpeechSynthesizer()
 
+    /// Active voice persona for the current utterance (set per speak() call)
+    private var currentPersona: VoicePersona = .neutral
+
     private override init() {
         super.init()
         fallbackSynthesizer.delegate = self
@@ -28,13 +31,15 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
 
     /// `voiceName` is kept to avoid breaking old call sites.
     /// `volumeBoost` amplifies generated PCM before playback. Use values around 1.0...1.3.
-    func speak(text: String, voiceName: String = "default", volumeBoost: Float = 1.0) async throws {
+    /// `persona` selects the voice character for the fallback AVSpeechSynthesizer path.
+    func speak(text: String, voiceName: String = "default", volumeBoost: Float = 1.0, persona: VoicePersona = .neutral) async throws {
         let cleanedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanedText.isEmpty else {
             throw OnDeviceTTSError.emptyText
         }
 
         do {
+            currentPersona = persona
             try await loadModel()
             let voice = mapVoice(voiceName)
             let audioURL = try await synthesizeToFile(text: cleanedText, voice: voice, volumeBoost: volumeBoost)
@@ -169,9 +174,12 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
             fallbackPlaybackContinuation = continuation
 
             let utterance = AVSpeechUtterance(string: text)
-            utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-            utterance.rate = 0.48
+            utterance.voice = VoiceSelector.bestVoice(for: currentPersona)
+            utterance.rate = currentPersona.rate
+            utterance.pitchMultiplier = currentPersona.pitch
             utterance.volume = 1.0
+            utterance.preUtteranceDelay = 0.05
+            utterance.postUtteranceDelay = 0.05
             fallbackSynthesizer.speak(utterance)
         }
 
@@ -197,6 +205,7 @@ final class OnDeviceTTSService: NSObject, AVSpeechSynthesizerDelegate {
     }
 }
 
+
 enum OnDeviceTTSError: LocalizedError {
     case emptyText
     case engineNotInitialized
@@ -213,3 +222,123 @@ enum OnDeviceTTSError: LocalizedError {
         }
     }
 }
+
+// MARK: - Voice Persona
+
+/// Describes the voice character to use for TTS output.
+/// Maps onto the best available system voice for each archetype.
+enum VoicePersona {
+    case neutral        // default narrator — balanced, clear
+    case friendly       // warm, slightly bright — customer service, peer
+    case professional   // neutral, measured — business, interviewer
+    case authoritative  // deeper, steady — manager, announcer
+    case casual         // relaxed pace — friend, barista
+    case femaleNeutral  // female equivalent of neutral
+    case femaleFriendly // warm female voice
+
+    /// AVSpeechSynthesizer speaking rate. Default is AVSpeechUtteranceDefaultSpeechRate (~0.5)
+    var rate: Float {
+        switch self {
+        case .neutral:        return 0.50
+        case .friendly:       return 0.52
+        case .professional:   return 0.47
+        case .authoritative:  return 0.44
+        case .casual:         return 0.54
+        case .femaleNeutral:  return 0.50
+        case .femaleFriendly: return 0.52
+        }
+    }
+
+    /// Pitch multiplier: 0.5 (low) to 2.0 (high), default 1.0
+    var pitch: Float {
+        switch self {
+        case .neutral:        return 1.00
+        case .friendly:       return 1.05
+        case .professional:   return 0.95
+        case .authoritative:  return 0.88
+        case .casual:         return 1.05
+        case .femaleNeutral:  return 1.10
+        case .femaleFriendly: return 1.15
+        }
+    }
+
+    var prefersFemaleVoice: Bool {
+        switch self {
+        case .femaleNeutral, .femaleFriendly: return true
+        default: return false
+        }
+    }
+
+    // MARK: Scenario Category → Persona mapping
+
+    static func forScenarioTitle(_ title: String) -> VoicePersona {
+        let lower = title.lowercased()
+        if lower.contains("interview") || lower.contains("manager") { return .authoritative }
+        if lower.contains("doctor") || lower.contains("clinic") || lower.contains("hospital") { return .professional }
+        if lower.contains("café") || lower.contains("cafe") || lower.contains("coffee") || lower.contains("restaurant") { return .casual }
+        if lower.contains("bank") || lower.contains("office") || lower.contains("hotel") || lower.contains("reception") { return .professional }
+        if lower.contains("friend") || lower.contains("party") || lower.contains("school") { return .friendly }
+        if lower.contains("shop") || lower.contains("store") || lower.contains("market") { return .casual }
+        return .neutral
+    }
+}
+
+// MARK: - Voice Selector
+
+/// Picks the best available AVSpeechSynthesisVoice on the current device.
+/// Preference order: premium → enhanced → default, filtered by gender preference.
+enum VoiceSelector {
+
+    /// Returns the best available voice for the given persona.
+    static func bestVoice(for persona: VoicePersona) -> AVSpeechSynthesisVoice? {
+        let language = "en-US"
+        let all = AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language.hasPrefix("en") }
+
+        // Split by gender cue in identifier
+        let female = all.filter { isFemaleVoice($0) }
+        let male   = all.filter { !isFemaleVoice($0) }
+        let pool   = persona.prefersFemaleVoice ? (female.isEmpty ? male : female)
+                                                : (male.isEmpty   ? female : male)
+
+        // Quality priority: premium > enhanced > (default)
+        if #available(iOS 16.0, *) {
+            if let premium = pool.first(where: { $0.quality == .premium }) {
+                return premium
+            }
+            if let enhanced = pool.first(where: { $0.quality == .enhanced }) {
+                return enhanced
+            }
+        }
+
+        // Named fallbacks — these are the best sounding built-in voices
+        let preferredNames: [String]
+        if persona.prefersFemaleVoice {
+            preferredNames = ["Samantha", "Karen", "Moira", "Tessa", "Veena"]
+        } else {
+            preferredNames = ["Daniel", "Alex", "Fred", "Tom", "Rishi"]
+        }
+
+        for name in preferredNames {
+            if let match = all.first(where: { $0.name == name }) {
+                return match
+            }
+        }
+
+        // Last resort: language-matched default
+        return pool.first ?? AVSpeechSynthesisVoice(language: language)
+    }
+
+    private static func isFemaleVoice(_ voice: AVSpeechSynthesisVoice) -> Bool {
+        // Check gender if available (iOS 17+)
+        if #available(iOS 17.0, *) {
+            return voice.gender == .female
+        }
+        // Fallback: name-based heuristic
+        let femaleNames = ["Samantha", "Karen", "Moira", "Tessa", "Veena",
+                           "Victoria", "Allison", "Ava", "Susan", "Zoe",
+                           "Fiona", "Siri (Female)", "Helena", "Laura"]
+        return femaleNames.contains(voice.name)
+    }
+}
+

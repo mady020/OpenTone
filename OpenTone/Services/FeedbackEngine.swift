@@ -14,6 +14,10 @@ struct FeedbackEngineInput {
     let sessionId: String
     let mode: FeedbackSessionMode
     let turnSummaries: [SessionTurnSummary]
+    /// Optional audio URL for acoustic pronunciation analysis
+    var audioURL: URL?
+    /// Optional expected text for pronunciation scoring (when known)
+    var expectedText: String?
 }
 
 protocol FeedbackEngine {

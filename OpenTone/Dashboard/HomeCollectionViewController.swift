@@ -6,6 +6,7 @@ enum DashboardSection: Int, CaseIterable {
     case continueJam
     case completeTask
     case callSession
+    case pronunciationPractice
     case recommended
 }
 
@@ -372,6 +373,8 @@ class HomeCollectionViewController: UICollectionViewController {
             
         case .callSession:
             header.titleLabel.text = "Start a session"
+        case .pronunciationPractice:
+            header.titleLabel.text = "Improve your pronunciation"
         case .recommended:
             header.titleLabel.text = "Recommended for you"
         }
@@ -391,6 +394,8 @@ class HomeCollectionViewController: UICollectionViewController {
         case .completeTask:
             return hasUnfinishedLastTask ? 1 : 0
         case .callSession:
+            return 1
+        case .pronunciationPractice:
             return 1
         case .recommended:
             return recommendedScenarios.count
@@ -480,6 +485,19 @@ class HomeCollectionViewController: UICollectionViewController {
             )
             return cell
 
+        case .pronunciationPractice:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: CallSessionCell.reuseID,
+                for: indexPath
+            ) as! CallSessionCell
+            cell.configure(
+                icon: "waveform.and.mic",
+                title: "Pronunciation Practice",
+                subtitle: "Read phrases aloud & get phoneme-level feedback",
+                iconBackground: .systemTeal
+            )
+            return cell
+
         case .recommended:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "Cell",
@@ -521,6 +539,9 @@ extension HomeCollectionViewController {
                     : self.nothingLayout()
                 
             case .callSession:
+                return self.callSessionSection()
+
+            case .pronunciationPractice:
                 return self.callSessionSection()
 
             case .recommended:
@@ -780,6 +801,13 @@ extension HomeCollectionViewController {
             callVC.modalPresentationStyle = .fullScreen
             callVC.modalTransitionStyle = .crossDissolve
             present(callVC, animated: true)
+
+        case .pronunciationPractice:
+            // Pronunciation Practice — fully programmatic UIKit, no storyboard.
+            let practiceVC = PronunciationPracticeViewController()
+            let nav = UINavigationController(rootViewController: practiceVC)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
 
         case .recommended:
 

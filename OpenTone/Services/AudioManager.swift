@@ -279,6 +279,40 @@ final class AudioManager {
         }
     }
 
+    // MARK: - Pronunciation Pipeline Support
+
+    /// Extract raw 16kHz float32 PCM samples from the last recording for acoustic analysis.
+    func rawPCMSamplesFromLastRecording() async -> [Float]? {
+        guard let url = lastRecordingURL else { return nil }
+        return try? loadPCMSamples(from: url)
+    }
+
+    /// Load PCM samples from any WAV file URL.
+    func loadPCMSamples(from url: URL) throws -> [Float] {
+        let file = try AVAudioFile(forReading: url)
+        guard file.length > 0 else { return [] }
+
+        guard let format = AVAudioFormat(
+            commonFormat: .pcmFormatFloat32,
+            sampleRate: 16000,
+            channels: 1,
+            interleaved: false
+        ) else { return [] }
+
+        let frameCapacity = max(1, AVAudioFrameCount(file.length))
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCapacity) else {
+            return []
+        }
+
+        try file.read(into: buffer)
+        guard let channelData = buffer.floatChannelData else { return [] }
+
+        let frameLength = Int(buffer.frameLength)
+        guard frameLength > 0 else { return [] }
+
+        return Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
+    }
+
     func resetForLogout() {
         if isRecording {
             stopRecording(autoTranscribe: false)

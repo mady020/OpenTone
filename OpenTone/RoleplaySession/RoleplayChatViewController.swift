@@ -678,9 +678,17 @@ class RoleplayChatViewController: UIViewController {
             AudioManager.shared.stopRecording(autoTranscribe: false)
         }
 
+        // Derive a voice persona from the scenario title so that each
+        // scenario character sounds appropriate (doctor, barista, interviewer…)
+        let persona = VoicePersona.forScenarioTitle(scenario.title)
+
         Task {
             do {
-                try await OnDeviceTTSService.shared.speak(text: text, volumeBoost: 1.5)
+                try await OnDeviceTTSService.shared.speak(
+                    text: text,
+                    volumeBoost: 1.5,
+                    persona: persona
+                )
 
                 await MainActor.run {
                     self.isSpeaking = false
@@ -699,6 +707,7 @@ class RoleplayChatViewController: UIViewController {
             }
         }
     }
+
 
     // MARK: - Mute
 

@@ -654,7 +654,11 @@ final class AICallController: UIViewController {
         Task { [weak self] in
             guard let self, !self.isClosing else { return }
             do {
-                try await OnDeviceTTSService.shared.speak(text: text)
+                // Use a professional/neutral persona for the AI coach voice
+                try await OnDeviceTTSService.shared.speak(
+                    text: text,
+                    persona: .professional
+                )
                 await MainActor.run { [weak self] in
                     guard let self, !self.isClosing else { return }
                     // Transition from speaking → listening.
@@ -672,6 +676,7 @@ final class AICallController: UIViewController {
             }
         }
     }
+
 
     private func buildTurnSummary(transcript: String, durationS: Double, metrics: SpeechMetrics?) -> SessionTurnSummary {
         if let metrics {

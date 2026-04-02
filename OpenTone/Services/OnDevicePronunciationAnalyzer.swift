@@ -12,8 +12,12 @@ final class OnDevicePronunciationAnalyzer {
     static let shared = OnDevicePronunciationAnalyzer()
 
     private lazy var classifierModel: MLModel? = Self.loadBundledModel()
+    private let scoringService = PronunciationScoringService.shared
+    private let feedbackEngine = PronunciationFeedbackEngine()
 
     private init() {}
+
+    // MARK: - Text-Based Analysis (existing, backward-compatible)
 
     func analyze(transcript: String) -> [PronunciationInsight] {
         let cleaned = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -44,6 +48,57 @@ final class OnDevicePronunciationAnalyzer {
 
         let ranked = rankWithCoreMLIfAvailable(unique)
         return Array(ranked.prefix(3))
+    }
+
+    // MARK: - Acoustic Analysis (new pronunciation pipeline)
+
+    /// Run full acoustic pronunciation assessment using Core ML pipeline.
+    /// Returns insights derived from per-phone acoustic analysis.
+    func analyzeAcoustic(
+        audioURL: URL,
+        expectedText: String
+    ) async -> (insights: [PronunciationInsight], result: PronunciationAssessmentResult?) {
+        do {
+            let result = try await scoringService.assess(
+                audioURL: audioURL,
+                expectedText: expectedText
+            )
+
+            let feedback = feedbackEngine.generateFeedback(from: result)
+            return (feedback.pronunciationInsights, result)
+        } catch {
+            print("[PronunciationAnalyzer] Acoustic analysis failed: \(error), falling back to text-only")
+            return ([], nil)
+        }
+    }
+
+    /// Combined analysis: tries acoustic first (when audio available), merges with text-based.
+    func analyzeWithAcoustics(
+        transcript: String,
+        audioURL: URL?,
+        expectedText: String?
+    ) async -> (insights: [PronunciationInsight], assessmentResult: PronunciationAssessmentResult?) {
+        var allInsights = analyze(transcript: transcript)
+        var assessmentResult: PronunciationAssessmentResult?
+
+        if let audioURL = audioURL, let expectedText = expectedText, !expectedText.isEmpty {
+            let (acousticInsights, result) = await analyzeAcoustic(
+                audioURL: audioURL,
+                expectedText: expectedText
+            )
+            assessmentResult = result
+
+            // Merge acoustic insights, avoiding duplicates
+            let existingKeys = Set(allInsights.map { "\($0.observedFragment.lowercased())>\($0.expectedFragment.lowercased())" })
+            for insight in acousticInsights {
+                let key = "\(insight.observedFragment.lowercased())>\(insight.expectedFragment.lowercased())"
+                if !existingKeys.contains(key) {
+                    allInsights.append(insight)
+                }
+            }
+        }
+
+        return (Array(allInsights.prefix(5)), assessmentResult)
     }
 
     func evidenceItems(from insights: [PronunciationInsight]) -> [EvidenceItem] {
@@ -227,3 +282,4 @@ final class OnDevicePronunciationAnalyzer {
         )
     ]
 }
+

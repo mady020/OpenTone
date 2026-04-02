@@ -67,6 +67,8 @@ struct SpeechCoaching: Codable {
     let suggestions: [String]
     let evidence: [EvidenceItem]
     let llmCoaching: LLMCoaching?
+    /// Detailed pronunciation assessment result (nil when acoustic analysis was not run)
+    var pronunciationDetail: PronunciationAssessmentResult?
 
     enum CodingKeys: String, CodingKey {
         case scores, strengths, suggestions, evidence
@@ -74,6 +76,7 @@ struct SpeechCoaching: Codable {
         case primaryIssueTitle = "primary_issue_title"
         case secondaryIssues   = "secondary_issues"
         case llmCoaching       = "llm_coaching"
+        case pronunciationDetail = "pronunciation_detail"
     }
 }
 
@@ -81,9 +84,35 @@ struct CoachingScores: Codable {
     let fluency: Double
     let confidence: Double
     let clarity: Double
+    /// 0–100 pronunciation score from acoustic analysis (0 if not available)
+    var pronunciation: Double = 0
 
     /// 0–100 overall composite
-    var overall: Double { (fluency + confidence + clarity) / 3.0 }
+    var overall: Double {
+        if pronunciation > 0 {
+            return (fluency + confidence + clarity + pronunciation) / 4.0
+        }
+        return (fluency + confidence + clarity) / 3.0
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case fluency, confidence, clarity, pronunciation
+    }
+
+    init(fluency: Double, confidence: Double, clarity: Double, pronunciation: Double = 0) {
+        self.fluency = fluency
+        self.confidence = confidence
+        self.clarity = clarity
+        self.pronunciation = pronunciation
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        fluency = try container.decode(Double.self, forKey: .fluency)
+        confidence = try container.decode(Double.self, forKey: .confidence)
+        clarity = try container.decode(Double.self, forKey: .clarity)
+        pronunciation = try container.decodeIfPresent(Double.self, forKey: .pronunciation) ?? 0
+    }
 }
 
 struct EvidenceItem: Codable {
