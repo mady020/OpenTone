@@ -72,6 +72,15 @@ final class SessionFeedbackDetailViewController: UIViewController {
         ].joined(separator: "\n")
 
         contentStack.addArrangedSubview(makeCard(title: "Speaking Signals", body: speakingSignals))
+
+        if !feedback.mispronouncedWords.isEmpty {
+            let words = feedback.mispronouncedWords.joined(separator: ", ")
+            contentStack.addArrangedSubview(makeCard(
+                title: "Difficult Words",
+                body: words
+            ))
+        }
+
         contentStack.addArrangedSubview(makeCard(title: "How To Improve", body: feedback.summary))
     }
 

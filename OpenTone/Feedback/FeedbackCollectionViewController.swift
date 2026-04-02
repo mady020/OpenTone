@@ -61,6 +61,9 @@ class FeedbackCollectionViewController: UIViewController {
     private var hasPresentedDailyGoalAchievement = false
     private var hasCommittedSessionProgress = false
     private var shouldCommitProgressWhenVisible = false
+    private var doneButtonItem: UIBarButtonItem?
+    private var saveWordsButtonItem: UIBarButtonItem?
+    private var pronunciationSaveCandidates: [(phrase: String, reason: String, technical: String)] = []
 
     private var collectionView: UICollectionView!
 
@@ -78,9 +81,12 @@ class FeedbackCollectionViewController: UIViewController {
         title = "Session Feedback"
         view.backgroundColor = AppColors.screenBackground
         navigationItem.hidesBackButton = true
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        doneButtonItem = UIBarButtonItem(
             title: "Done", style: .done, target: self, action: #selector(doneTapped)
         )
+        if let doneButtonItem {
+            navigationItem.rightBarButtonItems = [doneButtonItem]
+        }
 
         configureCollectionView()
         fetchAnalysis()
@@ -183,6 +189,7 @@ class FeedbackCollectionViewController: UIViewController {
             self.analysisResponse = sanitized
             self.feedback = FeedbackMapper.toFeedback(sanitized)
             self.isLoading = false
+            refreshPronunciationSaveActions(from: sanitized)
             self.collectionView.reloadData()
             self.persistFeedbackToHistory(sanitized)
             prepareSessionProgressCommit()
@@ -192,43 +199,134 @@ class FeedbackCollectionViewController: UIViewController {
         Task {
             let response: SpeechAnalysisResponse
             var resolvedTranscript = transcript ?? ""
+            var localAudioURL: URL?
 
-                     // Prefer extracting transcription locally from the recorded file.
-                if let urlString = audioURL,
-                   let fileURL = URL(string: urlString),
-                   FileManager.default.fileExists(atPath: fileURL.path) {
+            // Prefer extracting transcription locally from the recorded file.
+            if let urlString = audioURL,
+               let fileURL = URL(string: urlString),
+               FileManager.default.fileExists(atPath: fileURL.path) {
 
-                    resolvedTranscript = await withCheckedContinuation { continuation in
-                        AudioManager.shared.transcribeFile(at: fileURL) { text in
-                            continuation.resume(returning: text ?? "")
-                        }
+                localAudioURL = fileURL
+                resolvedTranscript = await withCheckedContinuation { continuation in
+                    AudioManager.shared.transcribeFile(at: fileURL) { text in
+                        continuation.resume(returning: text ?? "")
                     }
                 }
+            }
 
-                self.transcript = resolvedTranscript
+            self.transcript = resolvedTranscript
 
-                // Analyze via feedback engine (on-device core + optional enhancement provider).
-                let input = FeedbackEngineInput(
-                    transcript: resolvedTranscript,
-                    topic: topic ?? "",
-                    durationS: speakingDuration > 0 ? speakingDuration : 30.0,
-                    userId: userId,
-                    sessionId: sessionId,
-                    mode: sessionMode,
-                    turnSummaries: []
-                )
-                response = await feedbackEngine.analyze(input)
+            // Analyze via feedback engine (on-device core + optional enhancement provider).
+            let trimmedTranscript = resolvedTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
+            let inferredExpectedText = trimmedTranscript.isEmpty ? nil : trimmedTranscript
+            let input = FeedbackEngineInput(
+                transcript: resolvedTranscript,
+                topic: topic ?? "",
+                durationS: speakingDuration > 0 ? speakingDuration : 30.0,
+                userId: userId,
+                sessionId: sessionId,
+                mode: sessionMode,
+                turnSummaries: [],
+                audioURL: localAudioURL,
+                expectedText: inferredExpectedText
+            )
+            response = await feedbackEngine.analyze(input)
 
             let sanitized = self.sanitizedResponseForDisplay(response)
             self.analysisResponse = sanitized
             self.feedback = FeedbackMapper.toFeedback(sanitized)
             self.isLoading = false
             await MainActor.run {
+                self.refreshPronunciationSaveActions(from: sanitized)
                 self.collectionView.reloadData()
             }
             self.persistFeedbackToHistory(sanitized)
             self.prepareSessionProgressCommit()
         }
+    }
+
+    private func refreshPronunciationSaveActions(from response: SpeechAnalysisResponse) {
+        pronunciationSaveCandidates = pronunciationCandidates(from: response)
+
+        guard let doneButtonItem else { return }
+
+        if pronunciationSaveCandidates.isEmpty {
+            saveWordsButtonItem = nil
+            navigationItem.rightBarButtonItems = [doneButtonItem]
+            return
+        }
+
+        if saveWordsButtonItem == nil {
+            saveWordsButtonItem = UIBarButtonItem(
+                title: "Save Words",
+                style: .plain,
+                target: self,
+                action: #selector(savePronunciationWordsTapped)
+            )
+        }
+
+        if let saveWordsButtonItem {
+            navigationItem.rightBarButtonItems = [doneButtonItem, saveWordsButtonItem]
+        } else {
+            navigationItem.rightBarButtonItems = [doneButtonItem]
+        }
+    }
+
+    private func pronunciationCandidates(from response: SpeechAnalysisResponse) -> [(phrase: String, reason: String, technical: String)] {
+        var seen: Set<String> = []
+        var candidates: [(phrase: String, reason: String, technical: String)] = []
+
+        for evidence in response.coaching.evidence where evidence.type == "phoneme" {
+            guard let parsed = parsePronunciationEvidence(evidence.text) else { continue }
+            let key = parsed.phrase.lowercased()
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            candidates.append(parsed)
+        }
+
+        return candidates
+    }
+
+    private func parsePronunciationEvidence(_ text: String) -> (phrase: String, reason: String, technical: String)? {
+        let parts = text.components(separatedBy: "->")
+        guard parts.count >= 2 else { return nil }
+
+        let observed = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        let rightPart = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let expected: String
+        if let parenIndex = rightPart.firstIndex(of: "(") {
+            expected = String(rightPart[..<parenIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            expected = rightPart
+        }
+
+        let phrase = expected.isEmpty ? observed : expected
+        guard !phrase.isEmpty else { return nil }
+
+        let reason = "This word sounded unclear in your session. Practice it slowly, then at normal speed."
+        return (phrase: phrase, reason: reason, technical: text)
+    }
+
+    @objc private func savePronunciationWordsTapped() {
+        guard !pronunciationSaveCandidates.isEmpty else { return }
+
+        for candidate in pronunciationSaveCandidates {
+            DifficultWordsStore.shared.saveOrUpdate(
+                phrase: candidate.phrase,
+                plainReason: candidate.reason,
+                technicalHint: candidate.technical,
+                source: "session_feedback"
+            )
+        }
+
+        let alert = UIAlertController(
+            title: "Saved",
+            message: "Added \(pronunciationSaveCandidates.count) word(s) to your Difficult Words bucket.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func prepareSessionProgressCommit() {

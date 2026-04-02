@@ -30,11 +30,15 @@ enum FeedbackMapper {
     }
 
     static func toSessionFeedback(_ response: SpeechAnalysisResponse, sessionId: UUID) -> SessionFeedback {
-        SessionFeedback(
+        let mispronouncedWords = response.coaching.evidence
+            .filter { $0.type == "phoneme" }
+            .compactMap { phonemeExpectedWord(from: $0.text) }
+
+        return SessionFeedback(
             id: UUID().uuidString,
             sessionId: sessionId,
             fillerWordCount: response.metrics.fillers,
-            mispronouncedWords: [],
+            mispronouncedWords: Array(Set(mispronouncedWords)).sorted(),
             fluencyScore: response.coaching.scores.fluency,
             onTopicScore: response.coaching.scores.clarity,
             confidenceScore: response.coaching.scores.confidence,
@@ -44,6 +48,19 @@ enum FeedbackMapper {
             summary: response.progress.weeklySummary,
             createdAt: Date()
         )
+    }
+
+    private static func phonemeExpectedWord(from evidence: String) -> String? {
+        let parts = evidence.components(separatedBy: "->")
+        guard parts.count >= 2 else { return nil }
+        let rightPart = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        let expected: String
+        if let parenIndex = rightPart.firstIndex(of: "(") {
+            expected = String(rightPart[..<parenIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            expected = rightPart
+        }
+        return expected.isEmpty ? nil : expected
     }
 
     private static func rating(fluency: Double) -> SessionFeedbackRating {
