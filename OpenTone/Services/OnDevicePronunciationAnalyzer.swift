@@ -89,10 +89,11 @@ final class OnDevicePronunciationAnalyzer {
             assessmentResult = result
 
             // Merge acoustic insights, avoiding duplicates
-            let existingKeys = Set(allInsights.map { "\($0.observedFragment.lowercased())>\($0.expectedFragment.lowercased())" })
+            var existingKeys = Set(allInsights.map { "\($0.observedFragment.lowercased())>\($0.expectedFragment.lowercased())" })
             for insight in acousticInsights {
                 let key = "\(insight.observedFragment.lowercased())>\(insight.expectedFragment.lowercased())"
                 if !existingKeys.contains(key) {
+                    existingKeys.insert(key)
                     allInsights.append(insight)
                 }
             }

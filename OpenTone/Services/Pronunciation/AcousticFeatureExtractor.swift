@@ -221,8 +221,8 @@ final class AcousticFeatureExtractor {
             }
         }
 
-        // Require minimum correlation for voiced detection
-        guard bestVal / zeroLag > 0.2 else { return nil }
+        // bestVal is already normalized by zero-lag energy.
+        guard bestVal > 0.2 else { return nil }
 
         return Float(config.sampleRate) / Float(bestLag)
     }

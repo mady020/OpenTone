@@ -66,4 +66,22 @@ final class OnDeviceFeedbackEngineTests: XCTestCase {
         XCTAssertFalse(response.coaching.suggestions.isEmpty)
         XCTAssertTrue(response.coaching.primaryIssueTitle == "Disfluency Recovery" || response.coaching.primaryIssueTitle == "Pause and Hesitation Control")
     }
+
+    func testTextOnlyPronunciationHintsDoNotClaimPhonemeEvidence() async {
+        let engine = OnDeviceFeedbackEngine()
+        let response = await engine.analyze(
+            FeedbackEngineInput(
+                transcript: "I tink dis is bery useful",
+                topic: "Practice",
+                durationS: 12,
+                userId: "u4",
+                sessionId: "s4",
+                mode: .jam,
+                turnSummaries: []
+            )
+        )
+
+        XCTAssertFalse(response.coaching.evidence.contains(where: { $0.type == "phoneme" }))
+        XCTAssertTrue(response.coaching.evidence.contains(where: { $0.type == "pronunciation_hint" }))
+    }
 }

@@ -374,7 +374,8 @@ class HomeCollectionViewController: UICollectionViewController {
         case .callSession:
             header.titleLabel.text = "Start a session"
         case .pronunciationPractice:
-            header.titleLabel.text = "Improve your pronunciation"
+            break;
+//            header.titleLabel.text = "Improve your pronunciation"
         case .recommended:
             header.titleLabel.text = "Recommended for you"
         }

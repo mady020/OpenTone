@@ -12,11 +12,18 @@ final class PronunciationPracticeViewController: UIViewController {
     private let progressStore = PronunciationPracticeProgressStore.shared
     private var collectionView: UICollectionView!
     private var currentPhrase: String = ""
-    private var activeDrillPhrase: String?
+    private var activeDrillRootPhrase: String?
+    private var pendingDrillPhrases: [String] = []
     private var difficultWords: [DifficultWordEntry] = []
     private var progress = PronunciationPracticeProgress.empty
     private var lastProgressUpdate: PronunciationPracticeProgressStore.ProgressUpdate?
+    private var lastFeedbackOutput: PronunciationFeedbackEngine.FeedbackOutput?
+    private var showDetailedBreakdown = false
+    private var latestRecognizedTranscript: String = ""
     private var recordingPlayer: AVAudioPlayer?
+    private let phraseSynthesizer = AVSpeechSynthesizer()
+    private var refreshPhraseItem: UIBarButtonItem!
+    private var detailsToggleItem: UIBarButtonItem!
 
     // Section model
     private enum Section: Int, CaseIterable {
@@ -33,9 +40,14 @@ final class PronunciationPracticeViewController: UIViewController {
 
     private var visibleSections: [Section] {
         if hasResults {
-            return [.phrase, .controls, .score]
+            var sections: [Section] = [.phrase, .controls, .score, .momentum, .priorityIssues, .feedback]
+            if showDetailedBreakdown {
+                sections.append(contentsOf: [.wordResults, .prosody])
+            }
+            sections.append(.difficultWords)
+            return sections
         }
-        return [.phrase, .controls]
+        return [.phrase, .controls, .difficultWords]
     }
 
     private func sectionForIndex(_ index: Int) -> Section? {
@@ -57,13 +69,19 @@ final class PronunciationPracticeViewController: UIViewController {
             action: #selector(dismissTapped)
         )
 
-        let newPhraseItem = UIBarButtonItem(
+        refreshPhraseItem = UIBarButtonItem(
             image: UIImage(systemName: "arrow.clockwise"),
             style: .plain,
             target: self,
             action: #selector(newPhraseTapped)
         )
-        navigationItem.rightBarButtonItems = [newPhraseItem]
+        detailsToggleItem = UIBarButtonItem(
+            title: "Show Details",
+            style: .plain,
+            target: self,
+            action: #selector(toggleDetailsTapped)
+        )
+        updateNavigationItems()
 
         sessionController.delegate = self
         setupCollectionView()
@@ -74,6 +92,7 @@ final class PronunciationPracticeViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        phraseSynthesizer.stopSpeaking(at: .immediate)
         if isMovingFromParent || isBeingDismissed {
             stopRecordedAudioPlayback()
         }
@@ -213,8 +232,13 @@ final class PronunciationPracticeViewController: UIViewController {
 
     private func loadNewPhrase() {
         currentPhrase = PronunciationSessionController.randomPhrase()
-        activeDrillPhrase = nil
+        activeDrillRootPhrase = nil
+        pendingDrillPhrases.removeAll()
+        lastFeedbackOutput = nil
+        latestRecognizedTranscript = ""
+        showDetailedBreakdown = false
         sessionController.prepareSession(expectedText: currentPhrase)
+        updateNavigationItems()
         collectionView.reloadData()
     }
 
@@ -229,6 +253,7 @@ final class PronunciationPracticeViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func dismissTapped() {
+        phraseSynthesizer.stopSpeaking(at: .immediate)
         stopRecordedAudioPlayback()
         sessionController.cancelRecording()
         if presentingViewController != nil {
@@ -240,8 +265,22 @@ final class PronunciationPracticeViewController: UIViewController {
 
     @objc private func newPhraseTapped() {
         stopRecordedAudioPlayback()
+        phraseSynthesizer.stopSpeaking(at: .immediate)
         sessionController.reset()
         loadNewPhrase()
+    }
+
+    @objc private func toggleDetailsTapped() {
+        guard hasResults else { return }
+        showDetailedBreakdown.toggle()
+        updateNavigationItems()
+        collectionView.reloadData()
+    }
+
+    private func updateNavigationItems() {
+        detailsToggleItem.title = showDetailedBreakdown ? "Hide Details" : "Show Details"
+        detailsToggleItem.isEnabled = hasResults
+        navigationItem.rightBarButtonItems = [refreshPhraseItem, detailsToggleItem]
     }
 
     @objc private func recordTapped() {
@@ -310,10 +349,47 @@ final class PronunciationPracticeViewController: UIViewController {
     private func startDrill(for phrase: String) {
         let cleaned = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleaned.isEmpty else { return }
-        activeDrillPhrase = cleaned
-        currentPhrase = cleaned
+        activeDrillRootPhrase = cleaned
+        pendingDrillPhrases.removeAll()
+        beginDrillPhrase(cleaned)
+    }
+
+    private func startFocusedDrillSeries(for phrase: String) {
+        let cleaned = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleaned.isEmpty else { return }
+
+        activeDrillRootPhrase = cleaned
+        pendingDrillPhrases = focusedDrillPhrases(for: cleaned)
+        advanceFocusedDrillIfNeeded()
+    }
+
+    private func focusedDrillPhrases(for phrase: String) -> [String] {
+        [
+            phrase,
+            "I can say \(phrase) clearly.",
+            "Today I practiced \(phrase) with confidence."
+        ]
+    }
+
+    private func advanceFocusedDrillIfNeeded() {
+        guard !pendingDrillPhrases.isEmpty else {
+            activeDrillRootPhrase = nil
+            return
+        }
+
+        let nextPhrase = pendingDrillPhrases.removeFirst()
+        beginDrillPhrase(nextPhrase)
+    }
+
+    private func beginDrillPhrase(_ phrase: String) {
+        currentPhrase = phrase
+        lastFeedbackOutput = nil
+        latestRecognizedTranscript = ""
+        showDetailedBreakdown = false
+        updateNavigationItems()
+
         sessionController.reset()
-        sessionController.prepareSession(expectedText: cleaned)
+        sessionController.prepareSession(expectedText: phrase)
         collectionView.setContentOffset(.zero, animated: true)
         collectionView.reloadData()
     }
@@ -340,7 +416,7 @@ final class PronunciationPracticeViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
 
         let hint = UILabel()
-        hint.text = "Read this phrase aloud"
+        hint.text = "Round goal: say it once clearly"
         hint.font = .systemFont(ofSize: 13, weight: .medium)
         hint.textColor = .secondaryLabel
         hint.translatesAutoresizingMaskIntoConstraints = false
@@ -372,21 +448,21 @@ final class PronunciationPracticeViewController: UIViewController {
 
         switch sessionController.state {
         case .idle, .error, .results:
-            recordConfig.title = "  Start Recording"
+            recordConfig.title = "  Start Round"
             recordConfig.image = UIImage(systemName: "mic.fill")
             recordConfig.baseBackgroundColor = AppColors.primary
             recordConfig.baseForegroundColor = .white
             recordButton.addTarget(self, action: #selector(recordTapped), for: .touchUpInside)
 
         case .recording:
-            recordConfig.title = "  Stop & Analyze"
+            recordConfig.title = "  Finish Round"
             recordConfig.image = UIImage(systemName: "stop.fill")
             recordConfig.baseBackgroundColor = .systemRed
             recordConfig.baseForegroundColor = .white
             recordButton.addTarget(self, action: #selector(recordTapped), for: .touchUpInside)
 
         case .analyzing:
-            recordConfig.title = "  Analyzing..."
+            recordConfig.title = "  Scoring Your Round..."
             recordConfig.image = UIImage(systemName: "waveform")
             recordConfig.baseBackgroundColor = .systemGray3
             recordConfig.baseForegroundColor = .white
@@ -475,13 +551,23 @@ final class PronunciationPracticeViewController: UIViewController {
         descLabel.numberOfLines = 0
         descLabel.textAlignment = .center
 
+        let modelLabel = UILabel()
+        let modelName = result.diagnostics.acousticModelUsed.lowercased()
+        let isEstimateOnly = modelName.contains("estimate-only") || modelName.contains("placeholder") || modelName.contains("heuristic")
+        modelLabel.text = isEstimateOnly ? "Estimate mode: focused word coaching only" : nil
+        modelLabel.font = .systemFont(ofSize: 12, weight: .medium)
+        modelLabel.textColor = .secondaryLabel
+        modelLabel.numberOfLines = 0
+        modelLabel.textAlignment = .center
+        modelLabel.isHidden = modelLabel.text == nil
+
         let progress = UIProgressView(progressViewStyle: .default)
         progress.progress = result.overallScore / 100
         progress.progressTintColor = color
         progress.trackTintColor = AppColors.cardBackground
 
         let transcriptLabel = UILabel()
-        let cleanedTranscript = result.transcribedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanedTranscript = latestRecognizedTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
         transcriptLabel.text = cleanedTranscript.isEmpty
             ? "You said: (speech not detected clearly)"
             : "You said: \"\(cleanedTranscript)\""
@@ -490,7 +576,7 @@ final class PronunciationPracticeViewController: UIViewController {
         transcriptLabel.numberOfLines = 2
         transcriptLabel.textAlignment = .center
 
-        let arranged: [UIView] = [statusLabel, scoreLabel, descLabel, progress, transcriptLabel]
+        let arranged: [UIView] = [statusLabel, scoreLabel, descLabel, modelLabel, progress, transcriptLabel]
 
         let stack = UIStackView(arrangedSubviews: arranged)
         stack.axis = .vertical
@@ -524,7 +610,9 @@ final class PronunciationPracticeViewController: UIViewController {
         topLabel.textColor = AppColors.textPrimary
 
         let midLabel = UILabel()
-        if let update = lastProgressUpdate {
+        if !pendingDrillPhrases.isEmpty {
+            midLabel.text = "Drill chain active: \(pendingDrillPhrases.count + 1) rounds left. Keep going!"
+        } else if let update = lastProgressUpdate {
             midLabel.text = "\(update.xpEarned) XP earned this try. Keep the streak going!"
         } else {
             midLabel.text = "Practice daily to build streak and unlock badges."
@@ -563,7 +651,7 @@ final class PronunciationPracticeViewController: UIViewController {
         let topIssues = importantIssueLines(from: result)
 
         let titleLabel = UILabel()
-        titleLabel.text = "Focus On These 1-2 Wins"
+        titleLabel.text = "Top 1-2 Wins"
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.textColor = AppColors.textPrimary
 
@@ -721,7 +809,17 @@ final class PronunciationPracticeViewController: UIViewController {
         progress.text = progressLine(for: entry)
         progress.numberOfLines = 0
 
-        let stack = UIStackView(arrangedSubviews: [title, reason, progress])
+        let status = UILabel()
+        status.font = .systemFont(ofSize: 12, weight: .regular)
+        status.textColor = .secondaryLabel
+        if let delta = entry.trendDelta {
+            status.text = delta >= 0 ? "Nice momentum. Keep the same rhythm next drill." : "No stress. Slow down and focus on one clean repeat."
+        } else {
+            status.text = "Start with a 3-step drill to build consistency."
+        }
+        status.numberOfLines = 0
+
+        let stack = UIStackView(arrangedSubviews: [title, reason, progress, status])
         stack.axis = .vertical
         stack.spacing = 6
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -743,7 +841,8 @@ final class PronunciationPracticeViewController: UIViewController {
 
         guard index == 0,
               let result = sessionController.lastResult else { return }
-        let focusWords = topFocusWords(from: result)
+          let focusWords = prioritizedFocusWords(from: result)
+          let coachingLines = topCoachingLines()
 
         let titleLabel = UILabel()
         titleLabel.text = "Focus Card"
@@ -754,8 +853,15 @@ final class PronunciationPracticeViewController: UIViewController {
         if focusWords.isEmpty {
             messageLabel.text = "Nice job. No major blockers right now. Keep this pace."
         } else {
-            let lines = focusWords.enumerated().map { idx, word in
-                "\(idx + 1). \(plainIssue(for: word))"
+            let lines: [String]
+            if !coachingLines.isEmpty {
+                lines = coachingLines.enumerated().map { idx, line in
+                    "\(idx + 1). \(line)"
+                }
+            } else {
+                lines = focusWords.enumerated().map { idx, word in
+                    "\(idx + 1). \(plainIssue(for: word))"
+                }
             }
             messageLabel.text = lines.joined(separator: "\n")
         }
@@ -764,7 +870,7 @@ final class PronunciationPracticeViewController: UIViewController {
         messageLabel.numberOfLines = 0
 
         let microcopy = UILabel()
-        microcopy.text = "One focused repeat now gives the biggest improvement."
+        microcopy.text = "One focused repeat now gives your biggest score jump."
         microcopy.font = .systemFont(ofSize: 12, weight: .medium)
         microcopy.textColor = .secondaryLabel
         microcopy.numberOfLines = 0
@@ -862,15 +968,6 @@ final class PronunciationPracticeViewController: UIViewController {
         }
     }
 
-    private func scoreDescriptor(_ score: Float) -> String {
-        switch score {
-        case 85...: return "Nice Job"
-        case 70..<85: return "Almost There"
-        case 55..<70: return "Focus On One Sound"
-        default: return "One Sound At A Time"
-        }
-    }
-
     private func sectionTitle(for section: Section) -> String? {
         switch section {
         case .phrase, .controls: return nil
@@ -885,7 +982,14 @@ final class PronunciationPracticeViewController: UIViewController {
     }
 
     private func importantIssueLines(from result: PronunciationAssessmentResult) -> [String] {
-        let top = topFocusWords(from: result)
+        let coachingLines = topCoachingLines()
+        if !coachingLines.isEmpty {
+            return coachingLines.enumerated().map { index, line in
+                "\(index + 1). \(line)"
+            }
+        }
+
+        let top = prioritizedFocusWords(from: result)
 
         if top.isEmpty {
             return ["1. Nice job. No major pronunciation blockers right now."]
@@ -896,11 +1000,55 @@ final class PronunciationPracticeViewController: UIViewController {
         }
     }
 
-    private func topFocusWords(from result: PronunciationAssessmentResult) -> [WordPronunciationScore] {
-        let problematic = result.wordScores
+    private func prioritizedFocusWords(from result: PronunciationAssessmentResult) -> [WordPronunciationScore] {
+        let fallback = result.wordScores
             .filter { $0.hasIssue }
             .sorted { $0.score < $1.score }
-        return Array(problematic.prefix(2))
+        var selected: [WordPronunciationScore] = []
+
+        if let feedback = lastFeedbackOutput {
+            for item in feedback.userFeedback {
+                guard let feedbackWord = item.word?.lowercased() else { continue }
+                guard let match = result.wordScores.first(where: { $0.word.lowercased() == feedbackWord }) else { continue }
+                if selected.contains(where: { $0.word.caseInsensitiveCompare(match.word) == .orderedSame }) {
+                    continue
+                }
+                selected.append(match)
+                if selected.count >= 2 { break }
+            }
+        }
+
+        if selected.count < 2 {
+            for item in fallback {
+                if selected.contains(where: { $0.word.caseInsensitiveCompare(item.word) == .orderedSame }) {
+                    continue
+                }
+                selected.append(item)
+                if selected.count >= 2 { break }
+            }
+        }
+
+        return selected
+    }
+
+    private func topCoachingLines() -> [String] {
+        guard let feedback = lastFeedbackOutput else { return [] }
+        var seen: Set<String> = []
+        var lines: [String] = []
+
+        for item in feedback.userFeedback {
+            let base = item.actionTip ?? item.message
+            let cleaned = plainEnglish(base)
+            let key = cleaned.lowercased()
+            if cleaned.isEmpty || seen.contains(key) {
+                continue
+            }
+            seen.insert(key)
+            lines.append(cleaned)
+            if lines.count >= 2 { break }
+        }
+
+        return lines
     }
 
     private func plainIssue(for wordScore: WordPronunciationScore) -> String {
@@ -942,7 +1090,7 @@ final class PronunciationPracticeViewController: UIViewController {
 
     private func currentFocusWords() -> [WordPronunciationScore] {
         guard let result = sessionController.lastResult else { return [] }
-        return topFocusWords(from: result)
+        return prioritizedFocusWords(from: result)
     }
 
     @objc private func practicePrimaryFocusTapped() {
@@ -1019,20 +1167,25 @@ final class PronunciationPracticeViewController: UIViewController {
         let attempts = "Attempts: \(entry.attempts)"
         let last = entry.lastScore.map { "Last: \(Int($0.rounded()))" } ?? "Last: -"
         let best = entry.bestScore.map { "Best: \(Int($0.rounded()))" } ?? "Best: -"
+        let wins = "Wins: \(entry.improvements)"
         let trend: String
         if let delta = entry.trendDelta {
             trend = delta >= 0 ? "Trend: +\(Int(delta.rounded()))" : "Trend: \(Int(delta.rounded()))"
         } else {
             trend = "Trend: -"
         }
-        return "\(attempts) • \(last) • \(best) • \(trend)"
+        return "\(attempts) • \(last) • \(best) • \(wins) • \(trend)"
     }
 
     private func saveWordToBucket(_ wordScore: WordPronunciationScore) {
         let technical = technicalDetailText(for: wordScore)
+        let personalizedReason = lastFeedbackOutput?.userFeedback.first(where: {
+            $0.word?.caseInsensitiveCompare(wordScore.word) == .orderedSame
+        })?.actionTip
+
         difficultWordsStore.saveOrUpdate(
             phrase: wordScore.word,
-            plainReason: plainIssue(for: wordScore),
+            plainReason: personalizedReason ?? plainIssue(for: wordScore),
             technicalHint: technical,
             source: "pronunciation_practice"
         )
@@ -1049,28 +1202,56 @@ final class PronunciationPracticeViewController: UIViewController {
     }
 
     private func hearPhrase(_ phrase: String) {
-        Task {
-            try? await OnDeviceTTSService.shared.speak(text: phrase, persona: .professional)
-        }
+        let cleaned = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleaned.isEmpty else { return }
+
+        phraseSynthesizer.stopSpeaking(at: .immediate)
+        let utterance = AVSpeechUtterance(string: cleaned)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.rate = 0.48
+        utterance.pitchMultiplier = 1.0
+        utterance.preUtteranceDelay = 0.05
+        utterance.postUtteranceDelay = 0.05
+        phraseSynthesizer.speak(utterance)
     }
 
     private func recordDrillProgressIfNeeded(result: PronunciationAssessmentResult) {
-        guard let activeDrillPhrase else { return }
+        guard let drillRoot = activeDrillRootPhrase else { return }
 
         let matchingWordScore = result.wordScores.first {
-            $0.word.compare(activeDrillPhrase, options: .caseInsensitive) == .orderedSame
+            $0.word.compare(drillRoot, options: .caseInsensitive) == .orderedSame
         }
         let score = matchingWordScore?.score ?? result.overallScore
-        let issueSummary = matchingWordScore.map(plainIssue(for:))
+        let issueSummary = topCoachingLines().first ?? matchingWordScore.map(plainIssue(for:))
 
         difficultWordsStore.recordPractice(
-            phrase: activeDrillPhrase,
+            phrase: drillRoot,
             score: score,
             issueSummary: issueSummary
         )
 
-        self.activeDrillPhrase = nil
         refreshDifficultWords()
+
+        if pendingDrillPhrases.isEmpty {
+            activeDrillRootPhrase = nil
+        } else {
+            promptForNextDrillStep()
+        }
+    }
+
+    private func promptForNextDrillStep() {
+        guard !pendingDrillPhrases.isEmpty else { return }
+
+        let alert = UIAlertController(
+            title: "Next Drill Ready",
+            message: "Great effort. Continue your focused drill chain?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Continue", style: .default) { [weak self] _ in
+            self?.advanceFocusedDrillIfNeeded()
+        })
+        alert.addAction(UIAlertAction(title: "Later", style: .cancel))
+        present(alert, animated: true)
     }
 
     private var hasResults: Bool {
@@ -1097,7 +1278,7 @@ extension PronunciationPracticeViewController: UICollectionViewDataSource {
         case .wordResults: return sessionController.lastResult?.wordScores.count ?? 0
         case .prosody: return hasResults ? 1 : 0
         case .feedback: return hasResults ? 1 : 0
-        case .difficultWords: return hasResults ? max(1, difficultWords.count) : 0
+        case .difficultWords: return max(1, difficultWords.count)
         }
     }
 
@@ -1210,6 +1391,14 @@ extension PronunciationPracticeViewController: UICollectionViewDelegate {
         alert.addAction(UIAlertAction(title: "Save to Difficult Words", style: .default) { [weak self] _ in
             self?.saveWordToBucket(wordScore)
         })
+        if showDetailedBreakdown {
+            let detail = technicalDetailText(for: wordScore)
+            if !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                alert.addAction(UIAlertAction(title: "Show Details", style: .default) { [weak self] _ in
+                    self?.presentTechnicalDetail(title: wordScore.word, detail: detail)
+                })
+            }
+        }
         alert.addAction(UIAlertAction(title: "Close", style: .cancel))
 
         present(alert, animated: true)
@@ -1225,7 +1414,16 @@ extension PronunciationPracticeViewController: UICollectionViewDelegate {
         alert.addAction(UIAlertAction(title: "Hear Correct Pronunciation", style: .default) { [weak self] _ in
             self?.hearPhrase(entry.phrase)
         })
-        alert.addAction(UIAlertAction(title: "Practice Drill", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Start 3-Step Drill", style: .default) { [weak self] _ in
+            self?.startFocusedDrillSeries(for: entry.phrase)
+        })
+        if let technical = entry.technicalHint,
+           !technical.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            alert.addAction(UIAlertAction(title: "Show Details", style: .default) { [weak self] _ in
+                self?.presentTechnicalDetail(title: entry.phrase, detail: technical)
+            })
+        }
+        alert.addAction(UIAlertAction(title: "Practice Single Word", style: .default) { [weak self] _ in
             self?.startDrill(for: entry.phrase)
         })
         alert.addAction(UIAlertAction(title: "Remove", style: .destructive) { [weak self] _ in
@@ -1243,6 +1441,16 @@ extension PronunciationPracticeViewController: UICollectionViewDelegate {
 
         present(alert, animated: true)
     }
+
+    private func presentTechnicalDetail(title: String, detail: String) {
+        let alert = UIAlertController(
+            title: "\(title) Details",
+            message: detail,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+        present(alert, animated: true)
+    }
 }
 
 // MARK: - PronunciationSessionController.Delegate
@@ -1250,25 +1458,33 @@ extension PronunciationPracticeViewController: UICollectionViewDelegate {
 extension PronunciationPracticeViewController: PronunciationSessionController.Delegate {
 
     func sessionStateDidChange(_ state: PronunciationSessionController.SessionState) {
+        updateNavigationItems()
         collectionView.reloadData()
     }
 
     func sessionDidReceiveTranscript(_ transcript: String, isFinal: Bool) {
-        // Could show live transcript in future
+        latestRecognizedTranscript = transcript
+        if isFinal {
+            collectionView.reloadData()
+        }
     }
 
     func sessionDidCompleteAssessment(
         _ result: PronunciationAssessmentResult,
         feedback: PronunciationFeedbackEngine.FeedbackOutput
     ) {
+        lastFeedbackOutput = feedback
+        latestRecognizedTranscript = result.transcribedText
         recordDrillProgressIfNeeded(result: result)
         let update = progressStore.recordPractice(
             overallScore: result.overallScore,
-            difficultWordsCount: topFocusWords(from: result).count
+            difficultWordsCount: prioritizedFocusWords(from: result).count
         )
         progress = update.progress
         lastProgressUpdate = update
+        showBadgeCelebration(update.newlyUnlockedBadges)
         refreshDifficultWords()
+        updateNavigationItems()
         collectionView.reloadData()
     }
 

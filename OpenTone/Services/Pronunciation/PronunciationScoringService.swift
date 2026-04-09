@@ -33,6 +33,11 @@ final class PronunciationScoringService {
         self.transcription = transcription ?? .shared
     }
 
+    private var usesEstimateOnlyPath: Bool {
+        let modelName = acousticModel.modelName.lowercased()
+        return modelName.contains("placeholder") || modelName.contains("heuristic")
+    }
+
     // MARK: - Public API
 
     /// Run full pronunciation assessment on recorded audio against expected text.
@@ -86,6 +91,46 @@ final class PronunciationScoringService {
         }
 
         // 4. Extract acoustic features
+        if usesEstimateOnlyPath {
+            let prosodyResult = prosody.analyze(
+                samples: samples,
+                expected: expectedSequence,
+                wordTimings: transcriptionResult.wordSegments
+            )
+
+            let estimatedWordScores = buildTranscriptEstimateWordScores(
+                boundaries: expectedSequence.wordBoundaries,
+                spokenTranscript: transcriptText
+            )
+
+            let overallScore = computeEstimateOnlyOverallScore(
+                wordScores: estimatedWordScores,
+                prosodyResult: prosodyResult
+            )
+
+            let processingTime = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
+            let diagnostics = PronunciationDiagnostics(
+                expectedPhonemeCount: expectedSequence.count,
+                alignedPhonemeCount: 0,
+                missingPhonemeCount: 0,
+                substitutionCount: 0,
+                insertionCount: 0,
+                acceptableVariationCount: 0,
+                acousticModelUsed: "\(acousticModel.modelName) (estimate-only)",
+                processingTimeMs: processingTime
+            )
+
+            return PronunciationAssessmentResult(
+                overallScore: overallScore,
+                phoneScores: [],
+                wordScores: estimatedWordScores,
+                prosody: prosodyResult,
+                expectedText: expectedText,
+                transcribedText: transcriptionResult.transcript,
+                diagnostics: diagnostics
+            )
+        }
+
         let features = featureExtractor.extractFeatures(from: samples)
 
         guard features.frameCount > 0 else {
@@ -229,9 +274,164 @@ final class PronunciationScoringService {
         let words = cleaned
             .split(separator: " ")
             .map(String.init)
-            .filter { $0.count > 1 }
+            .filter { !$0.isEmpty }
 
         return Set(words)
+    }
+
+    private func buildTranscriptEstimateWordScores(
+        boundaries: [WordPhoneBoundary],
+        spokenTranscript: String
+    ) -> [WordPronunciationScore] {
+        let spokenWords = normalizedWords(from: spokenTranscript)
+
+        var consumedIndices: Set<Int> = []
+
+        return boundaries.enumerated().map { index, boundary in
+            let targetWord = boundary.word
+            let normalizedTarget = normalizeWord(targetWord)
+
+            guard !normalizedTarget.isEmpty else {
+                return WordPronunciationScore(
+                    word: targetWord,
+                    wordIndex: index,
+                    score: 65,
+                    phoneScores: [],
+                    hasIssue: false,
+                    primaryIssue: nil
+                )
+            }
+
+            var bestMatchIndex: Int?
+            var bestDistance = Int.max
+
+            for (spokenIndex, spokenWord) in spokenWords.enumerated() where !consumedIndices.contains(spokenIndex) {
+                let distance = editDistance(normalizedTarget, spokenWord)
+                if distance < bestDistance {
+                    bestDistance = distance
+                    bestMatchIndex = spokenIndex
+                }
+                if distance == 0 {
+                    break
+                }
+            }
+
+            guard let matchIndex = bestMatchIndex else {
+                return WordPronunciationScore(
+                    word: targetWord,
+                    wordIndex: index,
+                    score: 38,
+                    phoneScores: [],
+                    hasIssue: true,
+                    primaryIssue: "This word was not captured clearly. Try one slower repeat."
+                )
+            }
+
+            consumedIndices.insert(matchIndex)
+            let spokenWord = spokenWords[matchIndex]
+            let length = max(normalizedTarget.count, spokenWord.count)
+            let distanceRatio = length > 0 ? Float(bestDistance) / Float(length) : 1
+
+            if distanceRatio == 0 {
+                return WordPronunciationScore(
+                    word: targetWord,
+                    wordIndex: index,
+                    score: 85,
+                    phoneScores: [],
+                    hasIssue: false,
+                    primaryIssue: nil
+                )
+            }
+
+            if distanceRatio <= 0.34 {
+                return WordPronunciationScore(
+                    word: targetWord,
+                    wordIndex: index,
+                    score: 67,
+                    phoneScores: [],
+                    hasIssue: true,
+                    primaryIssue: "This word sounded close. Slow down and say each part clearly once."
+                )
+            }
+
+            return WordPronunciationScore(
+                word: targetWord,
+                wordIndex: index,
+                score: 48,
+                phoneScores: [],
+                hasIssue: true,
+                primaryIssue: "This word did not match clearly. Listen once, then repeat slowly."
+            )
+        }
+    }
+
+    private func computeEstimateOnlyOverallScore(
+        wordScores: [WordPronunciationScore],
+        prosodyResult: ProsodyResult
+    ) -> Float {
+        let wordAverage: Float
+        if wordScores.isEmpty {
+            wordAverage = 55
+        } else {
+            wordAverage = wordScores.reduce(0) { $0 + $1.score } / Float(wordScores.count)
+        }
+
+        let prosodyWeight: Float
+        switch prosodyResult.confidence {
+        case .high: prosodyWeight = 0.20
+        case .medium: prosodyWeight = 0.10
+        case .low: prosodyWeight = 0.05
+        }
+
+        let wordWeight = 1.0 - prosodyWeight
+        return (wordAverage * wordWeight) + (prosodyResult.overallScore * prosodyWeight)
+    }
+
+    private func normalizedWords(from text: String) -> [String] {
+        text
+            .lowercased()
+            .replacingOccurrences(of: "[^a-z0-9\\s]", with: " ", options: .regularExpression)
+            .split(separator: " ")
+            .map(String.init)
+            .filter { !$0.isEmpty }
+    }
+
+    private func normalizeWord(_ word: String) -> String {
+        word
+            .lowercased()
+            .replacingOccurrences(of: "[^a-z0-9]", with: "", options: .regularExpression)
+    }
+
+    private func editDistance(_ lhs: String, _ rhs: String) -> Int {
+        let a = Array(lhs)
+        let b = Array(rhs)
+
+        if a.isEmpty { return b.count }
+        if b.isEmpty { return a.count }
+
+        var table = Array(
+            repeating: Array(repeating: 0, count: b.count + 1),
+            count: a.count + 1
+        )
+
+        for i in 0...a.count { table[i][0] = i }
+        for j in 0...b.count { table[0][j] = j }
+
+        for i in 1...a.count {
+            for j in 1...b.count {
+                if a[i - 1] == b[j - 1] {
+                    table[i][j] = table[i - 1][j - 1]
+                } else {
+                    table[i][j] = min(
+                        table[i - 1][j] + 1,
+                        table[i][j - 1] + 1,
+                        table[i - 1][j - 1] + 1
+                    )
+                }
+            }
+        }
+
+        return table[a.count][b.count]
     }
 
     // MARK: - Word Score Aggregation

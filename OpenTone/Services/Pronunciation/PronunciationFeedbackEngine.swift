@@ -52,23 +52,36 @@ final class PronunciationFeedbackEngine {
     func generateFeedback(from result: PronunciationAssessmentResult) -> FeedbackOutput {
         var rawItems: [UserFeedbackItem] = []
         var suppressedIssues: [SuppressedIssue] = []
+        let estimateOnly = isEstimateOnly(result)
 
-        // Phone-level feedback
-        let (phoneItems, phoneSuppressed) = generatePhoneFeedback(result: result)
-        rawItems.append(contentsOf: phoneItems)
-        suppressedIssues.append(contentsOf: phoneSuppressed)
+        if estimateOnly {
+            rawItems.append(contentsOf: generateEstimateOnlyWordFeedback(result: result))
+            rawItems.append(UserFeedbackItem(
+                level: .info,
+                message: "Detailed sound-level scoring is unavailable in this build.",
+                actionTip: "Use the top words below for focused repeats.",
+                word: nil,
+                phonemeHint: nil
+            ))
+        } else {
+            // Phone-level feedback
+            let (phoneItems, phoneSuppressed) = generatePhoneFeedback(result: result)
+            rawItems.append(contentsOf: phoneItems)
+            suppressedIssues.append(contentsOf: phoneSuppressed)
 
-        // Prosody feedback
-        let (prosodyItems, prosodySuppressed) = generateProsodyFeedback(result: result)
-        rawItems.append(contentsOf: prosodyItems)
-        suppressedIssues.append(contentsOf: prosodySuppressed)
+            // Prosody feedback
+            let (prosodyItems, prosodySuppressed) = generateProsodyFeedback(result: result)
+            rawItems.append(contentsOf: prosodyItems)
+            suppressedIssues.append(contentsOf: prosodySuppressed)
+        }
 
         // Overall summary feedback
-        rawItems.append(contentsOf: generateSummaryFeedback(result: result))
+        rawItems.append(contentsOf: generateSummaryFeedback(result: result, estimateOnly: estimateOnly))
 
         // Sort by severity (critical first) and limit to avoid overwhelming
         let sortedItems = rawItems.sorted { $0.level > $1.level }
-        let limitedItems = Array(sortedItems.prefix(5))
+        let dedupedItems = dedupeFeedbackItems(sortedItems)
+        let limitedItems = Array(dedupedItems.prefix(estimateOnly ? 4 : 5))
 
         // Convert to legacy PronunciationInsight format for backward compatibility
         let insights = limitedItems.compactMap { item -> PronunciationInsight? in
@@ -99,6 +112,44 @@ final class PronunciationFeedbackEngine {
             pronunciationInsights: insights,
             pronunciationScore: result.overallScore
         )
+    }
+
+    private func isEstimateOnly(_ result: PronunciationAssessmentResult) -> Bool {
+        let model = result.diagnostics.acousticModelUsed.lowercased()
+        return model.contains("estimate-only") || model.contains("placeholder") || model.contains("heuristic")
+    }
+
+    private func dedupeFeedbackItems(_ items: [UserFeedbackItem]) -> [UserFeedbackItem] {
+        var unique: [UserFeedbackItem] = []
+        var seen: Set<String> = []
+
+        for item in items {
+            let key = "\(item.word?.lowercased() ?? "")|\(item.message.lowercased())|\(item.actionTip?.lowercased() ?? "")"
+            if seen.contains(key) {
+                continue
+            }
+            seen.insert(key)
+            unique.append(item)
+        }
+
+        return unique
+    }
+
+    private func generateEstimateOnlyWordFeedback(result: PronunciationAssessmentResult) -> [UserFeedbackItem] {
+        let weakWords = result.wordScores
+            .filter { $0.hasIssue }
+            .sorted { $0.score < $1.score }
+            .prefix(2)
+
+        return weakWords.map { wordScore in
+            UserFeedbackItem(
+                level: .suggestion,
+                message: "Focus on '\(wordScore.word)' with one slow and one natural-speed repeat.",
+                actionTip: wordScore.primaryIssue ?? "Replay this word once, then repeat clearly.",
+                word: wordScore.word,
+                phonemeHint: nil
+            )
+        }
     }
 
     // MARK: - Phone-Level Feedback
@@ -229,14 +280,14 @@ final class PronunciationFeedbackEngine {
 
     // MARK: - Summary Feedback
 
-    private func generateSummaryFeedback(result: PronunciationAssessmentResult) -> [UserFeedbackItem] {
+    private func generateSummaryFeedback(result: PronunciationAssessmentResult, estimateOnly: Bool) -> [UserFeedbackItem] {
         var items: [UserFeedbackItem] = []
 
         if result.overallScore >= 85 {
             items.append(UserFeedbackItem(
                 level: .info,
                 message: "Excellent pronunciation! Your sounds were clear and well-articulated.",
-                actionTip: nil,
+                actionTip: estimateOnly ? "Keep building consistency with the same phrase once more." : nil,
                 word: nil,
                 phonemeHint: nil
             ))
@@ -253,6 +304,14 @@ final class PronunciationFeedbackEngine {
                 level: .suggestion,
                 message: "Some sounds need attention. Try the phrase again more slowly.",
                 actionTip: "Break the phrase into smaller chunks and practice each part separately.",
+                word: nil,
+                phonemeHint: nil
+            ))
+        } else {
+            items.append(UserFeedbackItem(
+                level: .warning,
+                message: "Almost there. Start with one short chunk and make it clean first.",
+                actionTip: "Tap the weakest word, replay it, then do one focused retry.",
                 word: nil,
                 phonemeHint: nil
             ))

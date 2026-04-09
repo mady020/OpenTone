@@ -409,7 +409,8 @@ class FeedbackCollectionViewController: UIViewController {
             strengths: response.coaching.strengths,
             suggestions: response.coaching.suggestions,
             evidence: response.coaching.evidence,
-            llmCoaching: nil
+            llmCoaching: nil,
+            pronunciationDetail: response.coaching.pronunciationDetail
         )
 
         return SpeechAnalysisResponse(

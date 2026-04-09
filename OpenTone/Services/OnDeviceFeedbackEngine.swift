@@ -28,14 +28,21 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
             pronunciationInsights = OnDevicePronunciationAnalyzer.shared.analyze(transcript: cleanedTranscript)
         }
 
-        let analysis = classify(transcript: cleanedTranscript, metrics: metrics, pronunciationIssueCount: pronunciationInsights.count)
+        let hasAcousticPronunciationEvidence = assessmentResult != nil
+
+        let analysis = classify(
+            transcript: cleanedTranscript,
+            metrics: metrics,
+            pronunciationIssueCount: hasAcousticPronunciationEvidence ? pronunciationInsights.count : 0
+        )
 
         var coaching = buildCoaching(
             analysis: analysis,
             metrics: metrics,
             mode: input.mode,
             userId: input.userId,
-            pronunciationInsights: pronunciationInsights
+            pronunciationInsights: pronunciationInsights,
+            hasAcousticPronunciationEvidence: hasAcousticPronunciationEvidence
         )
 
         // Merge acoustic pronunciation score into coaching scores
@@ -229,7 +236,8 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
         metrics: SpeechMetrics,
         mode: FeedbackSessionMode,
         userId: String,
-        pronunciationInsights: [PronunciationInsight]
+        pronunciationInsights: [PronunciationInsight],
+        hasAcousticPronunciationEvidence: Bool
     ) -> SpeechCoaching {
         let scores = coachingScores(metrics: metrics, analysis: analysis)
 
@@ -250,15 +258,21 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
             suggestions.append("Some parts were hard to capture clearly. Try speaking slightly louder and facing the mic directly.")
         }
 
-        if !pronunciationInsights.isEmpty {
+        if hasAcousticPronunciationEvidence, !pronunciationInsights.isEmpty {
             suggestions.append(contentsOf: OnDevicePronunciationAnalyzer.shared.suggestions(from: pronunciationInsights))
+        } else if !pronunciationInsights.isEmpty {
+            suggestions.append("For sharper pronunciation feedback, run a focused phrase drill with clear target text.")
         }
 
         suggestions = Array(suggestions.uniquedPreservingOrder().prefix(6))
         suggestions = dedupeWithRecentHistory(suggestions, userId: userId)
 
         var evidence = makeEvidence(metrics: metrics, primaryIssue: analysis.primaryIssueKey)
-        evidence.append(contentsOf: OnDevicePronunciationAnalyzer.shared.evidenceItems(from: pronunciationInsights))
+        if hasAcousticPronunciationEvidence {
+            evidence.append(contentsOf: OnDevicePronunciationAnalyzer.shared.evidenceItems(from: pronunciationInsights))
+        } else {
+            evidence.append(contentsOf: pronunciationHintEvidence(from: pronunciationInsights))
+        }
 
         return SpeechCoaching(
             scores: scores,
@@ -270,6 +284,16 @@ final class OnDeviceFeedbackEngine: FeedbackEngine {
             evidence: evidence,
             llmCoaching: nil
         )
+    }
+
+    private func pronunciationHintEvidence(from insights: [PronunciationInsight]) -> [EvidenceItem] {
+        insights.prefix(2).map { insight in
+            EvidenceItem(
+                type: "pronunciation_hint",
+                timestamp: 0,
+                text: "Hint for \(insight.expectedFragment): \(insight.coachingTip)"
+            )
+        }
     }
 
     private func coachingScores(metrics: SpeechMetrics, analysis: AnalysisResult) -> CoachingScores {

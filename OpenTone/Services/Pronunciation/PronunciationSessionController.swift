@@ -105,6 +105,9 @@ final class PronunciationSessionController {
 
                 let feedback = self.feedbackEngine.generateFeedback(from: result)
 
+                let finalTranscript = result.transcribedText.trimmingCharacters(in: .whitespacesAndNewlines)
+                self.delegate?.sessionDidReceiveTranscript(finalTranscript, isFinal: true)
+
                 self.lastResult = result
                 self.lastFeedback = feedback
                 self.state = .results
