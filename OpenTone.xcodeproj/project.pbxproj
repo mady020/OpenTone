@@ -11,8 +11,6 @@
 		9813ABB52F4C164A00B2CA3B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9813ABB42F4C164A00B2CA3B /* Supabase */; };
 		984B25FA2F63DB8500E62D81 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		984B25FB2F63DB8500E62D81 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
-		987268E32F70FF3B00B80CFC /* Pods_OpenTone.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEABB1509C74FB9EF0E9B519 /* Pods_OpenTone.framework */; };
-		987268E42F70FF3B00B80CFC /* Pods_OpenTone.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BEABB1509C74FB9EF0E9B519 /* Pods_OpenTone.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		98AEF9242F63E71C0007DA1A /* whisper in Frameworks */ = {isa = PBXBuildFile; productRef = 79D4C9C24FAC68D652C03869 /* whisper */; };
 		98CC6DEE2F63D8640072C60A /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		98CC6DEF2F63D8640072C60A /* whisper in Frameworks */ = {isa = PBXBuildFile; productRef = 0471BD0DEFCB420B35967BF6 /* whisper */; };
@@ -26,7 +24,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				987268E42F70FF3B00B80CFC /* Pods_OpenTone.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -35,10 +32,7 @@
 
 /* Begin PBXFileReference section */
 		3FBEA97B2ED55D6300788555 /* OpenTone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenTone.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		6FB5B30CCCE7EDF1163AB91A /* Pods-OpenTone.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpenTone.release.xcconfig"; path = "Target Support Files/Pods-OpenTone/Pods-OpenTone.release.xcconfig"; sourceTree = "<group>"; };
 		AA000001SECRETS000000001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
-		BEABB1509C74FB9EF0E9B519 /* Pods_OpenTone.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OpenTone.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D5FD63E3C102B9E7344209DD /* Pods-OpenTone.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpenTone.debug.xcconfig"; path = "Target Support Files/Pods-OpenTone/Pods-OpenTone.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -72,7 +66,6 @@
 				984B25FA2F63DB8500E62D81 /* (null) in Frameworks */,
 				98CC6DF02F63D8640072C60A /* (null) in Frameworks */,
 				98CC6DEF2F63D8640072C60A /* whisper in Frameworks */,
-				987268E32F70FF3B00B80CFC /* Pods_OpenTone.framework in Frameworks */,
 				98CC6DEE2F63D8640072C60A /* (null) in Frameworks */,
 				9813ABB52F4C164A00B2CA3B /* Supabase in Frameworks */,
 				0CBCAB422F4370B500CC26D6 /* IQKeyboardManagerSwift in Frameworks */,
@@ -93,18 +86,8 @@
 		0CBCAB402F4370B500CC26D6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BEABB1509C74FB9EF0E9B519 /* Pods_OpenTone.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		154EFC7E172E4B8DA4EE233C /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				D5FD63E3C102B9E7344209DD /* Pods-OpenTone.debug.xcconfig */,
-				6FB5B30CCCE7EDF1163AB91A /* Pods-OpenTone.release.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		3FAE41E82EC43B5E00FADCC1 = {
@@ -114,7 +97,6 @@
 				3FBEA97B2ED55D6300788555 /* OpenTone.app */,
 				0CBCAB402F4370B500CC26D6 /* Frameworks */,
 				0CBABBD32F626BCC00BC03C1 /* Recovered References */,
-				154EFC7E172E4B8DA4EE233C /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -125,7 +107,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3FAE42042EC43B6000FADCC1 /* Build configuration list for PBXNativeTarget "OpenTone" */;
 			buildPhases = (
-				C127421E1AC3EB0121C42A9E /* [CP] Check Pods Manifest.lock */,
 				3FAE41ED2EC43B5E00FADCC1 /* Sources */,
 				3FAE41EE2EC43B5E00FADCC1 /* Frameworks */,
 				3FAE41EF2EC43B5E00FADCC1 /* Resources */,
@@ -198,31 +179,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		C127421E1AC3EB0121C42A9E /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OpenTone-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		3FAE41ED2EC43B5E00FADCC1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -236,7 +192,7 @@
 /* Begin XCBuildConfiguration section */
 		3FAE42052EC43B6000FADCC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D5FD63E3C102B9E7344209DD /* Pods-OpenTone.debug.xcconfig */;
+			baseConfigurationReference = AA000001SECRETS000000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -287,7 +243,7 @@
 		};
 		3FAE42062EC43B6000FADCC1 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6FB5B30CCCE7EDF1163AB91A /* Pods-OpenTone.release.xcconfig */;
+			baseConfigurationReference = AA000001SECRETS000000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -337,6 +293,7 @@
 		};
 		3FAE42072EC43B6000FADCC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000001SECRETS000000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -403,6 +360,7 @@
 		};
 		3FAE42082EC43B6000FADCC1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000001SECRETS000000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

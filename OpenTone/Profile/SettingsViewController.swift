@@ -9,6 +9,7 @@ final class SettingsViewController: UIViewController {
     private enum Section: Int, CaseIterable {
         case appearance
         case feedback
+        case aiCall
         case account
         case about
         case actions
@@ -71,6 +72,8 @@ final class SettingsViewController: UIViewController {
 
     private func buildSections() {
         let themeName = ThemeManager.shared.currentTheme.title
+        let primaryProvider = currentAICallPrimaryProvider()
+        let fallbackProvider = currentAICallFallbackProvider(primary: primaryProvider)
 
         let user = SessionManager.shared.currentUser
 
@@ -83,22 +86,28 @@ final class SettingsViewController: UIViewController {
             [
                 Row(title: "AI-Enabled Feedback", icon: "sparkles", iconTint: .systemPurple, detail: isAIFeedbackEnabled() ? "On" : "Off")
             ],
-            // Section 2 — Account
+            // Section 2 — AI Call
+            [
+                Row(title: "Primary Model", icon: "waveform.and.mic", iconTint: .systemTeal, detail: primaryProvider.displayName),
+                Row(title: "Fallback Model", icon: "arrow.triangle.branch", iconTint: .systemTeal, detail: fallbackProvider.displayName),
+                Row(title: "Fallback On Failure", icon: "arrow.clockwise", iconTint: .systemTeal, detail: isAICallFallbackEnabled() ? "On" : "Off")
+            ],
+            // Section 3 — Account
             [
                 Row(title: "Email", icon: "envelope.fill", iconTint: .systemBlue, detail: user?.email ?? "—"),
                 Row(title: "Password", icon: "lock.fill", iconTint: .systemOrange, detail: "••••••••")
             ],
-            // Section 3 — About
+            // Section 4 — About
             [
                 Row(title: "Version", icon: "info.circle.fill", iconTint: .secondaryLabel, detail: appVersion),
                 Row(title: "Privacy Policy", icon: "hand.raised.fill", iconTint: .systemIndigo),
                 Row(title: "Terms of Service", icon: "doc.text.fill", iconTint: .systemIndigo)
             ],
-            // Section 4 — Actions
+            // Section 5 — Actions
             [
                 Row(title: "Log Out", icon: "rectangle.portrait.and.arrow.right", iconTint: .systemRed, isDestructive: true)
             ],
-            // Section 5 — Danger Zone
+            // Section 6 — Danger Zone
             [
                 Row(title: "Delete Account", icon: "trash.fill", iconTint: .systemRed, isDestructive: true)
             ]
@@ -121,6 +130,67 @@ final class SettingsViewController: UIViewController {
         setAIFeedbackEnabled(sender.isOn)
     }
 
+    private func currentAICallPrimaryProvider() -> AICallProviderID {
+        let raw = (UserDefaults.standard.string(forKey: "opentone.aiCall.primaryProvider")
+            ?? (Bundle.main.object(forInfoDictionaryKey: "AICallPrimaryProvider") as? String)
+            ?? AICallProviderID.backend.rawValue)
+            .lowercased()
+        return AICallProviderID(rawValue: raw) ?? .backend
+    }
+
+    private func currentAICallFallbackProvider(primary: AICallProviderID? = nil) -> AICallProviderID {
+        let currentPrimary = primary ?? currentAICallPrimaryProvider()
+        let raw = (UserDefaults.standard.string(forKey: "opentone.aiCall.fallbackProviders")
+            ?? (Bundle.main.object(forInfoDictionaryKey: "AICallFallbackProviders") as? String)
+            ?? "")
+            .lowercased()
+
+        let parsed = raw
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .compactMap { AICallProviderID(rawValue: $0) }
+            .first { $0 != currentPrimary }
+
+        return parsed ?? (currentPrimary == .backend ? .appleIntelligence : .backend)
+    }
+
+    private func setAICallPrimaryProvider(_ provider: AICallProviderID) {
+        UserDefaults.standard.set(provider.rawValue, forKey: "opentone.aiCall.primaryProvider")
+
+        let fallback = currentAICallFallbackProvider(primary: provider)
+        let resolvedFallback = fallback == provider
+            ? (provider == .backend ? AICallProviderID.appleIntelligence : .backend)
+            : fallback
+        UserDefaults.standard.set(resolvedFallback.rawValue, forKey: "opentone.aiCall.fallbackProviders")
+
+        buildSections()
+        tableView.reloadData()
+    }
+
+    private func setAICallFallbackProvider(_ provider: AICallProviderID) {
+        let primary = currentAICallPrimaryProvider()
+        guard provider != primary else { return }
+        UserDefaults.standard.set(provider.rawValue, forKey: "opentone.aiCall.fallbackProviders")
+        buildSections()
+        tableView.reloadData()
+    }
+
+    private func isAICallFallbackEnabled() -> Bool {
+        (UserDefaults.standard.object(forKey: "opentone.aiCall.allowFallbackOnPrimaryFailure") as? Bool)
+            ?? (Bundle.main.object(forInfoDictionaryKey: "AICallAllowFallbackOnPrimaryFailure") as? Bool)
+            ?? true
+    }
+
+    private func setAICallFallbackEnabled(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: "opentone.aiCall.allowFallbackOnPrimaryFailure")
+        buildSections()
+        tableView.reloadData()
+    }
+
+    @objc private func aiCallFallbackSwitchChanged(_ sender: UISwitch) {
+        setAICallFallbackEnabled(sender.isOn)
+    }
+
     private var appVersion: String {
         return "0.1"
     }
@@ -141,6 +211,58 @@ final class SettingsViewController: UIViewController {
             }
             let iconImage = UIImage(systemName: theme.iconName)
             action.setValue(iconImage, forKey: "image")
+            alert.addAction(action)
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        present(alert, animated: true)
+    }
+
+    private func showAICallProviderPicker() {
+        let current = currentAICallPrimaryProvider()
+        let alert = UIAlertController(title: "AI Call Primary Model", message: nil, preferredStyle: .actionSheet)
+
+        for provider in [AICallProviderID.backend, .appleIntelligence] {
+            let action = UIAlertAction(title: provider.displayName, style: .default) { [weak self] _ in
+                self?.setAICallPrimaryProvider(provider)
+            }
+            if provider == current {
+                action.setValue(true, forKey: "checked")
+            }
+            alert.addAction(action)
+        }
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        present(alert, animated: true)
+    }
+
+    private func showAICallFallbackProviderPicker() {
+        let primary = currentAICallPrimaryProvider()
+        let current = currentAICallFallbackProvider(primary: primary)
+        let choices = [AICallProviderID.backend, .appleIntelligence].filter { $0 != primary }
+        let alert = UIAlertController(title: "AI Call Fallback Model", message: nil, preferredStyle: .actionSheet)
+
+        for provider in choices {
+            let action = UIAlertAction(title: provider.displayName, style: .default) { [weak self] _ in
+                self?.setAICallFallbackProvider(provider)
+            }
+            if provider == current {
+                action.setValue(true, forKey: "checked")
+            }
             alert.addAction(action)
         }
 
@@ -426,6 +548,7 @@ extension SettingsViewController: UITableViewDataSource {
         switch s {
         case .appearance: return "Appearance"
         case .feedback:   return "Feedback"
+        case .aiCall:     return "AI Call"
         case .account:    return "Account"
         case .about:      return "About"
         case .actions:    return nil
@@ -463,11 +586,26 @@ extension SettingsViewController: UITableViewDataSource {
             cell.selectionStyle = .none
             return cell
         }
+
+        if Section(rawValue: indexPath.section) == .aiCall, indexPath.row == 2 {
+            let toggle = UISwitch()
+            toggle.isOn = isAICallFallbackEnabled()
+            toggle.addTarget(self, action: #selector(aiCallFallbackSwitchChanged(_:)), for: .valueChanged)
+            cell.accessoryView = toggle
+            cell.accessoryType = .none
+            cell.selectionStyle = .none
+            return cell
+        }
+
+        if Section(rawValue: indexPath.section) == .aiCall, indexPath.row < 2 {
+            cell.selectionStyle = .default
+        }
+
         cell.accessoryView = nil
 
         // Show disclosure for actionable rows
         let section = Section(rawValue: indexPath.section)
-        if section == .appearance || section == .actions || section == .dangerZone || section == .account || (section == .about && indexPath.row > 0) {
+        if section == .appearance || section == .actions || section == .dangerZone || section == .account || section == .aiCall || (section == .about && indexPath.row > 0) {
             cell.accessoryType = .disclosureIndicator
         } else {
             cell.accessoryType = .none
@@ -492,6 +630,13 @@ extension SettingsViewController: UITableViewDelegate {
 
         case .feedback:
             break
+
+        case .aiCall:
+            if indexPath.row == 0 {
+                showAICallProviderPicker()
+            } else if indexPath.row == 1 {
+                showAICallFallbackProviderPicker()
+            }
 
         case .account:
             showEditField(for: indexPath.row)

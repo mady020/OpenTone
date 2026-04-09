@@ -61,6 +61,9 @@ class FeedbackCollectionViewController: UIViewController {
     private var hasPresentedDailyGoalAchievement = false
     private var hasCommittedSessionProgress = false
     private var shouldCommitProgressWhenVisible = false
+    private var doneButtonItem: UIBarButtonItem?
+    private var saveWordsButtonItem: UIBarButtonItem?
+    private var pronunciationSaveCandidates: [(phrase: String, reason: String, technical: String)] = []
 
     private var collectionView: UICollectionView!
 
@@ -78,9 +81,12 @@ class FeedbackCollectionViewController: UIViewController {
         title = "Session Feedback"
         view.backgroundColor = AppColors.screenBackground
         navigationItem.hidesBackButton = true
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        doneButtonItem = UIBarButtonItem(
             title: "Done", style: .done, target: self, action: #selector(doneTapped)
         )
+        if let doneButtonItem {
+            navigationItem.rightBarButtonItems = [doneButtonItem]
+        }
 
         configureCollectionView()
         fetchAnalysis()
@@ -183,6 +189,7 @@ class FeedbackCollectionViewController: UIViewController {
             self.analysisResponse = sanitized
             self.feedback = FeedbackMapper.toFeedback(sanitized)
             self.isLoading = false
+            refreshPronunciationSaveActions(from: sanitized)
             self.collectionView.reloadData()
             self.persistFeedbackToHistory(sanitized)
             prepareSessionProgressCommit()
@@ -192,43 +199,134 @@ class FeedbackCollectionViewController: UIViewController {
         Task {
             let response: SpeechAnalysisResponse
             var resolvedTranscript = transcript ?? ""
+            var localAudioURL: URL?
 
-                     // Prefer extracting transcription locally from the recorded file.
-                if let urlString = audioURL,
-                   let fileURL = URL(string: urlString),
-                   FileManager.default.fileExists(atPath: fileURL.path) {
+            // Prefer extracting transcription locally from the recorded file.
+            if let urlString = audioURL,
+               let fileURL = URL(string: urlString),
+               FileManager.default.fileExists(atPath: fileURL.path) {
 
-                    resolvedTranscript = await withCheckedContinuation { continuation in
-                        AudioManager.shared.transcribeFile(at: fileURL) { text in
-                            continuation.resume(returning: text ?? "")
-                        }
+                localAudioURL = fileURL
+                resolvedTranscript = await withCheckedContinuation { continuation in
+                    AudioManager.shared.transcribeFile(at: fileURL) { text in
+                        continuation.resume(returning: text ?? "")
                     }
                 }
+            }
 
-                self.transcript = resolvedTranscript
+            self.transcript = resolvedTranscript
 
-                // Analyze via feedback engine (on-device core + optional enhancement provider).
-                let input = FeedbackEngineInput(
-                    transcript: resolvedTranscript,
-                    topic: topic ?? "",
-                    durationS: speakingDuration > 0 ? speakingDuration : 30.0,
-                    userId: userId,
-                    sessionId: sessionId,
-                    mode: sessionMode,
-                    turnSummaries: []
-                )
-                response = await feedbackEngine.analyze(input)
+            // Analyze via feedback engine (on-device core + optional enhancement provider).
+            let trimmedTranscript = resolvedTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
+            let inferredExpectedText = trimmedTranscript.isEmpty ? nil : trimmedTranscript
+            let input = FeedbackEngineInput(
+                transcript: resolvedTranscript,
+                topic: topic ?? "",
+                durationS: speakingDuration > 0 ? speakingDuration : 30.0,
+                userId: userId,
+                sessionId: sessionId,
+                mode: sessionMode,
+                turnSummaries: [],
+                audioURL: localAudioURL,
+                expectedText: inferredExpectedText
+            )
+            response = await feedbackEngine.analyze(input)
 
             let sanitized = self.sanitizedResponseForDisplay(response)
             self.analysisResponse = sanitized
             self.feedback = FeedbackMapper.toFeedback(sanitized)
             self.isLoading = false
             await MainActor.run {
+                self.refreshPronunciationSaveActions(from: sanitized)
                 self.collectionView.reloadData()
             }
             self.persistFeedbackToHistory(sanitized)
             self.prepareSessionProgressCommit()
         }
+    }
+
+    private func refreshPronunciationSaveActions(from response: SpeechAnalysisResponse) {
+        pronunciationSaveCandidates = pronunciationCandidates(from: response)
+
+        guard let doneButtonItem else { return }
+
+        if pronunciationSaveCandidates.isEmpty {
+            saveWordsButtonItem = nil
+            navigationItem.rightBarButtonItems = [doneButtonItem]
+            return
+        }
+
+        if saveWordsButtonItem == nil {
+            saveWordsButtonItem = UIBarButtonItem(
+                title: "Save Words",
+                style: .plain,
+                target: self,
+                action: #selector(savePronunciationWordsTapped)
+            )
+        }
+
+        if let saveWordsButtonItem {
+            navigationItem.rightBarButtonItems = [doneButtonItem, saveWordsButtonItem]
+        } else {
+            navigationItem.rightBarButtonItems = [doneButtonItem]
+        }
+    }
+
+    private func pronunciationCandidates(from response: SpeechAnalysisResponse) -> [(phrase: String, reason: String, technical: String)] {
+        var seen: Set<String> = []
+        var candidates: [(phrase: String, reason: String, technical: String)] = []
+
+        for evidence in response.coaching.evidence where evidence.type == "phoneme" {
+            guard let parsed = parsePronunciationEvidence(evidence.text) else { continue }
+            let key = parsed.phrase.lowercased()
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            candidates.append(parsed)
+        }
+
+        return candidates
+    }
+
+    private func parsePronunciationEvidence(_ text: String) -> (phrase: String, reason: String, technical: String)? {
+        let parts = text.components(separatedBy: "->")
+        guard parts.count >= 2 else { return nil }
+
+        let observed = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        let rightPart = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let expected: String
+        if let parenIndex = rightPart.firstIndex(of: "(") {
+            expected = String(rightPart[..<parenIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            expected = rightPart
+        }
+
+        let phrase = expected.isEmpty ? observed : expected
+        guard !phrase.isEmpty else { return nil }
+
+        let reason = "This word sounded unclear in your session. Practice it slowly, then at normal speed."
+        return (phrase: phrase, reason: reason, technical: text)
+    }
+
+    @objc private func savePronunciationWordsTapped() {
+        guard !pronunciationSaveCandidates.isEmpty else { return }
+
+        for candidate in pronunciationSaveCandidates {
+            DifficultWordsStore.shared.saveOrUpdate(
+                phrase: candidate.phrase,
+                plainReason: candidate.reason,
+                technicalHint: candidate.technical,
+                source: "session_feedback"
+            )
+        }
+
+        let alert = UIAlertController(
+            title: "Saved",
+            message: "Added \(pronunciationSaveCandidates.count) word(s) to your Difficult Words bucket.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func prepareSessionProgressCommit() {
@@ -311,7 +409,8 @@ class FeedbackCollectionViewController: UIViewController {
             strengths: response.coaching.strengths,
             suggestions: response.coaching.suggestions,
             evidence: response.coaching.evidence,
-            llmCoaching: nil
+            llmCoaching: nil,
+            pronunciationDetail: response.coaching.pronunciationDetail
         )
 
         return SpeechAnalysisResponse(
@@ -582,6 +681,21 @@ class FeedbackCollectionViewController: UIViewController {
             }
         }
 
+        let pronunciationWords = response.coaching.evidence
+            .filter { $0.type == "phoneme" }
+            .compactMap { phonemeObservedFragment(from: $0.text) }
+
+        for word in Set(pronunciationWords) where !word.isEmpty {
+            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: word))\\b"
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            regex.matches(in: displayText, options: [], range: fullRange).forEach { match in
+                attributed.addAttributes([
+                    .foregroundColor: UIColor.systemGreen,
+                    .backgroundColor: UIColor.systemGreen.withAlphaComponent(0.15),
+                ], range: match.range)
+            }
+        }
+
         for range in paceRiskRanges(in: displayText, wpm: response.metrics.wpm) {
             attributed.addAttributes([
                 .underlineStyle: NSUnderlineStyle.patternDot.union(.single).rawValue,
@@ -631,6 +745,10 @@ class FeedbackCollectionViewController: UIViewController {
             entries.append("🟣 Dotted underline: dense fast segment that may reduce clarity.")
         }
 
+        if response.coaching.evidence.contains(where: { $0.type == "phoneme" }) {
+            entries.append("🟩 Pronunciation cue: likely sound substitution on this word.")
+        }
+
         if entries.isEmpty {
             entries.append("No major mistake markers detected in this transcript.")
         }
@@ -640,13 +758,21 @@ class FeedbackCollectionViewController: UIViewController {
 
     private func transcriptMistakeTotals(from response: SpeechAnalysisResponse) -> String {
         let paceAlerts = paceRiskRanges(in: response.transcript, wpm: response.metrics.wpm).count
+        let pronunciationAlerts = response.coaching.evidence.filter { $0.type == "phoneme" }.count
         let paceText = paceAlerts > 0 ? "⚡ Pace alerts: \(paceAlerts)" : "⚡ Pace alerts: 0"
         return [
             "🟧 Fillers: \(response.metrics.fillers)",
             "🔵 Pauses: \(response.metrics.pauses)",
             "🔴 Repetitions: \(response.metrics.repetitions)",
+            "🟩 Pronunciation alerts: \(pronunciationAlerts)",
             paceText,
         ].joined(separator: "   •   ")
+    }
+
+    private func phonemeObservedFragment(from text: String) -> String? {
+        guard let arrowRange = text.range(of: "->") else { return nil }
+        let observed = text[..<arrowRange.lowerBound].trimmingCharacters(in: .whitespacesAndNewlines)
+        return observed.isEmpty ? nil : observed
     }
 
     private func scoreDescriptor(_ value: Double) -> String {

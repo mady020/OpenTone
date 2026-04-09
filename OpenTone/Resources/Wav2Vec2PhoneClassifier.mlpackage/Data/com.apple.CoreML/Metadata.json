@@ -1,0 +1,12 @@
+{
+  "MLModelVersionStringKey" : "1.0.0",
+  "MLModelDescriptionKey" : "Phone classifier for pronunciation assessment",
+  "MLModelCreatorDefinedKey" : {
+    "com.github.apple.coremltools.conversion_date" : "2026-04-02",
+    "com.github.apple.coremltools.source" : "torch==2.11.0",
+    "com.github.apple.coremltools.version" : "9.0",
+    "com.github.apple.coremltools.source_dialect" : "TorchScript"
+  },
+  "MLModelAuthorKey" : "OpenTone",
+  "MLModelLicenseKey" : "--"
+}
